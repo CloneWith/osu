@@ -102,6 +102,11 @@ namespace osu.Game.Tournament
                         Depth = float.MinValue,
                         AlwaysPresent = true,
                     },
+                    new ShortDollyWidget
+                    {
+                        Depth = float.MinValue,
+                        AlwaysPresent = true,
+                    },
                     heightWarning = new WarningBox($"Please reduce the aspect ratio.\nThe minimum window width is {TournamentSceneManager.REQUIRED_WIDTH}.")
                     {
                         Anchor = Anchor.BottomCentre,
