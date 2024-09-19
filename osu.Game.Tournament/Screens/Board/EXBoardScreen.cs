@@ -51,6 +51,7 @@ namespace osu.Game.Tournament.Screens.Board
         private EmptyBox danmakuBox = null!;
 
         private readonly int sideListHeight = TournamentSceneManager.STREAM_AREA_HEIGHT;
+        private readonly int sideListWidth = 300;
 
         private ScheduledDelegate? scheduledScreenChange;
 
@@ -88,7 +89,7 @@ namespace osu.Game.Tournament.Screens.Board
                         team1List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team1.Value, cornerRadius: 0, spacing: 0)
                         {
                             RelativeSizeAxes = Axes.None,
-                            Width = 300,
+                            Width = sideListWidth,
                             Anchor = Anchor.TopLeft,
                             Origin = Anchor.TopLeft,
                         },
@@ -108,7 +109,7 @@ namespace osu.Game.Tournament.Screens.Board
                         team2List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team2.Value, cornerRadius: 0, spacing: 0)
                         {
                             RelativeSizeAxes = Axes.None,
-                            Width = 300,
+                            Width = sideListWidth,
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
                         },
@@ -119,7 +120,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
                             RelativeSizeAxes = Axes.None,
-                            Width = 300,
+                            Width = sideListWidth,
                             Height = sideListHeight - team2List.GetHeight() - 5,
                             Colour = Color4.Black,
                             Alpha = 0.7f,

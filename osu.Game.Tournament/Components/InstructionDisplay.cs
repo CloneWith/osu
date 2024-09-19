@@ -19,6 +19,7 @@ namespace osu.Game.Tournament.Components
         private readonly InstructionInfo thisStep = null!;
 
         private Container iconHolder = null!;
+        private TournamentSpriteText titleText = null!;
         private Container descHolder = null!;
 
         public InstructionDisplay(TeamColour team = TeamColour.Neutral, Steps step = Steps.Default)
@@ -70,7 +71,7 @@ namespace osu.Game.Tournament.Components
 
                         Children = new Drawable[]
                         {
-                            new TournamentSpriteText
+                            titleText = new TournamentSpriteText
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
@@ -97,6 +98,7 @@ namespace osu.Game.Tournament.Components
 
             if (thisStep.Step == Steps.Default && welcomeTexture != null)
             {
+                titleText.Font = OsuFont.GetFont(typeface: Typeface.TorusAlternate, size: 42, weight: FontWeight.SemiBold);
 
                 iconHolder.Child = new Sprite
                 {

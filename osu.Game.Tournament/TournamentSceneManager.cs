@@ -30,6 +30,7 @@ using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics.Sprites;
 
 namespace osu.Game.Tournament
 {
@@ -144,7 +145,37 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.None,
                             Width = STREAM_AREA_WIDTH,
                             Height = 480,
-                            Child = chat
+                            Children = new Drawable[]
+                            {
+                                chat,
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.TopLeft,
+                                    Origin = Anchor.TopLeft,
+                                    AutoSizeAxes = Axes.Both,
+                                    Direction = FillDirection.Horizontal,
+                                    Margin = new MarginPadding(20),
+                                    Spacing = new Vector2(5),
+                                    Children = new Drawable[]
+                                    {
+                                        new SpriteIcon
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            Icon = FontAwesome.Regular.CommentAlt,
+                                            Colour = Color4.SkyBlue,
+                                            Size = new Vector2(18),
+                                        },
+                                        new TournamentSpriteText
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            Text = "Chat",
+                                            Font = OsuFont.TorusAlternate.With(size: 22, weight: FontWeight.SemiBold),
+                                        }
+                                    },
+                                },
+                            }
                         },
                     }
                 },
@@ -272,7 +303,7 @@ namespace osu.Game.Tournament
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
                     chatContainer.MoveTo(new Vector2(25, team1List.GetHeight() + 50), 500, Easing.OutQuint);
                     chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(STREAM_AREA_HEIGHT - team1List.GetHeight(), 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(STREAM_AREA_HEIGHT - team1List.GetHeight() - 50, 500, Easing.OutQuint);
                     break;
 
                 default:
