@@ -32,7 +32,7 @@ namespace osu.Game.Tournament.Components
             : base(user)
         {
             RelativeSizeAxes = Axes.X;
-            Height = 40;
+            Height = 50;
             CornerRadius = 6;
             teamPlayer = user;
         }
