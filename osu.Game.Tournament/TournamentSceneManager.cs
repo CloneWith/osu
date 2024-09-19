@@ -259,7 +259,6 @@ namespace osu.Game.Tournament
                     chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH, 500, Easing.OutQuint);
                     chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
                     chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144), 500, Easing.OutQuint);
-                    chat.ChangeRadius(0);
                     break;
 
                 case GameplayScreen:
@@ -267,15 +266,13 @@ namespace osu.Game.Tournament
                     chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2, 500, Easing.OutQuint);
                     chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
                     chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
-                    chat.ChangeRadius(0);
                     break;
 
                 case BoardScreen or EXBoardScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.MoveTo(new Vector2(30, team1List.GetHeight() + 100), 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(25, team1List.GetHeight() + 50), 500, Easing.OutQuint);
                     chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
-                    chat.ChangeRadius(10);
+                    chatContainer.ResizeHeightTo(STREAM_AREA_HEIGHT - team1List.GetHeight(), 500, Easing.OutQuint);
                     break;
 
                 default:

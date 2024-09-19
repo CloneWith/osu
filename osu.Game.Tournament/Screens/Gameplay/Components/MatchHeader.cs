@@ -17,6 +17,8 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
         private DrawableTournamentHeaderLogo logo = null!;
         private MatchRoundDisplay roundDisplay = null!;
 
+        private int internalPadding;
+
         private bool showScores = true;
 
         public bool ShowScores
@@ -68,6 +70,11 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             }
         }
 
+        public MatchHeader(int padding = 20)
+        {
+            internalPadding = padding;
+        }
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -79,7 +86,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
                 {
                     RelativeSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
-                    Padding = new MarginPadding(20),
+                    Padding = new MarginPadding(internalPadding),
                     Spacing = new Vector2(5),
                     Children = new Drawable[]
                     {

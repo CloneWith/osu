@@ -50,7 +50,7 @@ namespace osu.Game.Tournament.Screens.Board
         private DrawableTeamPlayerList team2List = null!;
         private EmptyBox danmakuBox = null!;
 
-        private const int sideListHeight = 660;
+        private readonly int sideListHeight = TournamentSceneManager.STREAM_AREA_HEIGHT;
 
         private ScheduledDelegate? scheduledScreenChange;
 
@@ -69,7 +69,7 @@ namespace osu.Game.Tournament.Screens.Board
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 },
-                new MatchHeader
+                new MatchHeader(padding: 25)
                 {
                     ShowScores = false,
                     ShowRound = false,
@@ -79,13 +79,13 @@ namespace osu.Game.Tournament.Screens.Board
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     RelativeSizeAxes = Axes.None,
-                    Position = new Vector2(30, 100),
+                    Position = new Vector2(25, 100),
                     Width = 320,
                     Height = sideListHeight,
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
-                        team1List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team1.Value)
+                        team1List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team1.Value, cornerRadius: 0, spacing: 0)
                         {
                             RelativeSizeAxes = Axes.None,
                             Width = 300,
@@ -99,13 +99,13 @@ namespace osu.Game.Tournament.Screens.Board
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.TopRight,
                     RelativeSizeAxes = Axes.None,
-                    Position = new Vector2(-30, 100),
+                    Position = new Vector2(-26, 100),
                     Width = 320,
                     Height = sideListHeight,
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
-                        team2List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team2.Value)
+                        team2List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team2.Value, cornerRadius: 0, spacing: 0)
                         {
                             RelativeSizeAxes = Axes.None,
                             Width = 300,
@@ -114,7 +114,7 @@ namespace osu.Game.Tournament.Screens.Board
                         },
                         // A single Box for livestream danmakus.
                         // Wrapped in a container for round corners.
-                        danmakuBox = new EmptyBox(cornerRadius: 10)
+                        danmakuBox = new EmptyBox()
                         {
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
@@ -134,7 +134,7 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                 },
-                new EmptyBox(cornerRadius: 10)
+                new EmptyBox()
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
@@ -218,8 +218,8 @@ namespace osu.Game.Tournament.Screens.Board
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
                     RelativeSizeAxes = Axes.None,
-                    Height = 50,
-                    Position = new Vector2(-30, -10),
+                    Height = 35,
+                    Position = new Vector2(-25, 0),
                 },
                 new ControlPanel
                 {
