@@ -114,18 +114,6 @@ namespace osu.Game.Tournament.Screens.Board
                     ShowScores = false,
                     ShowRound = false,
                 },
-
-                // Box for trap type / display of other info.
-                new EmptyBox()
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
-                    RelativeSizeAxes = Axes.None,
-                    Width = 650,
-                    Height = 100,
-                    Colour = Color4.Black,
-                    Alpha = 0.7f,
-                },
                 new FillFlowContainer
                 {
                     Anchor = Anchor.TopLeft,
@@ -212,20 +200,31 @@ namespace osu.Game.Tournament.Screens.Board
                     Origin = Anchor.Centre,
                     CornerRadius = 10,
                 },
+                // Box for trap type / display of other info.
+                new EmptyBox()
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    RelativeSizeAxes = Axes.None,
+                    Width = TournamentSceneManager.STREAM_AREA_WIDTH - 25 - 26 - sideListWidth * 2,
+                    Height = 100,
+                    Colour = Color4.Black,
+                    Alpha = 0.7f,
+                },
                 informationDisplayContainer = new Container
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomLeft,
                     Position = new Vector2(-300, 7),
-                    Height = 100,
-                    Width = 500,
+                    Height = 80,
+                    Width = TournamentSceneManager.STREAM_AREA_WIDTH - 25 - 26 - sideListWidth * 2,
                     Child = new InstructionDisplay(),
                 },
                 additionalIcon = new Sprite
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomRight,
-                    Position = new Vector2(300, -20),
+                    Position = new Vector2(310, -10),
                     Size = new Vector2(85),
                     Texture = textures.Get("Icons/additional-icon"),
                 },

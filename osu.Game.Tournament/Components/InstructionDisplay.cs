@@ -31,7 +31,7 @@ namespace osu.Game.Tournament.Components
             );
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
-            Height = 100;
+            Height = 80;
             Width = 500;
             AlwaysPresent = true;
 

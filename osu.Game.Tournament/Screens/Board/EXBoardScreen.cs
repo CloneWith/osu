@@ -140,10 +140,9 @@ namespace osu.Game.Tournament.Screens.Board
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
                     RelativeSizeAxes = Axes.None,
-                    Height = 80,
-                    Width = 650,
+                    Height = 100,
+                    Width = TournamentSceneManager.STREAM_AREA_WIDTH - 25 - 26 - sideListWidth * 2,
                     Colour = Color4.Black,
-                    Margin = new MarginPadding { Bottom = 12 },
                     Alpha = 0.7f,
                 },
                 new FillFlowContainer
