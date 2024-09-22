@@ -3,13 +3,17 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Backgrounds;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
+using osu.Game.Tournament.Screens.Board.Components;
 using osuTK;
 using osuTK.Graphics;
 
@@ -38,11 +42,24 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TournamentSpriteText winMainText = null!;
         private TournamentSpriteText winSubText = null!;
 
+        private EmptyBox colourMask = null!;
         private EmptyBox flash = null!;
 
         private SpriteIcon redIcon = null!;
         private SpriteIcon drawIcon = null!;
         private SpriteIcon blueIcon = null!;
+
+        private Sprite spinner = null!;
+
+        private TrianglesV2 triangles = null!;
+
+        private Triangles winnerTriangles = null!;
+
+        private DrawableTeamFlag redFlag = null!;
+        private DrawableTeamFlag blueFlag = null!;
+        private DrawableTeamFlag winnerFlag = null!;
+
+        private SimpleAnimatedBoard animatedBoard = null!;
 
         private Sprite banner = null!;
 
@@ -56,13 +73,13 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
             InternalChildren = new Drawable[]
             {
-                blueWinVideo = new TourneyVideo("teamwin-blue")
+                blueWinVideo = new TourneyVideo("gameplay")//("teamwin-blue")
                 {
                     Alpha = 0,
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                redWinVideo = new TourneyVideo("teamwin-red")
+                redWinVideo = new TourneyVideo("gameplay")// ("teamwin-red")
                 {
                     Alpha = 0,
                     RelativeSizeAxes = Axes.Both,
@@ -74,10 +91,17 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                mainContainer = new Container
+                colourMask = new EmptyBox
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Alpha = 0,
+                    BoxColour = Color4.White,
+                    Alpha = 0.4f,
+                },
+                triangles = new TrianglesV2
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    ScaleAdjust = 1.5f,
+                    Alpha = 0.6f,
                 },
                 transferContainer = new Container
                 {
@@ -90,7 +114,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Origin = Anchor.Centre,
                             Text = "胜负已定...",
                             X = -250,
-                            Y = -50,
+                            Y = 250 - 25,
                             Font = OsuFont.HarmonyOSSans.With(size: 64, weight: FontWeight.Bold),
                             Alpha = 0,
                         },
@@ -98,17 +122,23 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Text = "...他们来了...",
+                            Text = "...最后的获胜队是...",
                             X = 250,
-                            Y = 50,
+                            Y = 250 + 25,
                             Font = OsuFont.HarmonyOSSans.With(size: 64, weight: FontWeight.Bold),
                             Alpha = 0,
                         }
-                    }
+                    },
+                    Alpha = 0,
                 },
                 altContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
+                },
+                mainContainer = new Container
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = 0,
                 },
                 flash = new EmptyBox
                 {
@@ -143,6 +173,9 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
             redWinVideo.Alpha = match?.WinnerColour == TeamColour.Red ? 1 : 0;
             blueWinVideo.Alpha = match?.WinnerColour == TeamColour.Blue ? 1 : 0;
+            colourMask.FadeOut();
+
+            animatedBoard?.Expire();
 
             if (match?.Winner == null)
             {
@@ -186,6 +219,32 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                 Colour = Color4.SkyBlue,
                                 Size = new Vector2(70),
                                 Alpha = 0,
+                            },
+                            redFlag = new DrawableTeamFlag(CurrentMatch.Value?.Team1.Value)
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Position = new Vector2(-300, 10),
+                                Scale = new Vector2(2f),
+                                EdgeEffect = new EdgeEffectParameters
+                                {
+                                    Type = EdgeEffectType.Glow,
+                                    Colour = new OsuColour().Pink1.Opacity(0.5f),
+                                    Radius = 10,
+                                },
+                            },
+                            blueFlag = new DrawableTeamFlag(CurrentMatch.Value?.Team2.Value)
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Position = new Vector2(300, 10),
+                                Scale = new Vector2(2f),
+                                EdgeEffect = new EdgeEffectParameters
+                                {
+                                    Type = EdgeEffectType.Glow,
+                                    Colour = Color4.SkyBlue.Opacity(0.5f),
+                                    Radius = 10,
+                                },
                             },
                         }
                     },
@@ -274,6 +333,12 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 symbolContainer?.Clear();
                 banner?.FadeOut();
 
+                AddInternal(animatedBoard = new SimpleAnimatedBoard(CurrentMatch)
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                });
+
                 if (firstDisplay)
                 {
                     if (match.WinnerColour == TeamColour.Red)
@@ -291,12 +356,38 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
                 mainContainer.Children = new Drawable[]
                 {
-                    new DrawableTeamFlag(match.Winner)
+                    winnerTriangles = new Triangles
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        TriangleScale = 0.9f,
+                        ColourDark = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.DeepSkyBlue,
+                        ColourLight = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink2 : Color4.SkyBlue,
+                        Alpha = 0,
+                    },
+                    spinner = new Sprite
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         Position = new Vector2(-300, 10),
-                        Scale = new Vector2(2f)
+                        Texture = textureStore.Get(@"MedalSplash/disc-spin"),
+                        Colour = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.SkyBlue,
+                        Alpha = 0.6f,
+                    },
+                    winnerFlag = new DrawableTeamFlag(match.Winner)
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Position = new Vector2(-300, 10),
+                        Scale = new Vector2(2f),
+                        EdgeEffect = new EdgeEffectParameters
+                        {
+                            Type = EdgeEffectType.Glow,
+                            Colour = (match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1
+                                : (match.WinnerColour == TeamColour.Blue ? Color4.SkyBlue : Color4.Yellow)).Opacity(0.5f),
+                            Radius = 10,
+                        },
                     },
                     new FillFlowContainer
                     {
@@ -317,21 +408,29 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                 Font = OsuFont.Torus.With(size: 100, weight: FontWeight.Bold),
                                 Margin = new MarginPadding { Bottom = 50 },
                             },
-                            new DrawableTeamWithPlayers(match.Winner, match.WinnerColour)
+                            new DrawableTeamWithPlayers(match.Winner, match.WinnerColour, autoAdjust: false)
                         }
                     },
                 };
 
-                using (BeginDelayedSequence(1500))
-                {
-                    winMainText.FadeInFromZero(500, Easing.OutQuint);
-                    winMainText.MoveToX(-150, 3000, Easing.OutQuint).Then().FadeOut(500, Easing.OutQuint);
-                    winSubText.FadeInFromZero(500, Easing.OutQuint);
-                    winSubText.MoveToX(150, 3000, Easing.OutQuint);
-                    winSubText.Delay(1000).FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.SkyBlue, 2000, Easing.OutQuint)
-                        .Then().FadeOut(500, Easing.OutQuint);
+                mainContainer.FadeOut();
 
-                    using (BeginDelayedSequence(3500))
+                using (BeginDelayedSequence(4500))
+                {
+                    animatedBoard.ScaleTo(0.85f, 1000, Easing.OutQuint);
+                    animatedBoard.MoveToY(-100, 2500, Easing.OutQuint).Delay(4000).FadeOut(500, Easing.OutQuint);
+
+                    using (BeginDelayedSequence(2000))
+                    {
+                        winMainText.FadeInFromZero(500, Easing.OutQuint);
+                        winMainText.MoveToX(-150, 3000, Easing.OutQuint).Then().FadeOut(500, Easing.OutQuint);
+                        winSubText.FadeInFromZero(500, Easing.OutQuint);
+                        winSubText.MoveToX(150, 3000, Easing.OutQuint);
+                        winSubText.Delay(1000).FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.SkyBlue, 2000, Easing.OutQuint)
+                            .Then().FadeOut(500, Easing.OutQuint);
+                    }
+
+                    using (BeginDelayedSequence(5000))
                     {
                         flash.FadeOutFromOne(6000, Easing.OutQuint);
                         mainVideo.FadeOut(1000, Easing.OutQuint);
@@ -340,6 +439,11 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         else
                             blueWinVideo.FadeIn(1000, Easing.OutQuint);
                         mainContainer.FadeIn(1600, Easing.OutQuint);
+                        colourMask.FadeTo(0.4f, 1500, Easing.OutQuint);
+                        colourMask.FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1
+                            : match.WinnerColour == TeamColour.Blue ? Color4.SkyBlue : Color4.White, 2000, Easing.OutQuint);
+                        spinner.Spin(36000, RotationDirection.Clockwise);
+                        winnerTriangles.Delay(1000).FadeTo(0.6f, 2000, Easing.OutQuint);
                     }
                 }
             }
