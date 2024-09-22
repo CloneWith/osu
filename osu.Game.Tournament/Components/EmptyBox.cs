@@ -13,6 +13,11 @@ namespace osu.Game.Tournament.Components
         public bool UsesFixedAnchor { get; set; }
 
         private readonly Box box;
+        public Color4 BoxColour
+        {
+            get => box.Colour;
+            set => box.Colour = value;
+        }
 
         public EmptyBox(int cornerRadius = 0)
         {

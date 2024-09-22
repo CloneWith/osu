@@ -15,7 +15,7 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamWithPlayers : CompositeDrawable
     {
-        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour)
+        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool autoAdjust = true)
         {
             AutoSizeAxes = Axes.Both;
 
@@ -46,7 +46,7 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Both,
-                                    ChildrenEnumerable = players.Count <= 4
+                                    ChildrenEnumerable = players.Count <= 4 || !autoAdjust
                                         ? players.Take(split).Select(createPlayerCard)
                                         : players.Take(split).Select(createPlayerText),
                                 },
@@ -54,7 +54,7 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Both,
-                                    ChildrenEnumerable = players.Count <= 4
+                                    ChildrenEnumerable = players.Count <= 4 || !autoAdjust
                                         ? players.Skip(split).Select(createPlayerCard)
                                         : players.Skip(split).Select(createPlayerText),
                                 },
