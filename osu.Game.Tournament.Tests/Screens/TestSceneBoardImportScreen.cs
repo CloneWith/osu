@@ -6,7 +6,6 @@ using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
-using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API.Requests.Responses;
@@ -83,12 +82,6 @@ namespace osu.Game.Tournament.Tests.Screens
                     },
                 },
             };
-        }
-
-        [SetUpSteps]
-        public override void SetUpSteps()
-        {
-            base.SetUpSteps();
         }
 
         [Test]
