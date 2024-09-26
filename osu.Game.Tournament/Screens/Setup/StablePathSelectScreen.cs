@@ -28,7 +28,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private MatchIPCInfo ipc { get; set; } = null!;
 
         private OsuDirectorySelector directorySelector = null!;
-        private DialogOverlay? overlay;
+        private DialogOverlay? dialogOverlay;
 
         [BackgroundDependencyLoader(true)]
         private void load(Storage storage, OsuColour colours)
@@ -120,7 +120,8 @@ namespace osu.Game.Tournament.Screens.Setup
                     Origin = Anchor.BottomLeft,
                     State = { Value = Visibility.Visible },
                     Action = () => sceneManager?.SetScreen(typeof(SetupScreen))
-                }
+                },
+                dialogOverlay = new DialogOverlay(),
             });
         }
 
@@ -132,9 +133,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
             if (!fileBasedIpc?.SetIPCLocation(target) ?? true)
             {
-                overlay = new DialogOverlay();
-                overlay.Push(new IPCErrorDialog("This is an invalid IPC Directory", "Select a directory that contains an osu! stable cutting edge installation and make sure it has an empty ipc.txt file in it."));
-                AddInternal(overlay);
+                dialogOverlay?.Push(new IPCErrorDialog("This is an invalid IPC Directory", "Select a directory that contains an osu! stable cutting edge installation and make sure it has an empty ipc.txt file in it."));
                 Logger.Log("Folder is not an osu! stable CE directory");
                 return;
             }
@@ -148,9 +147,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
             if (!fileBasedIpc?.AutoDetectIPCLocation() ?? true)
             {
-                overlay = new DialogOverlay();
-                overlay.Push(new IPCErrorDialog("Failed to auto detect", "An osu! stable cutting-edge installation could not be auto detected.\nPlease try and manually point to the directory."));
-                AddInternal(overlay);
+                dialogOverlay?.Push(new IPCErrorDialog("Failed to auto detect", "An osu! stable cutting-edge installation could not be auto detected.\nPlease try and manually point to the directory."));
             }
             else
             {

@@ -34,7 +34,8 @@ namespace osu.Game.Tournament.Screens.Setup
         private TournamentRound? round = null!;
 
         private Container boardContainer = null!;
-        private DialogOverlay overlay = null!;
+
+        private DialogOverlay dialogOverlay = null!;
         private RoundedButton saveButton = null!;
 
         private bool isUpdateDone = false;
@@ -162,12 +163,12 @@ namespace osu.Game.Tournament.Screens.Setup
                     State = { Value = Visibility.Visible },
                     Action = () => sceneManager?.SetScreen(typeof(BoardScreen))
                 },
-                overlay = new DialogOverlay(),
+                dialogOverlay = new DialogOverlay(),
             });
 
             if (round == null)
             {
-                overlay.Push(new UndefinedRoundDialog("Undefined round", "We cannot find a valid round entry. Try selecting one in the bracket screen."));
+                dialogOverlay.Push(new UndefinedRoundDialog("Undefined round", "We cannot find a valid round entry. Try selecting one in the bracket screen."));
                 return;
             }
             updateBoardDisplay();
@@ -252,14 +253,14 @@ namespace osu.Game.Tournament.Screens.Setup
             if (!isUpdateDone)
             {
                 if (defCommandList.Count == 0)
-                    overlay.Push(new BoardNoUpdateDialog("No need to update", "Your board is unchanged, still up to date!"));
+                    dialogOverlay.Push(new BoardNoUpdateDialog("No need to update", "Your board is unchanged, still up to date!"));
                 else
-                    overlay.Push(new BoardUpdateWaitingDialog("Some messages are missing", $"We're still waiting for the remaining {4 - defCommandList.Count} messages!"));
+                    dialogOverlay.Push(new BoardUpdateWaitingDialog("Some messages are missing", $"We're still waiting for the remaining {4 - defCommandList.Count} messages!"));
             }
             else
             {
                 tournamentGame?.SaveChanges();
-                overlay.Push(new BoardUpdateSuccessDialog("Done!", "Your board is updated successfully. Remember to refresh your board view!"));
+                dialogOverlay.Push(new BoardUpdateSuccessDialog("Done!", "Your board is updated successfully. Remember to refresh your board view!"));
             }
         }
 

@@ -6,11 +6,15 @@ using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
+using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
+using osu.Game.Overlays;
+using osu.Game.Overlays.Dialog;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Setup;
 using osuTK.Input;
@@ -85,21 +89,28 @@ namespace osu.Game.Tournament.Tests.Screens
         public override void SetUpSteps()
         {
             base.SetUpSteps();
+        }
 
-            AddStep("initialize round data", () => Ladder.CurrentMatch.Value.Round.Value = testRound = new TournamentRound
+        [Test]
+        public void TestBoardDisplay()
+        {
+            AddAssert("undefined round dialog displayed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is UndefinedRoundDialog);
+            AddStep("close dialog", () =>
+            {
+                InputManager.MoveMouseTo(importScreen.ChildrenOfType<DialogOverlay>().Last().ChildrenOfType<PopupDialogButton>().Last());
+                InputManager.Click(MouseButton.Left);
+            });
+            AddAssert("undefined round dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not UndefinedRoundDialog);
+
+            AddStep("add referee info", () => Ladder.CurrentMatch.Value.Round.Value = testRound = new TournamentRound
             {
                 Referees =
                 {
                     refereeBot
                 },
             });
-        }
 
-        [Test]
-        public void TestBoardDisplay()
-        {
             AddStep("enable board display", () => testRound.UseBoard.Value = true);
-
             AddStep("add 16 beatmaps", () => testRound.Beatmaps.AddRange(new[]
             {
                 new RoundBeatmap
@@ -348,11 +359,45 @@ namespace osu.Game.Tournament.Tests.Screens
                 InputManager.MoveMouseTo(importScreen.ChildrenOfType<RoundedButton>().First(b => b.Text == "Save..."));
                 InputManager.Click(MouseButton.Left);
             });
-
-            AddAssert("check board state", () =>
+            AddAssert("waiting dialog displayed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is BoardUpdateWaitingDialog);
+            AddStep("close dialog", () =>
             {
-                // TODO
-                return true;
+                InputManager.MoveMouseTo(importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog.ChildrenOfType<PopupDialogButton>().Last());
+                InputManager.Click(MouseButton.Left);
+            });
+            AddAssert("waiting dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not BoardUpdateWaitingDialog);
+
+            AddStep("send remaining messages", () => testChannel.AddNewMessages(new[]
+            {
+                new Message(nextMessageId())
+                {
+                    Sender = refereeBot.ToAPIUser(),
+                    Content = "[*] 当前棋盘: HD1 (?) HD2 (?) DT2 (?) DT1 (?)"
+                },
+                new Message(nextMessageId())
+                {
+                    Sender = refereeBot.ToAPIUser(),
+                    Content = "[*] 当前棋盘: NM1 (?) NM2 (?) NM3 (?) NM4 (?)"
+                },
+            }));
+
+            AddStep("save configuration", () =>
+            {
+                InputManager.MoveMouseTo(importScreen.ChildrenOfType<RoundedButton>().First(b => b.Text == "Save..."));
+                InputManager.Click(MouseButton.Left);
+            });
+            AddAssert("success dialog displayed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is BoardUpdateSuccessDialog);
+            AddStep("close dialog", () =>
+            {
+                InputManager.MoveMouseTo(importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog.ChildrenOfType<PopupDialogButton>().Last());
+                InputManager.Click(MouseButton.Left);
+            });
+            AddAssert("success dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not BoardUpdateSuccessDialog);
+
+            AddAssert("random map info changed", () =>
+            {
+                var randomMap = testRound.Beatmaps.First(b => b.ID == 11);
+                return randomMap.BoardX == 3 && randomMap.BoardY == 3;
             });
         }
 
