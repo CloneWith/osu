@@ -11,9 +11,10 @@ namespace osu.Game.Tournament.Screens.Board.Components
     {
         public TrapTypeDropdown()
         {
+            ShowsDefaultIndicator = false;
+
             add(new TrapInfo(type: TrapType.Swap).Name);
             add(new TrapInfo(type: TrapType.Reverse).Name);
-            add(new TrapInfo(type: TrapType.Unknown).Name);
         }
 
         private void add(LocalisableString typeName)
