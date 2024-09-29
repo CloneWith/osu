@@ -40,6 +40,13 @@ namespace osu.Game.Tournament.Screens.Editors
             {
                 Model = round;
 
+                Model.Name.Default = Model.Name.Value;
+                Model.Description.Default = Model.Description.Value;
+                Model.StartDate.Default = Model.StartDate.Value;
+                Model.UseBoard.Default = Model.UseBoard.Value;
+                Model.BanCount.Default = Model.BanCount.Value;
+                Model.BestOf.Default = Model.BestOf.Value;
+
                 Masking = true;
                 CornerRadius = 10;
 
@@ -248,7 +255,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        playerId.Value = user.OnlineID;
+                        playerId.Default = playerId.Value = user.OnlineID;
                         playerId.BindValueChanged(id =>
                         {
                             user.OnlineID = id.NewValue ?? 0;
@@ -417,7 +424,8 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        beatmapId.Value = Model.ID;
+                        beatmapId.Default = beatmapId.Value = Model.ID;
+
                         beatmapId.BindValueChanged(id =>
                         {
                             Model.ID = id.NewValue ?? 0;
@@ -448,13 +456,16 @@ namespace osu.Game.Tournament.Screens.Editors
                             API.Queue(req);
                         }, true);
 
-                        mods.Value = Model.Mods;
+                        mods.Default = mods.Value = Model.Mods;
                         mods.BindValueChanged(modString => Model.Mods = modString.NewValue);
-                        modIndex.Value = Model.ModIndex;
+
+                        modIndex.Default = modIndex.Value = Model.ModIndex;
                         modIndex.BindValueChanged(newIndex => Model.ModIndex = newIndex.NewValue);
-                        boardX.Value = Model.BoardX;
+
+                        boardX.Default = boardX.Value = Model.BoardX;
                         boardX.BindValueChanged(newX => { Model.BoardX = newX.NewValue ?? 0; });
-                        boardY.Value = Model.BoardY;
+
+                        boardY.Default = boardY.Value = Model.BoardY;
                         boardY.BindValueChanged(newY => { Model.BoardY = newY.NewValue ?? 0; });
                     }
 
