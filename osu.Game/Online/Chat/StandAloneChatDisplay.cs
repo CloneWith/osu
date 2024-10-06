@@ -34,6 +34,8 @@ namespace osu.Game.Online.Chat
 
         private StandAloneDrawableChannel drawableChannel;
 
+        private LoadingLayer loadingLayer;
+
         private readonly bool postingTextBox;
 
         protected readonly Box Background;
@@ -60,6 +62,11 @@ namespace osu.Game.Online.Chat
                     Alpha = 0.8f,
                     RelativeSizeAxes = Axes.Both
                 },
+                loadingLayer = new LoadingLayer(dimBackground: true)
+                {
+                    // Keep the loading layer on top
+                    Depth = float.MinValue,
+                }
             };
 
             if (postingTextBox)
@@ -80,6 +87,7 @@ namespace osu.Game.Online.Chat
             }
 
             Channel.BindValueChanged(channelChanged);
+            loadingLayer.Show();
         }
 
         [BackgroundDependencyLoader(true)]
@@ -118,6 +126,18 @@ namespace osu.Game.Online.Chat
             if (e.NewValue == null) return;
 
             TextBox?.Current.BindTo(e.NewValue.TextBoxMessage);
+
+            Channel.Value.JoinRequestCompleted.BindValueChanged(r =>
+            {
+                if (!r.NewValue)
+                {
+                    loadingLayer.Show();
+                }
+                else
+                {
+                    loadingLayer.Hide();
+                }
+            });
 
             drawableChannel = CreateDrawableChannel(e.NewValue);
             drawableChannel.CreateChatLineAction = CreateMessage;
