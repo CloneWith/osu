@@ -27,7 +27,7 @@ using osuTK.Input;
 
 namespace osu.Game.Tournament.Screens.Board
 {
-    public partial class EXBoardScreen : TournamentMatchScreen
+    public partial class ExBoardScreen : TournamentMatchScreen
     {
         private FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>> mapFlows = null!;
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
@@ -44,13 +44,11 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
 
-        private Sprite additionalIcon = null!;
-
         private DrawableTeamPlayerList team1List = null!;
         private DrawableTeamPlayerList team2List = null!;
         private EmptyBox danmakuBox = null!;
 
-        private const int sideListHeight = 660;
+        private const int side_list_height = 660;
 
         private ScheduledDelegate? scheduledScreenChange;
 
@@ -81,7 +79,7 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Position = new Vector2(40, 100),
                     Width = 320,
-                    Height = sideListHeight,
+                    Height = side_list_height,
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
@@ -101,7 +99,7 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Position = new Vector2(-40, 100),
                     Width = 320,
-                    Height = sideListHeight,
+                    Height = side_list_height,
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
@@ -120,7 +118,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Origin = Anchor.TopRight,
                             RelativeSizeAxes = Axes.None,
                             Width = 300,
-                            Height = sideListHeight - team2List.GetHeight() - 5,
+                            Height = side_list_height - team2List.GetHeight() - 5,
                             Colour = Color4.Black,
                             Alpha = 0.7f,
                         },
@@ -205,7 +203,7 @@ namespace osu.Game.Tournament.Screens.Board
                         },
                     },
                 },
-                additionalIcon = new Sprite
+                new Sprite
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomRight,
@@ -310,7 +308,7 @@ namespace osu.Game.Tournament.Screens.Board
                 if (match.NewValue.Team2.Value != null)
                 {
                     team2List.ReloadWithTeam(match.NewValue.Team2.Value);
-                    danmakuBox.ResizeHeightTo(Height = sideListHeight - team2List.GetHeight() - 5, 500, Easing.OutCubic);
+                    danmakuBox.ResizeHeightTo(Height = side_list_height - team2List.GetHeight() - 5, 500, Easing.OutCubic);
                 }
             }
 
@@ -348,9 +346,6 @@ namespace osu.Game.Tournament.Screens.Board
                         pickColour = command.Team;
                         pickType = command.Team == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
                         addForBeatmap(command.MapMod);
-                        break;
-
-                    default:
                         break;
                 }
             }
@@ -502,12 +497,9 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
             }
 
-            int totalRows = 0;
-
             if (CurrentMatch.Value.Round.Value != null)
             {
                 FillFlowContainer<EXBoardBeatmapPanel>? currentFlow = null;
-                string? currentMods;
                 int flowCount = 0;
 
                 int exCount = CurrentMatch.Value.Round.Value.Beatmaps.Count(p => p.Mods == "EX");
@@ -534,15 +526,11 @@ namespace osu.Game.Tournament.Screens.Board
                             AutoSizeAxes = Axes.Y
                         });
 
-                        currentMods = b.Mods;
-
-                        totalRows++;
                         flowCount = 0;
                     }
 
                     if (++flowCount > 2)
                     {
-                        totalRows++;
                         flowCount = 1;
                     }
 
