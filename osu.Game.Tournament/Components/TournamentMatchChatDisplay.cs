@@ -21,6 +21,11 @@ namespace osu.Game.Tournament.Components
 
         private ChannelManager? manager;
 
+        private MatchIPCInfo? ipc;
+        private IAPIProvider? api;
+
+        private int channelId;
+
         [Resolved]
         private LadderInfo ladderInfo { get; set; } = null!;
 
@@ -40,17 +45,20 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load(MatchIPCInfo? ipc, IAPIProvider api)
         {
+            this.api = api;
+
             if (ipc != null)
             {
+                this.ipc = ipc;
                 chatChannel.BindTo(ipc.ChatChannel);
                 chatChannel.BindValueChanged(c =>
                 {
                     if (string.IsNullOrWhiteSpace(c.NewValue))
                         return;
 
-                    int id = int.Parse(c.NewValue);
+                    channelId = int.Parse(c.NewValue);
 
-                    if (id <= 0) return;
+                    if (channelId <= 0) return;
 
                     if (manager == null)
                     {
@@ -58,14 +66,14 @@ namespace osu.Game.Tournament.Components
                         Channel.BindTo(manager.CurrentChannel);
                     }
 
-                    Channel? channel = manager.JoinedChannels.FirstOrDefault(p => p.Id == id);
+                    Channel? channel = manager.JoinedChannels.FirstOrDefault(p => p.Id == channelId);
 
                     if (channel == null)
                     {
                         // channel = new Channel(new APIUser { Id = 3 })
                         channel = new Channel
                         {
-                            Id = id,
+                            Id = channelId,
                             Type = ChannelType.Public,
                             // Type = ChannelType.PM,
                         };
@@ -75,6 +83,35 @@ namespace osu.Game.Tournament.Components
                     manager.CurrentChannel.Value = channel;
                 }, true);
             }
+        }
+
+        public void ReloadChannel()
+        {
+            if (ipc == null) return;
+
+            if (string.IsNullOrWhiteSpace(chatChannel.Value)) return;
+
+            channelId = int.Parse(chatChannel.Value);
+
+            if (manager == null)
+            {
+                AddInternal(manager = new ChannelManager(api));
+                Channel.BindTo(manager.CurrentChannel);
+            }
+
+            Channel? channel = manager.JoinedChannels.FirstOrDefault(p => p.Id == channelId);
+
+            if (channel == null)
+            {
+                channel = new Channel
+                {
+                    Id = channelId,
+                    Type = ChannelType.Public,
+                };
+                manager.JoinChannel(channel);
+            }
+
+            manager.CurrentChannel.Value = channel;
         }
 
         public void ChangeRadius(int radius)

@@ -1302,6 +1302,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             boardContainer.Clear();
             boardMapList.Clear();
+            sceneManager?.ReloadChat();
 
             if (CurrentMatch.Value == null)
             {

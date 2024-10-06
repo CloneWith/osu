@@ -494,6 +494,7 @@ namespace osu.Game.Tournament.Screens.Board
         private void updateDisplay()
         {
             mapFlows.Clear();
+            sceneManager?.ReloadChat();
 
             if (CurrentMatch.Value == null)
             {

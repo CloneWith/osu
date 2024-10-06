@@ -427,5 +427,7 @@ namespace osu.Game.Tournament
 
         public void ResizeChatTo(Vector2 size, int duration, Easing easing) =>
             chatContainer.ResizeTo(size, duration, easing);
+
+        public void ReloadChat() => chat.ReloadChannel();
     }
 }
