@@ -15,7 +15,7 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamWithPlayers : CompositeDrawable
     {
-        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool useCard = false)
+        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool autoAdjust = true)
         {
             AutoSizeAxes = Axes.Both;
 
@@ -46,7 +46,7 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Both,
-                                    ChildrenEnumerable = players.Count <= 4 || useCard
+                                    ChildrenEnumerable = players.Count <= 4 || !autoAdjust
                                         ? players.Take(split).Select(createPlayerCard)
                                         : players.Take(split).Select(createPlayerText),
                                 },
@@ -54,7 +54,7 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Both,
-                                    ChildrenEnumerable = players.Count <= 4 || useCard
+                                    ChildrenEnumerable = players.Count <= 4 || !autoAdjust
                                         ? players.Skip(split).Select(createPlayerCard)
                                         : players.Skip(split).Select(createPlayerText),
                                 },
@@ -65,12 +65,12 @@ namespace osu.Game.Tournament.Components
             };
 
             static TournamentSpriteText createPlayerText(TournamentUser p) =>
-                    new TournamentSpriteText
-                    {
-                        Text = p.Username,
-                        Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
-                        Colour = Color4.White,
-                    };
+                new TournamentSpriteText
+                {
+                    Text = p.Username,
+                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
+                    Colour = Color4.White,
+                };
 
             static TeamPlayerCard createPlayerCard(TournamentUser user) =>
                 new TeamPlayerCard(user.ToAPIUser())
