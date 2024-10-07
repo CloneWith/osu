@@ -28,21 +28,25 @@ namespace osu.Game.Tournament.Models
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TeamColour
     {
+        /// <summary>
+        /// Used for winner, EX detection and as the default colour.
+        /// </summary>
+        None,
         Red,
         Blue,
         /// <summary>
         /// Should only be used by actions.
         /// </summary>
-        Neutral,
-        /// <summary>
-        /// Used for winner and EX detection.
-        /// </summary>
-        None
+        Neutral
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ChoiceType
     {
+        /// <summary>
+        /// Another special type placeholder, shouldn't be used in normal conditions
+        /// </summary>
+        Neutral,
         Pick,
         Ban,
         Protect,
@@ -52,10 +56,6 @@ namespace osu.Game.Tournament.Models
         /// <summary>
         /// A special type, Swap specific
         /// </summary>
-        Swap,
-        /// <summary>
-        /// Another special type placeholder, shouldn't be used in normal conditions
-        /// </summary>
-        Neutral,
+        Swap
     }
 }

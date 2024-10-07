@@ -821,6 +821,8 @@ namespace osu.Game.Tournament.Screens.Board
             buttonTrapSwap.Colour = Color4.White;
             buttonIndicator.Colour = Color4.Gray;
 
+            pickTeam = TeamColour.None;
+            pickType = ChoiceType.Neutral;
             // setNextMode();
         }
 
@@ -860,7 +862,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             bool isBP = pickType == ChoiceType.Pick || pickType == ChoiceType.Ban || isPickWin;
 
-            if (pickType == ChoiceType.Neutral)
+            if (pickType == ChoiceType.Neutral || pickTeam == TeamColour.None || pickTeam == TeamColour.Neutral)
                 return;
 
             if (CurrentMatch.Value?.Round.Value == null)
