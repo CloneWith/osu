@@ -173,7 +173,8 @@ namespace osu.Game.Online.Chat
             {
                 if (r.NewValue)
                 {
-                    errorOverlay.FadeIn(500, Easing.OutQuint);
+                    errorOverlay.FadeIn(500, Easing.OutQuint)
+                                .Then().Delay(5000).FadeOut(1000, Easing.OutQuint);
                     loadingLayer.Hide();
                 }
                 else
