@@ -134,6 +134,7 @@ namespace osu.Game.Tournament.Models
     [JsonConverter(typeof(StringEnumConverter))]
     public enum Commands
     {
+        Unknown,
         Ban,
         Protect,
         Pick,
@@ -144,6 +145,5 @@ namespace osu.Game.Tournament.Models
         MarkWin,
         Panic,
         BoardDefinition,
-        Unknown
     }
 }

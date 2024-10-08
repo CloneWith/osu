@@ -62,7 +62,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo("mappool")
+                new TourneyVideo(BackgroundVideo.EXStage, LadderInfo)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
