@@ -29,7 +29,7 @@ namespace osu.Game.Tournament.Screens.Board
 {
     public partial class ExBoardScreen : TournamentMatchScreen
     {
-        private FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>> mapFlows = null!;
+        private FillFlowContainer<FillFlowContainer<DrawableMapCard>> mapFlows = null!;
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         [Resolved]
@@ -124,7 +124,7 @@ namespace osu.Game.Tournament.Screens.Board
                         },
                     },
                 },
-                mapFlows = new FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>>
+                mapFlows = new FillFlowContainer<FillFlowContainer<DrawableMapCard>>
                 {
                     Y = 30,
                     Spacing = new Vector2(10, 10),
@@ -499,7 +499,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value.Round.Value != null)
             {
-                FillFlowContainer<EXBoardBeatmapPanel>? currentFlow = null;
+                FillFlowContainer<DrawableMapCard>? currentFlow = null;
                 int flowCount = 0;
 
                 int exCount = CurrentMatch.Value.Round.Value.Beatmaps.Count(p => p.Mods == "EX");
@@ -518,7 +518,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                     if (currentFlow == null)
                     {
-                        mapFlows.Add(currentFlow = new FillFlowContainer<EXBoardBeatmapPanel>
+                        mapFlows.Add(currentFlow = new FillFlowContainer<DrawableMapCard>
                         {
                             Spacing = new Vector2(10, 10),
                             Direction = FillDirection.Vertical,
@@ -534,7 +534,7 @@ namespace osu.Game.Tournament.Screens.Board
                         flowCount = 1;
                     }
 
-                    currentFlow.Add(new EXBoardBeatmapPanel(b.Beatmap, b.Mods, b.ModIndex)
+                    currentFlow.Add(new DrawableMapCard(b.Beatmap, b.Mods, b.ModIndex)
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
