@@ -35,7 +35,7 @@ namespace osu.Game.Tournament.Screens.Board
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private WarningBox? warning;
+        private Container warningContainer = null!;
 
         private TeamColour pickColour = TeamColour.Neutral;
         private ChoiceType pickType = ChoiceType.Pick;
@@ -218,6 +218,12 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Height = 50,
                     Position = new Vector2(-40, -10),
+                },
+                warningContainer = new Container
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
                 },
                 new ControlPanel
                 {
@@ -493,7 +499,8 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value == null)
             {
-                AddInternal(warning = new WarningBox("Select a match from bracket screen first"));
+                warningContainer.Child = new WarningBox("Select a match from bracket screen first");
+                warningContainer.FadeIn(200, Easing.OutQuint);
                 return;
             }
 
@@ -506,11 +513,12 @@ namespace osu.Game.Tournament.Screens.Board
 
                 if (exCount == 0)
                 {
-                    AddInternal(warning = new WarningBox("Seemingly you don't have any EX map set up..."));
+                    warningContainer.Child = new WarningBox("Seemingly you don't have any EX map set up...");
+                    warningContainer.FadeIn(200, Easing.OutQuint);
                     return;
                 }
 
-                warning?.FadeOut(duration: 200, easing: Easing.OutCubic);
+                warningContainer.FadeOut(200, Easing.OutQuint);
 
                 foreach (var b in CurrentMatch.Value.Round.Value.Beatmaps)
                 {
@@ -544,7 +552,8 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                AddInternal(warning = new WarningBox("Cannot access current match, sorry ;w;"));
+                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.FadeIn(200, Easing.OutQuint);
             }
         }
     }
