@@ -70,7 +70,7 @@ namespace osu.Game.Tournament.Components
             int firstHyphenIndex = 0;
 
             // Find the first " - " (Hopefully it isn't in the Artists field)
-            for (int i = 0; i < songNameList.Count(); i++)
+            for (int i = 0; i < songNameList.Length; i++)
             {
                 string obj = songNameList.ElementAt(i);
 
@@ -110,6 +110,34 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Colour = ColourInfo.GradientHorizontal(new Color4(1f, 1f, 1f, 0.4f), new Color4(0f, 0f, 0f, 0f)),
+                },
+                slideBackground = new Box
+                {
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    X = WIDTH,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.White,
+                    Alpha = 0,
+                },
+                statusIcon = new SpriteIcon
+                {
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.Centre,
+                    Icon = FontAwesome.Solid.Heart,
+                    Size = new Vector2(24),
+                    Colour = Color4.White,
+                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Alpha = 0,
+                },
+                instructText = new TournamentSpriteText
+                {
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreLeft,
+                    Font = OsuFont.TorusAlternate.With(size: 36, weight: FontWeight.SemiBold),
+                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Text = "This is a new map",
+                    Alpha = 0,
                 },
                 beatmapInfoContainer = new Container
                 {
@@ -162,7 +190,7 @@ namespace osu.Game.Tournament.Components
                                     Origin = Anchor.CentreLeft,
                                     AutoSizeAxes = Axes.Both,
                                     Direction = FillDirection.Vertical,
-                                    Spacing = new osuTK.Vector2(5),
+                                    Spacing = new Vector2(5),
                                     Children = new Drawable[]
                                     {
                                         new FillFlowContainer
@@ -171,17 +199,19 @@ namespace osu.Game.Tournament.Components
                                             Origin = Anchor.CentreLeft,
                                             AutoSizeAxes = Axes.Both,
                                             Direction = FillDirection.Horizontal,
-                                            Spacing = new osuTK.Vector2(6),
+                                            Spacing = new Vector2(6),
                                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
                                             Children = new Drawable[]
                                             {
-                                                Beatmap != null ? new DifficultyIcon(Beatmap, ladder.Ruleset.Value)
-                                                {
-                                                    Anchor = Anchor.CentreLeft,
-                                                    Origin = Anchor.CentreLeft,
-                                                    TooltipType = DifficultyIconTooltipType.None,
-                                                    Scale = new Vector2(0.9f),
-                                                } : new Container(),
+                                                Beatmap != null
+                                                    ? new DifficultyIcon(Beatmap, ladder.Ruleset.Value)
+                                                    {
+                                                        Anchor = Anchor.CentreLeft,
+                                                        Origin = Anchor.CentreLeft,
+                                                        TooltipType = DifficultyIconTooltipType.None,
+                                                        Scale = new Vector2(0.9f),
+                                                    }
+                                                    : new Container(),
                                                 new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap?.StarRating ?? 0, 0), animated: true)
                                                 {
                                                     Anchor = Anchor.CentreLeft,
@@ -220,7 +250,7 @@ namespace osu.Game.Tournament.Components
                             Anchor = Anchor.CentreRight,
                             Origin = Anchor.CentreRight,
                             Margin = new MarginPadding { Bottom = -50, Right = 20 },
-                            Size = new osuTK.Vector2(96),
+                            Size = new Vector2(96),
                             RelativeSizeAxes = Axes.Y,
                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
                         },
@@ -231,34 +261,6 @@ namespace osu.Game.Tournament.Components
                             Alpha = 0,
                         },
                     },
-                },
-                slideBackground = new Box
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    X = WIDTH,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.White,
-                    Alpha = 0,
-                },
-                statusIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.Centre,
-                    Icon = FontAwesome.Solid.Heart,
-                    Size = new Vector2(24),
-                    Colour = Color4.White,
-                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                    Alpha = 0,
-                },
-                instructText = new TournamentSpriteText
-                {
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreLeft,
-                    Font = OsuFont.TorusAlternate.With(size: 36, weight: FontWeight.SemiBold),
-                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                    Text = "This is a new map",
-                    Alpha = 0,
                 },
             };
         }
@@ -365,7 +367,6 @@ namespace osu.Game.Tournament.Components
             }
 
             choice = newChoice;
-            return;
         }
 
         /// <summary>
@@ -374,8 +375,14 @@ namespace osu.Game.Tournament.Components
         /// <param name="colour">The background colour in Step 2.</param>
         private void runAnimation(ColourInfo? colour = null)
         {
+            // Stop any transform process (if exists) first
+            ClearTransforms();
+
             ColourInfo useColour = colour ?? Color4.White;
             ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
+
+            // Fade statusIcon out first, for positioning later
+            statusIcon.FadeOut(150, Easing.OutQuint);
 
             using (BeginDelayedSequence(200))
             {
@@ -395,10 +402,9 @@ namespace osu.Game.Tournament.Components
                 {
                     // Set statusIcon to the center and apply a short scale-in effect
                     statusIcon.X = WIDTH * 0.5f;
-                    statusIcon.FadeIn(700, Easing.OutQuint);
+                    statusIcon.FadeIn(300, Easing.OutQuint);
                     statusIcon.ScaleTo(3f, 0) // Set initial scale to 3f
-                              .Then().ScaleTo(1.7f, 300, Easing.OutQuint);
-
+                              .Then().ScaleTo(1.7f, 500, Easing.OutQuint);
                 }
 
                 using (BeginDelayedSequence(1200))
@@ -414,8 +420,8 @@ namespace osu.Game.Tournament.Components
 
                     using (BeginDelayedSequence(3000))
                     {
-                        slideBackground.MoveToX(-WIDTH, 500, Easing.OutQuint);
-                        slideBackground.FadeOut(500, Easing.OutQuint);
+                        slideBackground.Delay(500).MoveToX(-WIDTH, 500, Easing.OutQuint);
+                        slideBackground.FadeOut(1000, Easing.OutQuint);
                         statusIcon.MoveToX(WIDTH * 0.035f, 500, Easing.OutQuint);
                         statusIcon.ScaleTo(1f, 800, Easing.OutQuint);
                         instructText.MoveToX(0, 500, Easing.OutQuint);
