@@ -290,70 +290,33 @@ namespace osu.Game.Tournament.Components
                     switch (newChoice.Type)
                     {
                         case ChoiceType.Pick:
-                            colorBackground.FadeColour(Color4.White, 300, Easing.OutQuint);
+                            statusIcon.Icon = FontAwesome.Solid.CheckCircle;
+                            instructText.Text = "Map picked!";
+
                             backgroundAddition.Colour = Color4.White;
-                            backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+                            backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.OutQuint);
+
+                            runAnimation();
                             break;
 
                         case ChoiceType.RedWin:
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Red wins!";
 
-                            using (BeginDelayedSequence(200))
-                            {
-                                slideBackground.X = WIDTH;
-                                slideBackground.Colour = Color4.White;
-                                slideBackground.Alpha = 1f;
-                                statusIcon.Colour = Color4.Black;
-                                instructText.Colour = Color4.Black;
-                                beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
-
-                                using (BeginDelayedSequence(200))
-                                {
-                                    slideBackground.MoveToX(0, 500, Easing.OutQuint);
-                                }
-
-                                using (BeginDelayedSequence(700))
-                                {
-                                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
-                                    statusIcon.ScaleTo(2f, 900, Easing.OutQuint)
-                                              .Then().ScaleTo(1.5f, 900, Easing.OutQuint)
-                                              .Loop(0, 3);
-                                    statusIcon.FadeIn(700, Easing.OutQuint);
-
-                                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
-                                    instructText.FadeIn(700, Easing.OutQuint);
-                                }
-
-                                using (BeginDelayedSequence(1200))
-                                {
-                                    slideBackground.FadeColour(new OsuColour().Red, 1000, Easing.OutQuint);
-                                    statusIcon.FadeColour(Color4.White, 1000, Easing.OutQuint);
-                                    instructText.FadeColour(Color4.White, 1000, Easing.OutQuint);
-
-                                    using (BeginDelayedSequence(3000))
-                                    {
-                                        slideBackground.MoveToX(-WIDTH, 500, Easing.OutQuint);
-                                        slideBackground.FadeOut(500, Easing.OutQuint);
-                                        statusIcon.MoveToX(WIDTH * 0.035f, 500, Easing.OutQuint);
-                                        statusIcon.ScaleTo(1f, 800, Easing.OutQuint);
-                                        instructText.MoveToX(0, 500, Easing.OutQuint);
-                                        instructText.FadeOut(700, Easing.OutQuint);
-                                        beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
-                                        colorBackground.FadeColour(ColourInfo.GradientHorizontal(new OsuColour().Red, Color4.White.Opacity(0)),
-                                            400, Easing.OutQuint);
-                                    }
-                                }
-                            }
-
                             backgroundAddition.Colour = new OsuColour().Red;
-                            backgroundAddition.FadeTo(newAlpha: 0.35f, duration: 100, easing: Easing.InCubic);
+                            backgroundAddition.FadeTo(newAlpha: 0.35f, duration: 100, easing: Easing.OutQuint);
+
+                            runAnimation(new OsuColour().Red);
                             break;
 
                         case ChoiceType.BlueWin:
-                            colorBackground.FadeColour(new OsuColour().Sky, 300, Easing.OutQuint);
+                            statusIcon.Icon = FontAwesome.Solid.Trophy;
+                            instructText.Text = "Blue wins!";
+
                             backgroundAddition.Colour = new OsuColour().Sky;
-                            backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 100, easing: Easing.InCubic);
+                            backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 100, easing: Easing.OutQuint);
+
+                            runAnimation(new OsuColour().Sky);
                             break;
 
                         default:
@@ -377,6 +340,58 @@ namespace osu.Game.Tournament.Components
 
             choice = newChoice;
             return;
+        }
+
+        private void runAnimation(ColourInfo? colour = null)
+        {
+            ColourInfo useColour = colour ?? Color4.White;
+            ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
+
+            using (BeginDelayedSequence(200))
+            {
+                slideBackground.X = WIDTH;
+                slideBackground.Colour = Color4.White;
+                slideBackground.Alpha = 1f;
+                statusIcon.Colour = Color4.Black;
+                instructText.Colour = Color4.Black;
+                beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
+
+                using (BeginDelayedSequence(200))
+                {
+                    slideBackground.MoveToX(0, 500, Easing.OutQuint);
+                }
+
+                using (BeginDelayedSequence(700))
+                {
+                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
+                    statusIcon.ScaleTo(2f, 900, Easing.OutQuint)
+                              .Then().ScaleTo(1.5f, 900, Easing.OutQuint)
+                              .Loop(0, 3);
+                    statusIcon.FadeIn(700, Easing.OutQuint);
+                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
+                    instructText.FadeIn(700, Easing.OutQuint);
+                }
+
+                using (BeginDelayedSequence(1200))
+                {
+                    slideBackground.FadeColour(useColour, 1000, Easing.OutQuint);
+                    statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
+                    instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
+
+                    using (BeginDelayedSequence(3000))
+                    {
+                        slideBackground.MoveToX(-WIDTH, 500, Easing.OutQuint);
+                        slideBackground.FadeOut(500, Easing.OutQuint);
+                        statusIcon.MoveToX(WIDTH * 0.035f, 500, Easing.OutQuint);
+                        statusIcon.ScaleTo(1f, 800, Easing.OutQuint);
+                        instructText.MoveToX(0, 500, Easing.OutQuint);
+                        instructText.FadeOut(700, Easing.OutQuint);
+                        beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
+                        colorBackground.FadeColour(ColourInfo.GradientHorizontal(useColour, Color4.White.Opacity(0)),
+                            400, Easing.OutQuint);
+                    }
+                }
+            }
         }
 
         private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
