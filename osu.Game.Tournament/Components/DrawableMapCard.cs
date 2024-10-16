@@ -143,7 +143,7 @@ namespace osu.Game.Tournament.Components
                             AutoSizeAxes = Axes.Both,
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Padding = new MarginPadding(15),
+                            Padding = new MarginPadding { Left = 15 },
                             Direction = FillDirection.Vertical,
                             Children = new Drawable[]
                             {
@@ -152,6 +152,7 @@ namespace osu.Game.Tournament.Components
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
                                     Text = truncatedSongName,
+                                    Margin = new MarginPadding { Bottom = 5 },
                                     Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 32),
                                     Shear = new Vector2(-OsuGame.SHEAR, 0f),
                                 },
@@ -170,28 +171,35 @@ namespace osu.Game.Tournament.Components
                                             Origin = Anchor.CentreLeft,
                                             AutoSizeAxes = Axes.Both,
                                             Direction = FillDirection.Horizontal,
-                                            Spacing = new osuTK.Vector2(5),
+                                            Spacing = new osuTK.Vector2(6),
                                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
                                             Children = new Drawable[]
                                             {
-                                                new DifficultyIcon(Beatmap, ladder.Ruleset.Value)
+                                                Beatmap != null ? new DifficultyIcon(Beatmap, ladder.Ruleset.Value)
                                                 {
                                                     Anchor = Anchor.CentreLeft,
                                                     Origin = Anchor.CentreLeft,
                                                     TooltipType = DifficultyIconTooltipType.None,
                                                     Scale = new Vector2(0.9f),
-                                                },
+                                                } : new Container(),
                                                 new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap?.StarRating ?? 0, 0), animated: true)
                                                 {
                                                     Anchor = Anchor.CentreLeft,
                                                     Origin = Anchor.CentreLeft,
                                                 },
-                                                new TournamentSpriteText
+                                                new Container
                                                 {
                                                     Anchor = Anchor.CentreLeft,
                                                     Origin = Anchor.CentreLeft,
-                                                    Text = truncatedDifficultyName,
-                                                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 23)
+                                                    AutoSizeAxes = Axes.Both,
+                                                    Margin = new MarginPadding { Top = -3 }, // May not an elegant solution but it works
+                                                    Child = new TournamentSpriteText
+                                                    {
+                                                        Anchor = Anchor.CentreLeft,
+                                                        Origin = Anchor.CentreLeft,
+                                                        Text = truncatedDifficultyName,
+                                                        Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 23),
+                                                    }
                                                 },
                                             }
                                         },
@@ -211,7 +219,7 @@ namespace osu.Game.Tournament.Components
                         {
                             Anchor = Anchor.CentreRight,
                             Origin = Anchor.CentreRight,
-                            Margin = new MarginPadding { Right = 20 },
+                            Margin = new MarginPadding { Bottom = -50, Right = 20 },
                             Size = new osuTK.Vector2(96),
                             RelativeSizeAxes = Axes.Y,
                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
