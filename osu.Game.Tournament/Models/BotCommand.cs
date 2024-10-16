@@ -21,8 +21,9 @@ namespace osu.Game.Tournament.Models
         private Regex protectRegex = new Regex("\\[\\*\\] 执行将(.*)设为(.*)的保护图 - 已完成");
         private Regex pickRegex = new Regex("\\[\\*\\] 执行(.*)选取(.*) - 已完成");
         private Regex stateRegex = new Regex("\\[\\*\\] 检查棋盘: 进入(.*)");
-        private Regex pickEXRegex = new Regex("\\[\\*\\] 执行强制选取EX(.*) - 已完成");
+        private Regex pickExRegex = new Regex("\\[\\*\\] 执行强制选取EX(.*) - 已完成");
         private Regex panicRegex = new Regex("\\[\\*\\] 收到异常信号, 启动通知进程");
+
         // 1, 3, 5, 7 MapID
         // 2, 4, 6, 8 Status
         private Regex boardLineRegex = new Regex("\\[\\*\\] 当前棋盘: (.+) \\((.+)\\) (.+) \\((.+)\\) (.+) \\((.+)\\) (.+) \\((.+)\\)");
@@ -30,64 +31,72 @@ namespace osu.Game.Tournament.Models
         public Commands Command;
         public TeamColour Team;
         public string MapMod;
-        public List<RoundBeatmap>? DefList;
+        public List<RoundBeatmap> DefList;
 
         public BotCommand(Commands command = Commands.Unknown, TeamColour team = TeamColour.Neutral,
-            string map = "", List<RoundBeatmap>? line = null!)
+                          string map = "", List<RoundBeatmap>? line = null!)
         {
             Command = command;
             Team = team;
             MapMod = map;
-            DefList = line;
+            DefList = line ?? new List<RoundBeatmap>();
         }
 
         public BotCommand ParseFromText(string line)
         {
             GroupCollection obj;
-            DefList ??= new List<RoundBeatmap>();
 
             if (panicRegex.Match(line).Success)
             {
                 return new BotCommand(Commands.Panic);
             }
+
             if (banRegex.Match(line).Success)
             {
                 obj = banRegex.Match(line).Groups;
                 return new BotCommand(Commands.Ban, team: TranslateFromTeamName(obj[1].Value), map: obj[2].Value);
             }
+
             if (protectRegex.Match(line).Success)
             {
                 obj = protectRegex.Match(line).Groups;
                 return new BotCommand(Commands.Protect, team: TranslateFromTeamName(obj[2].Value), map: obj[1].Value);
             }
+
             if (pickRegex.Match(line).Success)
             {
                 obj = pickRegex.Match(line).Groups;
                 return new BotCommand(Commands.Pick, team: TranslateFromTeamName(obj[1].Value), map: obj[2].Value);
             }
+
             if (winRegex.Match(line).Success)
             {
                 obj = winRegex.Match(line).Groups;
                 return new BotCommand(Commands.MarkWin, team: TranslateFromTeamName(obj[2].Value), map: obj[1].Value);
             }
+
             if (finalRegex.Match(line).Success)
             {
                 obj = finalRegex.Match(line).Groups;
                 return new BotCommand(Commands.SetWin, TranslateFromTeamName(obj[1].Value));
             }
-            if (pickEXRegex.Match(line).Success)
+
+            if (pickExRegex.Match(line).Success)
             {
-                obj = pickEXRegex.Match(line).Groups;
-                return new BotCommand(Commands.PickEX, map: "EX" + obj[1].Value);
+                obj = pickExRegex.Match(line).Groups;
+                return new BotCommand(Commands.PickEx, map: "EX" + obj[1].Value);
             }
+
             if (stateRegex.Match(line).Success)
             {
                 obj = stateRegex.Match(line).Groups;
+
                 if (obj[1].Value == "EX图池")
                 {
-                    return new BotCommand(Commands.EnterEX);
+                    return new BotCommand(Commands.EnterEx);
                 }
             }
+
             if (boardLineRegex.Match(line).Success)
             {
                 obj = boardLineRegex.Match(line).Groups;
@@ -106,6 +115,7 @@ namespace osu.Game.Tournament.Models
 
                 return new BotCommand(Commands.BoardDefinition, line: DefList);
             }
+
             return new BotCommand(Commands.Unknown);
         }
 
@@ -139,9 +149,9 @@ namespace osu.Game.Tournament.Models
         Protect,
         Pick,
         SetWin,
-        EnterEX,
-        PickEX,
-        MarkEXWin,
+        EnterEx,
+        PickEx,
+        MarkExWin,
         MarkWin,
         Panic,
         BoardDefinition,

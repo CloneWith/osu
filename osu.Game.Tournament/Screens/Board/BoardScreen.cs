@@ -18,6 +18,7 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
@@ -493,7 +494,7 @@ namespace osu.Game.Tournament.Screens.Board
                         informationDisplayContainer.FadeInFromZero(duration: 200, easing: Easing.OutCubic);
                         break;
 
-                    case Commands.EnterEX:
+                    case Commands.EnterEx:
                         refEx = true;
                         updateBottomDisplay(bottomOnly: false);
                         break;
@@ -581,11 +582,11 @@ namespace osu.Game.Tournament.Screens.Board
             {
                 if (LadderInfo.UseRefereeCommands.Value && LadderInfo.NeedRefereeResponse.Value)
                 {
-                    state = refEx ? Steps.EX : Steps.Halt;
+                    state = refEx ? Steps.Ex : Steps.Halt;
                 }
                 else
                 {
-                    state = Steps.EX;
+                    state = Steps.Ex;
                 }
             }
             else if (DetectWin() && !havePendingSwap)
@@ -651,7 +652,7 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                CurrentMatch.Value.Round.Value?.IsFinalStage.BindTo(new BindableBool(false));
+                CurrentMatch.Value.Round.Value?.IsFinalStage.BindTo(new BindableBool());
             }
         }
 
@@ -774,7 +775,7 @@ namespace osu.Game.Tournament.Screens.Board
             CurrentMatch.Value?.Protects.Clear();
             CurrentMatch.Value?.Traps.Clear();
             CurrentMatch.Value?.PendingSwaps.Clear();
-            CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool(false));
+            CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
             if (CurrentMatch.Value != null)
             {

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -19,9 +18,7 @@ using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.IO;
-using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
-using osu.Game.Tournament.Screens.Board.Components;
 using osuTK;
 using osuTK.Graphics;
 
@@ -44,7 +41,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
         private string initialPath = null!;
         private string videoPath = null!;
-        private bool pathValid = false;
+        private bool pathValid;
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -58,7 +55,7 @@ namespace osu.Game.Tournament.Screens.Setup
             initialPath = new DirectoryInfo(storage.GetFullPath(string.Empty)).FullName;
             videoPath = new DirectoryInfo(storage.GetFullPath("./Videos")).FullName;
 
-            AddRangeInternal(new Drawable[]
+            InternalChildren = new Drawable[]
             {
                 new Container
                 {
@@ -205,7 +202,6 @@ namespace osu.Game.Tournament.Screens.Setup
                                                     RelativeSizeAxes = Axes.Both,
                                                 },
                                             },
-
                                         }
                                     }
                                 },
@@ -245,6 +241,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                     resetAllAction: () =>
                                                     {
                                                         LadderInfo.BackgroundVideoFiles.Clear();
+
                                                         foreach (var v in BackgroundVideoProps.VIDEO_PATHS)
                                                         {
                                                             LadderInfo.BackgroundVideoFiles.Add(new KeyValuePair<BackgroundVideo, string>(v.Key, v.Value));
@@ -267,7 +264,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     Action = () => sceneManager?.SetScreen(typeof(SetupScreen))
                 },
                 overlay = new DialogOverlay(),
-            });
+            };
 
             saveButton.Enabled.Value = false;
 
@@ -340,7 +337,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 }
                 else
                 {
-                    currentFileText.Text = $"Must select a file from current tournament's Video path.";
+                    currentFileText.Text = "Must select a file from current tournament's Video path.";
                     currentFileText.Colour = Color4.Orange;
                     currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                     currentFileIcon.Colour = Color4.Orange;

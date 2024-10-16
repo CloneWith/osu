@@ -1,7 +1,6 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -14,27 +13,25 @@ using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
+using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osuTK.Graphics;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Screens.Board.Components
 {
     public partial class EXBoardBeatmapPanel : CompositeDrawable
     {
         public readonly IBeatmapInfo? Beatmap;
 
         private readonly string index;
-
         private readonly string mod;
 
         public const float WIDTH = 650;
-
         public const float HEIGHT = 75;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         private Box flash = null!;
-
         private Box backgroundAddition = null!;
 
         public EXBoardBeatmapPanel(IBeatmapInfo? beatmap, string mod = "", string index = "")
@@ -53,42 +50,15 @@ namespace osu.Game.Tournament.Components
             currentMatch.BindValueChanged(matchChanged);
             currentMatch.BindTo(ladder.CurrentMatch);
 
-            var displayTitle = Beatmap?.GetDisplayTitleRomanisable(false, false) ?? (LocalisableString)@"unknown";
+            var displayTitle = Beatmap?.GetDisplayTitleRomanisable(false, false)
+                                      .ToString().ExtractSongTitleFromMetadata().Trim().TruncateWithEllipsis(39) ?? (LocalisableString)@"unknown";
 
-            string[] songNameList = displayTitle.ToString().Split(' ');
-
-            int firstHyphenIndex = 0;
-
-            // Find the first " - " (Hopefully it isn't in the Artists field)
-            for (int i = 0; i < songNameList.Count(); i++)
-            {
-                string obj = songNameList.ElementAt(i);
-                if (obj == "-")
-                {
-                    firstHyphenIndex = i;
-                    break;
-                }
-            }
-
-            var TitleList = songNameList.Skip(firstHyphenIndex + 1);
-
-            // Re-construct
-            string songName = string.Empty;
-            for (int i = 0; i < TitleList.Count(); i++)
-            {
-                songName += TitleList.ElementAt(i).Trim();
-                if (i != TitleList.Count() - 1) songName += ' ';
-            }
-
-            string truncatedSongName = songName.Trim().TruncateWithEllipsis(39);
-
-            string displayDifficulty = Beatmap?.DifficultyName ?? "unknown";
-            string truncatedDifficultyName = displayDifficulty.TruncateWithEllipsis(25);
+            string displayDifficulty = Beatmap?.DifficultyName.TruncateWithEllipsis(25) ?? "unknown";
 
             Masking = true;
             CornerRadius = 10;
 
-            AddRangeInternal(new Drawable[]
+            InternalChildren = new Drawable[]
             {
                 new NoUnloadBeatmapSetCover
                 {
@@ -113,7 +83,7 @@ namespace osu.Game.Tournament.Components
                     {
                         new TournamentSpriteText
                         {
-                            Text = truncatedSongName,
+                            Text = displayTitle,
                             Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 32),
                         },
                         new FillFlowContainer
@@ -125,13 +95,21 @@ namespace osu.Game.Tournament.Components
                             {
                                 new TournamentSpriteText
                                 {
-                                    Text = truncatedDifficultyName,
+                                    Text = displayDifficulty,
                                     Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 23)
                                 },
                                 new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap?.StarRating ?? 0, 0), animated: true),
                             }
                         }
                     },
+                },
+                new TournamentModIcon(index.IsNull() ? mod : mod + index)
+                {
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreRight,
+                    Margin = new MarginPadding { Right = 20, Top = 90 },
+                    Size = new osuTK.Vector2(96),
+                    RelativeSizeAxes = Axes.Y,
                 },
                 flash = new Box
                 {
@@ -140,19 +118,7 @@ namespace osu.Game.Tournament.Components
                     Blending = BlendingParameters.Additive,
                     Alpha = 0,
                 },
-            });
-
-            if (!string.IsNullOrEmpty(mod))
-            {
-                AddInternal(new TournamentModIcon(index.IsNull() ? mod : mod + index)
-                {
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreRight,
-                    Margin = new MarginPadding { Right = 20, Top = 90 },
-                    Size = new osuTK.Vector2(96),
-                    RelativeSizeAxes = Axes.Y,
-                });
-            }
+            };
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -225,16 +191,6 @@ namespace osu.Game.Tournament.Components
             }
 
             choice = newChoice;
-        }
-
-        private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
-        {
-            // As covers are displayed on stream, we want them to load as soon as possible.
-            protected override double LoadDelay => 0;
-
-            // Use DelayedLoadWrapper to avoid content unloading when switching away to another screen.
-            protected override DelayedLoadWrapper CreateDelayedLoadWrapper(Func<Drawable> createContentFunc, double timeBeforeLoad)
-                => new DelayedLoadWrapper(createContentFunc(), timeBeforeLoad);
         }
     }
 }

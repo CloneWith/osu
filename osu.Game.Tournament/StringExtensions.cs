@@ -35,26 +35,25 @@ namespace osu.Game.Tournament
             int firstHyphenIndex = 0;
 
             // Find the first " - " (Hopefully it isn't in the Artists field)
-            for (int i = 0; i < songNameList.Count(); i++)
+            for (int i = 0; i < songNameList.Length; i++)
             {
                 string obj = songNameList.ElementAt(i);
 
-                if (obj == "-")
-                {
-                    firstHyphenIndex = i;
-                    break;
-                }
+                if (obj != "-") continue;
+
+                firstHyphenIndex = i;
+                break;
             }
 
-            var TitleList = songNameList.Skip(firstHyphenIndex + 1);
+            var titleList = songNameList.Skip(firstHyphenIndex + 1);
 
             // Re-construct
             string songName = string.Empty;
 
-            for (int i = 0; i < TitleList.Count(); i++)
+            for (int i = 0; i < titleList.Count(); i++)
             {
-                songName += TitleList.ElementAt(i).Trim();
-                if (i != TitleList.Count() - 1) songName += ' ';
+                songName += titleList.ElementAt(i).Trim();
+                if (i != titleList.Count() - 1) songName += ' ';
             }
 
             return songName;

@@ -15,6 +15,7 @@ namespace osu.Game.Tournament.Components
         private int totalHeight;
         private const int entryheight = 50;
         private const int spacing = 10;
+
         public DrawableTeamPlayerList(TournamentTeam? team)
         {
             var players = team?.Players ?? new BindableList<TournamentUser>();
@@ -29,6 +30,7 @@ namespace osu.Game.Tournament.Components
             // Since it's impossible to change its height after that.
             ChildrenEnumerable = players.Select(createCard);
         }
+
         private TeamPlayerCard createCard(TournamentUser user) => new TeamPlayerCard(user.ToAPIUser())
         {
             RelativeSizeAxes = Axes.None,

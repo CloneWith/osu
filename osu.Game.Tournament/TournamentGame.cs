@@ -29,7 +29,9 @@ namespace osu.Game.Tournament
             switch (teamColour)
             {
                 case TeamColour.Red: return COLOUR_RED;
+
                 case TeamColour.Blue: return COLOUR_BLUE;
+
                 default: return COLOUR_NEUTRAL;
             }
         }

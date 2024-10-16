@@ -15,9 +15,10 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
-using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board;
+using osu.Game.Tournament.Screens.Board.Components;
 using osuTK;
 
 namespace osu.Game.Tournament.Screens.Setup
@@ -30,16 +31,16 @@ namespace osu.Game.Tournament.Screens.Setup
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private TournamentRound? round = null!;
+        private TournamentRound? round;
 
         private Container boardContainer = null!;
         private DialogOverlay overlay = null!;
         private RoundedButton saveButton = null!;
 
-        private bool isUpdateDone = false;
+        private bool isUpdateDone;
 
-        private List<List<RoundBeatmap>> defCommandList = new List<List<RoundBeatmap>>();
-        private BindableBool useChat = new BindableBool(false);
+        private readonly List<List<RoundBeatmap>> defCommandList = new List<List<RoundBeatmap>>();
+        private readonly BindableBool useChat = new BindableBool();
 
         [BackgroundDependencyLoader(true)]
         private void load(Storage storage, OsuColour colours)
@@ -47,10 +48,17 @@ namespace osu.Game.Tournament.Screens.Setup
             isUpdateDone = false;
             round = LadderInfo.CurrentMatch.Value?.Round.Value;
             defCommandList.Clear();
+
+            if (LadderInfo.CurrentMatch.Value == null || round == null)
+            {
+                overlay.Push(new IPCErrorDialog("Invalid round", "Something is wrong with the round configuration."));
+                return;
+            }
+
             LadderInfo.CurrentMatch.Value.PendingMsgs.CollectionChanged += msgOnCollectionChanged;
             useChat.BindValueChanged(_ => fetchAndUpdate());
 
-            AddRangeInternal(new Drawable[]
+            InternalChildren = new Drawable[]
             {
                 new Container
                 {
@@ -157,13 +165,8 @@ namespace osu.Game.Tournament.Screens.Setup
                     Action = () => sceneManager?.SetScreen(typeof(BoardScreen))
                 },
                 overlay = new DialogOverlay(),
-            });
+            };
 
-            if (round == null)
-            {
-                overlay.Push(new IPCErrorDialog("Failed to auto detect", "An osu! stable cutting-edge installation could not be auto detected.\nPlease try and manually point to the directory."));
-                return;
-            }
             updateBoardDisplay();
         }
 
@@ -183,11 +186,9 @@ namespace osu.Game.Tournament.Screens.Setup
                     case Commands.BoardDefinition:
                         defCommandList.Add(command.DefList);
                         break;
-
-                    default:
-                        break;
                 }
             }
+
             // Clear here for refreshing and further follow-up updates.
             msg.Clear();
 
@@ -226,10 +227,12 @@ namespace osu.Game.Tournament.Screens.Setup
             for (int i = 0; i <= 3; i++)
             {
                 var item = defCommandList[i];
+
                 for (int j = 0; j <= 3; j++)
                 {
                     var map = item[j];
                     var target = LadderInfo.CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(p => p.Mods == map.Mods && p.ModIndex == map.ModIndex);
+
                     if (target != null)
                     {
                         target.BoardX = map.BoardX;
@@ -237,6 +240,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     }
                 }
             }
+
             isUpdateDone = true;
             defCommandList.Clear();
         }
@@ -263,7 +267,8 @@ namespace osu.Game.Tournament.Screens.Setup
             {
                 for (int j = 1; j <= 4; j++)
                 {
-                    var nextMap = round.Beatmaps.FirstOrDefault(p => (p.Mods != "EX" && p.BoardX == j && p.BoardY == i));
+                    var nextMap = round?.Beatmaps.FirstOrDefault(p => (p.Mods != "EX" && p.BoardX == j && p.BoardY == i));
+
                     if (nextMap != null)
                     {
                         boardContainer.Add(new BoardBeatmapPanel(nextMap.Beatmap, nextMap.Mods, nextMap.ModIndex)

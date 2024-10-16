@@ -7,7 +7,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Online.API;
-using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
 using osu.Game.Overlays.Chat;
 using osu.Game.Tournament.IPC;
@@ -29,11 +28,11 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private LadderInfo ladderInfo { get; set; } = null!;
 
-        public TournamentMatchChatDisplay(float cornerRadius = 0, bool AutoSizeY = false, bool RelativeSizeY = false, float bkgAlpha = 0.7f)
+        public TournamentMatchChatDisplay(float cornerRadius = 0, bool autoSizeY = false, bool relativeSizeY = false, float bkgAlpha = 0.7f)
         {
-            AutoSizeAxes = AutoSizeY ? Axes.Y : Axes.None;
-            RelativeSizeAxes = RelativeSizeY ? Axes.Both : Axes.X;
-            if (!AutoSizeY) Height = RelativeSizeY ? 1f : 144;
+            AutoSizeAxes = autoSizeY ? Axes.Y : Axes.None;
+            RelativeSizeAxes = relativeSizeY ? Axes.Both : Axes.X;
+            if (!autoSizeY) Height = relativeSizeY ? 1f : 144;
             Anchor = Anchor.BottomLeft;
             Origin = Anchor.BottomLeft;
 
@@ -70,12 +69,10 @@ namespace osu.Game.Tournament.Components
 
                     if (channel == null)
                     {
-                        // channel = new Channel(new APIUser { Id = 3 })
                         channel = new Channel
                         {
                             Id = channelId,
                             Type = ChannelType.Public,
-                            // Type = ChannelType.PM,
                         };
                         manager.JoinChannel(channel);
                     }
@@ -166,13 +163,12 @@ namespace osu.Game.Tournament.Components
                 AlternatingBackground = false;
                 IsStrong = isCommand;
 
-                if (info.CurrentMatch.Value is TournamentMatch match)
-                {
-                    if (match.Team1.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
-                        UsernameColour = TournamentGame.COLOUR_RED;
-                    else if (match.Team2.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
-                        UsernameColour = TournamentGame.COLOUR_BLUE;
-                }
+                if (info.CurrentMatch.Value is not TournamentMatch match) return;
+
+                if (match.Team1.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
+                    UsernameColour = TournamentGame.COLOUR_RED;
+                else if (match.Team2.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
+                    UsernameColour = TournamentGame.COLOUR_BLUE;
             }
         }
     }

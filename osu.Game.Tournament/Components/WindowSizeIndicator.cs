@@ -16,7 +16,7 @@ namespace osu.Game.Tournament.Components
 {
     public partial class WindowSizeIndicator : CompositeDrawable
     {
-        private BindableSize sizeBindable = new BindableSize();
+        private readonly BindableSize sizeBindable;
 
         private TournamentSpriteText winWidthText = null!;
         private TournamentSpriteText winHeightText = null!;

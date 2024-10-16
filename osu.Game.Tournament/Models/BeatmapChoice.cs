@@ -29,13 +29,14 @@ namespace osu.Game.Tournament.Models
     public enum TeamColour
     {
         /// <summary>
-        /// Used for winner, EX detection and as the default colour.
+        /// The default colour. Used for winner, EX detection, etc.
         /// </summary>
         None,
         Red,
         Blue,
+
         /// <summary>
-        /// Should only be used by actions.
+        /// Internally given colour. Should only be used by actions.
         /// </summary>
         Neutral
     }
@@ -44,7 +45,7 @@ namespace osu.Game.Tournament.Models
     public enum ChoiceType
     {
         /// <summary>
-        /// Another special type placeholder, shouldn't be used in normal conditions
+        /// Another special type placeholder, shouldn't be used in normal conditions.
         /// </summary>
         Neutral,
         Pick,
@@ -53,8 +54,9 @@ namespace osu.Game.Tournament.Models
         RedWin,
         BlueWin,
         Trap,
+
         /// <summary>
-        /// A special type, Swap specific
+        /// A special type, Swap trap specific.
         /// </summary>
         Swap
     }

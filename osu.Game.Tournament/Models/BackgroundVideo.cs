@@ -22,15 +22,14 @@ namespace osu.Game.Tournament.Models
         Mappool,
         RedWin,
         BlueWin,
-        // OFFC specific
         Draw,
         Board,
-        EXStage,
+        ExStage,
     }
 
     public static class BackgroundVideoProps
     {
-        public static readonly List<KeyValuePair<BackgroundVideo, string>> DISPLAY_NAMES = new List<KeyValuePair<BackgroundVideo, string>>()
+        public static readonly List<KeyValuePair<BackgroundVideo, string>> DISPLAY_NAMES = new List<KeyValuePair<BackgroundVideo, string>>
         {
             KeyValuePair.Create(BackgroundVideo.Main, "Main Video"),
             KeyValuePair.Create(BackgroundVideo.Ladder, "Ladder Video"),
@@ -46,10 +45,10 @@ namespace osu.Game.Tournament.Models
             // OFFC specific
             KeyValuePair.Create(BackgroundVideo.Draw, "Draw Video"),
             KeyValuePair.Create(BackgroundVideo.Board, "Board Video"),
-            KeyValuePair.Create(BackgroundVideo.EXStage, "EX Stage Video"),
+            KeyValuePair.Create(BackgroundVideo.ExStage, "EX Stage Video"),
         };
 
-        public static readonly BindableList<KeyValuePair<BackgroundVideo, string>> VIDEO_PATHS = new BindableList<KeyValuePair<BackgroundVideo, string>>()
+        public static readonly BindableList<KeyValuePair<BackgroundVideo, string>> VIDEO_PATHS = new BindableList<KeyValuePair<BackgroundVideo, string>>
         {
             KeyValuePair.Create(BackgroundVideo.Gameplay, "gameplay"),
             KeyValuePair.Create(BackgroundVideo.Mappool, "mappool"),
@@ -64,7 +63,7 @@ namespace osu.Game.Tournament.Models
             KeyValuePair.Create(BackgroundVideo.BlueWin, "teamwin-blue"),
             KeyValuePair.Create(BackgroundVideo.Draw, "mappool"),
             KeyValuePair.Create(BackgroundVideo.Board, "mappool"),
-            KeyValuePair.Create(BackgroundVideo.EXStage, "mappool"),
+            KeyValuePair.Create(BackgroundVideo.ExStage, "mappool"),
         };
 
         public static string GetDisplayName(BackgroundVideo video) => DISPLAY_NAMES.Find(kvp => kvp.Key == video).Value;

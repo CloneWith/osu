@@ -31,7 +31,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TourneyVideo redWinVideo = null!;
         private TourneyVideo mainVideo = null!;
 
-        private Container symbolContainer = null!;
+        private Container? symbolContainer;
         private FillFlowContainer captionContainer = null!;
 
         private TournamentSpriteText captionMainText = null!;
@@ -59,9 +59,9 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private DrawableTeamFlag blueFlag = null!;
         private DrawableTeamFlag winnerFlag = null!;
 
-        private SimpleAnimatedBoard animatedBoard = null!;
+        private SimpleAnimatedBoard? animatedBoard;
 
-        private Sprite banner = null!;
+        private Sprite? banner;
 
         private TextureStore textureStore = null!;
 
@@ -179,7 +179,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
             if (match?.Winner == null)
             {
-                mainContainer?.Clear();
+                mainContainer.Clear();
 
                 altContainer.Children = new Drawable[]
                 {
@@ -329,7 +329,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
             }
             else
             {
-                altContainer?.Clear();
+                altContainer.Clear();
                 symbolContainer?.Clear();
                 banner?.FadeOut();
 
@@ -384,7 +384,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         EdgeEffect = new EdgeEffectParameters
                         {
                             Type = EdgeEffectType.Glow,
-                            Colour = (match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1
+                            Colour = (match.WinnerColour == TeamColour.Red
+                                ? new OsuColour().Pink1
                                 : (match.WinnerColour == TeamColour.Blue ? Color4.SkyBlue : Color4.Yellow)).Opacity(0.5f),
                             Radius = 10,
                         },

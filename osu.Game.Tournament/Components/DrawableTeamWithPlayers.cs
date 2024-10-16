@@ -65,12 +65,12 @@ namespace osu.Game.Tournament.Components
             };
 
             static TournamentSpriteText createPlayerText(TournamentUser p) =>
-                    new TournamentSpriteText
-                    {
-                        Text = p.Username,
-                        Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
-                        Colour = Color4.White,
-                    };
+                new TournamentSpriteText
+                {
+                    Text = p.Username,
+                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
+                    Colour = Color4.White,
+                };
 
             static TeamPlayerCard createPlayerCard(TournamentUser user) =>
                 new TeamPlayerCard(user.ToAPIUser())

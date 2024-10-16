@@ -18,6 +18,7 @@ using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
+using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.TeamWin;
@@ -62,7 +63,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo(BackgroundVideo.EXStage, LadderInfo)
+                new TourneyVideo(BackgroundVideo.ExStage, LadderInfo)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -336,13 +337,13 @@ namespace osu.Game.Tournament.Screens.Board
 
                 switch (command.Command)
                 {
-                    case Commands.PickEX:
+                    case Commands.PickEx:
                         pickColour = TeamColour.Neutral;
                         pickType = ChoiceType.Pick;
                         addForBeatmap(command.MapMod);
                         break;
 
-                    case Commands.MarkEXWin:
+                    case Commands.MarkExWin:
                         pickColour = command.Team;
                         pickType = command.Team == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
                         addForBeatmap(command.MapMod);
@@ -393,7 +394,7 @@ namespace osu.Game.Tournament.Screens.Board
         private void reset()
         {
             CurrentMatch.Value?.EXPicks.Clear();
-            CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool(false));
+            CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
             // Reset buttons
             buttonPick.Colour = Color4.White;
@@ -493,7 +494,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value == null)
             {
-                AddInternal(warning = new WarningBox("Select a match from bracket screen first"));
+                AddInternal(warning = new WarningBox("The current match is unavailable."));
                 return;
             }
 

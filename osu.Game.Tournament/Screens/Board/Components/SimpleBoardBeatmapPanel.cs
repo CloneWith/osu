@@ -1,8 +1,6 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
-using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -11,24 +9,20 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
+using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
-using osuTK.Graphics.OpenGL;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Screens.Board.Components
 {
-
     public partial class SimpleBoardBeatmapPanel : CompositeDrawable
     {
         public readonly IBeatmapInfo? Beatmap;
 
         public readonly string Index;
-
         public readonly string Mod;
 
         public const float HEIGHT = 150;
@@ -59,7 +53,6 @@ namespace osu.Game.Tournament.Components
             Height = HEIGHT * scale;
         }
 
-
         [BackgroundDependencyLoader]
         private void load(LadderInfo ladder)
         {
@@ -88,7 +81,7 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.White,
-                    Size = new osuTK.Vector2(0.4f),
+                    Size = new Vector2(0.4f),
                     Alpha = 0,
                 },
                 swapIcon = new SpriteIcon
@@ -97,7 +90,7 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Yellow,
-                    Size = new osuTK.Vector2(0.4f),
+                    Size = new Vector2(0.4f),
                     Icon = FontAwesome.Solid.ExchangeAlt,
                     Alpha = 0,
                 },
@@ -107,8 +100,8 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.BottomLeft,
                     Icon = FontAwesome.Solid.Lock,
                     Colour = Color4.White,
-                    Size = new osuTK.Vector2(24),
-                    Position = new osuTK.Vector2(5, -5),
+                    Size = new Vector2(24),
+                    Position = new Vector2(5, -5),
                     Alpha = 0,
                 },
                 trapIcon = new SpriteIcon
@@ -117,8 +110,8 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.BottomRight,
                     Icon = FontAwesome.Solid.ExclamationCircle,
                     Colour = Color4.White,
-                    Size = new osuTK.Vector2(24),
-                    Position = new osuTK.Vector2(-5, -5),
+                    Size = new Vector2(24),
+                    Position = new Vector2(-5, -5),
                     Alpha = 0,
                 },
                 flash = new Box
@@ -137,7 +130,7 @@ namespace osu.Game.Tournament.Components
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Width = 60,
-                    Size = new osuTK.Vector2(80),
+                    Size = new Vector2(80),
                     RelativeSizeAxes = Axes.Y,
                 });
             }
@@ -146,6 +139,7 @@ namespace osu.Game.Tournament.Components
         public void Flash(int count = 1)
         {
             if (count <= 0) return;
+
             if (count == 1) flash.FadeOutFromOne(duration: 900, easing: Easing.OutSine);
             else flash.FadeOutFromOne(duration: 900, easing: Easing.OutSine).Loop(0, count);
         }
@@ -153,6 +147,7 @@ namespace osu.Game.Tournament.Components
         public void InitAnimate(int initDelay = 0)
         {
             Scale = new Vector2(0.7f);
+
             using (BeginDelayedSequence(initDelay))
             {
                 this.FadeInFromZero(400, Easing.OutCubic);
@@ -172,6 +167,7 @@ namespace osu.Game.Tournament.Components
                 for (int i = 0; i < relatedProtectChoices.Count(); i++)
                 {
                     var protect = relatedProtectChoices.ElementAt(i);
+
                     using (BeginDelayedSequence(i * 250))
                     {
                         backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
@@ -183,6 +179,7 @@ namespace osu.Game.Tournament.Components
                 for (int i = 0; i < relatedTrapChoices.Count(); i++)
                 {
                     var trap = relatedTrapChoices.ElementAt(i);
+
                     using (BeginDelayedSequence((i + relatedProtectChoices.Count()) * 250))
                     {
                         backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
@@ -194,6 +191,7 @@ namespace osu.Game.Tournament.Components
                 for (int i = 0; i < relatedBPChoices.Count(); i++)
                 {
                     var choice = relatedBPChoices.ElementAt(i);
+
                     using (BeginDelayedSequence((i + relatedProtectChoices.Count() + relatedTrapChoices.Count()) * 250))
                     {
                         Flash();
@@ -246,16 +244,6 @@ namespace osu.Game.Tournament.Components
                     }
                 }
             }
-        }
-
-        private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
-        {
-            // As covers are displayed on stream, we want them to load as soon as possible.
-            protected override double LoadDelay => 0;
-
-            // Use DelayedLoadWrapper to avoid content unloading when switching away to another screen.
-            protected override DelayedLoadWrapper CreateDelayedLoadWrapper(Func<Drawable> createContentFunc, double timeBeforeLoad)
-                => new DelayedLoadWrapper(createContentFunc(), timeBeforeLoad);
         }
     }
 }

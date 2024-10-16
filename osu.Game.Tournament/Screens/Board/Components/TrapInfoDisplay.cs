@@ -10,11 +10,11 @@ using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Screens.Board.Components
 {
     public partial class TrapInfoDisplay : CompositeDrawable
     {
-        private readonly TrapInfo thisTrap = null!;
+        private readonly TrapInfo thisTrap;
 
         public TrapInfoDisplay(TrapInfo thisTrap)
         {

@@ -18,13 +18,10 @@ using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Components.Animations
 {
     public partial class TournamentIntro : CompositeDrawable, IAnimation
     {
-        [Resolved]
-        private TournamentSceneManager? sceneManager { get; set; }
-
         private readonly RoundBeatmap map;
         private readonly string mod;
         private readonly TeamColour colour;
@@ -447,12 +444,12 @@ namespace osu.Game.Tournament.Components
                                .MoveToY(0, 4000);
 
                 modText.Delay(200)
-                    .Then().FadeColour(modColour, 500, Easing.OutQuint);
+                       .Then().FadeColour(modColour, 500, Easing.OutQuint);
 
                 secondDisplay.MoveToY(y_offset_start)
-                                 .MoveToY(y_offset_end, 300, Easing.OutQuint)
-                                 .Then()
-                                 .MoveToY(0, 4000);
+                             .MoveToY(y_offset_end, 300, Easing.OutQuint)
+                             .Then()
+                             .MoveToY(0, 4000);
 
                 using (BeginDelayedSequence(1000))
                 {

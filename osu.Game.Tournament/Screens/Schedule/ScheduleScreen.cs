@@ -304,7 +304,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                         Children = new Drawable[]
                         {
                             new TournamentSpriteTextWithBackground(text: title.ToUpperInvariant(),
-                                backgroundColor: Color4Extensions.Opacity(Color4.White, 0), textColor: Color4.White
+                                backgroundColor: Color4.White.Opacity(0), textColor: Color4.White
                             )
                             {
                                 Scale = new Vector2(0.5f)
