@@ -227,7 +227,7 @@ namespace osu.Game.Tournament.Components
                         topMask = new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.White,
+                            Colour = Color4.Black,
                             Alpha = 0,
                         },
                     },
@@ -287,6 +287,8 @@ namespace osu.Game.Tournament.Components
 
             var newChoice = currentMatch.Value.EXPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
+            string choiceText = newChoice?.Team == TeamColour.Red ? "Red" :
+                newChoice?.Team == TeamColour.Blue ? "Blue" : "Map";
             bool shouldFlash = newChoice != choice;
 
             if (newChoice != null)
@@ -295,23 +297,39 @@ namespace osu.Game.Tournament.Components
 
                 if (shouldFlash)
                 {
+                    topMask.FadeTo(newChoice.Type == ChoiceType.Ban ? 0.5f : 0f, 300, Easing.OutQuint);
+
                     switch (newChoice.Type)
                     {
                         case ChoiceType.Pick:
                             statusIcon.Icon = FontAwesome.Solid.CheckCircle;
                             instructText.Text = "Map picked!";
 
-                            backgroundAddition.Colour = Color4.White;
+                            backgroundAddition.FadeColour(Color4.White, 100, Easing.OutQuint);
                             backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.OutQuint);
 
                             runAnimation();
+                            break;
+
+                        case ChoiceType.Ban:
+                            instructText.Text = $"{choiceText} banned!";
+                            statusIcon.Icon = FontAwesome.Solid.Ban;
+
+                            runAnimation(Color4.Gray);
+                            break;
+
+                        case ChoiceType.Protect:
+                            instructText.Text = $"{choiceText} protected!";
+                            statusIcon.Icon = FontAwesome.Solid.Lock;
+
+                            runAnimation(newChoice.Team == TeamColour.Red ? new OsuColour().Red : new OsuColour().Sky);
                             break;
 
                         case ChoiceType.RedWin:
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Red wins!";
 
-                            backgroundAddition.Colour = new OsuColour().Red;
+                            backgroundAddition.FadeColour(new OsuColour().Red, 100, Easing.OutQuint);
                             backgroundAddition.FadeTo(newAlpha: 0.35f, duration: 100, easing: Easing.OutQuint);
 
                             runAnimation(new OsuColour().Red);
@@ -321,14 +339,14 @@ namespace osu.Game.Tournament.Components
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Blue wins!";
 
-                            backgroundAddition.Colour = new OsuColour().Sky;
+                            backgroundAddition.FadeColour(new OsuColour().Sky, 100, Easing.OutQuint);
                             backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 100, easing: Easing.OutQuint);
 
                             runAnimation(new OsuColour().Sky);
                             break;
 
                         default:
-                            backgroundAddition.Colour = Color4.White;
+                            backgroundAddition.FadeColour(Color4.White, 100, Easing.OutQuint);
                             backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
                             break;
                     }
@@ -350,6 +368,10 @@ namespace osu.Game.Tournament.Components
             return;
         }
 
+        /// <summary>
+        /// Start the animation sequence for the beatmap card.
+        /// </summary>
+        /// <param name="colour">The background colour in Step 2.</param>
         private void runAnimation(ColourInfo? colour = null)
         {
             ColourInfo useColour = colour ?? Color4.White;
