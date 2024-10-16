@@ -6,13 +6,13 @@ using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
@@ -28,8 +28,10 @@ namespace osu.Game.Tournament.Components
         public readonly IBeatmapInfo? Beatmap;
 
         public const float WIDTH = 550;
-
         public const float HEIGHT = 75;
+
+        private const float initial_width = 0.98f;
+        private const float shrink_width = 0.93f;
 
         private readonly string mod;
         private readonly string index;
@@ -41,6 +43,8 @@ namespace osu.Game.Tournament.Components
         private FillFlowContainer infoContainer = null!;
         private Box topMask = null!;
         private Box backgroundAddition = null!;
+        private TournamentSpriteText instructText = null!;
+        private Box slideBackground = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -107,22 +111,12 @@ namespace osu.Game.Tournament.Components
                     RelativeSizeAxes = Axes.Both,
                     Colour = ColourInfo.GradientHorizontal(new Color4(1f, 1f, 1f, 0.4f), new Color4(0f, 0f, 0f, 0f)),
                 },
-                statusIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.Centre,
-                    Icon = FontAwesome.Solid.Heart,
-                    Size = new Vector2(24),
-                    Colour = Color4.White,
-                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                    // Alpha = 0,
-                },
                 beatmapInfoContainer = new Container
                 {
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
                     RelativeSizeAxes = Axes.Both,
-                    Width = 0.98f,
+                    Width = initial_width,
                     Height = 0.95f,
                     CornerRadius = 10f,
                     Masking = true,
@@ -230,6 +224,34 @@ namespace osu.Game.Tournament.Components
                         },
                     },
                 },
+                slideBackground = new Box
+                {
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    X = WIDTH,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.White,
+                    Alpha = 0,
+                },
+                statusIcon = new SpriteIcon
+                {
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.Centre,
+                    Icon = FontAwesome.Solid.Heart,
+                    Size = new Vector2(24),
+                    Colour = Color4.White,
+                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Alpha = 0,
+                },
+                instructText = new TournamentSpriteText
+                {
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreLeft,
+                    Font = OsuFont.TorusAlternate.With(size: 36, weight: FontWeight.SemiBold),
+                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Text = "This is a new map",
+                    Alpha = 0,
+                },
             };
         }
 
@@ -246,9 +268,114 @@ namespace osu.Game.Tournament.Components
         private void picksBansOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
             => Scheduler.AddOnce(updateState);
 
+        private BeatmapChoice? choice;
+
         private void updateState()
         {
-            // TODO
+            if (currentMatch.Value == null)
+            {
+                return;
+            }
+
+            var newChoice = currentMatch.Value.EXPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
+
+            bool shouldFlash = newChoice != choice;
+
+            if (newChoice != null)
+            {
+                beatmapInfoContainer.ResizeWidthTo(shrink_width, 200, Easing.OutQuint);
+
+                if (shouldFlash)
+                {
+                    switch (newChoice.Type)
+                    {
+                        case ChoiceType.Pick:
+                            colorBackground.FadeColour(Color4.White, 300, Easing.OutQuint);
+                            backgroundAddition.Colour = Color4.White;
+                            backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+                            break;
+
+                        case ChoiceType.RedWin:
+                            statusIcon.Icon = FontAwesome.Solid.Trophy;
+                            instructText.Text = "Red wins!";
+
+                            using (BeginDelayedSequence(200))
+                            {
+                                slideBackground.X = WIDTH;
+                                slideBackground.Colour = Color4.White;
+                                slideBackground.Alpha = 1f;
+                                statusIcon.Colour = Color4.Black;
+                                instructText.Colour = Color4.Black;
+                                beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
+
+                                using (BeginDelayedSequence(200))
+                                {
+                                    slideBackground.MoveToX(0, 500, Easing.OutQuint);
+                                }
+
+                                using (BeginDelayedSequence(700))
+                                {
+                                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
+                                    statusIcon.ScaleTo(2f, 900, Easing.OutQuint)
+                                              .Then().ScaleTo(1.5f, 900, Easing.OutQuint)
+                                              .Loop(0, 3);
+                                    statusIcon.FadeIn(700, Easing.OutQuint);
+
+                                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
+                                    instructText.FadeIn(700, Easing.OutQuint);
+                                }
+
+                                using (BeginDelayedSequence(1200))
+                                {
+                                    slideBackground.FadeColour(new OsuColour().Red, 1000, Easing.OutQuint);
+                                    statusIcon.FadeColour(Color4.White, 1000, Easing.OutQuint);
+                                    instructText.FadeColour(Color4.White, 1000, Easing.OutQuint);
+
+                                    using (BeginDelayedSequence(3000))
+                                    {
+                                        slideBackground.MoveToX(-WIDTH, 500, Easing.OutQuint);
+                                        slideBackground.FadeOut(500, Easing.OutQuint);
+                                        statusIcon.MoveToX(WIDTH * 0.035f, 500, Easing.OutQuint);
+                                        statusIcon.ScaleTo(1f, 800, Easing.OutQuint);
+                                        instructText.MoveToX(0, 500, Easing.OutQuint);
+                                        instructText.FadeOut(700, Easing.OutQuint);
+                                        beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
+                                        colorBackground.FadeColour(ColourInfo.GradientHorizontal(new OsuColour().Red, Color4.White.Opacity(0)),
+                                            400, Easing.OutQuint);
+                                    }
+                                }
+                            }
+
+                            backgroundAddition.Colour = new OsuColour().Red;
+                            backgroundAddition.FadeTo(newAlpha: 0.35f, duration: 100, easing: Easing.InCubic);
+                            break;
+
+                        case ChoiceType.BlueWin:
+                            colorBackground.FadeColour(new OsuColour().Sky, 300, Easing.OutQuint);
+                            backgroundAddition.Colour = new OsuColour().Sky;
+                            backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 100, easing: Easing.InCubic);
+                            break;
+
+                        default:
+                            backgroundAddition.Colour = Color4.White;
+                            backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                backgroundAddition.ClearTransforms();
+                backgroundAddition.FadeOut(duration: 100, easing: Easing.OutCubic);
+                backgroundAddition.Colour = Color4.White;
+                beatmapInfoContainer.ResizeWidthTo(initial_width, 200, Easing.OutQuint);
+                statusIcon.FadeOut(200, Easing.OutQuint);
+                colorBackground.FadeColour(ColourInfo.GradientHorizontal(new Color4(1f, 1f, 1f, 0.4f), new Color4(0f, 0f, 0f, 0f)),
+                    200, Easing.OutQuint);
+                Alpha = 1;
+            }
+
+            choice = newChoice;
             return;
         }
 
