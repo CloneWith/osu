@@ -331,18 +331,12 @@ namespace osu.Game.Tournament.Components
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Red wins!";
 
-                            backgroundAddition.FadeColour(new OsuColour().Red, 100, Easing.OutQuint);
-                            backgroundAddition.FadeTo(newAlpha: 0.35f, duration: 100, easing: Easing.OutQuint);
-
                             runAnimation(new OsuColour().Red);
                             break;
 
                         case ChoiceType.BlueWin:
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Blue wins!";
-
-                            backgroundAddition.FadeColour(new OsuColour().Sky, 100, Easing.OutQuint);
-                            backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 100, easing: Easing.OutQuint);
 
                             runAnimation(new OsuColour().Sky);
                             break;
@@ -417,6 +411,13 @@ namespace osu.Game.Tournament.Components
                     statusIcon.MoveToX(WIDTH * 0.33f, 900, Easing.OutQuint);
                     instructText.MoveToX(-WIDTH * 0.55f, 900, Easing.OutExpo);
                     instructText.FadeIn(700, Easing.OutQuint);
+
+                    // Execute backgroundAddition commands before the last delayed sequence
+                    if (colour != null)
+                    {
+                        backgroundAddition.FadeColour(useColour, 1000, Easing.OutQuint);
+                        backgroundAddition.FadeTo(0.5f, 1000, Easing.OutQuint);
+                    }
 
                     using (BeginDelayedSequence(3000))
                     {
