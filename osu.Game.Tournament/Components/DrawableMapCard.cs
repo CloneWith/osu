@@ -393,13 +393,12 @@ namespace osu.Game.Tournament.Components
 
                 using (BeginDelayedSequence(700))
                 {
-                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
-                    statusIcon.ScaleTo(2f, 900, Easing.OutQuint)
-                              .Then().ScaleTo(1.5f, 900, Easing.OutQuint)
-                              .Loop(0, 3);
+                    // Set statusIcon to the center and apply a short scale-in effect
+                    statusIcon.X = WIDTH * 0.5f;
                     statusIcon.FadeIn(700, Easing.OutQuint);
-                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
-                    instructText.FadeIn(700, Easing.OutQuint);
+                    statusIcon.ScaleTo(3f, 0) // Set initial scale to 3f
+                              .Then().ScaleTo(1.7f, 300, Easing.OutQuint);
+
                 }
 
                 using (BeginDelayedSequence(1200))
@@ -407,6 +406,11 @@ namespace osu.Game.Tournament.Components
                     slideBackground.FadeColour(useColour, 1000, Easing.OutQuint);
                     statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
+
+                    // Apply transformation of statusIcon and reveal instructText
+                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
+                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
+                    instructText.FadeIn(700, Easing.OutQuint);
 
                     using (BeginDelayedSequence(3000))
                     {
