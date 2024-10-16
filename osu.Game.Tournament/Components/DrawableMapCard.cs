@@ -392,32 +392,25 @@ namespace osu.Game.Tournament.Components
                 statusIcon.Colour = Color4.Black;
                 instructText.Colour = Color4.Black;
                 beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
-
                 using (BeginDelayedSequence(200))
                 {
                     slideBackground.MoveToX(0, 500, Easing.OutQuint);
                 }
-
                 using (BeginDelayedSequence(700))
                 {
-                    // Set statusIcon to the center and apply a short scale-in effect
                     statusIcon.X = WIDTH * 0.5f;
                     statusIcon.FadeIn(300, Easing.OutQuint);
                     statusIcon.ScaleTo(3f, 0) // Set initial scale to 3f
                               .Then().ScaleTo(1.7f, 500, Easing.OutQuint);
                 }
-
                 using (BeginDelayedSequence(1200))
                 {
                     slideBackground.FadeColour(useColour, 1000, Easing.OutQuint);
                     statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
-
-                    // Apply transformation of statusIcon and reveal instructText
                     statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
                     instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
-                    instructText.FadeIn(700, Easing.OutQuint);
-
+                    addHandwritingEffect(instructText, 700, Easing.OutQuint);
                     using (BeginDelayedSequence(3000))
                     {
                         slideBackground.Delay(500).MoveToX(-WIDTH, 500, Easing.OutQuint);
@@ -427,12 +420,57 @@ namespace osu.Game.Tournament.Components
                         instructText.MoveToX(0, 500, Easing.OutQuint);
                         instructText.FadeOut(700, Easing.OutQuint);
                         beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
-                        colorBackground.FadeColour(ColourInfo.GradientHorizontal(useColour, Color4.White.Opacity(0)),
-                            400, Easing.OutQuint);
+                        colorBackground.FadeColour(ColourInfo.GradientHorizontal(useColour, Color4.White.Opacity(0)), 400, Easing.OutQuint);
                     }
                 }
             }
         }
+
+        private void addHandwritingEffect(TournamentSpriteText instructText, double duration, Easing easing)
+        {
+            string instructTextString = instructText.Text.ToString();
+            instructText.Text = string.Empty;
+
+            var parentContainer = new Container
+            {
+                AutoSizeAxes = Axes.Both,
+                Position = instructText.Position
+            };
+
+            (instructText.Parent as Container)?.Add(parentContainer);
+
+            for (int i = 0; i < instructTextString.Length; i++)
+            {
+                char character = instructTextString[i];
+                using (BeginDelayedSequence(i * duration / instructTextString.Length))
+                {
+                    var charContainer = new Container
+                    {
+                        AutoSizeAxes = Axes.Both,
+                        Alpha = 0
+                    };
+                    parentContainer.Add(charContainer);
+                    // These code will execute but they does not get displayed.
+                    // Writing these debug lines to the console for debugging purposes.
+                    Console.WriteLine($"Adding character '{character}' to container.");
+                    animateCharacter(charContainer, character, duration / instructTextString.Length, easing);
+                }
+            }
+        }
+        private void animateCharacter(Container charContainer, char character, double duration, Easing easing)
+        {
+            var charSpriteText = new TournamentSpriteText
+            {
+                Text = character.ToString()
+            };
+            charContainer.Add(charSpriteText);
+            Console.WriteLine($"Animating character '{character}' with duration {duration}.");
+            charContainer.FadeIn(duration, easing).OnComplete(c =>
+            {
+                Console.WriteLine($"Character '{character}' animation complete. Alpha: {c.Alpha}");
+            });
+        }
+
 
         private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
         {
