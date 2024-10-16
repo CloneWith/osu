@@ -391,9 +391,9 @@ namespace osu.Game.Tournament.Components
                 slideBackground.Alpha = 1f;
                 statusIcon.Colour = Color4.Black;
                 instructText.Colour = Color4.Black;
-                beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
+                beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutExpo);
 
-                using (BeginDelayedSequence(200))
+                using (BeginDelayedSequence(300))
                 {
                     slideBackground.MoveToX(0, 500, Easing.OutQuint);
                 }
@@ -403,8 +403,8 @@ namespace osu.Game.Tournament.Components
                     // Set statusIcon to the center and apply a short scale-in effect
                     statusIcon.X = WIDTH * 0.5f;
                     statusIcon.FadeIn(300, Easing.OutQuint);
-                    statusIcon.ScaleTo(3f, 0) // Set initial scale to 3f
-                              .Then().ScaleTo(1.7f, 500, Easing.OutQuint);
+                    statusIcon.ScaleTo(4f, 0) // Set initial scale to 4f instead
+                              .Then().ScaleTo(1.7f, 400, Easing.OutQuint);
                 }
 
                 using (BeginDelayedSequence(1200))
@@ -414,19 +414,20 @@ namespace osu.Game.Tournament.Components
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
 
                     // Apply transformation of statusIcon and reveal instructText
-                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
-                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
+                    statusIcon.MoveToX(WIDTH * 0.33f, 900, Easing.OutQuint);
+                    instructText.MoveToX(-WIDTH * 0.55f, 900, Easing.OutExpo);
                     instructText.FadeIn(700, Easing.OutQuint);
 
                     using (BeginDelayedSequence(3000))
                     {
-                        slideBackground.Delay(500).MoveToX(-WIDTH, 500, Easing.OutQuint);
+                        slideBackground.Delay(500).MoveToX(-WIDTH, 800, Easing.OutExpo);
                         slideBackground.FadeOut(1000, Easing.OutQuint);
-                        statusIcon.MoveToX(WIDTH * 0.035f, 500, Easing.OutQuint);
-                        statusIcon.ScaleTo(1f, 800, Easing.OutQuint);
-                        instructText.MoveToX(0, 500, Easing.OutQuint);
+                        statusIcon.MoveToX(WIDTH * 0.035f, 1000, Easing.OutExpo);
+                        statusIcon.ScaleTo(1f, 1200, Easing.OutQuint);
+                        beatmapInfoContainer.MoveToX(0, 1300, Easing.OutExpo);
+                        // ↓ A swift movement would be too visual distracting.
+                        instructText.MoveToX(0, 2000, Easing.OutQuint);
                         instructText.FadeOut(700, Easing.OutQuint);
-                        beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
                         colorBackground.FadeColour(ColourInfo.GradientHorizontal(useColour, Color4.White.Opacity(0)),
                             400, Easing.OutQuint);
                     }
