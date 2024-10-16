@@ -397,8 +397,8 @@ namespace osu.Game.Tournament.Components
                     // Set statusIcon to the center and apply a short scale-in effect
                     statusIcon.X = WIDTH * 0.5f;
                     statusIcon.FadeIn(300, Easing.OutQuint);
-                    statusIcon.ScaleTo(4f, 0) // Set initial scale to 4f instead
-                              .Then().ScaleTo(1.7f, 400, Easing.OutQuint);
+                    statusIcon.ScaleTo(4.5f, 0) // Set initial scale to 4f instead
+                              .Then().ScaleTo(2.2f, 400, Easing.OutQuint);
                 }
 
                 using (BeginDelayedSequence(1200))
