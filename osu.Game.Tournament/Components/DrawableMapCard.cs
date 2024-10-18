@@ -429,7 +429,7 @@ namespace osu.Game.Tournament.Components
                     instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
 
                     // Our function is not transformable, thus the sequence delay won't be applied.
-                    fadeInByCharacter(instructText, 700, Easing.OutQuint, 1500, fadeColour);
+                    fadeInByCharacter(instructText.Text.ToString(), 700, Easing.OutQuint, 1500, fadeColour);
 
                     using (BeginDelayedSequence(3000))
                     {
@@ -446,18 +446,25 @@ namespace osu.Game.Tournament.Components
             }
         }
 
-        private void fadeInByCharacter(TournamentSpriteText instructText, double duration, Easing easing, int start = 0,
+        /// <summary>
+        /// Make each character in the given string to fade in one by one.
+        /// </summary>
+        /// <param name="text">The string to fade in.</param>
+        /// <param name="duration">The duration for a character to fade in.</param>
+        /// <param name="easing">The easing type for characters to use while fading in.</param>
+        /// <param name="start">The time stamp when the fade in process starts.</param>
+        /// <param name="step1Color">The initial colour when fading in.</param>
+        private void fadeInByCharacter(string text, double duration, Easing easing, int start = 0,
                                        ColourInfo? step1Color = null)
         {
+            // Ensure the character container is empty before adding new characters.
             charContainer.Clear();
 
             ColourInfo initialColor = step1Color ?? Color4.Black;
 
-            string instructTextString = instructText.Text.ToString();
-
-            for (int i = 0; i < instructTextString.Length; i++)
+            for (int i = 0; i < text.Length; i++)
             {
-                char character = instructTextString[i];
+                char character = text[i];
 
                 var charSpriteText = new TournamentSpriteText
                 {
@@ -470,7 +477,7 @@ namespace osu.Game.Tournament.Components
 
                 charContainer.Add(charSpriteText);
 
-                charSpriteText.Delay((int)(start + i * duration / instructTextString.Length))
+                charSpriteText.Delay((int)(start + i * duration / text.Length))
                               .FadeIn(duration, easing);
             }
         }
