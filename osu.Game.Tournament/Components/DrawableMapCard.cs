@@ -341,18 +341,12 @@ namespace osu.Game.Tournament.Components
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Red wins!";
 
-                            backgroundAddition.FadeColour(new OsuColour().Red, 100, Easing.OutQuint);
-                            backgroundAddition.FadeTo(newAlpha: 0.35f, duration: 100, easing: Easing.OutQuint);
-
                             runAnimation(new OsuColour().Red);
                             break;
 
                         case ChoiceType.BlueWin:
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
                             instructText.Text = "Blue wins!";
-
-                            backgroundAddition.FadeColour(new OsuColour().Sky, 100, Easing.OutQuint);
-                            backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 100, easing: Easing.OutQuint);
 
                             runAnimation(new OsuColour().Sky);
                             break;
@@ -405,7 +399,7 @@ namespace osu.Game.Tournament.Components
                 charContainer.X = WIDTH * 0.5f;
                 beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
 
-                using (BeginDelayedSequence(200))
+                using (BeginDelayedSequence(300))
                 {
                     slideBackground.MoveToX(0, 500, Easing.OutQuint);
                 }
@@ -414,8 +408,8 @@ namespace osu.Game.Tournament.Components
                 {
                     statusIcon.X = WIDTH * 0.5f;
                     statusIcon.FadeIn(300, Easing.OutQuint);
-                    statusIcon.ScaleTo(3f, 0) // Set initial scale to 3f
-                              .Then().ScaleTo(1.7f, 500, Easing.OutQuint);
+                    statusIcon.ScaleTo(4.5f, 0) // Set initial scale to 4f instead
+                              .Then().ScaleTo(2.2f, 400, Easing.OutQuint);
                 }
 
                 using (BeginDelayedSequence(1200))
@@ -423,21 +417,30 @@ namespace osu.Game.Tournament.Components
                     slideBackground.FadeColour(useColour, 1000, Easing.OutQuint);
                     statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
-                    statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
+                    statusIcon.MoveToX(WIDTH * 0.33f, 900, Easing.OutQuint);
                     charContainer.MoveToX(WIDTH * -0.05f, 900, Easing.OutQuint)
                                  .Then().Delay(200).ScaleTo(1.15f, 300, Easing.OutQuint);
-                    instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
+                    instructText.MoveToX(-WIDTH * 0.55f, 900, Easing.OutExpo);
 
                     // Our function is not transformable, thus the sequence delay won't be applied.
                     fadeInByCharacter(instructText.Text.ToString(), 700, Easing.OutQuint, 1500, fadeColour);
 
+                    // Execute backgroundAddition commands before the last delayed sequence
+                    if (colour != null)
+                    {
+                        backgroundAddition.FadeColour(useColour, 1000, Easing.OutQuint);
+                        backgroundAddition.FadeTo(0.5f, 1000, Easing.OutQuint);
+                    }
+
                     using (BeginDelayedSequence(3000))
                     {
-                        slideBackground.Delay(500).MoveToX(-WIDTH, 500, Easing.OutQuint);
+                        slideBackground.Delay(500).MoveToX(-WIDTH, 800, Easing.OutExpo);
                         slideBackground.FadeOut(1000, Easing.OutQuint);
-                        statusIcon.MoveToX(WIDTH * 0.035f, 500, Easing.OutQuint);
-                        statusIcon.ScaleTo(1f, 800, Easing.OutQuint);
-                        instructText.MoveToX(0, 500, Easing.OutQuint);
+                        statusIcon.MoveToX(WIDTH * 0.035f, 1000, Easing.OutExpo);
+                        statusIcon.ScaleTo(1f, 1200, Easing.OutQuint);
+                        beatmapInfoContainer.MoveToX(0, 1300, Easing.OutExpo);
+                        // ↓ A swift movement would be too visual distracting.
+                        instructText.MoveToX(0, 2000, Easing.OutQuint);
                         instructText.FadeOut(700, Easing.OutQuint);
                         beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
                         colorBackground.FadeColour(ColourInfo.GradientHorizontal(useColour, Color4.White.Opacity(0)), 400, Easing.OutQuint);
