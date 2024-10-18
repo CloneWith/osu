@@ -423,7 +423,9 @@ namespace osu.Game.Tournament.Components
                     instructText.MoveToX(-WIDTH * 0.55f, 900, Easing.OutExpo);
 
                     // Our function is not transformable, thus the sequence delay won't be applied.
-                    fadeInByCharacter(instructText.Text.ToString(), 700, Easing.OutQuint, 1500, fadeColour);
+
+                    // ↓ Perhaps due to this line, the animation on line 445 won't work
+                    fadeInByCharacter(instructText.Text.ToString(), 550, Easing.OutQuint, 1500, fadeColour);
 
                     // Execute backgroundAddition commands before the last delayed sequence
                     if (colour != null)
