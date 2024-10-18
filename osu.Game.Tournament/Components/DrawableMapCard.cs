@@ -46,6 +46,8 @@ namespace osu.Game.Tournament.Components
         private TournamentSpriteText instructText = null!;
         private Box slideBackground = null!;
 
+        private FillFlowContainer charContainer = null!;
+
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         public DrawableMapCard(IBeatmapInfo? map, string mod = "", string index = "")
@@ -138,6 +140,14 @@ namespace osu.Game.Tournament.Components
                     Shear = new Vector2(-OsuGame.SHEAR, 0f),
                     Text = "This is a new map",
                     Alpha = 0,
+                },
+                charContainer = new FillFlowContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.CentreLeft,
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
+                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
                 },
                 beatmapInfoContainer = new Container
                 {
@@ -391,11 +401,15 @@ namespace osu.Game.Tournament.Components
                 slideBackground.Alpha = 1f;
                 statusIcon.Colour = Color4.Black;
                 instructText.Colour = Color4.Black;
+                charContainer.Scale = new Vector2(1f, 1f);
+                charContainer.X = WIDTH * 0.5f;
                 beatmapInfoContainer.MoveToX(WIDTH, 200, Easing.OutQuint);
+
                 using (BeginDelayedSequence(200))
                 {
                     slideBackground.MoveToX(0, 500, Easing.OutQuint);
                 }
+
                 using (BeginDelayedSequence(700))
                 {
                     statusIcon.X = WIDTH * 0.5f;
@@ -403,14 +417,20 @@ namespace osu.Game.Tournament.Components
                     statusIcon.ScaleTo(3f, 0) // Set initial scale to 3f
                               .Then().ScaleTo(1.7f, 500, Easing.OutQuint);
                 }
+
                 using (BeginDelayedSequence(1200))
                 {
                     slideBackground.FadeColour(useColour, 1000, Easing.OutQuint);
                     statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     statusIcon.MoveToX(WIDTH * 0.3f, 900, Easing.OutQuint);
+                    charContainer.MoveToX(WIDTH * -0.05f, 900, Easing.OutQuint)
+                                 .Then().Delay(200).ScaleTo(1.15f, 300, Easing.OutQuint);
                     instructText.MoveToX(-WIDTH * 0.6f, 900, Easing.OutQuint);
-                    addHandwritingEffect(instructText, 700, Easing.OutQuint);
+
+                    // Our function is not transformable, thus the sequence delay won't be applied.
+                    fadeInByCharacter(instructText, 700, Easing.OutQuint, 1500, fadeColour);
+
                     using (BeginDelayedSequence(3000))
                     {
                         slideBackground.Delay(500).MoveToX(-WIDTH, 500, Easing.OutQuint);
@@ -426,51 +446,34 @@ namespace osu.Game.Tournament.Components
             }
         }
 
-        private void addHandwritingEffect(TournamentSpriteText instructText, double duration, Easing easing)
+        private void fadeInByCharacter(TournamentSpriteText instructText, double duration, Easing easing, int start = 0,
+                                       ColourInfo? step1Color = null)
         {
+            charContainer.Clear();
+
+            ColourInfo initialColor = step1Color ?? Color4.Black;
+
             string instructTextString = instructText.Text.ToString();
-            instructText.Text = string.Empty;
-
-            var parentContainer = new Container
-            {
-                AutoSizeAxes = Axes.Both,
-                Position = instructText.Position
-            };
-
-            (instructText.Parent as Container)?.Add(parentContainer);
 
             for (int i = 0; i < instructTextString.Length; i++)
             {
                 char character = instructTextString[i];
-                using (BeginDelayedSequence(i * duration / instructTextString.Length))
+
+                var charSpriteText = new TournamentSpriteText
                 {
-                    var charContainer = new Container
-                    {
-                        AutoSizeAxes = Axes.Both,
-                        Alpha = 0
-                    };
-                    parentContainer.Add(charContainer);
-                    // These code will execute but they does not get displayed.
-                    // Writing these debug lines to the console for debugging purposes.
-                    Console.WriteLine($"Adding character '{character}' to container.");
-                    animateCharacter(charContainer, character, duration / instructTextString.Length, easing);
-                }
+                    Text = character.ToString(),
+                    Font = OsuFont.Torus.With(size: 32, weight: FontWeight.Bold),
+                    Colour = initialColor,
+                    Shadow = false,
+                    Alpha = 0
+                };
+
+                charContainer.Add(charSpriteText);
+
+                charSpriteText.Delay((int)(start + i * duration / instructTextString.Length))
+                              .FadeIn(duration, easing);
             }
         }
-        private void animateCharacter(Container charContainer, char character, double duration, Easing easing)
-        {
-            var charSpriteText = new TournamentSpriteText
-            {
-                Text = character.ToString()
-            };
-            charContainer.Add(charSpriteText);
-            Console.WriteLine($"Animating character '{character}' with duration {duration}.");
-            charContainer.FadeIn(duration, easing).OnComplete(c =>
-            {
-                Console.WriteLine($"Character '{character}' animation complete. Alpha: {c.Alpha}");
-            });
-        }
-
 
         private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
         {
