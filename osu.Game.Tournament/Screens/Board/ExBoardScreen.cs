@@ -442,16 +442,6 @@ namespace osu.Game.Tournament.Screens.Board
                 BeatmapID = beatmapId,
             });
 
-            if (pickType == ChoiceType.Pick)
-            {
-                var map = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
-
-                if (map != null)
-                {
-                    sceneManager?.ShowMapIntro(map);
-                }
-            }
-
             if (pickType == ChoiceType.RedWin || pickType == ChoiceType.BlueWin)
             {
                 if (CurrentMatch.Value.Round.Value.IsFinalStage.Value)
