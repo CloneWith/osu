@@ -408,7 +408,7 @@ namespace osu.Game.Tournament.Components
                 {
                     statusIcon.X = WIDTH * 0.5f;
                     statusIcon.FadeIn(300, Easing.OutQuint);
-                    statusIcon.ScaleTo(4.5f, 0) // Set initial scale to 4f instead
+                    statusIcon.ScaleTo(4f, 0)
                               .Then().ScaleTo(2.2f, 400, Easing.OutQuint);
                 }
 
@@ -418,13 +418,10 @@ namespace osu.Game.Tournament.Components
                     statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     statusIcon.MoveToX(WIDTH * 0.33f, 900, Easing.OutQuint);
-                    charContainer.MoveToX(WIDTH * -0.05f, 900, Easing.OutQuint)
-                                 .Then().Delay(200).ScaleTo(1.15f, 300, Easing.OutQuint);
+                    charContainer.MoveToX(WIDTH * -0.05f, 900, Easing.OutQuint);
                     instructText.MoveToX(-WIDTH * 0.55f, 900, Easing.OutExpo);
 
                     // Our function is not transformable, thus the sequence delay won't be applied.
-
-                    // ↓ Perhaps due to this line, the animation on line 445 won't work
                     fadeInByCharacter(instructText.Text.ToString(), 550, Easing.OutQuint, 1500, fadeColour);
 
                     // Execute backgroundAddition commands before the last delayed sequence
@@ -441,7 +438,8 @@ namespace osu.Game.Tournament.Components
                         statusIcon.MoveToX(WIDTH * 0.035f, 1000, Easing.OutExpo);
                         statusIcon.ScaleTo(1f, 1200, Easing.OutQuint);
                         beatmapInfoContainer.MoveToX(0, 1300, Easing.OutExpo);
-                        // ↓ A swift movement would be too visual distracting.
+
+                        // A swift movement would be too visual distracting.
                         instructText.MoveToX(0, 2000, Easing.OutQuint);
                         instructText.FadeOut(700, Easing.OutQuint);
                         beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
