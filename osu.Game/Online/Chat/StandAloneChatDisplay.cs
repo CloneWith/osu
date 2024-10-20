@@ -9,12 +9,15 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays.Chat;
 using osu.Game.Resources.Localisation.Web;
+using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 
@@ -33,6 +36,10 @@ namespace osu.Game.Online.Chat
         private ChannelManager channelManager;
 
         private StandAloneDrawableChannel drawableChannel;
+
+        private readonly LoadingLayer loadingLayer;
+
+        private readonly FillFlowContainer errorOverlay;
 
         private readonly bool postingTextBox;
 
@@ -60,6 +67,36 @@ namespace osu.Game.Online.Chat
                     Alpha = 0.8f,
                     RelativeSizeAxes = Axes.Both
                 },
+                loadingLayer = new LoadingLayer(dimBackground: true)
+                {
+                    // Keep the loading layer on top
+                    Depth = float.MinValue,
+                },
+                errorOverlay = new FillFlowContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Direction = FillDirection.Vertical,
+                    Alpha = 0,
+                    Children = new Drawable[]
+                    {
+                        new SpriteIcon()
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Icon = FontAwesome.Solid.ExclamationTriangle,
+                            Colour = Color4.Orange,
+                            Size = new Vector2(32)
+                        },
+                        new OsuSpriteText
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Text = "Failed to join the channel.",
+                            Font = OsuFont.GetFont(size: 24),
+                        }
+                    },
+                },
             };
 
             if (postingTextBox)
@@ -80,6 +117,7 @@ namespace osu.Game.Online.Chat
             }
 
             Channel.BindValueChanged(channelChanged);
+            loadingLayer.Show();
         }
 
         [BackgroundDependencyLoader(true)]
@@ -118,6 +156,32 @@ namespace osu.Game.Online.Chat
             if (e.NewValue == null) return;
 
             TextBox?.Current.BindTo(e.NewValue.TextBoxMessage);
+
+            Channel.Value.JoinRequestCompleted.BindValueChanged(r =>
+            {
+                if (!r.NewValue)
+                {
+                    loadingLayer.Show();
+                }
+                else
+                {
+                    loadingLayer.Hide();
+                }
+            });
+
+            Channel.Value.Failed.BindValueChanged(r =>
+            {
+                if (r.NewValue)
+                {
+                    errorOverlay.FadeIn(500, Easing.OutQuint)
+                                .Then().Delay(5000).FadeOut(1000, Easing.OutQuint);
+                    loadingLayer.Hide();
+                }
+                else
+                {
+                    errorOverlay.FadeOut(500, Easing.OutQuint);
+                }
+            });
 
             drawableChannel = CreateDrawableChannel(e.NewValue);
             drawableChannel.CreateChatLineAction = CreateMessage;
