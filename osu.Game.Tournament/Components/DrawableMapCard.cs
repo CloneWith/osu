@@ -444,7 +444,7 @@ namespace osu.Game.Tournament.Components
                         // ↓ A swift movement would be too visual distracting.
                         instructText.MoveToX(0, 2000, Easing.OutQuint);
                         instructText.FadeOut(700, Easing.OutQuint);
-                        beatmapInfoContainer.MoveToX(0, 1200, Easing.OutQuint);
+                        beatmapInfoContainer.MoveToX(0, 1200, Easing.OutExpo);
                         colorBackground.FadeColour(ColourInfo.GradientHorizontal(useColour, Color4.White.Opacity(0)), 400, Easing.OutQuint);
                     }
                 }
