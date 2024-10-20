@@ -261,7 +261,6 @@ namespace osu.Game.Tournament.Components
                             Origin = Anchor.CentreRight,
                             Margin = new MarginPadding { Bottom = -50, Right = 20 },
                             Size = new Vector2(96),
-                            RelativeSizeAxes = Axes.Y,
                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
                         },
                         topMask = new Box
