@@ -24,7 +24,7 @@ using osuTK.Input;
 namespace osu.Game.Online.Chat
 {
     /// <summary>
-    /// Display a chat channel in an insolated region.
+    /// Display a chat channel in an isolated region.
     /// </summary>
     public partial class StandAloneChatDisplay : CompositeDrawable
     {
@@ -80,7 +80,7 @@ namespace osu.Game.Online.Chat
                     Alpha = 0,
                     Children = new Drawable[]
                     {
-                        new SpriteIcon()
+                        new SpriteIcon
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
@@ -156,6 +156,11 @@ namespace osu.Game.Online.Chat
             if (e.NewValue == null) return;
 
             TextBox?.Current.BindTo(e.NewValue.TextBoxMessage);
+
+            if (e.NewValue.JoinRequestCompleted.Value)
+                loadingLayer.Hide();
+            else
+                loadingLayer.Show();
 
             Channel.Value.JoinRequestCompleted.BindValueChanged(r =>
             {

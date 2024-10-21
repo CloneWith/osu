@@ -16,6 +16,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board;
 using osuTK;
@@ -25,7 +26,7 @@ namespace osu.Game.Tournament.Screens.Setup
     public partial class BoardImportScreen : TournamentScreen
     {
         [Resolved]
-        private TournamentGame tournamentGame { get; set; } = null!;
+        private TournamentGame? tournamentGame { get; set; }
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -33,7 +34,8 @@ namespace osu.Game.Tournament.Screens.Setup
         private TournamentRound? round = null!;
 
         private Container boardContainer = null!;
-        private DialogOverlay overlay = null!;
+
+        private DialogOverlay dialogOverlay = null!;
         private RoundedButton saveButton = null!;
 
         private bool isUpdateDone = false;
@@ -47,7 +49,12 @@ namespace osu.Game.Tournament.Screens.Setup
             isUpdateDone = false;
             round = LadderInfo.CurrentMatch.Value?.Round.Value;
             defCommandList.Clear();
-            LadderInfo.CurrentMatch.Value.PendingMsgs.CollectionChanged += msgOnCollectionChanged;
+
+            if (LadderInfo.CurrentMatch.Value != null)
+            {
+                LadderInfo.CurrentMatch.Value.PendingMsgs.CollectionChanged += msgOnCollectionChanged;
+            }
+
             useChat.BindValueChanged(_ => fetchAndUpdate());
 
             AddRangeInternal(new Drawable[]
@@ -156,12 +163,12 @@ namespace osu.Game.Tournament.Screens.Setup
                     State = { Value = Visibility.Visible },
                     Action = () => sceneManager?.SetScreen(typeof(BoardScreen))
                 },
-                overlay = new DialogOverlay(),
+                dialogOverlay = new DialogOverlay(),
             });
 
             if (round == null)
             {
-                overlay.Push(new IPCErrorDialog("Failed to auto detect", "An osu! stable cutting-edge installation could not be auto detected.\nPlease try and manually point to the directory."));
+                dialogOverlay.Push(new UndefinedRoundDialog("Undefined round", "We cannot find a valid round entry. Try selecting one in the bracket screen."));
                 return;
             }
             updateBoardDisplay();
@@ -181,7 +188,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 switch (command.Command)
                 {
                     case Commands.BoardDefinition:
-                        defCommandList.Add(command.DefList);
+                        if (command.DefList != null) defCommandList.Add(command.DefList);
                         break;
 
                     default:
@@ -246,14 +253,14 @@ namespace osu.Game.Tournament.Screens.Setup
             if (!isUpdateDone)
             {
                 if (defCommandList.Count == 0)
-                    overlay.Push(new BoardNoUpdateDialog("No need to update", "Your board is unchanged, still up to date!"));
+                    dialogOverlay.Push(new BoardNoUpdateDialog("No need to update", "Your board is unchanged, still up to date!"));
                 else
-                    overlay.Push(new BoardUpdateWaitingDialog("Some messages are missing", $"We're still waiting for the remaining {4 - defCommandList.Count} messages!"));
+                    dialogOverlay.Push(new BoardUpdateWaitingDialog("Some messages are missing", $"We're still waiting for the remaining {4 - defCommandList.Count} messages!"));
             }
             else
             {
-                tournamentGame.SaveChanges();
-                overlay.Push(new BoardUpdateSuccessDialog("Done!", "Your board is updated successfully. Remember to refresh your board view!"));
+                tournamentGame?.SaveChanges();
+                dialogOverlay.Push(new BoardUpdateSuccessDialog("Done!", "Your board is updated successfully. Remember to refresh your board view!"));
             }
         }
 
@@ -263,7 +270,7 @@ namespace osu.Game.Tournament.Screens.Setup
             {
                 for (int j = 1; j <= 4; j++)
                 {
-                    var nextMap = round.Beatmaps.FirstOrDefault(p => (p.Mods != "EX" && p.BoardX == j && p.BoardY == i));
+                    var nextMap = round?.Beatmaps.FirstOrDefault(p => (p.Mods != "EX" && p.BoardX == j && p.BoardY == i));
                     if (nextMap != null)
                     {
                         boardContainer.Add(new BoardBeatmapPanel(nextMap.Beatmap, nextMap.Mods, nextMap.ModIndex)
