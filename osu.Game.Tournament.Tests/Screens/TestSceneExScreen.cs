@@ -6,12 +6,12 @@ using osu.Game.Tournament.Screens.Board;
 
 namespace osu.Game.Tournament.Tests.Screens
 {
-    public partial class TestSceneEXScreen : TournamentScreenTestScene
+    public partial class TestSceneExScreen : TournamentScreenTestScene
     {
         [BackgroundDependencyLoader]
         private void load()
         {
-            Add(new EXBoardScreen());
+            Add(new ExBoardScreen());
         }
     }
 }

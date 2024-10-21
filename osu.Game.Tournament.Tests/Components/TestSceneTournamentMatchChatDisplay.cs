@@ -5,7 +5,9 @@ using System.Linq;
 using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
 using osu.Game.Overlays.Chat;
@@ -88,6 +90,12 @@ namespace osu.Game.Tournament.Tests.Components
         {
             base.LoadComplete();
 
+            AddAssert("loading layer shown", () => chatDisplay.ChildrenOfType<LoadingLayer>().First().State.Value == Visibility.Visible);
+
+            AddStep("complete loading", () => testChannel.JoinRequestCompleted.Value = true);
+
+            AddAssert("loading layer hidden", () => chatDisplay.ChildrenOfType<LoadingLayer>().First().State.Value == Visibility.Hidden);
+
             AddStep("message from admin", () => testChannel.AddNewMessages(new Message(nextMessageId())
             {
                 Sender = admin,
@@ -119,7 +127,7 @@ namespace osu.Game.Tournament.Tests.Components
                 Content = "I am team red."
             }));
 
-            AddUntilStep("message from team red is red color", () =>
+            AddAssert("message from team red is red color", () =>
                 this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentGame.COLOUR_RED));
 
             AddStep("message from team red", () => testChannel.AddNewMessages(new Message(nextMessageId())
@@ -134,7 +142,7 @@ namespace osu.Game.Tournament.Tests.Components
                 Content = "Not on my watch. Prepare to eat saaaaaaaaaand. Lots and lots of saaaaaaand."
             }));
 
-            AddUntilStep("message from team blue is blue color", () =>
+            AddAssert("message from team blue is blue color", () =>
                 this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentGame.COLOUR_BLUE));
 
             var userWithCustomColour = blueUserWithCustomColour.ToAPIUser();
@@ -146,10 +154,10 @@ namespace osu.Game.Tournament.Tests.Components
                 Content = "Not on my watch. Prepare to eat saaaaaaaaaand. Lots and lots of saaaaaaand."
             }));
 
-            AddUntilStep("message from team blue is blue color", () =>
+            AddAssert("message from team blue is blue color", () =>
                 this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentGame.COLOUR_BLUE));
 
-            AddUntilStep("message from user with custom colour is inverted", () =>
+            AddAssert("message from user with custom colour is inverted", () =>
                 this.ChildrenOfType<DrawableChatUsername>().Last().Inverted, () => Is.EqualTo(true));
 
             AddStep("message with a long username", () => testChannel.AddNewMessages(new Message(nextMessageId())
@@ -189,6 +197,8 @@ namespace osu.Game.Tournament.Tests.Components
 
             AddStep("change channel to 2", () => chatDisplay.Channel.Value = testChannel2);
 
+            AddAssert("loading layer shown", () => chatDisplay.ChildrenOfType<LoadingLayer>().First().State.Value == Visibility.Visible);
+
             AddStep("referee messages", () => testChannel2.AddNewMessages(new Message(nextMessageId())
             {
                 Sender = cyberReferee.ToAPIUser(),
@@ -200,6 +210,10 @@ namespace osu.Game.Tournament.Tests.Components
                 Sender = carbonReferee.ToAPIUser(),
                 Content = "[*] 比赛时间已到，请各位选手启动原神",
             }));
+
+            AddStep("channel fail", () => testChannel2.Failed.Value = true);
+
+            AddUntilStep("warning layer faded out", () => chatDisplay.ChildrenOfType<FillFlowContainer>().First().Alpha == 0);
 
             AddStep("non-referee commands", () => testChannel2.AddNewMessages(new Message(nextMessageId())
             {
@@ -215,7 +229,7 @@ namespace osu.Game.Tournament.Tests.Components
                 chatDisplay.ResizeTo(new Vector2(500, 500), 1000, Easing.InOutQuint);
             });
 
-            AddUntilStep("chat display don't use relative size", () =>
+            AddAssert("chat display don't use relative size", () =>
                 chatDisplay.RelativeSizeAxes == Axes.None, () => Is.EqualTo(true));
         }
 
