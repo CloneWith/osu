@@ -27,15 +27,14 @@ using osuTK.Input;
 
 namespace osu.Game.Tournament.Screens.Board
 {
-    public partial class EXBoardScreen : TournamentMatchScreen
+    public partial class ExBoardScreen : TournamentMatchScreen
     {
-        private FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>> mapFlows = null!;
+        private FillFlowContainer<FillFlowContainer<DrawableMapCard>> mapFlows = null!;
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private WarningBox? warning;
         private Container warningContainer = null!;
 
         private TeamColour pickColour = TeamColour.Neutral;
@@ -45,13 +44,11 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
 
-        private Sprite additionalIcon = null!;
-
         private DrawableTeamPlayerList team1List = null!;
         private DrawableTeamPlayerList team2List = null!;
         private EmptyBox danmakuBox = null!;
 
-        private const int sideListHeight = 660;
+        private const int side_list_height = 660;
 
         private ScheduledDelegate? scheduledScreenChange;
 
@@ -82,7 +79,7 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Position = new Vector2(40, 100),
                     Width = 320,
-                    Height = sideListHeight,
+                    Height = side_list_height,
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
@@ -102,7 +99,7 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Position = new Vector2(-40, 100),
                     Width = 320,
-                    Height = sideListHeight,
+                    Height = side_list_height,
                     Direction = FillDirection.Vertical,
                     Children = new Drawable[]
                     {
@@ -121,13 +118,13 @@ namespace osu.Game.Tournament.Screens.Board
                             Origin = Anchor.TopRight,
                             RelativeSizeAxes = Axes.None,
                             Width = 300,
-                            Height = sideListHeight - team2List.GetHeight() - 5,
+                            Height = side_list_height - team2List.GetHeight() - 5,
                             Colour = Color4.Black,
                             Alpha = 0.7f,
                         },
                     },
                 },
-                mapFlows = new FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>>
+                mapFlows = new FillFlowContainer<FillFlowContainer<DrawableMapCard>>
                 {
                     Y = 30,
                     Spacing = new Vector2(10, 10),
@@ -206,7 +203,7 @@ namespace osu.Game.Tournament.Screens.Board
                         },
                     },
                 },
-                additionalIcon = new Sprite
+                new Sprite
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomRight,
@@ -226,7 +223,7 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    AutoSizeAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.Both,
                 },
                 new ControlPanel
                 {
@@ -317,7 +314,7 @@ namespace osu.Game.Tournament.Screens.Board
                 if (match.NewValue.Team2.Value != null)
                 {
                     team2List.ReloadWithTeam(match.NewValue.Team2.Value);
-                    danmakuBox.ResizeHeightTo(Height = sideListHeight - team2List.GetHeight() - 5, 500, Easing.OutCubic);
+                    danmakuBox.ResizeHeightTo(Height = side_list_height - team2List.GetHeight() - 5, 500, Easing.OutCubic);
                 }
             }
 
@@ -355,9 +352,6 @@ namespace osu.Game.Tournament.Screens.Board
                         pickColour = command.Team;
                         pickType = command.Team == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
                         addForBeatmap(command.MapMod);
-                        break;
-
-                    default:
                         break;
                 }
             }
@@ -448,16 +442,6 @@ namespace osu.Game.Tournament.Screens.Board
                 BeatmapID = beatmapId,
             });
 
-            if (pickType == ChoiceType.Pick)
-            {
-                var map = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
-
-                if (map != null)
-                {
-                    sceneManager?.ShowMapIntro(map);
-                }
-            }
-
             if (pickType == ChoiceType.RedWin || pickType == ChoiceType.BlueWin)
             {
                 if (CurrentMatch.Value.Round.Value.IsFinalStage.Value)
@@ -501,30 +485,30 @@ namespace osu.Game.Tournament.Screens.Board
         private void updateDisplay()
         {
             mapFlows.Clear();
+            sceneManager?.ReloadChat();
 
             if (CurrentMatch.Value == null)
             {
-                warningContainer.Child = warning = new WarningBox("Select a match from bracket screen first");
+                warningContainer.Child = new WarningBox("Select a match from bracket screen first");
+                warningContainer.FadeIn(200, Easing.OutQuint);
                 return;
             }
 
-            int totalRows = 0;
-
             if (CurrentMatch.Value.Round.Value != null)
             {
-                FillFlowContainer<EXBoardBeatmapPanel>? currentFlow = null;
-                string? currentMods;
+                FillFlowContainer<DrawableMapCard>? currentFlow = null;
                 int flowCount = 0;
 
                 int exCount = CurrentMatch.Value.Round.Value.Beatmaps.Count(p => p.Mods == "EX");
 
                 if (exCount == 0)
                 {
-                    warningContainer.Child = warning = new WarningBox("Seemingly you don't have any EX map set up...");
+                    warningContainer.Child = new WarningBox("Seemingly you don't have any EX map set up...");
+                    warningContainer.FadeIn(200, Easing.OutQuint);
                     return;
                 }
 
-                warning?.FadeOut(duration: 200, easing: Easing.OutCubic);
+                warningContainer.FadeOut(200, Easing.OutQuint);
 
                 foreach (var b in CurrentMatch.Value.Round.Value.Beatmaps)
                 {
@@ -532,7 +516,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                     if (currentFlow == null)
                     {
-                        mapFlows.Add(currentFlow = new FillFlowContainer<EXBoardBeatmapPanel>
+                        mapFlows.Add(currentFlow = new FillFlowContainer<DrawableMapCard>
                         {
                             Spacing = new Vector2(10, 10),
                             Direction = FillDirection.Vertical,
@@ -540,19 +524,15 @@ namespace osu.Game.Tournament.Screens.Board
                             AutoSizeAxes = Axes.Y
                         });
 
-                        currentMods = b.Mods;
-
-                        totalRows++;
                         flowCount = 0;
                     }
 
                     if (++flowCount > 2)
                     {
-                        totalRows++;
                         flowCount = 1;
                     }
 
-                    currentFlow.Add(new EXBoardBeatmapPanel(b.Beatmap, b.Mods, b.ModIndex)
+                    currentFlow.Add(new DrawableMapCard(b.Beatmap, b.Mods, b.ModIndex)
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -562,7 +542,8 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                warningContainer.Child = warning = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.FadeIn(200, Easing.OutQuint);
             }
         }
     }

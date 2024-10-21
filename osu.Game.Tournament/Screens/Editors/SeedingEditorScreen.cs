@@ -221,7 +221,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        beatmapId.Value = Model.ID;
+                        beatmapId.Default = beatmapId.Value = Model.ID;
                         beatmapId.BindValueChanged(id =>
                         {
                             Model.ID = id.NewValue ?? 0;
@@ -252,7 +252,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             API.Queue(req);
                         }, true);
 
-                        score.Value = Model.Score.ToString();
+                        score.Default = score.Value = Model.Score.ToString();
                         score.BindValueChanged(str => long.TryParse(str.NewValue, out Model.Score));
                     }
 

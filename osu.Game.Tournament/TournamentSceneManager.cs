@@ -38,7 +38,7 @@ namespace osu.Game.Tournament
     {
         private Container screens = null!;
         private TourneyVideo video = null!;
-        private BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
+        private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
 
         private IAnimation? currentAnimation;
 
@@ -134,7 +134,7 @@ namespace osu.Game.Tournament
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
                                 middle = new BoardScreen(),
-                                new EXBoardScreen()
+                                new ExBoardScreen()
                             }
                         },
                         chatContainer = new Container
@@ -181,7 +181,7 @@ namespace osu.Game.Tournament
                                 new Separator(),
                                 /* Append new screen "board" for board display */
                                 new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(EXBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
+                                new ScreenButton(typeof(ExBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
                                 new Separator(),
@@ -270,7 +270,7 @@ namespace osu.Game.Tournament
                     chat.ChangeRadius(0);
                     break;
 
-                case BoardScreen or EXBoardScreen:
+                case BoardScreen or ExBoardScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
                     chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
                     chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
@@ -389,7 +389,7 @@ namespace osu.Game.Tournament
 
         public void HideShowChat(int duration) =>
             chatContainer.Delay(1500).FadeTo(0.6f, duration, Easing.OutQuint)
-                .Then().Delay(5700).FadeIn(duration, Easing.OutQuint);
+                         .Then().Delay(5700).FadeIn(duration, Easing.OutQuint);
 
         public void ShowChat(int duration) => chatContainer.FadeIn(duration, Easing.OutQuint);
 
@@ -427,5 +427,7 @@ namespace osu.Game.Tournament
 
         public void ResizeChatTo(Vector2 size, int duration, Easing easing) =>
             chatContainer.ResizeTo(size, duration, easing);
+
+        public void ReloadChat() => chat.ReloadChannel();
     }
 }
