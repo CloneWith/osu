@@ -54,7 +54,7 @@ namespace osu.Game.Tournament
         public bool IsChatShown = true;
 
         [Cached]
-        private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(RelativeSizeY: true);
+        private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
 
         private Container chatContainer = new Container
         {

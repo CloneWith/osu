@@ -22,7 +22,7 @@ namespace osu.Game.Tournament.Tests.Screens
 {
     public partial class TestSceneBoardImportScreen : TournamentTestScene
     {
-        private GridContainer testGrid = null!;
+        private readonly GridContainer testGrid;
 
         private readonly Channel testChannel = new Channel();
         private readonly TournamentMatchChatDisplay chatDisplay;
@@ -31,13 +31,13 @@ namespace osu.Game.Tournament.Tests.Screens
 
         private BoardImportScreen importScreen;
 
-        private TournamentUser refereeBot = new TournamentUser
+        private readonly TournamentUser refereeBot = new TournamentUser
         {
             Username = "RealJuroeBot",
             OnlineID = 114,
         };
 
-        private APIUser oneUser = new APIUser
+        private readonly APIUser oneUser = new APIUser
         {
             Username = "catchDolly",
             Id = 514,
@@ -63,7 +63,7 @@ namespace osu.Game.Tournament.Tests.Screens
                     },
                     new Drawable[]
                     {
-                        importScreen = new BoardImportScreen()
+                        importScreen = new BoardImportScreen
                         {
                             RelativeSizeAxes = Axes.Both,
                         },
@@ -95,7 +95,7 @@ namespace osu.Game.Tournament.Tests.Screens
             });
             AddAssert("undefined round dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not UndefinedRoundDialog);
 
-            AddStep("add referee info", () => Ladder.CurrentMatch.Value.Round.Value = testRound = new TournamentRound
+            AddStep("add referee info", () => Ladder.CurrentMatch.Value!.Round.Value = testRound = new TournamentRound
             {
                 Referees =
                 {
@@ -360,18 +360,14 @@ namespace osu.Game.Tournament.Tests.Screens
             });
             AddAssert("waiting dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not BoardUpdateWaitingDialog);
 
-            AddStep("send remaining messages", () => testChannel.AddNewMessages(new[]
+            AddStep("send remaining messages", () => testChannel.AddNewMessages(new Message(nextMessageId())
             {
-                new Message(nextMessageId())
-                {
-                    Sender = refereeBot.ToAPIUser(),
-                    Content = "[*] 当前棋盘: HD1 (?) HD2 (?) DT2 (?) DT1 (?)"
-                },
-                new Message(nextMessageId())
-                {
-                    Sender = refereeBot.ToAPIUser(),
-                    Content = "[*] 当前棋盘: NM1 (?) NM2 (?) NM3 (?) NM4 (?)"
-                },
+                Sender = refereeBot.ToAPIUser(),
+                Content = "[*] 当前棋盘: HD1 (?) HD2 (?) DT2 (?) DT1 (?)"
+            }, new Message(nextMessageId())
+            {
+                Sender = refereeBot.ToAPIUser(),
+                Content = "[*] 当前棋盘: NM1 (?) NM2 (?) NM3 (?) NM4 (?)"
             }));
 
             AddStep("save configuration", () =>
