@@ -10,9 +10,8 @@ namespace osu.Game.Tournament.Components
 {
     public partial class EmptyBox : CompositeDrawable
     {
-        public bool UsesFixedAnchor { get; set; }
-
         private readonly Box box;
+
         public Color4 BoxColour
         {
             get => box.Colour;

@@ -18,7 +18,6 @@ using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
-using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.TeamWin;
@@ -30,13 +29,13 @@ namespace osu.Game.Tournament.Screens.Board
 {
     public partial class ExBoardScreen : TournamentMatchScreen
     {
-        private FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>> mapFlows = null!;
+        private FillFlowContainer<FillFlowContainer<DrawableMapCard>> mapFlows = null!;
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private WarningBox? warning;
+        private Container warningContainer = null!;
 
         private TeamColour pickColour = TeamColour.Neutral;
         private ChoiceType pickType = ChoiceType.Pick;
@@ -125,7 +124,7 @@ namespace osu.Game.Tournament.Screens.Board
                         },
                     },
                 },
-                mapFlows = new FillFlowContainer<FillFlowContainer<EXBoardBeatmapPanel>>
+                mapFlows = new FillFlowContainer<FillFlowContainer<DrawableMapCard>>
                 {
                     Y = 30,
                     Spacing = new Vector2(10, 10),
@@ -219,6 +218,12 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Height = 50,
                     Position = new Vector2(-40, -10),
+                },
+                warningContainer = new Container
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
                 },
                 new ControlPanel
                 {
@@ -437,16 +442,6 @@ namespace osu.Game.Tournament.Screens.Board
                 BeatmapID = beatmapId,
             });
 
-            if (pickType == ChoiceType.Pick)
-            {
-                var map = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
-
-                if (map != null)
-                {
-                    sceneManager?.ShowMapIntro(map);
-                }
-            }
-
             if (pickType == ChoiceType.RedWin || pickType == ChoiceType.BlueWin)
             {
                 if (CurrentMatch.Value.Round.Value.IsFinalStage.Value)
@@ -494,24 +489,26 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value == null)
             {
-                AddInternal(warning = new WarningBox("The current match is unavailable."));
+                warningContainer.Child = new WarningBox("Select a match from bracket screen first");
+                warningContainer.FadeIn(200, Easing.OutQuint);
                 return;
             }
 
             if (CurrentMatch.Value.Round.Value != null)
             {
-                FillFlowContainer<EXBoardBeatmapPanel>? currentFlow = null;
+                FillFlowContainer<DrawableMapCard>? currentFlow = null;
                 int flowCount = 0;
 
                 int exCount = CurrentMatch.Value.Round.Value.Beatmaps.Count(p => p.Mods == "EX");
 
                 if (exCount == 0)
                 {
-                    AddInternal(warning = new WarningBox("Seemingly you don't have any EX map set up..."));
+                    warningContainer.Child = new WarningBox("Seemingly you don't have any EX map set up...");
+                    warningContainer.FadeIn(200, Easing.OutQuint);
                     return;
                 }
 
-                warning?.FadeOut(duration: 200, easing: Easing.OutCubic);
+                warningContainer.FadeOut(200, Easing.OutQuint);
 
                 foreach (var b in CurrentMatch.Value.Round.Value.Beatmaps)
                 {
@@ -519,7 +516,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                     if (currentFlow == null)
                     {
-                        mapFlows.Add(currentFlow = new FillFlowContainer<EXBoardBeatmapPanel>
+                        mapFlows.Add(currentFlow = new FillFlowContainer<DrawableMapCard>
                         {
                             Spacing = new Vector2(10, 10),
                             Direction = FillDirection.Vertical,
@@ -535,7 +532,7 @@ namespace osu.Game.Tournament.Screens.Board
                         flowCount = 1;
                     }
 
-                    currentFlow.Add(new EXBoardBeatmapPanel(b.Beatmap, b.Mods, b.ModIndex)
+                    currentFlow.Add(new DrawableMapCard(b.Beatmap, b.Mods, b.ModIndex)
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -545,7 +542,8 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                AddInternal(warning = new WarningBox("Cannot access current match, sorry ;w;"));
+                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.FadeIn(200, Easing.OutQuint);
             }
         }
     }

@@ -38,7 +38,7 @@ namespace osu.Game.Tournament.Screens.Board
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private WarningBox warning = null!;
+        private Container warningContainer = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -204,6 +204,12 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.None,
                     Height = 50,
                     Position = new Vector2(-40, -10),
+                },
+                warningContainer = new Container
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
                 },
                 new ControlPanel
                 {
@@ -1286,7 +1292,8 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value == null)
             {
-                AddInternal(warning = new WarningBox("Cannot access current match, sorry ;w;"));
+                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 return;
             }
 
@@ -1295,7 +1302,7 @@ namespace osu.Game.Tournament.Screens.Board
                 // Use predefined Board coordinate
                 if (CurrentMatch.Value.Round.Value.UseBoard.Value)
                 {
-                    warning.FadeOut(duration: 200, easing: Easing.OutCubic);
+                    warningContainer.FadeOut(duration: 200, easing: Easing.OutCubic);
 
                     for (int i = 1; i <= 4; i++)
                     {
@@ -1335,7 +1342,8 @@ namespace osu.Game.Tournament.Screens.Board
                 }
                 else
                 {
-                    AddInternal(warning = new WarningBox("This round isn't set up for board view..."));
+                    warningContainer.Child = new WarningBox("This round isn't set up for board view...");
+                    warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 }
             }
         }

@@ -82,6 +82,12 @@ namespace osu.Game.Tournament.Screens.Editors
             {
                 Model = team;
 
+                Model.FullName.Default = Model.FullName.Value;
+                Model.Acronym.Default = Model.Acronym.Value;
+                Model.FlagName.Default = Model.FlagName.Value;
+                Model.LastYearPlacing.Default = Model.LastYearPlacing.Value;
+                Model.Seed.Default = Model.Seed.Value;
+
                 Masking = true;
                 CornerRadius = 10;
 
@@ -284,7 +290,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        playerId.Value = user.OnlineID;
+                        playerId.Default = playerId.Value = user.OnlineID;
                         playerId.BindValueChanged(id =>
                         {
                             user.OnlineID = id.NewValue ?? 0;
