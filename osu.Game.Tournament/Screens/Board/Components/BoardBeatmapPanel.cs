@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -15,6 +16,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
+using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components
@@ -30,6 +32,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
+        private Container infoContainer = null!;
         private FillFlowContainer textArea = null!;
 
         private Box backgroundAddition = null!;
@@ -39,6 +42,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private SpriteIcon swapIcon = null!;
         private SpriteIcon protectIcon = null!;
         private SpriteIcon trapIcon = null!;
+
+        private Circle topCircle = null!;
 
         // Real X and Y positions on the board, distinct from RoundBeatmap.BoardX and BoardY.
         public int RealX;
@@ -71,104 +76,120 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
             InternalChildren = new Drawable[]
             {
-                new NoUnloadBeatmapSetCover
+                infoContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = OsuColour.Gray(0.5f),
-                    OnlineInfo = (Beatmap as IBeatmapSetOnlineInfo),
-                },
-                backgroundAddition = new Box
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black,
-                    Alpha = 0.1f
-                },
-                textArea = new FillFlowContainer
-                {
-                    AutoSizeAxes = Axes.Both,
-                    Anchor = Anchor.TopLeft,
-                    Origin = Anchor.TopLeft,
-                    Padding = new MarginPadding(15),
-                    Direction = FillDirection.Vertical,
-
-                    /* This section of code adds Beatmap Information to the Board grid. */
                     Children = new Drawable[]
                     {
-                        new TournamentSpriteText
+                        new NoUnloadBeatmapSetCover
                         {
-                            Text = displayTitle,
-                            Padding = new MarginPadding { Left = 0 },
-                            Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 18),
-                            Margin = new MarginPadding { Left = -9, Top = -7 },
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = OsuColour.Gray(0.5f),
+                            OnlineInfo = (Beatmap as IBeatmapSetOnlineInfo),
                         },
-                        new FillFlowContainer
+                        backgroundAddition = new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Black,
+                            Alpha = 0.1f
+                        },
+                        textArea = new FillFlowContainer
                         {
                             AutoSizeAxes = Axes.Both,
-                            Direction = FillDirection.Horizontal,
-                            Margin = new MarginPadding { Left = -9, Top = 5 }, // Adjust this value to change the distance
-                            Child = new TournamentSpriteText
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
+                            Padding = new MarginPadding(15),
+                            Direction = FillDirection.Vertical,
+
+                            /* This section of code adds Beatmap Information to the Board grid. */
+                            Children = new Drawable[]
                             {
-                                Text = displayDifficulty,
-                                MaxWidth = 120,
-                                Font = OsuFont.Torus.With(weight: FontWeight.Medium, size: 14),
+                                new TournamentSpriteText
+                                {
+                                    Text = displayTitle,
+                                    Padding = new MarginPadding { Left = 0 },
+                                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 18),
+                                    Margin = new MarginPadding { Left = -9, Top = -7 },
+                                },
+                                new FillFlowContainer
+                                {
+                                    AutoSizeAxes = Axes.Both,
+                                    Direction = FillDirection.Horizontal,
+                                    Margin = new MarginPadding { Left = -9, Top = 5 }, // Adjust this value to change the distance
+                                    Child = new TournamentSpriteText
+                                    {
+                                        Text = displayDifficulty,
+                                        MaxWidth = 120,
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Medium, size: 14),
+                                    },
+                                }
                             },
+                        },
+                        icon = new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.White,
+                            Size = new Vector2(0.4f),
+                            Alpha = 0,
+                        },
+                        swapIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Yellow,
+                            Size = new Vector2(0.4f),
+                            Icon = FontAwesome.Solid.ExchangeAlt,
+                            Alpha = 0,
+                        },
+                        protectIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.BottomLeft,
+                            Origin = Anchor.BottomLeft,
+                            Icon = FontAwesome.Solid.Lock,
+                            Colour = Color4.White,
+                            Size = new Vector2(24),
+                            Position = new Vector2(5, -5),
+                            Alpha = 0,
+                        },
+                        trapIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.BottomLeft,
+                            Origin = Anchor.BottomLeft,
+                            Icon = FontAwesome.Solid.ExclamationCircle,
+                            Colour = Color4.White,
+                            Size = new Vector2(24),
+                            Position = new Vector2(5, -5),
+                            Alpha = 0,
+                        },
+                        new TournamentModIcon(Index.IsNull() ? Mod : Mod + Index)
+                        {
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.Centre,
+                            Margin = new MarginPadding(10),
+                            Width = 60,
+                            Size = new Vector2(80),
+                            RelativeSizeAxes = Axes.Y,
+                            Position = new Vector2(34, -18) // (x, y). Increment of x = Move right; Decrement of y = Move upwards.
                         }
                     },
-                },
-                icon = new SpriteIcon
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.White,
-                    Size = new osuTK.Vector2(0.4f),
-                    Alpha = 0,
-                },
-                swapIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Yellow,
-                    Size = new osuTK.Vector2(0.4f),
-                    Icon = FontAwesome.Solid.ExchangeAlt,
-                    Alpha = 0,
-                },
-                protectIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Icon = FontAwesome.Solid.Lock,
-                    Colour = Color4.White,
-                    Size = new osuTK.Vector2(24),
-                    Position = new osuTK.Vector2(5, -5),
-                    Alpha = 0,
-                },
-                trapIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Icon = FontAwesome.Solid.ExclamationCircle,
-                    Colour = Color4.White,
-                    Size = new osuTK.Vector2(24),
-                    Position = new osuTK.Vector2(5, -5),
-                    Alpha = 0,
-                },
-                new TournamentModIcon(Index.IsNull() ? Mod : Mod + Index)
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.Centre,
-                    Margin = new MarginPadding(10),
-                    Width = 60,
-                    Size = new osuTK.Vector2(80),
-                    RelativeSizeAxes = Axes.Y,
-                    Position = new osuTK.Vector2(34, -18) // (x, y). Increment of x = Move right; Decrement of y = Move upwards.
                 },
                 flash = new Box
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Gray,
                     Blending = BlendingParameters.Additive,
+                    Alpha = 0,
+                },
+                topCircle = new Circle
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Scale = new Vector2(0.3f),
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Colour = Color4.White.Opacity(0.5f),
                     Alpha = 0,
                 },
             };
@@ -232,15 +253,17 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 if (shouldFlash)
                 {
                     flash.FadeOutFromOne(duration: 900, easing: Easing.OutSine).Loop(0, 3);
+                    // topCircle.ScaleTo(1.75f, 1000, Easing.OutQuint);
+                    // topCircle.FadeIn(500, Easing.InQuint);
                 }
 
                 if (protectChoice != null && trapChoice != null)
                 {
-                    trapIcon.MoveTo(newPosition: new osuTK.Vector2(30, -5), duration: 200, easing: Easing.OutCubic);
+                    trapIcon.MoveTo(newPosition: new Vector2(30, -5), duration: 200, easing: Easing.OutCubic);
                 }
                 else
                 {
-                    trapIcon.MoveTo(newPosition: new osuTK.Vector2(5, -5), duration: 150, easing: Easing.OutCubic);
+                    trapIcon.MoveTo(newPosition: new Vector2(5, -5), duration: 150, easing: Easing.OutCubic);
                 }
 
                 protectIcon.FadeTo(newAlpha: protectChoice != null ? 1 : 0, duration: 200, easing: Easing.OutCubic);
@@ -277,7 +300,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
                 if (swapChoice != null)
                 {
-                    swapIcon.FadeInFromZero(duration: 800, easing: Easing.InCubic);
+                    swapIcon.RotateTo(0);
+                    swapIcon.FadeInFromZero(duration: 100, easing: Easing.InCubic);
                 }
 
                 if (newBpChoice != null)
@@ -367,6 +391,11 @@ namespace osu.Game.Tournament.Screens.Board.Components
             else flash.FadeOutFromOne(duration: 900, easing: Easing.OutSine).Loop(0, count);
 
             swapIcon.FadeOutFromOne(1000, Easing.InCubic);
+        }
+
+        public void RotateSwapIconTo(float angle = 0, int delay = 0)
+        {
+            swapIcon.Delay(delay).RotateTo(angle, 800, Easing.OutQuint);
         }
     }
 }

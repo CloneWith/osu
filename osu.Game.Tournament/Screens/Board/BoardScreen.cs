@@ -1044,6 +1044,9 @@ namespace osu.Game.Tournament.Screens.Board
                 float middleDx = sourceDrawable.X;
                 float middleDy = sourceDrawable.Y;
 
+                float angle = GetAngle(sourceDrawable.RealX, targetDrawable.RealX,
+                    sourceDrawable.RealY, targetDrawable.RealY);
+
                 sourceDrawable.RealX = targetDrawable.RealX;
                 sourceDrawable.RealY = targetDrawable.RealY;
 
@@ -1053,12 +1056,18 @@ namespace osu.Game.Tournament.Screens.Board
                 sourceDrawable.Flash();
                 targetDrawable.Flash();
 
-                sourceDrawable.Delay(200).Then().MoveTo(new Vector2(targetDrawable.X, targetDrawable.Y), 500, Easing.OutCubic);
-                targetDrawable.Delay(200).Then().MoveTo(new Vector2(middleDx, middleDy), 500, Easing.OutCubic);
+                sourceDrawable.RotateSwapIconTo(angle);
+                targetDrawable.RotateSwapIconTo(angle);
+
+                sourceDrawable.Delay(500).Then().MoveTo(new Vector2(targetDrawable.X, targetDrawable.Y), 500, Easing.OutCubic);
+                targetDrawable.Delay(500).Then().MoveTo(new Vector2(middleDx, middleDy), 500, Easing.OutCubic);
+
+                sourceDrawable.RotateSwapIconTo(0, 1500);
+                targetDrawable.RotateSwapIconTo(0, 1500);
 
                 DetectWin();
                 DetectEx();
-                // updateDisplay();
+
                 CurrentMatch.Value?.PendingSwaps.Clear();
             }
             else
@@ -1066,6 +1075,21 @@ namespace osu.Game.Tournament.Screens.Board
                 // Rare, but may happen
                 throw new InvalidOperationException("Cannot get the corresponding maps.");
             }
+        }
+
+        /// <summary>
+        /// Calculate the corresponding angle from two board blocks.
+        /// </summary>
+        /// <param name="x1">The X value of the first block.</param>
+        /// <param name="x2">The X value of the first block.</param>
+        /// <param name="y1">The Y value of the second block.</param>
+        /// <param name="y2">The Y value of the second block.</param>
+        /// <returns>An angle in degree.</returns>
+        protected static float GetAngle(double x1, double x2, double y1, double y2)
+        {
+            if (x1 == x2) return y1 > y2 ? 90 : -90;
+
+            return (float)(Math.Atan((y2 - y1) / (x2 - x1)) * 180 / Math.PI);
         }
 
         /// <summary>
