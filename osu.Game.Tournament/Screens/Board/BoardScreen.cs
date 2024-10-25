@@ -1041,33 +1041,38 @@ namespace osu.Game.Tournament.Screens.Board
 
                 int middleX = sourceDrawable.RealX;
                 int middleY = sourceDrawable.RealY;
-                float middleDx = sourceDrawable.X;
-                float middleDy = sourceDrawable.Y;
 
                 float angle = GetAngle(sourceDrawable.RealX, targetDrawable.RealX,
                     sourceDrawable.RealY, targetDrawable.RealY);
 
+                // Swap the coordinate position of two blocks.
                 sourceDrawable.RealX = targetDrawable.RealX;
                 sourceDrawable.RealY = targetDrawable.RealY;
 
                 targetDrawable.RealX = middleX;
                 targetDrawable.RealY = middleY;
 
+                // Visual presentation.
                 sourceDrawable.Flash();
                 targetDrawable.Flash();
 
                 sourceDrawable.RotateSwapIconTo(angle);
                 targetDrawable.RotateSwapIconTo(angle);
 
-                sourceDrawable.Delay(500).Then().MoveTo(new Vector2(targetDrawable.X, targetDrawable.Y), 500, Easing.OutCubic);
-                targetDrawable.Delay(500).Then().MoveTo(new Vector2(middleDx, middleDy), 500, Easing.OutCubic);
+                sourceDrawable.Delay(500).Then().MoveTo(getBlockPosition(sourceDrawable.RealX, sourceDrawable.RealY),
+                    500, Easing.OutCubic);
+                targetDrawable.Delay(500).Then().MoveTo(getBlockPosition(targetDrawable.RealX, targetDrawable.RealY),
+                    500, Easing.OutCubic);
 
+                // Restore swap icon direction for later use.
                 sourceDrawable.RotateSwapIconTo(0, 1500);
                 targetDrawable.RotateSwapIconTo(0, 1500);
 
+                // Win and EX stage detection.
                 DetectWin();
                 DetectEx();
 
+                // Clean up pending swap table.
                 CurrentMatch.Value?.PendingSwaps.Clear();
             }
             else
@@ -1308,6 +1313,11 @@ namespace osu.Game.Tournament.Screens.Board
             return CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(p => p.Beatmap?.OnlineID == dMap?.Beatmap?.OnlineID && p.Mods != "EX");
         }
 
+        private Vector2 getBlockPosition(int x, int y)
+        {
+            return new Vector2(-400 + x * 160, -450 + y * 160);
+        }
+
         private void updateDisplay()
         {
             boardContainer.Clear();
@@ -1337,12 +1347,13 @@ namespace osu.Game.Tournament.Screens.Board
                             if (nextMap != null)
                             {
                                 var hasSwappedMap = CurrentMatch.Value.PendingSwaps.FirstOrDefault(p => p.BeatmapID == nextMap.Beatmap?.OnlineID);
+                                Vector2 position = getBlockPosition(j, i);
                                 var mapDrawable = new BoardBeatmapPanel(nextMap.Beatmap, nextMap.Mods, nextMap.ModIndex, j, i)
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    X = -400 + j * 160,
-                                    Y = -450 + i * 160,
+                                    X = position.X,
+                                    Y = position.Y,
                                 };
                                 boardContainer.Add(mapDrawable);
                                 boardMapList.Add(mapDrawable);
