@@ -848,7 +848,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             bool isPickBan = pickType == ChoiceType.Pick || pickType == ChoiceType.Ban || isPickWin;
 
-            if (pickType == ChoiceType.Neutral || pickTeam == TeamColour.None || pickTeam == TeamColour.Neutral)
+            if (pickType == ChoiceType.Neutral || pickTeam == TeamColour.None || pickTeam == TeamColour.None)
                 return;
 
             if (CurrentMatch.Value?.Round.Value == null)
