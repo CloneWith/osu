@@ -876,23 +876,24 @@ namespace osu.Game.Tournament.Screens.Board
 
                 if (source != null)
                 {
-                    CurrentMatch.Value.PendingSwaps.Add(new BeatmapChoice
-                    {
-                        Team = TeamColour.Neutral,
-                        Type = ChoiceType.Neutral,
-                        BeatmapID = beatmapId,
-                    });
+                    CurrentMatch.Value.PendingSwaps.Add(new BeatmapChoice(beatmapId));
+
+                    // Add the current pair to the record list.
+                    // I've forgotten that for a long time...
+                    // Cool, I give up; Fuck everything xwx
+                    CurrentMatch.Value.SwapRecords.Add(
+                        new KeyValuePair<RoundBeatmap, RoundBeatmap>(
+                            CurrentMatch.Value.Round.Value.Beatmaps.First(b => b.Beatmap!.OnlineID == source.BeatmapID),
+                            CurrentMatch.Value.Round.Value.Beatmaps.First(b => b.Beatmap!.OnlineID == beatmapId)
+                        )
+                    );
+
                     SwapMap(source.BeatmapID, beatmapId);
                 }
                 else
                 {
                     // Add as a pending Swap operation
-                    CurrentMatch.Value.PendingSwaps.Add(new BeatmapChoice
-                    {
-                        Team = TeamColour.Neutral,
-                        Type = ChoiceType.Neutral,
-                        BeatmapID = beatmapId,
-                    });
+                    CurrentMatch.Value.PendingSwaps.Add(new BeatmapChoice(beatmapId));
                 }
             }
 
