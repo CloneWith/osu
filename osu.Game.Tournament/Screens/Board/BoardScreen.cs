@@ -105,7 +105,6 @@ namespace osu.Game.Tournament.Screens.Board
                 },
                 new MatchHeader
                 {
-                    // For OFFC
                     ShowScores = false,
                     ShowRound = false,
                 },
