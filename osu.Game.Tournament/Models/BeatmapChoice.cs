@@ -21,9 +21,6 @@ namespace osu.Game.Tournament.Models
 
         public int BeatmapID;
 
-        // For auto selecting check.
-        public bool Token = false;
-
         public BeatmapChoice()
         {
         }
