@@ -281,24 +281,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
                 BorderThickness = 4;
 
-                if (trapChoice != null)
-                {
-                    Alpha = 1f;
-                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                    trapIcon.FadeIn(duration: 150, easing: Easing.InCubic);
-                    trapIcon.Colour = isBothTrapped ? Color4.White : (trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky);
-                    BorderThickness = 0;
-                }
-
-                if (protectChoice != null)
-                {
-                    Alpha = 1f;
-                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                    protectIcon.FadeIn(duration: 150, easing: Easing.InCubic);
-                    protectIcon.Colour = protectColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
-                    BorderThickness = 0;
-                }
-
                 if (pickerChoice != null)
                 {
                     BorderColour = TournamentGame.GetTeamColour(pickerChoice.Team);
@@ -312,6 +294,35 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 {
                     swapIcon.RotateTo(0);
                     swapIcon.FadeInFromZero(duration: 100, easing: Easing.InCubic);
+                }
+
+                if (trapChoice != null)
+                {
+                    BorderThickness = 0;
+                    Alpha = 1f;
+                    icon.Icon = FontAwesome.Solid.ExclamationCircle;
+                    instructText.Text = $"{choiceText} set a trap!";
+                    if (trapChoice != tChoice) runAnimation(isBothTrapped ? Color4.White : trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky, false);
+                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+
+                    using (BeginDelayedSequence(3000))
+                    {
+                        trapIcon.FadeIn(duration: 150, easing: Easing.InCubic);
+                        trapIcon.Colour = isBothTrapped ? Color4.White : trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
+                    }
+                }
+
+                if (protectChoice != null && trapChoice == null)
+                {
+                    BorderThickness = 0;
+                    Alpha = 1f;
+                    icon.Icon = FontAwesome.Solid.Lock;
+                    instructText.Text = $"{choiceText} protected!";
+                    if (protectChoice != pChoice) runAnimation(TournamentGame.GetTeamColour(protectChoice.Team), false);
+                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+
+                    protectIcon.FadeIn(duration: 150, easing: Easing.InCubic);
+                    protectIcon.Colour = protectColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
                 }
 
                 if (newBpChoice != null)
@@ -328,7 +339,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             BorderColour = TournamentGame.GetTeamColour(newBpChoice.Team);
                             BorderThickness = 4;
                             instructText.Text = $"{choiceText} picked!";
-                            runAnimation(TournamentGame.GetTeamColour(newBpChoice.Team), false);
+                            if (shouldFlash) runAnimation(TournamentGame.GetTeamColour(newBpChoice.Team), false);
                             break;
 
                         // Ban: All darker
@@ -338,7 +349,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             icon.Icon = FontAwesome.Solid.Ban;
                             BorderThickness = 0;
                             instructText.Text = $"{choiceText} banned!";
-                            runAnimation(newBpChoice.Team == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky);
+                            if (shouldFlash) runAnimation(newBpChoice.Team == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky);
                             break;
 
                         // Win: Background colour
@@ -348,7 +359,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             icon.Icon = FontAwesome.Solid.Trophy;
                             BorderThickness = 4;
                             instructText.Text = "Red wins!";
-                            runAnimation(new OsuColour().Red);
+                            if (shouldFlash) runAnimation(new OsuColour().Red);
                             break;
 
                         case ChoiceType.BlueWin:
@@ -357,7 +368,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             icon.Icon = FontAwesome.Solid.Trophy;
                             BorderThickness = 4;
                             instructText.Text = "Blue wins!";
-                            runAnimation(new OsuColour().Blue);
+                            if (shouldFlash) runAnimation(new OsuColour().Blue);
                             break;
 
                         default:
