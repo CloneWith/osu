@@ -145,7 +145,19 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.White,
                     Alpha = 0,
-                }
+                },
+                new ControlPanel
+                {
+                    Children = new Drawable[]
+                    {
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = "Refresh",
+                            Action = update
+                        },
+                    },
+                },
             };
 
             currentCompleted.BindValueChanged(_ => update());
