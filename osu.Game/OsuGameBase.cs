@@ -410,6 +410,7 @@ namespace osu.Game
 
             KeyBindingStore = new RealmKeyBindingStore(realm, keyCombinationProvider);
             KeyBindingStore.Register(globalBindings, RulesetStore.AvailableRulesets);
+            dependencies.Cache(KeyBindingStore);
 
             dependencies.Cache(globalBindings);
 
@@ -545,7 +546,10 @@ namespace osu.Game
                         realmBlocker = realm.BlockAllOperations("migration");
                         success = true;
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.Log($"Attempting to block all operations failed: {ex}", LoggingTarget.Database);
+                    }
 
                     readyToRun.Set();
                 }, false);
