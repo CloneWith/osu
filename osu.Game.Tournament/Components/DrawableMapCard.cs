@@ -247,7 +247,7 @@ namespace osu.Game.Tournament.Components
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
-                                            Text = $"mapper: {Beatmap?.Metadata.Author}",
+                                            Text = $"mapper: {Beatmap?.Metadata.Author.Username}",
                                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
                                             Font = OsuFont.Torus.With(size: 18)
                                         }
