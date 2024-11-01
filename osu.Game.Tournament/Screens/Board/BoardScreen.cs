@@ -222,7 +222,7 @@ namespace osu.Game.Tournament.Screens.Board
                         new LabelledSwitchButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Label = "Board autoControl",
+                            Label = "Auto Control",
                             Current = LadderInfo.UseRefereeCommands,
                         },
                         new LabelledSwitchButton
