@@ -48,6 +48,7 @@ namespace osu.Game.Screens.Menu
         public Action? OnMultiplayer;
         public Action? OnPlaylists;
         public Action<Room>? OnDailyChallenge;
+        public Action? OnTournamentShowcase;
 
         private readonly IBindable<bool> isIdle = new BindableBool();
 
@@ -139,6 +140,7 @@ namespace osu.Game.Screens.Menu
             buttonsPlay.Add(new MainMenuButton(ButtonSystemStrings.Multi, @"button-default-select", OsuIcon.Online, new Color4(94, 63, 186, 255), onMultiplayer, Key.M));
             buttonsPlay.Add(new MainMenuButton(ButtonSystemStrings.Playlists, @"button-default-select", OsuIcon.Tournament, new Color4(94, 63, 186, 255), onPlaylists, Key.L));
             buttonsPlay.Add(new DailyChallengeButton(@"button-daily-select", new Color4(94, 63, 186, 255), onDailyChallenge, Key.D));
+            buttonsPlay.Add(new MainMenuButton(ButtonSystemStrings.TournamentShowcase, @"button-daily-select", OsuIcon.Ranking, new Color4(0, 202, 255, 255), _ => OnTournamentShowcase?.Invoke(), Key.S));
             buttonsPlay.ForEach(b => b.VisibleState = ButtonSystemState.Play);
 
             buttonsEdit.Add(new MainMenuButton(EditorStrings.BeatmapEditor.ToLower(), @"button-default-select", OsuIcon.Beatmap, new Color4(238, 170, 0, 255), _ => OnEditBeatmap?.Invoke(), Key.B, Key.E)

@@ -35,6 +35,7 @@ using osu.Game.Screens.OnlinePlay.DailyChallenge;
 using osu.Game.Screens.OnlinePlay.Multiplayer;
 using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Screens.Select;
+using osu.Game.Screens.TournamentShowcase;
 using osuTK;
 using osuTK.Graphics;
 
@@ -153,6 +154,7 @@ namespace osu.Game.Screens.Menu
                                 else
                                     this.Push(new DailyChallengeIntro(room));
                             },
+                            OnTournamentShowcase = () => this.Push(new ShowcaseConfigScreen()),
                             OnExit = () =>
                             {
                                 exitConfirmedViaHoldOrClick = true;
