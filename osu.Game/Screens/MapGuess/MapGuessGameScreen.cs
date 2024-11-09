@@ -51,7 +51,7 @@ namespace osu.Game.Screens.MapGuess
         private double countdownStartTime;
         private readonly int countdownTime;
         private readonly int totalCount;
-        private readonly BeatmapSetInfo[] beatmapSets;
+        private readonly List<BeatmapSetInfo> beatmapSets;
         private readonly OsuScreenStack screenStack;
         private readonly BeatmapDropdown beatmapDropdown;
         private readonly RoundedButton restartMusicButton;
@@ -63,7 +63,7 @@ namespace osu.Game.Screens.MapGuess
         private readonly ShakeContainer shakeContainer;
         private readonly MapGuessConfig config;
 
-        public MapGuessGameScreen(MapGuessConfig config, BeatmapSetInfo[] beatmapSets)
+        public MapGuessGameScreen(MapGuessConfig config, List<BeatmapSetInfo> beatmapSets)
         {
             this.config = config;
             this.beatmapSets = beatmapSets;
@@ -318,7 +318,7 @@ namespace osu.Game.Screens.MapGuess
 
         private void updateBeatmap()
         {
-            var selected = beatmapSets[random.Next(beatmapSets.Length)];
+            var selected = beatmapSets[random.Next(beatmapSets.Count)];
             beatmap = beatmaps.GetWorkingBeatmap(selected.Beatmaps.MaxBy(b => b.StarRating));
             var ruleset = rulesets.GetRuleset(beatmap.BeatmapInfo.Ruleset.OnlineID)?.CreateInstance();
             var autoplayMod = ruleset?.GetAutoplayMod();

@@ -206,17 +206,19 @@ namespace osu.Game.Screens.MapGuess
 
         private void startGame()
         {
-            var allBeatmapSets = beatmaps.GetAllUsableBeatmapSets();
-            var filteredBeatmaps = allBeatmapSets.Select(bs => bs.Beatmaps.MaxBy(b => b.StarRating)).Where(b => config.Rulesets.Contains(b.Ruleset.OnlineID)).ToArray();
-            var filteredBeatmapSets = filteredBeatmaps.Select(b => b.BeatmapSet).ToArray();
+            // Should filter out invalid beatmaps (e.g. theme songs) first
+            var allBeatmapSets = beatmaps.GetAllUsableBeatmapSets().Where(bs => bs.OnlineID != -1);
+            var filteredBeatmaps = allBeatmapSets.Select(bs => bs.Beatmaps.MaxBy(b => b.StarRating)!)
+                                                 .Where(b => config.Rulesets.Contains(b.Ruleset.OnlineID)).ToList();
+            var filteredBeatmapSets = filteredBeatmaps.Select(b => b.BeatmapSet).ToList();
 
-            if (filteredBeatmapSets.Length == 0)
+            if (filteredBeatmapSets.Count == 0)
             {
                 errorText.Text = "No beatmap selected";
                 return;
             }
 
-            this.Push(new MapGuessGameScreen(config, filteredBeatmapSets));
+            this.Push(new MapGuessGameScreen(config, filteredBeatmapSets!));
         }
 
         private partial class SolidBackgroundScreen : BackgroundScreen
