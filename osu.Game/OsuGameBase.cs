@@ -59,6 +59,7 @@ using osu.Game.Resources;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
+using osu.Game.Screens.TournamentShowcase;
 using osu.Game.Skinning;
 using osu.Game.Utils;
 using RuntimeInfo = osu.Framework.RuntimeInfo;
@@ -412,6 +413,8 @@ namespace osu.Game
             dependencies.Cache(KeyBindingStore);
 
             dependencies.Cache(globalBindings);
+
+            dependencies.Cache(new ShowcaseStorage(Storage));
 
             Ruleset.BindValueChanged(onRulesetChanged);
             Beatmap.BindValueChanged(onBeatmapChanged);

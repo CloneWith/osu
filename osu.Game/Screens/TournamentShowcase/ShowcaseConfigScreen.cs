@@ -1,7 +1,9 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics.Containers;
@@ -17,8 +19,20 @@ namespace osu.Game.Screens.TournamentShowcase
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
-        private OsuScrollContainer scroll = null!;
+        [Resolved]
+        private ShowcaseStorage storage { get; set; } = null!;
+
         private FillFlowContainer innerFlow = null!;
+
+        private FormDropdown<string> profileDropdown = null!;
+
+        private FormTextBox tournamentNameInput = null!;
+        private FormTextBox roundNameInput = null!;
+        private FormTextBox dateTimeInput = null!;
+        private FormTextBox commentInput = null!;
+        private FormSliderBar<int> transformDurationInput = null!;
+
+        private Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
 
         public ShowcaseConfigScreen()
         {
@@ -28,9 +42,12 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load()
         {
+            var availableProfiles = storage.ListTournaments();
+            currentProfile = new Bindable<ShowcaseConfig>(storage.GetConfig(availableProfiles.First()));
+
             InternalChildren = new Drawable[]
             {
-                scroll = new OsuScrollContainer
+                new OsuScrollContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -54,28 +71,42 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Tournament Information"),
-                                    new FormTextBox
+                                    // TODO: Get the load function work properly
+                                    profileDropdown = new FormDropdown<string>
+                                    {
+                                        Caption = "Load set",
+                                        Items = availableProfiles
+                                    },
+                                    tournamentNameInput = new FormTextBox
                                     {
                                         Caption = "Name",
                                         PlaceholderText = "Tournament series name (e.g. osu! World Cup)",
                                         HintText = "This would be shown at the intro screen.",
+                                        Current = currentProfile.Value.TournamentName,
+                                        TabbableContentContainer = this,
                                     },
-                                    new FormTextBox
+                                    roundNameInput = new FormTextBox
                                     {
                                         Caption = "Round",
                                         PlaceholderText = "Tournament round (e.g. Semifinals)",
+                                        Current = currentProfile.Value.RoundName,
+                                        TabbableContentContainer = this,
                                     },
-                                    new FormTextBox
+                                    dateTimeInput = new FormTextBox
                                     {
                                         Caption = "Date and Time",
                                         PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
                                         HintText = "This would stay the same in the showcase. So use your own preferred format!",
+                                        Current = currentProfile.Value.DateTime,
+                                        TabbableContentContainer = this,
                                     },
-                                    new FormTextBox
+                                    commentInput = new FormTextBox
                                     {
                                         Caption = "Comment",
                                         PlaceholderText = "Welcome to osu!",
                                         HintText = "In fact you can write anything here.\nThis is also part of the intro screen.",
+                                        Current = currentProfile.Value.Comment,
+                                        TabbableContentContainer = this,
                                     },
                                 }
                             },
@@ -88,6 +119,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Showcase Settings"),
+                                    transformDurationInput = new FormSliderBar<int>
+                                    {
+                                        Caption = @"Transform duration",
+                                        HintText = @"The length of the transform animation between screens, in milliseconds.",
+                                        Current = currentProfile.Value.TransformDuration,
+                                        TransferValueOnCommit = true,
+                                        TabbableContentContainer = this,
+                                    },
                                     new FormTextBox(),
                                     new FormTextBox(),
                                 }
@@ -121,16 +160,41 @@ namespace osu.Game.Screens.TournamentShowcase
                         }
                     },
                 },
-                new RoundedButton
+                new FillFlowContainer
                 {
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.BottomCentre,
+                    Direction = FillDirection.Horizontal,
                     RelativeSizeAxes = Axes.X,
-                    Width = 0.25f,
+                    Width = 0.6f,
                     Y = -30,
-                    Text = "Show",
+                    Padding = new MarginPadding(10),
+                    Children = new Drawable[]
+                    {
+                        new RoundedButton
+                        {
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.BottomCentre,
+                            RelativeSizeAxes = Axes.X,
+                            Width = 0.4f,
+                            Text = "Save",
+                            Action = () => storage.SaveChanges(currentProfile.Value),
+                        },
+                        new RoundedButton
+                        {
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.BottomCentre,
+                            RelativeSizeAxes = Axes.X,
+                            Width = 0.4f,
+                            Text = "Show",
+                        }
+                    }
                 }
             };
+
+            currentProfile.BindValueChanged(_ => updateForm());
+            profileDropdown.Current.BindValueChanged(e =>
+                currentProfile.Value = storage.GetConfig(e.NewValue));
 
             foreach (var f in innerFlow.Children)
             {
@@ -142,6 +206,15 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
             this.FadeInFromZero(500, Easing.OutQuint);
+        }
+
+        private void updateForm()
+        {
+            tournamentNameInput.Current = currentProfile.Value.TournamentName;
+            roundNameInput.Current = currentProfile.Value.RoundName;
+            dateTimeInput.Current = currentProfile.Value.DateTime;
+            commentInput.Current = currentProfile.Value.Comment;
+            transformDurationInput.Current = currentProfile.Value.TransformDuration;
         }
     }
 }
