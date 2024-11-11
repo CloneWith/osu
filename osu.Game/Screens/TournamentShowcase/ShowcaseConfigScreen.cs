@@ -10,6 +10,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
+using osu.Game.Rulesets;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -18,6 +19,9 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
+
+        [Resolved]
+        private RulesetStore rulesets { get; set; } = null!;
 
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
@@ -77,6 +81,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Caption = "Load set",
                                         Items = availableProfiles
                                     },
+                                    // TODO: This won't be saved properly.
+                                    new FormDropdown<RulesetInfo?>
+                                    {
+                                        Caption = "Ruleset",
+                                        HintText = @"The ruleset we should use for showcase and replays.",
+                                        Items = rulesets.AvailableRulesets,
+                                        Current = currentProfile.Value.Ruleset,
+                                    },
                                     tournamentNameInput = new FormTextBox
                                     {
                                         Caption = "Name",
@@ -131,19 +143,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     new FormTextBox(),
                                 }
                             },
-                            new FillFlowContainer
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Spacing = new Vector2(10),
-                                Direction = FillDirection.Vertical,
-                                Children = new Drawable[]
-                                {
-                                    new SectionHeader(@"Team List"),
-                                    new FormTextBox(),
-                                    new FormTextBox(),
-                                }
-                            },
+                            new ShowcaseTeamEditor(currentProfile),
                             new FillFlowContainer
                             {
                                 RelativeSizeAxes = Axes.X,
@@ -156,7 +156,26 @@ namespace osu.Game.Screens.TournamentShowcase
                                     new FormTextBox(),
                                     new FormTextBox(),
                                 }
-                            }
+                            },
+                            new FillFlowContainer
+                            {
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Spacing = new Vector2(10),
+                                Direction = FillDirection.Vertical,
+                                Children = new Drawable[]
+                                {
+                                    new SectionHeader(@"Staff List"),
+                                    new FormCheckBox
+                                    {
+                                        Caption = @"Show staff list in the showcase",
+                                        HintText = @"List all staffs at the end of the showcase.",
+                                        Current = currentProfile.Value.ShowStaffList
+                                    },
+                                    new FormTextBox(),
+                                    new FormTextBox(),
+                                }
+                            },
                         }
                     },
                 },
