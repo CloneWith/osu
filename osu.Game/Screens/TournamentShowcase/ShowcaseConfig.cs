@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Bindables;
+using osu.Game.Models;
 using osu.Game.Rulesets;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -22,6 +23,14 @@ namespace osu.Game.Screens.TournamentShowcase
             MinValue = 250,
             MaxValue = 3000,
         };
+
+        public BindableList<ShowcaseTeam> Teams = new BindableList<ShowcaseTeam>();
+
+        public BindableList<ShowcaseStaff> Staffs = new BindableList<ShowcaseStaff>();
+
+        public BindableList<ShowcaseBeatmap> Beatmaps = new BindableList<ShowcaseBeatmap>();
+
+        public Bindable<bool> ShowStaffList = new Bindable<bool>();
 
         public Bindable<bool> SplitMapPoolByMods = new BindableBool(true);
 
