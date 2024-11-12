@@ -8,7 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
-using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
@@ -70,53 +70,52 @@ namespace osu.Game.Tournament.Screens.Editors
                     new FillFlowContainer
                     {
                         Margin = new MarginPadding(5),
-                        // Padding = new MarginPadding { Right = 160 },
-                        Spacing = new Vector2(5),
+                        Spacing = new Vector2(10),
                         Direction = FillDirection.Full,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new SettingsTextBox
+                            new FormTextBox
                             {
-                                LabelText = "Name",
-                                Width = 0.33f,
+                                Caption = "Name",
+                                Width = 0.32f,
                                 Current = Model.Name
                             },
-                            new SettingsTextBox
+                            new FormTextBox
                             {
-                                LabelText = "Description",
-                                Width = 0.33f,
+                                Caption = "Description",
+                                Width = 0.32f,
                                 Current = Model.Description
                             },
                             new DateTextBox
                             {
-                                LabelText = "Start Time",
-                                Width = 0.33f,
+                                Caption = "Start Time",
+                                Width = 0.32f,
                                 Current = Model.StartDate
                             },
-                            new SettingsSlider<int>
+                            new FormSliderBar<int>
                             {
-                                LabelText = "# of Bans",
-                                Width = 0.33f,
+                                Caption = "# of Bans",
+                                Width = 0.48f,
                                 Current = Model.BanCount
                             },
-                            new SettingsSlider<int>
+                            new FormSliderBar<int>
                             {
-                                LabelText = "Best of",
-                                Width = 0.33f,
+                                Caption = "Best of",
+                                Width = 0.48f,
                                 Current = Model.BestOf
                             },
-                            new OsuCheckbox
+                            new FormCheckBox
                             {
-                                LabelText = "Board Mode",
-                                Width = 0.2f,
+                                Caption = "Board Mode",
+                                Width = 0.48f,
                                 Current = Model.UseBoard,
                             },
-                            new OsuCheckbox
+                            new FormCheckBox
                             {
-                                LabelText = "Trust All Special Commands",
-                                Width = 0.25f,
+                                Caption = "Trust All Special Commands",
+                                Width = 0.48f,
                                 Current = Model.TrustAll,
                             },
                             new DangerousSettingsButton
@@ -361,7 +360,8 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Padding = new MarginPadding { Right = 10 },
                                 Spacing = new Vector2(5),
                                 Direction = FillDirection.Horizontal,
-                                AutoSizeAxes = Axes.Both,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
                                 Children = new Drawable[]
                                 {
                                     new SettingsNumberBox
@@ -374,15 +374,13 @@ namespace osu.Game.Tournament.Screens.Editors
                                     new SettingsTextBox
                                     {
                                         LabelText = "Mods",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 100,
+                                        Width = 0.1f,
                                         Current = mods,
                                     },
                                     new SettingsTextBox
                                     {
                                         LabelText = "Mod Index",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 100,
+                                        Width = 0.1f,
                                         Current = modIndex,
                                     },
                                     new SettingsNumberBox

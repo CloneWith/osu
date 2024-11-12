@@ -30,6 +30,7 @@ using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Framework.Bindables;
+using osu.Game.Overlays;
 using osu.Game.Tournament.Components.Animations;
 
 namespace osu.Game.Tournament
@@ -56,6 +57,9 @@ namespace osu.Game.Tournament
 
         [Cached]
         private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
+
+        [Cached]
+        private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         private Container chatContainer = new Container
         {
