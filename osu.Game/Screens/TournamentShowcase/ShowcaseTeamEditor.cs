@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -11,7 +12,10 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
 using osu.Game.Overlays.Settings;
+using osu.Game.Rulesets;
 using osu.Game.Users;
 using osuTK;
 
@@ -92,7 +96,7 @@ namespace osu.Game.Screens.TournamentShowcase
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
 
-            PlayerEditor playerEditor = new PlayerEditor(Team);
+            PlayerEditor playerEditor = new PlayerEditor(Team, config.Ruleset.Value);
 
             Spacing = new Vector2(5);
             Padding = new MarginPadding(10);
@@ -151,10 +155,12 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             private readonly ShowcaseTeam team;
             private readonly FillFlowContainer flow;
+            private readonly RulesetInfo? ruleset;
 
-            public PlayerEditor(ShowcaseTeam team)
+            public PlayerEditor(ShowcaseTeam team, RulesetInfo? ruleset)
             {
                 this.team = team;
+                this.ruleset = ruleset;
 
                 RelativeSizeAxes = Axes.X;
                 AutoSizeAxes = Axes.Y;
@@ -166,7 +172,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     Direction = FillDirection.Vertical,
                     Padding = new MarginPadding(5),
                     Spacing = new Vector2(5),
-                    ChildrenEnumerable = team.Members.Select(p => new PlayerRow(team, p))
+                    ChildrenEnumerable = team.Members.Select(p => new PlayerRow(team, p, ruleset))
                 };
             }
 
@@ -174,20 +180,24 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 var player = new ShowcaseUser();
                 team.Members.Add(player);
-                flow.Add(new PlayerRow(team, player));
+                flow.Add(new PlayerRow(team, player, ruleset));
             }
 
             public partial class PlayerRow : FillFlowContainer
             {
-                private readonly ShowcaseUser user;
+                [Resolved]
+                private IAPIProvider api { get; set; } = null!;
 
+                private readonly ShowcaseUser user;
                 private readonly Bindable<int?> playerId = new Bindable<int?>();
+                private readonly RulesetInfo? ruleset;
 
                 private readonly Container userPanelContainer;
 
-                public PlayerRow(ShowcaseTeam team, ShowcaseUser user)
+                public PlayerRow(ShowcaseTeam team, ShowcaseUser user, RulesetInfo? ruleset)
                 {
                     this.user = user;
+                    this.ruleset = ruleset;
 
                     RelativeSizeAxes = Axes.X;
                     AutoSizeAxes = Axes.Y;
@@ -245,9 +255,47 @@ namespace osu.Game.Screens.TournamentShowcase
                             return;
                         }
 
-                        // TODO: Populate the user properly.
-                        updatePanel();
+                        PopulatePlayer(ruleset, user, updatePanel, updatePanel);
                     }, true);
+                }
+
+                public void PopulatePlayer(RulesetInfo? ruleset, ShowcaseUser user, Action? success = null, Action? failure = null, bool immediate = false)
+                {
+                    var req = new GetUserRequest(user.OnlineID, ruleset);
+
+                    if (immediate)
+                    {
+                        api.Perform(req);
+                        populate();
+                    }
+                    else
+                    {
+                        req.Success += _ => { populate(); };
+                        req.Failure += _ =>
+                        {
+                            user.OnlineID = 1;
+                            failure?.Invoke();
+                        };
+
+                        api.Queue(req);
+                    }
+
+                    void populate()
+                    {
+                        var res = req.Response;
+
+                        if (res == null)
+                            return;
+
+                        user.OnlineID = res.Id;
+
+                        user.Username = res.Username;
+                        user.CoverUrl = res.CoverUrl;
+                        user.CountryCode = res.CountryCode;
+                        user.Rank = res.Statistics?.GlobalRank;
+
+                        success?.Invoke();
+                    }
                 }
 
                 private void updatePanel() => Scheduler.AddOnce(() =>
