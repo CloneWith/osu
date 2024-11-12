@@ -69,6 +69,9 @@ namespace osu.Game.Screens.TournamentShowcase
             });
 
             textFlow.AddText(@"Add Team");
+
+            // Read and attach existing teams to the container
+            AddRange(teams.Select(t => new TeamRow(t, config.Value)));
         }
     }
 
