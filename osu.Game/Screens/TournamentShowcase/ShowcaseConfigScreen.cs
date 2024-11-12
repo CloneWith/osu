@@ -157,19 +157,6 @@ namespace osu.Game.Screens.TournamentShowcase
                                 }
                             },
                             new ShowcaseStaffEditor(currentProfile),
-                            new FillFlowContainer
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Spacing = new Vector2(10),
-                                Direction = FillDirection.Vertical,
-                                Children = new Drawable[]
-                                {
-                                    new SectionHeader(@"Staff List"),
-                                    new FormTextBox(),
-                                    new FormTextBox(),
-                                }
-                            },
                         }
                     },
                 },
