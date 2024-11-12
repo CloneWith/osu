@@ -75,7 +75,6 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Tournament Information"),
-                                    // TODO: Get the load function work properly
                                     profileDropdown = new FormDropdown<string>
                                     {
                                         Caption = "Load set",
@@ -157,6 +156,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     new FormTextBox(),
                                 }
                             },
+                            new ShowcaseStaffEditor(currentProfile),
                             new FillFlowContainer
                             {
                                 RelativeSizeAxes = Axes.X,
@@ -166,12 +166,6 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Staff List"),
-                                    new FormCheckBox
-                                    {
-                                        Caption = @"Show staff list in the showcase",
-                                        HintText = @"List all staffs at the end of the showcase.",
-                                        Current = currentProfile.Value.ShowStaffList
-                                    },
                                     new FormTextBox(),
                                     new FormTextBox(),
                                 }

@@ -7,7 +7,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
@@ -23,10 +22,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly BindableList<ShowcaseTeam> teams = new BindableList<ShowcaseTeam>();
 
-        private readonly OsuAnimatedButton addButton;
-
-        private OsuTextFlowContainer textFlow = null!;
-
         public ShowcaseTeamEditor(Bindable<ShowcaseConfig> config)
         {
             this.config.BindTo(config);
@@ -39,37 +34,18 @@ namespace osu.Game.Screens.TournamentShowcase
             Children = new Drawable[]
             {
                 new SectionHeader(@"Team List"),
-                addButton = new OsuAnimatedButton
+                new ShowcaseAddButton(@"Add team", () =>
                 {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Action = () =>
-                    {
-                        var addedTeam = new ShowcaseTeam();
-                        config.Value.Teams.Add(addedTeam);
-                        Add(new TeamRow(addedTeam, config.Value));
-                    },
-                },
+                    var addedTeam = new ShowcaseTeam();
+                    config.Value.Teams.Add(addedTeam);
+                    Add(new TeamRow(addedTeam, config.Value));
+                })
             };
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            addButton.Add(textFlow = new OsuTextFlowContainer(cp => cp.Font = cp.Font.With(size: 20))
-            {
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                Margin = new MarginPadding(5)
-            });
-
-            textFlow.AddIcon(FontAwesome.Solid.PlusCircle, i =>
-            {
-                i.Padding = new MarginPadding { Right = 10 };
-            });
-
-            textFlow.AddText(@"Add Team");
-
             // Read and attach existing teams to the container
             AddRange(teams.Select(t => new TeamRow(t, config.Value)));
         }

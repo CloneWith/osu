@@ -12,32 +12,29 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
-using osu.Game.Rulesets;
 using osu.Game.Users;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class PlayerRow : FillFlowContainer
+    public partial class StaffRow : FillFlowContainer
     {
         [Resolved]
         private IAPIProvider api { get; set; } = null!;
 
-        private readonly ShowcaseUser user;
+        private readonly ShowcaseStaff user;
         private readonly Bindable<string> playerId = new Bindable<string>();
-        private readonly RulesetInfo? ruleset;
-
+        private readonly Bindable<string> role = new Bindable<string>();
         private readonly Container userPanelContainer;
 
-        public PlayerRow(ShowcaseTeam team, ShowcaseUser user, RulesetInfo? ruleset)
+        public StaffRow(ShowcaseStaff user, ShowcaseConfig config)
         {
             this.user = user;
-            this.ruleset = ruleset;
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
 
-            Direction = FillDirection.Horizontal;
+            Direction = FillDirection.Full;
 
             Spacing = new Vector2(5);
 
@@ -46,30 +43,37 @@ namespace osu.Game.Screens.TournamentShowcase
 
             InternalChildren = new Drawable[]
             {
-                new FormNumberBox
-                {
-                    Width = 0.3f,
-                    Caption = @"Player ID",
-                    Current = playerId,
-                    AllowDecimals = false
-                },
                 userPanelContainer = new Container
                 {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    Width = 0.59f,
+                    Width = 1f,
                     Child = new UserListPanel(user.ToAPIUser())
+                },
+                new FormNumberBox
+                {
+                    Width = 0.44f,
+                    Caption = @"Staff ID",
+                    Current = playerId,
+                    AllowDecimals = false,
+                },
+                new FormTextBox
+                {
+                    Width = 0.44f,
+                    Caption = @"Staff role",
+                    HintText = @"This would be shown on the staff list screen, in the staff card.",
+                    Current = role,
                 },
                 new IconButton
                 {
                     RelativeSizeAxes = Axes.X,
                     Width = 0.1f,
                     Icon = FontAwesome.Solid.TimesCircle,
-                    TooltipText = @"Remove this user",
+                    TooltipText = @"Remove staff",
                     Action = () =>
                     {
                         Expire();
-                        team.Members.Remove(user);
+                        config.Staffs.Remove(user);
                     },
                 }
             };
@@ -79,6 +83,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private void load()
         {
             playerId.Value = user.OnlineID.ToString();
+            role.Value = user.Role;
+
             playerId.BindValueChanged(id =>
             {
                 bool idValid = int.TryParse(id.NewValue, out int newId) && newId >= 0;
@@ -93,13 +99,15 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
                 }
 
-                PopulatePlayer(ruleset, user, updatePanel, updatePanel);
+                PopulatePlayer(user, updatePanel, updatePanel);
             }, true);
+
+            role.BindValueChanged(s => { user.Role = s.NewValue; }, true);
         }
 
-        public void PopulatePlayer(RulesetInfo? ruleset, ShowcaseUser user, Action? success = null, Action? failure = null, bool immediate = false)
+        public void PopulatePlayer(ShowcaseUser user, Action? success = null, Action? failure = null, bool immediate = false)
         {
-            var req = new GetUserRequest(user.OnlineID, ruleset);
+            var req = new GetUserRequest(user.OnlineID);
 
             if (immediate)
             {
