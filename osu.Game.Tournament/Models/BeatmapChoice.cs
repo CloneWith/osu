@@ -14,15 +14,21 @@ namespace osu.Game.Tournament.Models
     public class BeatmapChoice
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public TeamColour Team;
+        public TeamColour Team = TeamColour.Neutral;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public ChoiceType Type;
+        public ChoiceType Type = ChoiceType.Neutral;
 
         public int BeatmapID;
 
-        // For auto selecting check.
-        public bool Token = false;
+        public BeatmapChoice()
+        {
+        }
+
+        public BeatmapChoice(int beatmapID)
+        {
+            BeatmapID = beatmapID;
+        }
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
