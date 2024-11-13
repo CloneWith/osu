@@ -17,6 +17,8 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         private readonly Bindable<ShowcaseConfig> config = new Bindable<ShowcaseConfig>();
 
+        private readonly FillFlowContainer staffContainer;
+
         public ShowcaseStaffEditor(Bindable<ShowcaseConfig> config)
         {
             this.config.BindTo(config);
@@ -39,14 +41,25 @@ namespace osu.Game.Screens.TournamentShowcase
                     var addedStaff = new ShowcaseStaff();
                     config.Value.Staffs.Add(addedStaff);
                     Add(new StaffRow(addedStaff, config.Value));
-                })
+                }),
+                staffContainer = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(10),
+                    ChildrenEnumerable = config.Value.Staffs.Select(t => new StaffRow(t, config.Value))
+                }
             };
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            AddRange(config.Value.Staffs.Select(t => new StaffRow(t, config.Value)));
+            config.BindValueChanged(conf =>
+            {
+                staffContainer.ChildrenEnumerable = conf.NewValue.Staffs.Select(t => new StaffRow(t, config.Value));
+            });
         }
     }
 }

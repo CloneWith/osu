@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -20,12 +19,11 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         private readonly Bindable<ShowcaseConfig> config = new Bindable<ShowcaseConfig>();
 
-        private readonly BindableList<ShowcaseTeam> teams = new BindableList<ShowcaseTeam>();
+        private readonly FillFlowContainer? teamsContainer;
 
         public ShowcaseTeamEditor(Bindable<ShowcaseConfig> config)
         {
             this.config.BindTo(config);
-            teams.BindTo(config.Value.Teams);
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -38,16 +36,23 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     var addedTeam = new ShowcaseTeam();
                     config.Value.Teams.Add(addedTeam);
-                    Add(new TeamRow(addedTeam, config.Value));
-                })
+                    teamsContainer?.Add(new TeamRow(addedTeam, config.Value));
+                }),
+                teamsContainer = new FillFlowContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(10),
+                    ChildrenEnumerable = config.Value.Teams.Select(t => new TeamRow(t, config.Value))
+                }
             };
-        }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            // Read and attach existing teams to the container
-            AddRange(teams.Select(t => new TeamRow(t, config.Value)));
+            config.BindValueChanged(conf =>
+            {
+                teamsContainer.Clear();
+                teamsContainer.ChildrenEnumerable = conf.NewValue.Teams.Select(t => new TeamRow(t, config.Value));
+            });
         }
     }
 
