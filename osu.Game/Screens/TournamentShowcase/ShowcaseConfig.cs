@@ -2,7 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using Newtonsoft.Json;
 using osu.Framework.Bindables;
+using osu.Game.Beatmaps;
 using osu.Game.Models;
 using osu.Game.Rulesets;
 
@@ -24,16 +26,31 @@ namespace osu.Game.Screens.TournamentShowcase
             MaxValue = 3000,
         };
 
+        public BindableInt ShowcaseCountdown = new BindableInt(3)
+        {
+            MinValue = 0,
+            MaxValue = 30,
+        };
+
         public BindableList<ShowcaseTeam> Teams = new BindableList<ShowcaseTeam>();
-
         public BindableList<ShowcaseStaff> Staffs = new BindableList<ShowcaseStaff>();
+        public BindableList<BeatmapInfo> Beatmaps = new BindableList<BeatmapInfo>();
 
-        public BindableList<ShowcaseBeatmap> Beatmaps = new BindableList<ShowcaseBeatmap>();
+        public Bindable<ShowcaseLayout> Layout = new Bindable<ShowcaseLayout>();
 
-        public Bindable<bool> ShowStaffList = new Bindable<bool>();
+        public BindableBool UseCustomIntroBeatmap = new BindableBool();
 
-        public Bindable<bool> SplitMapPoolByMods = new BindableBool(true);
+        // The BeatmapInfo structure itself introduces looped reference, so ignoring it.
+        [JsonIgnore]
+        public Bindable<BeatmapInfo> IntroBeatmap = new Bindable<BeatmapInfo>();
 
-        public Bindable<bool> DisplayTeamSeeds = new BindableBool();
+        public BindableInt IntroBeatmapId = new BindableInt();
+        public Bindable<Guid> IntroBeatmapGuid = new Bindable<Guid>();
+        public Bindable<TimeSpan> IntroTimestamp = new Bindable<TimeSpan>();
+
+        public BindableBool ShowMapPool = new BindableBool(true);
+        public BindableBool ShowBoardPool = new BindableBool();
+        public BindableBool ShowStaffList = new BindableBool(true);
+        public BindableBool SplitMapPoolByMods = new BindableBool(true);
     }
 }

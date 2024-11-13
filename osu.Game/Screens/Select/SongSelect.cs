@@ -69,7 +69,7 @@ namespace osu.Game.Screens.Select
         /// <summary>
         /// Can be null if <see cref="ShowSongSelectFooter"/> is false.
         /// </summary>
-        protected BeatmapOptionsOverlay BeatmapOptions { get; private set; } = null!;
+        protected BeatmapOptionsOverlay? BeatmapOptions { get; private set; }
 
         /// <summary>
         /// Can be null if <see cref="ShowSongSelectFooter"/> is false.
@@ -133,7 +133,7 @@ namespace osu.Game.Screens.Select
 
         protected BeatmapDetailArea BeatmapDetails { get; private set; } = null!;
 
-        private FooterButtonOptions beatmapOptionsButton = null!;
+        private FooterButtonOptions? beatmapOptionsButton;
 
         private readonly Bindable<RulesetInfo> decoupledRuleset = new Bindable<RulesetInfo>();
 
@@ -373,10 +373,10 @@ namespace osu.Game.Screens.Select
                 foreach (var (button, overlay) in CreateSongSelectFooterButtons())
                     SongSelectFooter.AddButton(button, overlay);
 
-                BeatmapOptions.AddButton(@"Manage", @"collections", FontAwesome.Solid.Book, colours.Green, () => manageCollectionsDialog?.Show());
-                BeatmapOptions.AddButton(@"Delete", @"all difficulties", FontAwesome.Solid.Trash, colours.Pink, () => DeleteBeatmap(Beatmap.Value.BeatmapSetInfo));
-                BeatmapOptions.AddButton(@"Remove", @"from unplayed", FontAwesome.Regular.TimesCircle, colours.Purple, null);
-                BeatmapOptions.AddButton(@"Clear", @"local scores", FontAwesome.Solid.Eraser, colours.Purple, () => ClearScores(Beatmap.Value.BeatmapInfo));
+                BeatmapOptions?.AddButton(@"Manage", @"collections", FontAwesome.Solid.Book, colours.Green, () => manageCollectionsDialog?.Show());
+                BeatmapOptions?.AddButton(@"Delete", @"all difficulties", FontAwesome.Solid.Trash, colours.Pink, () => DeleteBeatmap(Beatmap.Value.BeatmapSetInfo));
+                BeatmapOptions?.AddButton(@"Remove", @"from unplayed", FontAwesome.Regular.TimesCircle, colours.Purple, null);
+                BeatmapOptions?.AddButton(@"Clear", @"local scores", FontAwesome.Solid.Eraser, colours.Purple, () => ClearScores(Beatmap.Value.BeatmapInfo));
             }
 
             sampleChangeDifficulty = audio.Samples.Get(@"SongSelect/select-difficulty");
@@ -779,7 +779,7 @@ namespace osu.Game.Screens.Select
         {
             ModSelect.Hide();
 
-            BeatmapOptions.Hide();
+            BeatmapOptions?.Hide();
 
             Carousel.AllowSelection = false;
 
@@ -883,12 +883,15 @@ namespace osu.Game.Screens.Select
 
             bool beatmapSelected = beatmap is not DummyWorkingBeatmap;
 
-            if (beatmapSelected)
-                beatmapOptionsButton.Enabled.Value = true;
-            else
+            if (beatmapOptionsButton != null)
             {
-                beatmapOptionsButton.Enabled.Value = false;
-                BeatmapOptions.Hide();
+                if (beatmapSelected)
+                    beatmapOptionsButton.Enabled.Value = true;
+                else
+                {
+                    beatmapOptionsButton.Enabled.Value = false;
+                    BeatmapOptions?.Hide();
+                }
             }
         }
 

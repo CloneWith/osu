@@ -6,11 +6,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Screens;
+using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
+using osu.Game.Screens.Select;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -26,15 +29,24 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
 
+        [Resolved]
+        private IPerformFromScreenRunner? performer { get; set; }
+
+        [Resolved]
+        private BeatmapManager beatmapManager { get; set; } = null!;
+
         private FillFlowContainer innerFlow = null!;
 
         private FormDropdown<string> profileDropdown = null!;
 
+        private FormDropdown<RulesetInfo?> rulesetDropdown = null!;
         private FormTextBox tournamentNameInput = null!;
         private FormTextBox roundNameInput = null!;
         private FormTextBox dateTimeInput = null!;
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
+
+        private BeatmapInfoWedgeV2 introMapWedge = null!;
 
         private Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
 
@@ -80,8 +92,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Caption = "Load set",
                                         Items = availableProfiles
                                     },
-                                    // TODO: This won't be saved properly.
-                                    new FormDropdown<RulesetInfo?>
+                                    rulesetDropdown = new FormDropdown<RulesetInfo?>
                                     {
                                         Caption = "Ruleset",
                                         HintText = @"The ruleset we should use for showcase and replays.",
@@ -157,6 +168,46 @@ namespace osu.Game.Screens.TournamentShowcase
                                 }
                             },
                             new ShowcaseStaffEditor(currentProfile),
+                            new FillFlowContainer
+                            {
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Spacing = new Vector2(10),
+                                Direction = FillDirection.Vertical,
+                                Children = new Drawable[]
+                                {
+                                    new SectionHeader(@"Intro Beatmap"),
+                                    new FormCheckBox
+                                    {
+                                        Caption = @"Use custom intro beatmap",
+                                        HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase.",
+                                        Current = currentProfile.Value.UseCustomIntroBeatmap
+                                    },
+                                    new RoundedButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = @"Select beatmap",
+                                        Action = () =>
+                                        {
+                                            Schedule(() => performer?.PerformFromScreen(s =>
+                                                    s.Push(new ShowcaseSongSelect(currentProfile.Value.IntroBeatmap)),
+                                                new[] { typeof(ShowcaseConfigScreen) }));
+                                        }
+                                    },
+                                    introMapWedge = new BeatmapInfoWedgeV2
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Width = 0.95f,
+                                        Height = 90,
+                                        State = { Value = Visibility.Visible },
+                                        AlwaysPresent = true,
+                                        Beatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo
+                                        {
+                                            ID = currentProfile.Value.IntroBeatmapGuid.Value,
+                                        }, true)
+                                    }
+                                }
+                            },
                         }
                     },
                 },
@@ -168,7 +219,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     Width = 0.6f,
                     Y = -30,
-                    Padding = new MarginPadding(10),
+                    Spacing = new Vector2(10),
                     Children = new Drawable[]
                     {
                         new RoundedButton
@@ -196,6 +247,14 @@ namespace osu.Game.Screens.TournamentShowcase
             profileDropdown.Current.BindValueChanged(e =>
                 currentProfile.Value = storage.GetConfig(e.NewValue));
 
+            currentProfile.Value.IntroBeatmap.BindValueChanged(map =>
+            {
+                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(map.NewValue);
+
+                currentProfile.Value.IntroBeatmapGuid.Value = map.NewValue.ID;
+                currentProfile.Value.IntroBeatmapId.Value = map.NewValue.OnlineID;
+            });
+
             foreach (var f in innerFlow.Children)
             {
                 f.Width = 0.49f;
@@ -206,10 +265,12 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
             this.FadeInFromZero(500, Easing.OutQuint);
+            // AddInternal(new ShowcaseCountdownOverlay(10000));
         }
 
         private void updateForm()
         {
+            rulesetDropdown.Current = currentProfile.Value.Ruleset;
             tournamentNameInput.Current = currentProfile.Value.TournamentName;
             roundNameInput.Current = currentProfile.Value.RoundName;
             dateTimeInput.Current = currentProfile.Value.DateTime;

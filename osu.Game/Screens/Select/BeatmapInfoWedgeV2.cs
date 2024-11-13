@@ -50,7 +50,7 @@ namespace osu.Game.Screens.Select
         private Container difficultyColourBar = null!;
         private StarCounter starCounter = null!;
         private StarRatingDisplay starRatingDisplay = null!;
-        private BeatmapSetOnlineStatusPill statusPill = null!;
+        private BeatmapSetOnlineStatusPill? statusPill;
         private Container content = null!;
 
         private IBindable<StarDifficulty?>? starDifficulty;
@@ -200,11 +200,13 @@ namespace osu.Game.Screens.Select
 
         private void updateDisplay()
         {
-            statusPill.Status = beatmap.BeatmapInfo.Status;
+            if (statusPill != null)
+                statusPill.Status = beatmap.BeatmapInfo.Status;
 
-            starDifficulty = difficultyCache.GetBindableDifficulty(beatmap.BeatmapInfo, (cancellationSource = new CancellationTokenSource()).Token);
+            if (starDifficulty != null)
+                starDifficulty = difficultyCache.GetBindableDifficulty(beatmap.BeatmapInfo, (cancellationSource = new CancellationTokenSource()).Token);
 
-            starDifficulty.BindValueChanged(s =>
+            starDifficulty?.BindValueChanged(s =>
             {
                 starRatingDisplay.Current.Value = s.NewValue ?? default;
 
