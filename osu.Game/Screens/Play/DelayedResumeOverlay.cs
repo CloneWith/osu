@@ -32,9 +32,9 @@ namespace osu.Game.Screens.Play
         private const float progress_stroke_width = 7;
         private const float progress_size = inner_size + progress_stroke_width / 2f;
 
-        private const double countdown_time = 2000;
+        private readonly double countdownTime;
 
-        private const int total_count = 3;
+        private readonly int totalCount;
 
         protected override LocalisableString Message => string.Empty;
 
@@ -52,10 +52,13 @@ namespace osu.Game.Screens.Play
 
         private Sample? sampleCountdown;
 
-        public DelayedResumeOverlay()
+        public DelayedResumeOverlay(double countdownTime = 2000)
         {
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
+
+            this.countdownTime = countdownTime - 1000;
+            totalCount = (int)countdownTime / 1000;
         }
 
         [BackgroundDependencyLoader]
@@ -162,13 +165,13 @@ namespace osu.Game.Screens.Play
             if (State.Value == Visibility.Hidden || countdownComplete || Time.Current < countdownStartTime)
                 return;
 
-            double amountTimePassed = Math.Clamp((Time.Current - countdownStartTime) / countdown_time, 0, countdown_time);
-            int newCount = Math.Clamp(total_count - (int)Math.Floor(amountTimePassed * total_count), 0, total_count);
+            double amountTimePassed = Math.Clamp((Time.Current - countdownStartTime) / countdownTime, 0, countdownTime);
+            int newCount = Math.Clamp(totalCount - (int)Math.Floor(amountTimePassed * totalCount), 0, totalCount);
 
             countdownProgress.Progress = amountTimePassed;
             countdownProgress.InnerRadius = progress_stroke_width / progress_size / countdownProgress.Scale.X;
 
-            Alpha = 0.2f + 0.8f * newCount / total_count;
+            Alpha = 0.2f + 0.8f * newCount / totalCount;
 
             if (countdownCount != newCount)
             {
