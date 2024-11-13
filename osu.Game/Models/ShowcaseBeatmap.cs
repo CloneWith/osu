@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using osu.Game.Beatmaps;
 using osu.Game.Extensions;
 using osu.Game.Online.API.Requests.Responses;
@@ -32,7 +33,7 @@ namespace osu.Game.Models
 
         public BeatmapSetOnlineCovers Covers { get; set; }
 
-        public Replay? ShowcaseReplay { get; set; }
+        public List<Replay> ShowcaseReplays { get; set; } = new List<Replay>();
 
         public ShowcaseBeatmap()
         {
