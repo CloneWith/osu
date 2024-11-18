@@ -209,10 +209,13 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Height = 90,
                                         State = { Value = Visibility.Visible },
                                         AlwaysPresent = true,
-                                        Beatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo
-                                        {
-                                            ID = currentProfile.Value.IntroBeatmapGuid.Value,
-                                        }, true)
+                                        Beatmap = beatmapManager.GetWorkingBeatmap(
+                                            currentProfile.Value.IntroBeatmap.Value != null
+                                                ? new BeatmapInfo
+                                                {
+                                                    ID = currentProfile.Value.IntroBeatmap.Value.BeatmapGuid,
+                                                }
+                                                : null, true)
                                     }
                                 }
                             },
@@ -257,10 +260,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             currentProfile.Value.IntroBeatmap.BindValueChanged(map =>
             {
-                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(map.NewValue.BeatmapInfo);
-
-                currentProfile.Value.IntroBeatmapGuid.Value = map.NewValue.BeatmapGuid;
-                currentProfile.Value.IntroBeatmapId.Value = map.NewValue.BeatmapId;
+                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(map.NewValue?.BeatmapInfo);
             });
 
             foreach (var f in innerFlow.Children)

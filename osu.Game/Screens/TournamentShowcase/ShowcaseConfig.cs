@@ -40,9 +40,6 @@ namespace osu.Game.Screens.TournamentShowcase
         public BindableBool UseCustomIntroBeatmap = new BindableBool();
 
         public Bindable<ShowcaseBeatmap?> IntroBeatmap = new Bindable<ShowcaseBeatmap?>();
-
-        public BindableInt IntroBeatmapId = new BindableInt();
-        public Bindable<Guid> IntroBeatmapGuid = new Bindable<Guid>();
         public Bindable<TimeSpan> IntroTimestamp = new Bindable<TimeSpan>();
 
         public BindableBool ShowMapPool = new BindableBool(true);
