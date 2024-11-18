@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Game.Beatmaps;
 using osu.Game.Models;
@@ -40,9 +39,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public BindableBool UseCustomIntroBeatmap = new BindableBool();
 
-        // The BeatmapInfo structure itself introduces looped reference, so ignoring it.
-        [JsonIgnore]
-        public Bindable<BeatmapInfo> IntroBeatmap = new Bindable<BeatmapInfo>();
+        public Bindable<ShowcaseBeatmap?> IntroBeatmap = new Bindable<ShowcaseBeatmap?>();
 
         public BindableInt IntroBeatmapId = new BindableInt();
         public Bindable<Guid> IntroBeatmapGuid = new Bindable<Guid>();

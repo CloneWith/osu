@@ -11,6 +11,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Select;
@@ -189,9 +190,16 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Text = @"Select beatmap",
                                         Action = () =>
                                         {
+                                            Bindable<BeatmapInfo> introMapBindable = currentProfile.Value.IntroBeatmap.Value != null
+                                                ? new Bindable<BeatmapInfo>(currentProfile.Value.IntroBeatmap.Value.BeatmapInfo)
+                                                : new Bindable<BeatmapInfo>();
+
                                             Schedule(() => performer?.PerformFromScreen(s =>
-                                                    s.Push(new ShowcaseSongSelect(currentProfile.Value.IntroBeatmap)),
+                                                    s.Push(new ShowcaseSongSelect(introMapBindable)),
                                                 new[] { typeof(ShowcaseConfigScreen) }));
+
+                                            introMapBindable.BindValueChanged(e =>
+                                                currentProfile.Value.IntroBeatmap.Value = new ShowcaseBeatmap(e.NewValue));
                                         }
                                     },
                                     introMapWedge = new BeatmapInfoWedgeV2
@@ -249,10 +257,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
             currentProfile.Value.IntroBeatmap.BindValueChanged(map =>
             {
-                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(map.NewValue);
+                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(map.NewValue.BeatmapInfo);
 
-                currentProfile.Value.IntroBeatmapGuid.Value = map.NewValue.ID;
-                currentProfile.Value.IntroBeatmapId.Value = map.NewValue.OnlineID;
+                currentProfile.Value.IntroBeatmapGuid.Value = map.NewValue.BeatmapGuid;
+                currentProfile.Value.IntroBeatmapId.Value = map.NewValue.BeatmapId;
             });
 
             foreach (var f in innerFlow.Children)
