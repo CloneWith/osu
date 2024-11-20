@@ -14,16 +14,20 @@ namespace osu.Game.Models
     {
         // The BeatmapInfo structure itself introduces looped reference, so ignoring it.
         [JsonIgnore]
-        public readonly BeatmapInfo BeatmapInfo;
+        public BeatmapInfo BeatmapInfo = new BeatmapInfo();
 
-        public readonly int BeatmapId;
-        public readonly Guid BeatmapGuid;
+        public int BeatmapId;
+        public Guid BeatmapGuid = Guid.Empty;
 
-        public readonly BindableBool IsOriginal = new BindableBool();
-        public readonly Bindable<string> BeatmapArea = new Bindable<string>();
-        public readonly Bindable<string> BeatmapComment = new Bindable<string>();
+        public BindableBool IsOriginal = new BindableBool();
+        public Bindable<string> BeatmapArea = new Bindable<string>();
+        public Bindable<string> BeatmapComment = new Bindable<string>();
 
         public Replay? ShowcaseReplay;
+
+        public ShowcaseBeatmap()
+        {
+        }
 
         public ShowcaseBeatmap(BeatmapInfo? beatmapInfo)
         {

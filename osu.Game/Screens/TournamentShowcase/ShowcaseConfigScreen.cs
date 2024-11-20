@@ -11,7 +11,6 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
-using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Select;
@@ -47,6 +46,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
 
+        private readonly Bindable<BeatmapInfo> introMapBindable = new Bindable<BeatmapInfo>();
         private BeatmapInfoWedgeV2 introMapWedge = null!;
 
         private Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
@@ -61,6 +61,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             var availableProfiles = storage.ListTournaments();
             currentProfile = new Bindable<ShowcaseConfig>(storage.GetConfig(availableProfiles.First()));
+
+            introMapBindable.Value = currentProfile.Value.IntroBeatmap.Value.BeatmapInfo;
 
             InternalChildren = new Drawable[]
             {
@@ -190,16 +192,9 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Text = @"Select beatmap",
                                         Action = () =>
                                         {
-                                            Bindable<BeatmapInfo> introMapBindable = currentProfile.Value.IntroBeatmap.Value != null
-                                                ? new Bindable<BeatmapInfo>(currentProfile.Value.IntroBeatmap.Value.BeatmapInfo)
-                                                : new Bindable<BeatmapInfo>();
-
                                             Schedule(() => performer?.PerformFromScreen(s =>
                                                     s.Push(new ShowcaseSongSelect(introMapBindable)),
                                                 new[] { typeof(ShowcaseConfigScreen) }));
-
-                                            introMapBindable.BindValueChanged(e =>
-                                                currentProfile.Value.IntroBeatmap.Value = new ShowcaseBeatmap(e.NewValue));
                                         }
                                     },
                                     introMapWedge = new BeatmapInfoWedgeV2
@@ -210,12 +205,11 @@ namespace osu.Game.Screens.TournamentShowcase
                                         State = { Value = Visibility.Visible },
                                         AlwaysPresent = true,
                                         Beatmap = beatmapManager.GetWorkingBeatmap(
-                                            currentProfile.Value.IntroBeatmap.Value != null
-                                                ? new BeatmapInfo
-                                                {
-                                                    ID = currentProfile.Value.IntroBeatmap.Value.BeatmapGuid,
-                                                }
-                                                : null, true)
+                                            new BeatmapInfo
+                                            {
+                                                ID = currentProfile.Value.IntroBeatmap.Value.BeatmapGuid,
+                                            }
+                                            , true)
                                     }
                                 }
                             },
@@ -256,11 +250,18 @@ namespace osu.Game.Screens.TournamentShowcase
 
             currentProfile.BindValueChanged(_ => updateForm());
             profileDropdown.Current.BindValueChanged(e =>
-                currentProfile.Value = storage.GetConfig(e.NewValue));
-
-            currentProfile.Value.IntroBeatmap.BindValueChanged(map =>
             {
-                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(map.NewValue?.BeatmapInfo);
+                currentProfile.Value = storage.GetConfig(e.NewValue);
+            });
+
+            introMapBindable.BindValueChanged(e =>
+            {
+                // When the new map is selected, update the data in place.
+                currentProfile.Value.IntroBeatmap.Value.BeatmapInfo = e.NewValue;
+                currentProfile.Value.IntroBeatmap.Value.BeatmapGuid = e.NewValue.ID;
+                currentProfile.Value.IntroBeatmap.Value.BeatmapId = e.NewValue.OnlineID;
+
+                updateIntroMapWedge();
             });
 
             foreach (var f in innerFlow.Children)
@@ -276,6 +277,18 @@ namespace osu.Game.Screens.TournamentShowcase
             // AddInternal(new ShowcaseCountdownOverlay(10000));
         }
 
+        private void updateIntroMapWedge()
+        {
+            if (currentProfile.Value.IntroBeatmap.Value != null)
+            {
+                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(
+                    new BeatmapInfo
+                    {
+                        ID = currentProfile.Value.IntroBeatmap.Value.BeatmapGuid,
+                    }, true);
+            }
+        }
+
         private void updateForm()
         {
             rulesetDropdown.Current = currentProfile.Value.Ruleset;
@@ -284,6 +297,8 @@ namespace osu.Game.Screens.TournamentShowcase
             dateTimeInput.Current = currentProfile.Value.DateTime;
             commentInput.Current = currentProfile.Value.Comment;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
+
+            updateIntroMapWedge();
         }
     }
 }
