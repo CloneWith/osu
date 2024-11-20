@@ -68,10 +68,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly Bindable<string> selectorId = new Bindable<string>();
 
-        private DrawableShowcaseBeatmapItem drawableItem;
-
         public BeatmapRow(ShowcaseBeatmap beatmap, ShowcaseConfig config)
         {
+            DrawableShowcaseBeatmapItem drawableItem;
             Beatmap = beatmap;
             beatmapInfoBindable.Value = Beatmap.BeatmapInfo;
             this.config = config;

@@ -13,7 +13,6 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
-using osu.Game.Screens.Select;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -32,9 +31,6 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private IPerformFromScreenRunner? performer { get; set; }
 
-        [Resolved]
-        private BeatmapManager beatmapManager { get; set; } = null!;
-
         private FillFlowContainer innerFlow = null!;
 
         private FormDropdown<string> profileDropdown = null!;
@@ -45,9 +41,10 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox dateTimeInput = null!;
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
+        private FillFlowContainer introEditor = null!;
+        private DrawableShowcaseBeatmapItem introBeatmapItem = null!;
 
         private readonly Bindable<BeatmapInfo> introMapBindable = new Bindable<BeatmapInfo>();
-        private BeatmapInfoWedgeV2 introMapWedge = null!;
 
         private Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
 
@@ -159,7 +156,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             new ShowcaseTeamEditor(currentProfile),
                             new ShowcaseBeatmapEditor(currentProfile),
                             new ShowcaseStaffEditor(currentProfile),
-                            new FillFlowContainer
+                            introEditor = new FillFlowContainer
                             {
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
@@ -174,31 +171,15 @@ namespace osu.Game.Screens.TournamentShowcase
                                         HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase.",
                                         Current = currentProfile.Value.UseCustomIntroBeatmap
                                     },
-                                    new RoundedButton
+                                    introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                                     {
                                         RelativeSizeAxes = Axes.X,
-                                        Text = @"Select beatmap",
-                                        Action = () =>
-                                        {
-                                            Schedule(() => performer?.PerformFromScreen(s =>
-                                                    s.Push(new ShowcaseSongSelect(introMapBindable)),
-                                                new[] { typeof(ShowcaseConfigScreen) }));
-                                        }
+                                        AllowReordering = false,
+                                        AllowDeletion = false,
+                                        RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
+                                                s.Push(new ShowcaseSongSelect(introMapBindable)),
+                                            new[] { typeof(ShowcaseConfigScreen) })),
                                     },
-                                    introMapWedge = new BeatmapInfoWedgeV2
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Width = 0.95f,
-                                        Height = 90,
-                                        State = { Value = Visibility.Visible },
-                                        AlwaysPresent = true,
-                                        Beatmap = beatmapManager.GetWorkingBeatmap(
-                                            new BeatmapInfo
-                                            {
-                                                ID = currentProfile.Value.IntroBeatmap.Value.BeatmapGuid,
-                                            }
-                                            , true)
-                                    }
                                 }
                             },
                         }
@@ -249,7 +230,16 @@ namespace osu.Game.Screens.TournamentShowcase
                 currentProfile.Value.IntroBeatmap.Value.BeatmapGuid = e.NewValue.ID;
                 currentProfile.Value.IntroBeatmap.Value.BeatmapId = e.NewValue.OnlineID;
 
-                updateIntroMapWedge();
+                introBeatmapItem.Expire();
+                introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AllowReordering = false,
+                    AllowDeletion = false,
+                    RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
+                            s.Push(new ShowcaseSongSelect(introMapBindable)),
+                        new[] { typeof(ShowcaseConfigScreen) })),
+                });
             });
 
             foreach (var f in innerFlow.Children)
@@ -265,18 +255,6 @@ namespace osu.Game.Screens.TournamentShowcase
             // AddInternal(new ShowcaseCountdownOverlay(10000));
         }
 
-        private void updateIntroMapWedge()
-        {
-            if (currentProfile.Value.IntroBeatmap.Value != null)
-            {
-                introMapWedge.Beatmap = beatmapManager.GetWorkingBeatmap(
-                    new BeatmapInfo
-                    {
-                        ID = currentProfile.Value.IntroBeatmap.Value.BeatmapGuid,
-                    }, true);
-            }
-        }
-
         private void updateForm()
         {
             rulesetDropdown.Current = currentProfile.Value.Ruleset;
@@ -286,7 +264,16 @@ namespace osu.Game.Screens.TournamentShowcase
             commentInput.Current = currentProfile.Value.Comment;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
 
-            updateIntroMapWedge();
+            introBeatmapItem.Expire();
+            introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+            {
+                RelativeSizeAxes = Axes.X,
+                AllowReordering = false,
+                AllowDeletion = false,
+                RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
+                        s.Push(new ShowcaseSongSelect(introMapBindable)),
+                    new[] { typeof(ShowcaseConfigScreen) })),
+            });
         }
     }
 }
