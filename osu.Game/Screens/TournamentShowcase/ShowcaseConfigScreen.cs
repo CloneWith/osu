@@ -157,19 +157,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                 }
                             },
                             new ShowcaseTeamEditor(currentProfile),
-                            new FillFlowContainer
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Spacing = new Vector2(10),
-                                Direction = FillDirection.Vertical,
-                                Children = new Drawable[]
-                                {
-                                    new SectionHeader(@"Beatmap Queue"),
-                                    new FormTextBox(),
-                                    new FormTextBox(),
-                                }
-                            },
+                            new ShowcaseBeatmapEditor(currentProfile),
                             new ShowcaseStaffEditor(currentProfile),
                             new FillFlowContainer
                             {

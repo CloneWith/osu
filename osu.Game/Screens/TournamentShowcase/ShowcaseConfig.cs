@@ -3,7 +3,6 @@
 
 using System;
 using osu.Framework.Bindables;
-using osu.Game.Beatmaps;
 using osu.Game.Models;
 using osu.Game.Rulesets;
 
@@ -33,7 +32,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public BindableList<ShowcaseTeam> Teams = new BindableList<ShowcaseTeam>();
         public BindableList<ShowcaseStaff> Staffs = new BindableList<ShowcaseStaff>();
-        public BindableList<BeatmapInfo> Beatmaps = new BindableList<BeatmapInfo>();
+        public BindableList<ShowcaseBeatmap> Beatmaps = new BindableList<ShowcaseBeatmap>();
 
         public Bindable<ShowcaseLayout> Layout = new Bindable<ShowcaseLayout>();
 
