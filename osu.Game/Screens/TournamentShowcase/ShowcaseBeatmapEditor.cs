@@ -127,6 +127,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
                 {
                     RelativeSizeAxes = Axes.X,
+                    AllowSelection = false,
                     AllowReordering = false,
                     AllowEditing = true,
                     AllowDeletion = true,
@@ -156,8 +157,27 @@ namespace osu.Game.Screens.TournamentShowcase
                 Beatmap.BeatmapGuid = info.NewValue.ID;
                 Beatmap.BeatmapId = info.NewValue.OnlineID;
 
-                // TODO: Self updating, or use playlist item's solution.
-                drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config);
+                // Is there a better solution?
+                drawableItem.Expire();
+                Add(drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
+                {
+                    RelativeSizeAxes = Axes.X,
+                    AllowSelection = false,
+                    AllowReordering = false,
+                    AllowEditing = true,
+                    AllowDeletion = true,
+                    RequestEdit = _ =>
+                    {
+                        Schedule(() => performer?.PerformFromScreen(s =>
+                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable)),
+                            new[] { typeof(ShowcaseConfigScreen) }));
+                    },
+                    RequestDeletion = _ =>
+                    {
+                        config.Beatmaps.Remove(beatmap);
+                        Expire();
+                    }
+                });
             });
         }
     }

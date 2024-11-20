@@ -185,7 +185,7 @@ namespace osu.Game.Screens.TournamentShowcase
             set => ShowDragHandle.Value = value;
         }
 
-        private bool allowDeletion;
+        private bool allowDeletion = true;
 
         /// <summary>
         /// Whether this item can be deleted.
@@ -202,7 +202,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private bool allowShowingResults;
+        private bool allowShowingResults = true;
 
         /// <summary>
         /// Whether this item can have results shown.
@@ -219,7 +219,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private bool allowEditing;
+        private bool allowEditing = true;
 
         /// <summary>
         /// Whether this item can be edited.
@@ -493,7 +493,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Size = new Vector2(30, 30),
                 Alpha = AllowDeletion ? 1 : 0,
                 Action = () => RequestDeletion?.Invoke(Item),
-                TooltipText = "Remove from playlist"
+                TooltipText = "Remove from queue"
             },
         };
 
