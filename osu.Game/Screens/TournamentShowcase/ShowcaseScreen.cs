@@ -37,58 +37,95 @@ namespace osu.Game.Screens.TournamentShowcase
         private WorkingBeatmap beatmap = null!;
         private ShowcasePlayer? player;
         private readonly List<ShowcaseBeatmap> beatmapSets;
-        private readonly OsuScreenStack screenStack;
+        private readonly ShowcaseContainer showcaseContainer = null!;
 
-        private BindableBool replaying = new BindableBool();
+        private readonly BindableBool replaying = new BindableBool();
 
         public ShowcaseScreen(ShowcaseConfig config)
         {
             this.config = config;
             beatmapSets = config.Beatmaps.ToList();
 
-            Padding = new MarginPadding
+            switch (config.Layout.Value)
             {
-                Horizontal = 20,
-                Vertical = 10,
-            };
+                case ShowcaseLayout.Immersive:
+                    InternalChild = showcaseContainer = new ShowcaseContainer();
+                    break;
 
-            InternalChildren =
-            [
-                new GridContainer
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Height = 0.95f,
-                    RowDimensions =
-                    [
-                        new Dimension(),
-                    ],
-                    Content = new[]
-                    {
-                        new Drawable[]
-                        {
-                            new PlayerContainer
-                            {
-                                Masking = true,
-                                RelativeSizeAxes = Axes.Both,
-                                Child = screenStack = new OsuScreenStack
-                                {
-                                    RelativeSizeAxes = Axes.Both
-                                }
-                            }
-                        },
-                    }
-                },
-                new HoldForMenuButton
-                {
-                    Action = this.Exit,
+                case ShowcaseLayout.SimpleControl:
                     Padding = new MarginPadding
                     {
-                        Bottom = 90
-                    },
-                    Anchor = Anchor.BottomRight,
-                    Origin = Anchor.BottomRight,
-                }
-            ];
+                        Horizontal = 20,
+                        Vertical = 10,
+                    };
+                    InternalChildren =
+                    [
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Height = 0.95f,
+                            RowDimensions =
+                            [
+                                new Dimension(),
+                            ],
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    showcaseContainer = new ShowcaseContainer()
+                                },
+                            }
+                        },
+                        new HoldForMenuButton
+                        {
+                            Action = this.Exit,
+                            Padding = new MarginPadding
+                            {
+                                Bottom = 90
+                            },
+                            Anchor = Anchor.BottomRight,
+                            Origin = Anchor.BottomRight,
+                        }
+                    ];
+                    break;
+
+                case ShowcaseLayout.DetailedControl:
+                    Padding = new MarginPadding
+                    {
+                        Horizontal = 20,
+                        Vertical = 10,
+                    };
+                    InternalChildren =
+                    [
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Height = 0.95f,
+                            RowDimensions =
+                            [
+                                new Dimension(),
+                            ],
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    showcaseContainer = new ShowcaseContainer()
+                                },
+                            }
+                        },
+                        new HoldForMenuButton
+                        {
+                            Action = this.Exit,
+                            Padding = new MarginPadding
+                            {
+                                Bottom = 90
+                            },
+                            Anchor = Anchor.BottomRight,
+                            Origin = Anchor.BottomRight,
+                        }
+                    ];
+                    break;
+            }
 
             replaying.BindValueChanged(status =>
             {
@@ -134,15 +171,9 @@ namespace osu.Game.Screens.TournamentShowcase
             var score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), Mods.Value);
 
             if (player != null)
-                screenStack.Exit();
+                showcaseContainer.ScreenStack.Exit();
 
-            screenStack.Push(player = new ShowcasePlayer(score, 0, config, replaying));
-        }
-
-        private partial class PlayerContainer : Container
-        {
-            public override bool PropagatePositionalInputSubTree => false;
-            public override bool PropagateNonPositionalInputSubTree => false;
+            showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, 0, config, replaying));
         }
     }
 }

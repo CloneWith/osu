@@ -9,9 +9,8 @@ namespace osu.Game.Screens.TournamentShowcase
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ShowcaseLayout
     {
-        MainScreenOnly,
+        Immersive,
         SimpleControl,
         DetailedControl,
-        Immersive,
     }
 }
