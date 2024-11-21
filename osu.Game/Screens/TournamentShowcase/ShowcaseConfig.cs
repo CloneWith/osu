@@ -18,6 +18,13 @@ namespace osu.Game.Screens.TournamentShowcase
         public Bindable<string> DateTime = new Bindable<string>();
         public Bindable<string> Comment = new Bindable<string>();
 
+        public BindableInt StartCountdown = new BindableInt(5000)
+        {
+            MinValue = 3000,
+            MaxValue = 60000,
+            Precision = 1000
+        };
+
         public BindableInt TransformDuration = new BindableInt(1000)
         {
             MinValue = 250,

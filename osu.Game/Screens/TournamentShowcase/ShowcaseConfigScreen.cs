@@ -45,6 +45,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox dateTimeInput = null!;
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
+        private FormSliderBar<int> startCountdownInput = null!;
         private FillFlowContainer introEditor = null!;
         private DrawableShowcaseBeatmapItem introBeatmapItem = null!;
 
@@ -153,6 +154,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                         TransferValueOnCommit = true,
                                         TabbableContentContainer = this,
                                     },
+                                    startCountdownInput = new FormSliderBar<int>
+                                    {
+                                        Caption = @"Start countdown",
+                                        HintText = @"A duration to wait for before the showcase starts. Get prepared this time!",
+                                        Current = currentProfile.Value.StartCountdown,
+                                        TransferValueOnCommit = true,
+                                        TabbableContentContainer = this,
+                                    },
                                     new FormTextBox(),
                                     new FormTextBox(),
                                 }
@@ -216,6 +225,10 @@ namespace osu.Game.Screens.TournamentShowcase
                             RelativeSizeAxes = Axes.X,
                             Width = 0.4f,
                             Text = "Show",
+                            Action = () =>
+                            {
+                                this.Push(new ShowcaseScreen(currentProfile.Value));
+                            },
                         }
                     }
                 }
@@ -266,6 +279,7 @@ namespace osu.Game.Screens.TournamentShowcase
             dateTimeInput.Current = currentProfile.Value.DateTime;
             commentInput.Current = currentProfile.Value.Comment;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
+            startCountdownInput.Current = currentProfile.Value.StartCountdown;
 
             introBeatmapItem.Expire();
             introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
