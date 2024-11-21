@@ -12,6 +12,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
 using osuTK;
 
@@ -30,6 +31,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private IPerformFromScreenRunner? performer { get; set; }
+
+        [Resolved(canBeNull: true)]
+        private IDialogOverlay? dialogOverlay { get; set; }
 
         private FillFlowContainer innerFlow = null!;
 
@@ -252,7 +256,6 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
             this.FadeInFromZero(500, Easing.OutQuint);
-            // AddInternal(new ShowcaseCountdownOverlay(10000));
         }
 
         private void updateForm()
@@ -274,6 +277,30 @@ namespace osu.Game.Screens.TournamentShowcase
                         s.Push(new ShowcaseSongSelect(introMapBindable)),
                     new[] { typeof(ShowcaseConfigScreen) })),
             });
+        }
+
+        private bool exitConfirmed;
+
+        public override bool OnExiting(ScreenExitEvent e)
+        {
+            if (!exitConfirmed && dialogOverlay != null)
+            {
+                if (dialogOverlay.CurrentDialog is ConfirmDialog confirmDialog)
+                    confirmDialog.PerformAction<PopupDialogCancelButton>();
+                else
+                {
+                    dialogOverlay.Push(new ConfirmDialog("Are you sure to exit this screen?", () =>
+                    {
+                        exitConfirmed = true;
+                        if (this.IsCurrentScreen())
+                            this.Exit();
+                    }));
+                }
+
+                return true;
+            }
+
+            return base.OnExiting(e);
         }
     }
 }
