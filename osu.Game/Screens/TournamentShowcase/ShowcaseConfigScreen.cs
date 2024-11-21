@@ -11,6 +11,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
@@ -64,6 +65,8 @@ namespace osu.Game.Screens.TournamentShowcase
             var availableProfiles = storage.ListTournaments();
             currentProfile = new Bindable<ShowcaseConfig>(storage.GetConfig(availableProfiles.First()));
 
+            // In case an exception prevents this variable from initializing...
+            currentProfile.Value.IntroBeatmap.Value ??= new ShowcaseBeatmap();
             introMapBindable.Value = currentProfile.Value.IntroBeatmap.Value.BeatmapInfo;
 
             InternalChildren = new Drawable[]

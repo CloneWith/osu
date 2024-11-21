@@ -120,7 +120,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
             : base(item)
         {
-            Item = item;
+            Item = item ?? new ShowcaseBeatmap();
             this.config = config;
         }
 
