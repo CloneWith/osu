@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -48,6 +49,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormSliderBar<int> transformDurationInput = null!;
         private FormSliderBar<int> startCountdownInput = null!;
         private FillFlowContainer introEditor = null!;
+        private FormCheckBox useCustomIntroSwitch = null!;
         private DrawableShowcaseBeatmapItem introBeatmapItem = null!;
 
         private readonly Bindable<BeatmapInfo> introMapBindable = new Bindable<BeatmapInfo>();
@@ -181,10 +183,11 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Intro Beatmap"),
-                                    new FormCheckBox
+                                    useCustomIntroSwitch = new FormCheckBox
                                     {
                                         Caption = @"Use custom intro beatmap",
-                                        HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase.",
+                                        HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase."
+                                                   + @" Otherwise the first beatmap will be used.",
                                         Current = currentProfile.Value.UseCustomIntroBeatmap
                                     },
                                     introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
@@ -218,8 +221,12 @@ namespace osu.Game.Screens.TournamentShowcase
                             Origin = Anchor.BottomCentre,
                             RelativeSizeAxes = Axes.X,
                             Width = 0.4f,
-                            Text = "Save",
-                            Action = () => storage.SaveChanges(currentProfile.Value),
+                            Text = @"Save",
+                            Action = () =>
+                            {
+                                if (checkConfig())
+                                    storage.SaveChanges(currentProfile.Value);
+                            },
                         },
                         new RoundedButton
                         {
@@ -227,10 +234,11 @@ namespace osu.Game.Screens.TournamentShowcase
                             Origin = Anchor.BottomCentre,
                             RelativeSizeAxes = Axes.X,
                             Width = 0.4f,
-                            Text = "Show",
+                            Text = @"Start Showcase",
                             Action = () =>
                             {
-                                this.Push(new ShowcaseScreen(currentProfile.Value));
+                                if (checkConfig())
+                                    this.Push(new ShowcaseScreen(currentProfile.Value));
                             },
                         }
                     }
@@ -274,6 +282,39 @@ namespace osu.Game.Screens.TournamentShowcase
             this.FadeInFromZero(500, Easing.OutQuint);
         }
 
+        /// <summary>
+        /// Check all necessary fields to ensure that the profile can be saved and used properly.
+        /// In case an issue is found, a popup prompt will appear.
+        /// </summary>
+        /// <returns>True if valid, false otherwise</returns>
+        private bool checkConfig()
+        {
+            bool isValid = rulesetDropdown.Current.Value != null
+                           && tournamentNameInput.Current.Value.Trim() != string.Empty
+                           && roundNameInput.Current.Value.Trim() != string.Empty;
+
+            if (!isValid)
+            {
+                dialogOverlay?.Push(new ProfileCheckFailedDialog());
+            }
+
+            if (useCustomIntroSwitch.Current.Value && currentProfile.Value.IntroBeatmap.Value.BeatmapGuid == Guid.Empty)
+            {
+                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                {
+                    HeaderText = @"Custom null intro map?",
+                    BodyText = @"Specify a custom intro beatmap, or turn off the switch to use the first beatmap in the queue."
+                });
+
+                return false;
+            }
+
+            return isValid;
+        }
+
+        /// <summary>
+        /// Update the form components to match the new profile.
+        /// </summary>
         private void updateForm()
         {
             rulesetDropdown.Current = currentProfile.Value.Ruleset;
