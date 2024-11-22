@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -51,6 +50,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private FillFlowContainer introEditor = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
         private DrawableShowcaseBeatmapItem introBeatmapItem = null!;
+        private FormTextBox outroTitleInput = null!;
+        private FormTextBox outroSubtitleInput = null!;
 
         private readonly Bindable<BeatmapInfo> introMapBindable = new Bindable<BeatmapInfo>();
 
@@ -167,8 +168,21 @@ namespace osu.Game.Screens.TournamentShowcase
                                         TransferValueOnCommit = true,
                                         TabbableContentContainer = this,
                                     },
-                                    new FormTextBox(),
-                                    new FormTextBox(),
+                                    outroTitleInput = new FormTextBox
+                                    {
+                                        Caption = @"Outro title",
+                                        PlaceholderText = @"Thanks for watching!",
+                                        Current = currentProfile.Value.OutroTitle,
+                                        TabbableContentContainer = this,
+                                    },
+                                    outroSubtitleInput = new FormTextBox
+                                    {
+                                        Caption = @"Outro subtitle",
+                                        HintText = @"This would be shown in one line, so shouldn't be too long!",
+                                        PlaceholderText = @"Take care of yourself, and be well.",
+                                        Current = currentProfile.Value.OutroSubtitle,
+                                        TabbableContentContainer = this,
+                                    },
                                 }
                             },
                             new ShowcaseTeamEditor(currentProfile),
@@ -298,7 +312,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 dialogOverlay?.Push(new ProfileCheckFailedDialog());
             }
 
-            if (useCustomIntroSwitch.Current.Value && currentProfile.Value.IntroBeatmap.Value.BeatmapGuid == Guid.Empty)
+            if (useCustomIntroSwitch.Current.Value && currentProfile.Value.IntroBeatmap.Value == null)
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog
                 {
@@ -324,6 +338,8 @@ namespace osu.Game.Screens.TournamentShowcase
             commentInput.Current = currentProfile.Value.Comment;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
             startCountdownInput.Current = currentProfile.Value.StartCountdown;
+            outroTitleInput.Current = currentProfile.Value.OutroTitle;
+            outroSubtitleInput.Current = currentProfile.Value.OutroSubtitle;
 
             introBeatmapItem.Expire();
             introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
@@ -344,7 +360,7 @@ namespace osu.Game.Screens.TournamentShowcase
             if (!exitConfirmed && dialogOverlay != null)
             {
                 if (dialogOverlay.CurrentDialog is ConfirmDialog confirmDialog)
-                    confirmDialog.PerformAction<PopupDialogCancelButton>();
+                    confirmDialog.PerformOkAction();
                 else
                 {
                     dialogOverlay.Push(new ConfirmDialog("Are you sure to exit this screen?", () =>

@@ -52,5 +52,8 @@ namespace osu.Game.Screens.TournamentShowcase
         public BindableBool ShowBoardPool = new BindableBool();
         public BindableBool ShowStaffList = new BindableBool(true);
         public BindableBool SplitMapPoolByMods = new BindableBool(true);
+
+        public Bindable<string> OutroTitle = new Bindable<string>();
+        public Bindable<string> OutroSubtitle = new Bindable<string>();
     }
 }
