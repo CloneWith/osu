@@ -142,7 +142,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (!status.NewValue)
                 {
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
-                    Scheduler.AddDelayed(updateBeatmap, 3500);
+                    Scheduler.AddDelayed(pushNextBeatmap, 3500);
                 }
             });
         }
@@ -155,23 +155,37 @@ namespace osu.Game.Screens.TournamentShowcase
             Ruleset.Value = config.Ruleset.Value;
 
             AddInternal(new ShowcaseCountdownOverlay(config.StartCountdown.Value));
-            Scheduler.AddDelayed(updateBeatmap, config.StartCountdown.Value);
+            Scheduler.AddDelayed(showIntro, config.StartCountdown.Value);
         }
+
+        private void pushIntroBeatmap() => updateBeatmap(true);
+
+        private void pushNextBeatmap() => updateBeatmap();
 
         /// <summary>
         /// Load the next beatmap in the queue and push it to the player.
         /// If no map presents, this will trigger the outro screen.
         /// </summary>
-        private void updateBeatmap()
+        private void updateBeatmap(bool introMode = false)
         {
-            if (!beatmapSets.Any())
+            ShowcaseBeatmap selected;
+
+            if (!introMode)
             {
-                showOutro();
-                return;
+                if (!beatmapSets.Any())
+                {
+                    showOutro();
+                    return;
+                }
+
+                selected = beatmapSets.First();
+                beatmapSets.Remove(beatmapSets.First());
+            }
+            else
+            {
+                selected = config.IntroBeatmap.Value;
             }
 
-            var selected = beatmapSets.First();
-            beatmapSets.Remove(beatmapSets.First());
             beatmap = beatmaps.GetWorkingBeatmap(new BeatmapInfo
             {
                 ID = selected.BeatmapGuid,
@@ -191,7 +205,68 @@ namespace osu.Game.Screens.TournamentShowcase
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();
 
-            showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, 0, config, replaying));
+            showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, 0, config, replaying, introMode));
+        }
+
+        /// <summary>
+        /// Show the intro screen, fade the showcase container out and then exit.
+        /// </summary>
+        private void showIntro()
+        {
+            Container introContainer = new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                Alpha = 0,
+                Children = new Drawable[]
+                {
+                    new Box
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Color4.Black,
+                        Alpha = 0.5f
+                    },
+                    new OsuSpriteText
+                    {
+                        RelativePositionAxes = Axes.Both,
+                        Origin = Anchor.CentreLeft,
+                        X = 0.45f,
+                        Y = 0.45f,
+                        Text = config.TournamentName.Value,
+                        Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
+                    },
+                    new OsuSpriteText
+                    {
+                        RelativePositionAxes = Axes.Both,
+                        Origin = Anchor.CentreLeft,
+                        X = 0.45f,
+                        Y = 0.55f,
+                        Text = config.RoundName.Value,
+                        Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
+                    },
+                }
+            };
+
+            AddInternal(introContainer);
+            pushIntroBeatmap();
+
+            // Initialization
+            logo?.Show();
+            logo?.MoveTo(new Vector2(-0.5f, 0.5f));
+            logo?.ScaleTo(0.5f);
+
+            logo?.FadeIn(500);
+            logo?.MoveTo(new Vector2(0.25f, 0.5f), 1000, Easing.OutQuint);
+            logo?.Delay(200).ScaleTo(new Vector2(0.8f), 500, Easing.OutQuint);
+
+            introContainer.FadeIn(1000, Easing.OutQuint);
+            logo?.Delay(3000).FadeOut(3000, Easing.OutQuint);
+
+            using (BeginDelayedSequence(3000))
+            {
+                introContainer.FadeOut(1000, Easing.OutQuint);
+                Scheduler.AddDelayed(pushNextBeatmap, 3000);
+            }
         }
 
         /// <summary>

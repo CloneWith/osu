@@ -12,10 +12,11 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         private readonly ShowcaseConfig config;
         private readonly double startTime;
+        private readonly bool noHUD;
 
         private readonly BindableBool replaying = new BindableBool();
 
-        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, BindableBool replaying)
+        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, BindableBool replaying, bool noHUD = false)
             : base(score, new PlayerConfiguration
             {
                 AllowUserInteraction = false,
@@ -25,11 +26,22 @@ namespace osu.Game.Screens.TournamentShowcase
             this.startTime = startTime;
             this.config = config;
             this.replaying.BindTo(replaying);
+            this.noHUD = noHUD;
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            if (noHUD)
+            {
+                HUDOverlay.ShowHud.Value = false;
+                HUDOverlay.ShowHud.Disabled = true;
+                HUDOverlay.PlayfieldSkinLayer.Hide();
+                BreakOverlay.Hide();
+                DrawableRuleset.Overlays.Hide();
+                DrawableRuleset.Playfield.DisplayJudgements.Value = false;
+            }
 
             Reset();
         }
