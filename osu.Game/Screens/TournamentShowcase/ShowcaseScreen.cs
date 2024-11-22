@@ -8,6 +8,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Graphics;
@@ -15,6 +16,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Models;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
+using osu.Game.Scoring;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play.HUD;
 using osuTK;
@@ -39,6 +41,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
+
+        [Resolved]
+        private ScoreManager scoreManager { get; set; } = null!;
 
         [Resolved]
         private OsuLogo? logo { get; set; }
@@ -171,6 +176,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             state = ShowcaseState.BeatmapShow;
             ShowcaseBeatmap selected;
+            Score? score;
 
             if (!introMode)
             {
@@ -196,16 +202,30 @@ namespace osu.Game.Screens.TournamentShowcase
             }, true);
 
             var ruleset = config.Ruleset.Value?.CreateInstance();
-            var autoplayMod = ruleset?.GetAutoplayMod();
 
-            if (ruleset == null || autoplayMod == null)
-                return;
+            if (selected.ShowcaseScore != null)
+            {
+                score = scoreManager.GetScore(selected.ShowcaseScore);
+            }
+            else
+            {
+                var autoplayMod = ruleset?.GetAutoplayMod();
+                if (ruleset == null || autoplayMod == null)
+                    return;
+
+                score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), Mods.Value);
+            }
 
             Beatmap.Value = beatmap;
             showcaseContainer.BeatmapAttributes.BeatmapInfo.Value = beatmap.BeatmapInfo;
             showcaseContainer.BeatmapAttributes.Mods.Value = selected.RequiredMods.ToList();
 
-            var score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), Mods.Value);
+            if (score == null)
+            {
+                Logger.Error(null, $"Could not find a score for {selected.ShowcaseScore}. Skipping.");
+                pushNextBeatmap();
+                return;
+            }
 
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();

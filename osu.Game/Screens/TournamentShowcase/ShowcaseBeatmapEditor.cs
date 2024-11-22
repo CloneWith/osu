@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -11,6 +12,7 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
+using osu.Game.Scoring;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -63,6 +65,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ShowcaseBeatmap Beatmap { get; }
         private readonly Bindable<BeatmapInfo> beatmapInfoBindable = new Bindable<BeatmapInfo>();
+        private readonly Bindable<ScoreInfo?> scoreInfoBindable = new Bindable<ScoreInfo?>();
 
         private ShowcaseConfig config { get; set; }
 
@@ -73,6 +76,7 @@ namespace osu.Game.Screens.TournamentShowcase
             DrawableShowcaseBeatmapItem drawableItem;
             Beatmap = beatmap;
             beatmapInfoBindable.Value = Beatmap.BeatmapInfo;
+
             this.config = config;
             selectorId.Value = beatmap.SelectorId.ToString();
 
@@ -133,7 +137,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>
-                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable)),
+                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, scoreInfoBindable)),
                             new[] { typeof(ShowcaseConfigScreen) }));
                     },
                     RequestDeletion = _ =>
@@ -168,7 +172,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>
-                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable)),
+                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, scoreInfoBindable)),
                             new[] { typeof(ShowcaseConfigScreen) }));
                     },
                     RequestDeletion = _ =>
@@ -178,6 +182,21 @@ namespace osu.Game.Screens.TournamentShowcase
                     }
                 });
             });
+
+            scoreInfoBindable.BindValueChanged(score =>
+            {
+                Beatmap.ShowcaseScore = score.NewValue;
+                Beatmap.ScoreGuid = score.NewValue?.ID ?? Guid.Empty;
+            });
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(ScoreManager scoreManager)
+        {
+            scoreInfoBindable.Value = scoreManager.GetScore(new ScoreInfo
+            {
+                ID = Beatmap.ScoreGuid
+            })?.ScoreInfo;
         }
     }
 }

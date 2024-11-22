@@ -133,7 +133,7 @@ namespace osu.Game.Screens.TournamentShowcase
             var rulesetInstance = ruleset?.CreateInstance();
 
             if (rulesetInstance != null)
-                requiredMods = Item.RequiredMods.Select(m => m.ToMod(rulesetInstance)).ToArray();
+                requiredMods = Item.RequiredMods.ToArray();
         }
 
         protected override void LoadComplete()

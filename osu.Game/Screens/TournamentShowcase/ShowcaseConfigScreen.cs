@@ -15,6 +15,7 @@ using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
+using osu.Game.Scoring;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -210,7 +211,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         AllowReordering = false,
                                         AllowDeletion = false,
                                         RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                                                s.Push(new ShowcaseSongSelect(introMapBindable)),
+                                                s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
                                             new[] { typeof(ShowcaseConfigScreen) })),
                                     },
                                 }
@@ -279,7 +280,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     AllowReordering = false,
                     AllowDeletion = false,
                     RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                            s.Push(new ShowcaseSongSelect(introMapBindable)),
+                            s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
                         new[] { typeof(ShowcaseConfigScreen) })),
                 });
             });
@@ -348,7 +349,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 AllowReordering = false,
                 AllowDeletion = false,
                 RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                        s.Push(new ShowcaseSongSelect(introMapBindable)),
+                        s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
                     new[] { typeof(ShowcaseConfigScreen) })),
             });
         }

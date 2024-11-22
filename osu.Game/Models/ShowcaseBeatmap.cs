@@ -7,8 +7,8 @@ using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Game.Beatmaps;
-using osu.Game.Online.API;
-using osu.Game.Replays;
+using osu.Game.Rulesets.Mods;
+using osu.Game.Scoring;
 using osu.Game.Screens.TournamentShowcase;
 
 namespace osu.Game.Models
@@ -24,14 +24,17 @@ namespace osu.Game.Models
         public Guid BeatmapGuid = Guid.Empty;
         public int RulesetId;
         public Bindable<BeatmapType> ModType = new Bindable<BeatmapType>();
-        public IEnumerable<APIMod> RequiredMods { get; set; } = Enumerable.Empty<APIMod>();
+        public IEnumerable<Mod> RequiredMods { get; set; } = Enumerable.Empty<Mod>();
 
         public BindableInt SelectorId = new BindableInt();
         public BindableBool IsOriginal = new BindableBool();
         public Bindable<string> BeatmapArea = new Bindable<string>();
         public Bindable<string> BeatmapComment = new Bindable<string>();
 
-        public Replay? ShowcaseReplay;
+        [JsonIgnore]
+        public ScoreInfo? ShowcaseScore;
+
+        public Guid ScoreGuid = Guid.Empty;
 
         public ShowcaseBeatmap()
         {
