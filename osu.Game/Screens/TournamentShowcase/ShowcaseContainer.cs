@@ -1,14 +1,19 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Collections.Generic;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Game.Overlays.Mods;
+using osu.Game.Rulesets.Mods;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ShowcaseContainer : CompositeDrawable
     {
         public OsuScreenStack ScreenStack { get; private set; }
+
+        public readonly BeatmapAttributesDisplay BeatmapAttributes;
 
         public ShowcaseContainer()
         {
@@ -25,6 +30,16 @@ namespace osu.Game.Screens.TournamentShowcase
                         RelativeSizeAxes = Axes.Both,
                     }
                 },
+                BeatmapAttributes = new BeatmapAttributesDisplay
+                {
+                    RelativePositionAxes = Axes.Both,
+                    Alpha = 0,
+                    Origin = Anchor.CentreLeft,
+                    X = 0.01f,
+                    Y = 0.3f,
+                    Mods = { Value = new List<Mod>() },
+                    Collapsed = { Value = false }
+                }
             };
         }
 

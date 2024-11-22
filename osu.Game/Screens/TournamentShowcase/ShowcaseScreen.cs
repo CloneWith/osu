@@ -141,6 +141,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 if (!status.NewValue)
                 {
+                    showcaseContainer.BeatmapAttributes.FadeOut(500, Easing.OutQuint);
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
                     Scheduler.AddDelayed(pushNextBeatmap, 3500);
                 }
@@ -168,6 +169,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void updateBeatmap(bool introMode = false)
         {
+            state = ShowcaseState.BeatmapShow;
             ShowcaseBeatmap selected;
 
             if (!introMode)
@@ -180,6 +182,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 selected = beatmapSets.First();
                 beatmapSets.Remove(beatmapSets.First());
+                showcaseContainer.BeatmapAttributes.Delay(1000).FadeIn(500, Easing.OutQuint);
             }
             else
             {
@@ -199,6 +202,8 @@ namespace osu.Game.Screens.TournamentShowcase
                 return;
 
             Beatmap.Value = beatmap;
+            showcaseContainer.BeatmapAttributes.BeatmapInfo.Value = beatmap.BeatmapInfo;
+            showcaseContainer.BeatmapAttributes.Mods.Value = selected.RequiredMods.ToList();
 
             var score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), Mods.Value);
 
@@ -213,6 +218,8 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void showIntro()
         {
+            state = ShowcaseState.Intro;
+
             Container introContainer = new Container
             {
                 RelativeSizeAxes = Axes.Both,
@@ -250,23 +257,42 @@ namespace osu.Game.Screens.TournamentShowcase
             AddInternal(introContainer);
             pushIntroBeatmap();
 
+            introContainer.Delay(3000).FadeIn(1000, Easing.OutQuint);
+
             // Initialization
             logo?.Show();
             logo?.MoveTo(new Vector2(-0.5f, 0.5f));
             logo?.ScaleTo(0.5f);
 
-            logo?.FadeIn(500);
-            logo?.MoveTo(new Vector2(0.25f, 0.5f), 1000, Easing.OutQuint);
-            logo?.Delay(200).ScaleTo(new Vector2(0.8f), 500, Easing.OutQuint);
+            logo?.Delay(3000).FadeIn(500);
+            logo?.Delay(3000).MoveTo(new Vector2(0.25f, 0.5f), 1000, Easing.OutQuint);
+            logo?.Delay(4200).ScaleTo(new Vector2(0.8f), 500, Easing.OutQuint);
 
-            introContainer.FadeIn(1000, Easing.OutQuint);
-            logo?.Delay(3000).FadeOut(3000, Easing.OutQuint);
+            logo?.Delay(6000).FadeOut(3000, Easing.OutQuint);
 
-            using (BeginDelayedSequence(3000))
+            using (BeginDelayedSequence(6000))
             {
                 introContainer.FadeOut(1000, Easing.OutQuint);
-                Scheduler.AddDelayed(pushNextBeatmap, 3000);
+                Scheduler.AddDelayed(showTeamPlayer, 3000);
             }
+        }
+
+        /// <summary>
+        /// Show the round team list.
+        /// </summary>
+        private void showTeamPlayer()
+        {
+            state = ShowcaseState.TeamPlayer;
+            Scheduler.AddDelayed(showMapPool, 5000);
+        }
+
+        /// <summary>
+        /// Show the map pool screen.
+        /// </summary>
+        private void showMapPool()
+        {
+            state = ShowcaseState.MapPool;
+            Scheduler.AddDelayed(pushNextBeatmap, 5000);
         }
 
         /// <summary>
@@ -274,6 +300,8 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void showOutro()
         {
+            state = ShowcaseState.Ending;
+
             Container outroContainer = new Container
             {
                 RelativeSizeAxes = Axes.Both,

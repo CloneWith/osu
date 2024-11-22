@@ -7,6 +7,7 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         Initialization,
         Intro,
+        TeamPlayer,
         MapPool,
         BeatmapShow,
         StaffList,
