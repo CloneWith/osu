@@ -205,7 +205,7 @@ namespace osu.Game.Screens.TournamentShowcase
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();
 
-            showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, 0, config, replaying, introMode));
+            showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500, config, replaying, introMode));
         }
 
         /// <summary>
