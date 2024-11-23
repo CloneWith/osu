@@ -24,6 +24,8 @@ namespace osu.Game.Models
         public Guid BeatmapGuid = Guid.Empty;
         public int RulesetId;
         public Bindable<BeatmapType> ModType = new Bindable<BeatmapType>();
+        public string ModString = string.Empty;
+        public Bindable<string> ModIndex = new Bindable<string>();
         public IEnumerable<Mod> RequiredMods { get; set; } = Enumerable.Empty<Mod>();
 
         public BindableInt SelectorId = new BindableInt();

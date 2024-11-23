@@ -11,7 +11,7 @@ namespace osu.Game.Screens.TournamentShowcase
     [Serializable]
     public class ShowcaseConfig
     {
-        public Bindable<RulesetInfo?> Ruleset = new Bindable<RulesetInfo?>();
+        public Bindable<RulesetInfo> Ruleset = new Bindable<RulesetInfo>();
 
         public Bindable<string> TournamentName = new Bindable<string>();
         public Bindable<string> RoundName = new Bindable<string>();

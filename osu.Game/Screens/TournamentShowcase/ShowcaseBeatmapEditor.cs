@@ -79,6 +79,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public BeatmapRow(ShowcaseBeatmap beatmap, ShowcaseConfig config)
         {
+            FormDropdown<BeatmapType> mapTypeDropdown;
             DrawableShowcaseBeatmapItem drawableItem;
             Beatmap = beatmap;
             beatmapInfoBindable.Value = Beatmap.BeatmapInfo;
@@ -112,12 +113,30 @@ namespace osu.Game.Screens.TournamentShowcase
                     Width = 0.49f,
                     Current = selectorId
                 },
-                new FormDropdown<BeatmapType>
+                mapTypeDropdown = new FormDropdown<BeatmapType>
                 {
                     Caption = @"Beatmap Type",
                     HintText = @"Choose a type matching the beatmap mod best. Will be used to show the current icon for the showcase.",
-                    Width = 1f,
+                    Width = 0.49f,
                     Current = Beatmap.ModType,
+                    Items = new[]
+                    {
+                        BeatmapType.NoMod,
+                        BeatmapType.HardRock,
+                        BeatmapType.DoubleTime,
+                        BeatmapType.Hidden,
+                        BeatmapType.FlashLight,
+                        BeatmapType.FreeMod,
+                        BeatmapType.Tiebreaker,
+                        BeatmapType.Extra
+                    }
+                },
+                new FormTextBox
+                {
+                    Caption = @"Mod Index",
+                    HintText = @"The index of the beatmap in this type of mod.",
+                    Width = 0.49f,
+                    Current = Beatmap.ModIndex,
                 },
                 new FormTextBox
                 {
@@ -169,6 +188,44 @@ namespace osu.Game.Screens.TournamentShowcase
                     }
                 }
             };
+
+            mapTypeDropdown.Current.BindValueChanged(type =>
+            {
+                switch (type.NewValue)
+                {
+                    case BeatmapType.NoMod:
+                        Beatmap.ModString = "NM";
+                        break;
+
+                    case BeatmapType.Tiebreaker:
+                        Beatmap.ModString = "TB";
+                        break;
+
+                    case BeatmapType.Extra:
+                        Beatmap.ModString = "EX";
+                        break;
+
+                    case BeatmapType.HardRock:
+                        Beatmap.ModString = "HR";
+                        break;
+
+                    case BeatmapType.DoubleTime:
+                        Beatmap.ModString = "DT";
+                        break;
+
+                    case BeatmapType.Hidden:
+                        Beatmap.ModString = "HD";
+                        break;
+
+                    case BeatmapType.FlashLight:
+                        Beatmap.ModString = "FL";
+                        break;
+
+                    case BeatmapType.FreeMod:
+                        Beatmap.ModString = "FM";
+                        break;
+                }
+            });
 
             selectorId.BindValueChanged(id =>
             {
