@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -62,6 +61,8 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         [Resolved]
         private IPerformFromScreenRunner? performer { get; set; }
+
+        private ScoreManager scoreManager = null!;
 
         public ShowcaseBeatmap Beatmap { get; }
         private readonly Bindable<BeatmapInfo> beatmapInfoBindable = new Bindable<BeatmapInfo>();
@@ -186,16 +187,23 @@ namespace osu.Game.Screens.TournamentShowcase
             scoreInfoBindable.BindValueChanged(score =>
             {
                 Beatmap.ShowcaseScore = score.NewValue;
-                Beatmap.ScoreGuid = score.NewValue?.ID ?? Guid.Empty;
+                Beatmap.ScoreHash = score.NewValue?.Hash ?? string.Empty;
             });
         }
 
         [BackgroundDependencyLoader]
         private void load(ScoreManager scoreManager)
         {
+            this.scoreManager = scoreManager;
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
             scoreInfoBindable.Value = scoreManager.GetScore(new ScoreInfo
             {
-                ID = Beatmap.ScoreGuid
+                Hash = Beatmap.ScoreHash
             })?.ScoreInfo;
         }
     }

@@ -34,7 +34,7 @@ namespace osu.Game.Models
         [JsonIgnore]
         public ScoreInfo? ShowcaseScore;
 
-        public Guid ScoreGuid = Guid.Empty;
+        public string ScoreHash = string.Empty;
 
         public ShowcaseBeatmap()
         {
