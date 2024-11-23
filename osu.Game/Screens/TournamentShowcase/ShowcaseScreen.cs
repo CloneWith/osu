@@ -218,7 +218,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Beatmap.Value = beatmap;
             showcaseContainer.BeatmapAttributes.BeatmapInfo.Value = beatmap.BeatmapInfo;
-            showcaseContainer.BeatmapAttributes.Mods.Value = selected.RequiredMods.ToList();
+            showcaseContainer.BeatmapAttributes.Mods.Value = score?.ScoreInfo.Mods.ToList() ?? selected.RequiredMods.ToList();
 
             if (score == null)
             {
@@ -226,6 +226,8 @@ namespace osu.Game.Screens.TournamentShowcase
                 pushNextBeatmap();
                 return;
             }
+
+            Mods.Value = score.ScoreInfo.Mods;
 
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();

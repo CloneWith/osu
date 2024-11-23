@@ -3,6 +3,7 @@
 
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Game.Beatmaps;
 using osu.Game.Scoring;
 using osu.Game.Screens.Play;
 
@@ -11,6 +12,7 @@ namespace osu.Game.Screens.TournamentShowcase
     public partial class ShowcasePlayer : ReplayPlayer
     {
         private readonly ShowcaseConfig config;
+        private readonly Score score;
         private readonly double startTime;
         private readonly bool noHUD;
 
@@ -23,6 +25,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 AllowFailAnimation = false
             })
         {
+            this.score = score;
             this.startTime = startTime;
             this.config = config;
             this.replaying.BindTo(replaying);
@@ -31,6 +34,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         protected override void LoadComplete()
         {
+            Mods.Value = score.ScoreInfo.Mods;
             base.LoadComplete();
 
             if (noHUD)
@@ -46,6 +50,11 @@ namespace osu.Game.Screens.TournamentShowcase
             Reset();
         }
 
+        protected override void PrepareReplay()
+        {
+            DrawableRuleset?.SetReplayScore(score);
+        }
+
         protected override void Update()
         {
             base.Update();
@@ -55,6 +64,8 @@ namespace osu.Game.Screens.TournamentShowcase
                 replaying.Value = false;
             }
         }
+
+        protected override Score CreateScore(IBeatmap beatmap) => score;
 
         public void Reset()
         {
