@@ -479,7 +479,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Size = new Vector2(30, 30),
                 Action = () => RequestResults?.Invoke(Item),
                 Alpha = AllowShowingResults ? 1 : 0,
-                TooltipText = "View results"
+                TooltipText = "View score"
             },
             editButton = new PlaylistEditButton
             {

@@ -11,7 +11,9 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
+using osu.Game.Overlays;
 using osu.Game.Scoring;
+using osu.Game.Screens.Ranking;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -61,6 +63,9 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         [Resolved]
         private IPerformFromScreenRunner? performer { get; set; }
+
+        [Resolved]
+        private DialogOverlay? dialogOverlay { get; set; }
 
         private ScoreManager scoreManager = null!;
 
@@ -135,6 +140,22 @@ namespace osu.Game.Screens.TournamentShowcase
                     AllowReordering = false,
                     AllowEditing = true,
                     AllowDeletion = true,
+                    RequestResults = _ =>
+                    {
+                        if (Beatmap.ShowcaseScore == null)
+                        {
+                            dialogOverlay?.Push(new ProfileCheckFailedDialog
+                            {
+                                HeaderText = @"No score selected!",
+                                BodyText = @"An Autoplay-generated score would be used for showcase."
+                            });
+                        }
+                        else
+                        {
+                            Schedule(() => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(Beatmap.ShowcaseScore)),
+                                new[] { typeof(ShowcaseConfigScreen) }));
+                        }
+                    },
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>
@@ -170,6 +191,22 @@ namespace osu.Game.Screens.TournamentShowcase
                     AllowReordering = false,
                     AllowEditing = true,
                     AllowDeletion = true,
+                    RequestResults = _ =>
+                    {
+                        if (Beatmap.ShowcaseScore == null)
+                        {
+                            dialogOverlay?.Push(new ProfileCheckFailedDialog
+                            {
+                                HeaderText = @"No score selected!",
+                                BodyText = @"An Autoplay-generated score would be used for showcase."
+                            });
+                        }
+                        else
+                        {
+                            Schedule(() => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(Beatmap.ShowcaseScore)),
+                                new[] { typeof(ShowcaseConfigScreen) }));
+                        }
+                    },
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>
