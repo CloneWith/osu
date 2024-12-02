@@ -239,6 +239,10 @@ namespace osu.Game.Screens.TournamentShowcase
                 Beatmap.BeatmapGuid = info.NewValue.ID;
                 Beatmap.BeatmapId = info.NewValue.OnlineID;
 
+                // Reset the score to avoid conflict.
+                Beatmap.ShowcaseScore = null;
+                Beatmap.ScoreHash = string.Empty;
+
                 // Is there a better solution?
                 drawableItem.Expire();
                 Add(drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
