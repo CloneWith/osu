@@ -34,47 +34,61 @@ namespace osu.Game.Screens.TournamentShowcase
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
 
-            Direction = FillDirection.Full;
+            Direction = FillDirection.Vertical;
 
-            Spacing = new Vector2(5);
-
-            Masking = true;
-            CornerRadius = 10;
+            Spacing = new Vector2(3);
 
             InternalChildren = new Drawable[]
             {
+                new GridContainer
+                {
+                    RelativeSizeAxes = Axes.X,
+                    Height = 50,
+                    ColumnDimensions = new[]
+                    {
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 3),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 3),
+                        new Dimension(GridSizeMode.Relative, 0.1f)
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            new FormNumberBox
+                            {
+                                Caption = @"Staff ID",
+                                Current = playerId,
+                                AllowDecimals = false,
+                            },
+                            new Container(),
+                            new FormTextBox
+                            {
+                                Caption = @"Staff role",
+                                HintText = @"This would be shown on the staff list screen, in the staff card.",
+                                Current = role,
+                            },
+                            new Container(),
+                            new GrayButton(FontAwesome.Solid.TimesCircle, new Vector2(24))
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                TooltipText = @"Remove staff",
+                                Action = () =>
+                                {
+                                    Expire();
+                                    config.Staffs.Remove(user);
+                                },
+                            }
+                        }
+                    }
+                },
                 userPanelContainer = new Container
                 {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Width = 1f,
-                    Child = new UserListPanel(user.ToAPIUser())
-                },
-                new FormNumberBox
-                {
-                    Width = 0.44f,
-                    Caption = @"Staff ID",
-                    Current = playerId,
-                    AllowDecimals = false,
-                },
-                new FormTextBox
-                {
-                    Width = 0.44f,
-                    Caption = @"Staff role",
-                    HintText = @"This would be shown on the staff list screen, in the staff card.",
-                    Current = role,
-                },
-                new IconButton
-                {
-                    RelativeSizeAxes = Axes.X,
-                    Width = 0.1f,
-                    Icon = FontAwesome.Solid.TimesCircle,
-                    TooltipText = @"Remove staff",
-                    Action = () =>
-                    {
-                        Expire();
-                        config.Staffs.Remove(user);
-                    },
+                    Child = new UserListPanel(user.ToAPIUser(), height: 50, cornerRadius: 5)
                 }
             };
         }
@@ -146,7 +160,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void updatePanel() => Scheduler.AddOnce(() =>
         {
-            userPanelContainer.Child = new UserListPanel(user.ToAPIUser());
+            userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), height: 50, cornerRadius: 5);
         });
     }
 }

@@ -47,7 +47,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(10),
+                    Spacing = new Vector2(5),
                     ChildrenEnumerable = config.Value.Staffs.Select(t => new StaffRow(t, config.Value))
                 }
             };
