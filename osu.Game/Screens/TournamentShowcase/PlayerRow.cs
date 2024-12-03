@@ -39,10 +39,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Direction = FillDirection.Horizontal;
 
-            Spacing = new Vector2(5);
-
-            Masking = true;
-            CornerRadius = 10;
+            Spacing = new Vector2(3);
 
             InternalChildren = new Drawable[]
             {
@@ -58,13 +55,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Width = 0.59f,
-                    Child = new UserListPanel(user.ToAPIUser())
+                    Child = new UserListPanel(user.ToAPIUser(), height: 60, cornerRadius: 5)
                 },
-                new IconButton
+                new GrayButton(FontAwesome.Solid.TimesCircle, new Vector2(20))
                 {
-                    RelativeSizeAxes = Axes.X,
-                    Width = 0.1f,
-                    Icon = FontAwesome.Solid.TimesCircle,
+                    Width = 32,
+                    Height = 32,
                     TooltipText = @"Remove this user",
                     Action = () =>
                     {
@@ -138,7 +134,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void updatePanel() => Scheduler.AddOnce(() =>
         {
-            userPanelContainer.Child = new UserListPanel(user.ToAPIUser());
+            userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), height: 50, cornerRadius: 5);
         });
     }
 }
