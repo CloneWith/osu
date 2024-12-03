@@ -28,7 +28,7 @@ namespace osu.Game.Models
         public Bindable<string> ModIndex = new Bindable<string>();
         public IEnumerable<Mod> RequiredMods { get; set; } = Enumerable.Empty<Mod>();
 
-        public BindableInt SelectorId = new BindableInt();
+        public Bindable<ShowcaseUser> Selector = new Bindable<ShowcaseUser>();
         public BindableBool IsOriginal = new BindableBool();
         public Bindable<string> BeatmapArea = new Bindable<string>();
         public Bindable<string> BeatmapComment = new Bindable<string>();

@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -11,6 +12,8 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
 using osu.Game.Overlays;
 using osu.Game.Scoring;
 using osu.Game.Screens.Ranking;
@@ -65,6 +68,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private IPerformFromScreenRunner? performer { get; set; }
 
         [Resolved]
+        private IAPIProvider api { get; set; } = null!;
+
+        [Resolved]
         private DialogOverlay? dialogOverlay { get; set; }
 
         private ScoreManager scoreManager = null!;
@@ -85,7 +91,7 @@ namespace osu.Game.Screens.TournamentShowcase
             beatmapInfoBindable.Value = Beatmap.BeatmapInfo;
 
             this.config = config;
-            selectorId.Value = beatmap.SelectorId.ToString();
+            selectorId.Value = beatmap.Selector.Value?.OnlineID.ToString() ?? string.Empty;
 
             Masking = true;
             CornerRadius = 10;
@@ -230,7 +236,19 @@ namespace osu.Game.Screens.TournamentShowcase
             selectorId.BindValueChanged(id =>
             {
                 bool idValid = int.TryParse(id.NewValue, out int newId) && newId >= 0;
-                Beatmap.SelectorId.Value = idValid ? newId : 0;
+
+                if (Beatmap.Selector.Value != null)
+                    Beatmap.Selector.Value.OnlineID = idValid ? newId : 0;
+                else
+                {
+                    Beatmap.Selector.Value = new ShowcaseUser
+                    {
+                        OnlineID = idValid ? newId : 0
+                    };
+                }
+
+                if (idValid)
+                    Scheduler.AddOnce(populateSelector);
             }, true);
 
             beatmapInfoBindable.BindValueChanged(info =>
@@ -303,6 +321,26 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 Hash = Beatmap.ScoreHash
             })?.ScoreInfo;
+        }
+
+        private void populateSelector()
+        {
+            Task.Run(async () =>
+            {
+                var req = new GetUserRequest(Beatmap.Selector.Value.OnlineID);
+
+                await api.PerformAsync(req).ConfigureAwait(true);
+
+                var res = req.Response;
+
+                if (res == null)
+                    return;
+
+                Beatmap.Selector.Value.OnlineID = res.Id;
+
+                Beatmap.Selector.Value.Username = res.Username;
+                Beatmap.Selector.Value.Rank = res.Statistics?.GlobalRank;
+            });
         }
     }
 }

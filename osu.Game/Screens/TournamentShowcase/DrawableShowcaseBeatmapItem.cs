@@ -153,7 +153,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         if (showItemOwner)
                         {
-                            var foundUser = await userLookupCache.GetUserAsync(Item.SelectorId.Value).ConfigureAwait(false);
+                            var foundUser = await userLookupCache.GetUserAsync(Item.Selector.Value.OnlineID).ConfigureAwait(false);
                             Schedule(() => ownerAvatar.User = foundUser);
                         }
 
