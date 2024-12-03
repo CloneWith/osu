@@ -15,12 +15,12 @@ namespace osu.Game.Users
 {
     public partial class UserListPanel : ExtendedUserPanel
     {
-        public UserListPanel(APIUser user)
+        public UserListPanel(APIUser user, int height = 40, int cornerRadius = 6)
             : base(user)
         {
             RelativeSizeAxes = Axes.X;
-            Height = 40;
-            CornerRadius = 6;
+            Height = height;
+            CornerRadius = cornerRadius;
         }
 
         [BackgroundDependencyLoader]
@@ -54,7 +54,7 @@ namespace osu.Game.Users
                             {
                                 avatar.Anchor = Anchor.CentreLeft;
                                 avatar.Origin = Anchor.CentreLeft;
-                                avatar.Size = new Vector2(40);
+                                avatar.Size = new Vector2(Height);
                             }),
                             CreateFlag().With(flag =>
                             {
