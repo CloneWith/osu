@@ -67,7 +67,12 @@ namespace osu.Game.Screens.TournamentShowcase
         private void load()
         {
             var availableProfiles = storage.ListTournaments();
-            currentProfile = new Bindable<ShowcaseConfig>(storage.GetConfig(availableProfiles.First()));
+            if (!availableProfiles.Any())
+                currentProfile = new Bindable<ShowcaseConfig>();
+            else
+                currentProfile = new Bindable<ShowcaseConfig>(storage.GetConfig(availableProfiles.First()));
+
+            currentProfile.Value ??= new ShowcaseConfig();
 
             // In case an exception prevents this variable from initializing...
             currentProfile.Value.IntroBeatmap.Value ??= new ShowcaseBeatmap();
