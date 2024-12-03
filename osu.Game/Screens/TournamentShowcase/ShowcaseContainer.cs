@@ -18,6 +18,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ShowcaseContainer()
         {
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
             RelativeSizeAxes = Axes.Both;
 
             InternalChildren = new Drawable[]

@@ -31,10 +31,18 @@ namespace osu.Game.Screens.TournamentShowcase
             MaxValue = 3000,
         };
 
-        public BindableInt ShowcaseCountdown = new BindableInt(3)
+        public BindableInt PauseCountdown = new BindableInt(3000)
         {
-            MinValue = 0,
-            MaxValue = 30,
+            MinValue = 1000,
+            MaxValue = 5000,
+            Precision = 500
+        };
+
+        public BindableFloat AspectRatio = new BindableFloat(1)
+        {
+            MinValue = 0.6f,
+            MaxValue = 3f,
+            Precision = 0.1f
         };
 
         public BindableList<ShowcaseTeam> Teams = new BindableList<ShowcaseTeam>();

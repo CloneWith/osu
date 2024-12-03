@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -52,15 +53,27 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly BindableBool replaying = new BindableBool();
         private ShowcaseState state;
 
+        private readonly float priorityScale;
+        private readonly float relativeWidth;
+        private readonly float relativeHeight;
+
         public ShowcaseScreen(ShowcaseConfig config)
         {
             this.config = config;
             beatmapSets = config.Beatmaps.ToList();
 
+            priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
+            relativeWidth = config.AspectRatio.Value < 1f ? config.AspectRatio.Value : 1;
+            relativeHeight = config.AspectRatio.Value < 1f ? 1 : 1f / config.AspectRatio.Value;
+
             switch (config.Layout.Value)
             {
                 case ShowcaseLayout.Immersive:
-                    InternalChild = showcaseContainer = new ShowcaseContainer();
+                    InternalChild = showcaseContainer = new ShowcaseContainer
+                    {
+                        Width = relativeWidth,
+                        Height = relativeHeight,
+                    };
                     break;
 
                 case ShowcaseLayout.SimpleControl:
@@ -253,6 +266,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Container introContainer = new Container
             {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Width = relativeWidth,
+                Height = relativeHeight,
                 RelativeSizeAxes = Axes.Both,
                 Masking = true,
                 Alpha = 0,
@@ -272,6 +289,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         Y = 0.45f,
                         Text = config.TournamentName.Value,
                         Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
+                        Scale = new Vector2(priorityScale)
                     },
                     new OsuSpriteText
                     {
@@ -281,6 +299,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         Y = 0.55f,
                         Text = config.RoundName.Value,
                         Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
+                        Scale = new Vector2(priorityScale)
                     },
                 }
             };
@@ -293,11 +312,11 @@ namespace osu.Game.Screens.TournamentShowcase
             // Initialization
             logo?.Show();
             logo?.MoveTo(new Vector2(-0.5f, 0.5f));
-            logo?.ScaleTo(0.5f);
+            logo?.ScaleTo(0.5f * priorityScale);
 
             logo?.Delay(3000).FadeIn(500);
-            logo?.Delay(3000).MoveTo(new Vector2(0.25f, 0.5f), 1000, Easing.OutQuint);
-            logo?.Delay(4200).ScaleTo(new Vector2(0.8f), 500, Easing.OutQuint);
+            logo?.Delay(3000).MoveTo(new Vector2((1 - relativeWidth) / 2f + 0.25f * relativeWidth, 0.5f), 1000, Easing.OutQuint);
+            logo?.Delay(4200).ScaleTo(new Vector2(0.8f * priorityScale), 500, Easing.OutQuint);
 
             logo?.Delay(6000).FadeOut(3000, Easing.OutQuint);
 
@@ -338,6 +357,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Container outroContainer = new Container
             {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                Width = relativeWidth,
+                Height = relativeHeight,
                 RelativeSizeAxes = Axes.Both,
                 Masking = true,
                 Alpha = 0,
@@ -359,6 +382,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             ? config.OutroTitle.Value.Trim()
                             : @"Thanks for watching!",
                         Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
+                        Scale = new Vector2(priorityScale)
                     },
                     new OsuSpriteText
                     {
@@ -370,6 +394,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             ? config.OutroSubtitle.Value.Trim()
                             : @"Take care of yourself, and be well.",
                         Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
+                        Scale = new Vector2(priorityScale)
                     },
                 }
             };
@@ -379,11 +404,11 @@ namespace osu.Game.Screens.TournamentShowcase
             // Initialization
             logo?.Show();
             logo?.MoveTo(new Vector2(-0.5f, 0.5f));
-            logo?.ScaleTo(0.5f);
+            logo?.ScaleTo(0.5f * priorityScale);
 
             logo?.FadeIn(500);
-            logo?.MoveTo(new Vector2(0.25f, 0.5f), 1000, Easing.OutQuint);
-            logo?.Delay(200).ScaleTo(new Vector2(0.8f), 500, Easing.OutQuint);
+            logo?.MoveTo(new Vector2((1 - relativeWidth) / 2f + 0.25f * relativeWidth, 0.5f), 1000, Easing.OutQuint);
+            logo?.Delay(200).ScaleTo(new Vector2(0.8f * priorityScale), 500, Easing.OutQuint);
 
             outroContainer.FadeIn(1000, Easing.OutQuint);
             logo?.Delay(3000).FadeOut(3000, Easing.OutQuint);

@@ -48,6 +48,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
         private FormSliderBar<int> startCountdownInput = null!;
+        private FormSliderBar<float> aspectRatioInput = null!;
         private FillFlowContainer introEditor = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
         private DrawableShowcaseBeatmapItem introBeatmapItem = null!;
@@ -158,6 +159,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Showcase Settings"),
+                                    aspectRatioInput = new FormSliderBar<float>
+                                    {
+                                        Caption = @"Aspect ratio",
+                                        HintText = @"Defines the ratio of the showcase area. Change this when you need to record a video with specific sizes.",
+                                        Current = currentProfile.Value.AspectRatio,
+                                        TransferValueOnCommit = true,
+                                        TabbableContentContainer = this,
+                                    },
                                     transformDurationInput = new FormSliderBar<int>
                                     {
                                         Caption = @"Transform duration",
@@ -342,6 +351,7 @@ namespace osu.Game.Screens.TournamentShowcase
             roundNameInput.Current = currentProfile.Value.RoundName;
             dateTimeInput.Current = currentProfile.Value.DateTime;
             commentInput.Current = currentProfile.Value.Comment;
+            aspectRatioInput.Current = currentProfile.Value.AspectRatio;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
             startCountdownInput.Current = currentProfile.Value.StartCountdown;
             outroTitleInput.Current = currentProfile.Value.OutroTitle;
