@@ -14,7 +14,6 @@ using osu.Game.Beatmaps;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Models;
-using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Menu;
@@ -38,9 +37,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private BeatmapManager beatmaps { get; set; } = null!;
-
-        [Resolved]
-        private RulesetStore rulesets { get; set; } = null!;
 
         [Resolved]
         private ScoreManager scoreManager { get; set; } = null!;
@@ -188,7 +184,18 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 selected = beatmapSets.First();
                 beatmapSets.Remove(beatmapSets.First());
-                showcaseContainer.BeatmapAttributes.Delay(1000).FadeIn(500, Easing.OutQuint);
+
+                showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f);
+                showcaseContainer.BeatmapAttributes.FadeOut();
+                showcaseContainer.BeatmapInfoDisplay.FadeOut();
+
+                using (BeginDelayedSequence(1000))
+                {
+                    showcaseContainer.BeatmapAttributes.FadeIn(500, Easing.OutQuint);
+
+                    showcaseContainer.BeatmapInfoDisplay.FadeIn(1000, Easing.OutQuint)
+                                     .MoveToX(0.01f, 800, Easing.OutQuint);
+                }
             }
             else
             {
@@ -219,6 +226,7 @@ namespace osu.Game.Screens.TournamentShowcase
             Beatmap.Value = beatmap;
             showcaseContainer.BeatmapAttributes.BeatmapInfo.Value = beatmap.BeatmapInfo;
             showcaseContainer.BeatmapAttributes.Mods.Value = score?.ScoreInfo.Mods.ToList() ?? selected.RequiredMods.ToList();
+            showcaseContainer.BeatmapInfoDisplay.Beatmap.Value = selected;
 
             if (score == null)
             {
@@ -323,6 +331,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private void showOutro()
         {
             state = ShowcaseState.Ending;
+
+            showcaseContainer.BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
+            showcaseContainer.BeatmapAttributes.FadeOut(500, Easing.OutQuint);
 
             Container outroContainer = new Container
             {

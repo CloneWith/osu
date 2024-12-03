@@ -14,6 +14,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public OsuScreenStack ScreenStack { get; private set; }
 
         public readonly BeatmapAttributesDisplay BeatmapAttributes;
+        public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
 
         public ShowcaseContainer()
         {
@@ -39,6 +40,14 @@ namespace osu.Game.Screens.TournamentShowcase
                     Y = 0.3f,
                     Mods = { Value = new List<Mod>() },
                     Collapsed = { Value = false }
+                },
+                BeatmapInfoDisplay = new ShowcaseBeatmapInfoArea
+                {
+                    RelativePositionAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = 0,
+                    X = 0.01f,
+                    Y = 0.2f
                 }
             };
         }
