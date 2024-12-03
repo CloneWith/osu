@@ -151,6 +151,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     break;
             }
 
+            showcaseContainer.BeatmapAttributes.Scale = new Vector2(priorityScale);
+            showcaseContainer.BeatmapInfoDisplay.Scale = new Vector2(priorityScale);
+
             replaying.BindValueChanged(status =>
             {
                 if (!status.NewValue)
