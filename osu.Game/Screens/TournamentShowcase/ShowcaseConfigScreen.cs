@@ -41,7 +41,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private FormDropdown<string> profileDropdown = null!;
 
-        private FormDropdown<RulesetInfo?> rulesetDropdown = null!;
+        private FormDropdown<RulesetInfo> rulesetDropdown = null!;
         private FormTextBox tournamentNameInput = null!;
         private FormTextBox roundNameInput = null!;
         private FormTextBox dateTimeInput = null!;
@@ -109,7 +109,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Caption = "Load set",
                                         Items = availableProfiles
                                     },
-                                    rulesetDropdown = new FormDropdown<RulesetInfo?>
+                                    rulesetDropdown = new FormDropdown<RulesetInfo>
                                     {
                                         Caption = "Ruleset",
                                         HintText = @"The ruleset we should use for showcase and replays.",
