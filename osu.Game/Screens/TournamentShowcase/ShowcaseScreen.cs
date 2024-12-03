@@ -143,8 +143,9 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (!status.NewValue)
                 {
                     showcaseContainer.BeatmapAttributes.FadeOut(500, Easing.OutQuint);
+                    showcaseContainer.BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
-                    Scheduler.AddDelayed(pushNextBeatmap, 3500);
+                    Scheduler.AddDelayed(pushNextBeatmap, 4500);
                 }
             });
         }

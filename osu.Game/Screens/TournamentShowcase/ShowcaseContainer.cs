@@ -35,9 +35,10 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     RelativePositionAxes = Axes.Both,
                     Alpha = 0,
-                    Origin = Anchor.CentreLeft,
-                    X = 0.01f,
-                    Y = 0.3f,
+                    Anchor = Anchor.BottomRight,
+                    Origin = Anchor.BottomRight,
+                    X = -0.01f,
+                    Y = -0.1f,
                     Mods = { Value = new List<Mod>() },
                     Collapsed = { Value = false }
                 },
@@ -45,6 +46,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     RelativePositionAxes = Axes.Both,
                     RelativeSizeAxes = Axes.Both,
+                    Width = 0.16f,
                     Alpha = 0,
                     X = 0.01f,
                     Y = 0.2f
