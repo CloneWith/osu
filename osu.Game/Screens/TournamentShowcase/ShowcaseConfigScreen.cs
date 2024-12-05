@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -48,6 +49,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
         private FormSliderBar<int> startCountdownInput = null!;
+        private FormDropdown<ShowcaseLayout> layoutDropdown = null!;
         private FormSliderBar<float> aspectRatioInput = null!;
         private FillFlowContainer introEditor = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
@@ -159,6 +161,18 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Children = new Drawable[]
                                 {
                                     new SectionHeader(@"Showcase Settings"),
+                                    layoutDropdown = new FormDropdown<ShowcaseLayout>
+                                    {
+                                        Caption = @"Interface layout",
+                                        HintText = @"The layout of the showcases screen.",
+                                        Current = currentProfile.Value.Layout,
+                                        Items = new List<ShowcaseLayout>
+                                        {
+                                            ShowcaseLayout.Immersive,
+                                            ShowcaseLayout.SimpleControl,
+                                            ShowcaseLayout.DetailedControl
+                                        }
+                                    },
                                     aspectRatioInput = new FormSliderBar<float>
                                     {
                                         Caption = @"Aspect ratio",
@@ -351,6 +365,7 @@ namespace osu.Game.Screens.TournamentShowcase
             roundNameInput.Current = currentProfile.Value.RoundName;
             dateTimeInput.Current = currentProfile.Value.DateTime;
             commentInput.Current = currentProfile.Value.Comment;
+            layoutDropdown.Current = currentProfile.Value.Layout;
             aspectRatioInput.Current = currentProfile.Value.AspectRatio;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
             startCountdownInput.Current = currentProfile.Value.StartCountdown;

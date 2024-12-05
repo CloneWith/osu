@@ -87,7 +87,8 @@ namespace osu.Game.Screens.TournamentShowcase
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Height = 0.95f,
+                            Width = relativeWidth,
+                            Height = 0.95f * relativeHeight,
                             RowDimensions =
                             [
                                 new Dimension(),
