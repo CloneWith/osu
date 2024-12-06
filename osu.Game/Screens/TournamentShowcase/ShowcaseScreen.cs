@@ -8,19 +8,14 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
-using osu.Game.Graphics;
-using osu.Game.Graphics.Sprites;
 using osu.Game.Models;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
-using osu.Game.Screens.Menu;
 using osu.Game.Screens.Play.HUD;
 using osuTK;
-using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
@@ -42,34 +37,27 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private ScoreManager scoreManager { get; set; } = null!;
 
-        [Resolved]
-        private OsuLogo? logo { get; set; }
-
         private WorkingBeatmap beatmap = null!;
         private ShowcasePlayer? player;
         private readonly List<ShowcaseBeatmap> beatmapSets;
         private readonly ShowcaseContainer showcaseContainer = null!;
 
         private readonly BindableBool replaying = new BindableBool();
-        private ShowcaseState state;
-
-        private readonly float priorityScale;
-        private readonly float relativeWidth;
-        private readonly float relativeHeight;
+        private readonly Bindable<ShowcaseState> state = new Bindable<ShowcaseState>();
 
         public ShowcaseScreen(ShowcaseConfig config)
         {
             this.config = config;
             beatmapSets = config.Beatmaps.ToList();
 
-            priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
-            relativeWidth = config.AspectRatio.Value < 1f ? config.AspectRatio.Value : 1;
-            relativeHeight = config.AspectRatio.Value < 1f ? 1 : 1f / config.AspectRatio.Value;
+            float priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
+            float relativeWidth = config.AspectRatio.Value < 1f ? config.AspectRatio.Value : 1;
+            float relativeHeight = config.AspectRatio.Value < 1f ? 1 : 1f / config.AspectRatio.Value;
 
             switch (config.Layout.Value)
             {
                 case ShowcaseLayout.Immersive:
-                    InternalChild = showcaseContainer = new ShowcaseContainer
+                    InternalChild = showcaseContainer = new ShowcaseContainer(config, state)
                     {
                         Width = relativeWidth,
                         Height = relativeHeight,
@@ -77,29 +65,15 @@ namespace osu.Game.Screens.TournamentShowcase
                     break;
 
                 case ShowcaseLayout.SimpleControl:
-                    Padding = new MarginPadding
-                    {
-                        Horizontal = 20,
-                        Vertical = 10,
-                    };
                     InternalChildren =
                     [
-                        new GridContainer
+                        showcaseContainer = new ShowcaseContainer(config, state)
                         {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.Both,
                             Width = relativeWidth,
                             Height = 0.95f * relativeHeight,
-                            RowDimensions =
-                            [
-                                new Dimension(),
-                            ],
-                            Content = new[]
-                            {
-                                new Drawable[]
-                                {
-                                    showcaseContainer = new ShowcaseContainer()
-                                },
-                            }
                         },
                         new HoldForMenuButton
                         {
@@ -134,7 +108,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             {
                                 new Drawable[]
                                 {
-                                    showcaseContainer = new ShowcaseContainer()
+                                    showcaseContainer = new ShowcaseContainer(config, state)
                                 },
                             }
                         },
@@ -175,7 +149,30 @@ namespace osu.Game.Screens.TournamentShowcase
             Ruleset.Value = config.Ruleset.Value;
 
             AddInternal(new ShowcaseCountdownOverlay(config.StartCountdown.Value));
-            Scheduler.AddDelayed(showIntro, config.StartCountdown.Value);
+            state.BindValueChanged(stateChanged);
+            Scheduler.AddDelayed(showcaseContainer.StartShowcase, config.StartCountdown.Value);
+        }
+
+        private void stateChanged(ValueChangedEvent<ShowcaseState> state)
+        {
+            switch (state.NewValue)
+            {
+                case ShowcaseState.Intro:
+                    pushIntroBeatmap();
+                    return;
+
+                case ShowcaseState.BeatmapTransition:
+                    pushNextBeatmap();
+                    return;
+
+                case ShowcaseState.Ended:
+                    if (config.Layout.Value == ShowcaseLayout.Immersive)
+                        Scheduler.AddDelayed(this.Exit, 5000);
+                    return;
+
+                default:
+                    return;
+            }
         }
 
         private void pushIntroBeatmap() => updateBeatmap(true);
@@ -188,7 +185,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void updateBeatmap(bool introMode = false)
         {
-            state = ShowcaseState.BeatmapShow;
+            state.Value = ShowcaseState.BeatmapShow;
             ShowcaseBeatmap selected;
             Score? score;
 
@@ -196,7 +193,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 if (!beatmapSets.Any())
                 {
-                    showOutro();
+                    state.Value = ShowcaseState.Ending;
                     return;
                 }
 
@@ -259,169 +256,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 showcaseContainer.ScreenStack.Exit();
 
             showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500, config, replaying, introMode));
-        }
-
-        /// <summary>
-        /// Show the intro screen, fade the showcase container out and then exit.
-        /// </summary>
-        private void showIntro()
-        {
-            state = ShowcaseState.Intro;
-
-            Container introContainer = new Container
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Width = relativeWidth,
-                Height = relativeHeight,
-                RelativeSizeAxes = Axes.Both,
-                Masking = true,
-                Alpha = 0,
-                Children = new Drawable[]
-                {
-                    new Box
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Black,
-                        Alpha = 0.5f
-                    },
-                    new OsuSpriteText
-                    {
-                        RelativePositionAxes = Axes.Both,
-                        Origin = Anchor.CentreLeft,
-                        X = 0.45f,
-                        Y = 0.45f,
-                        Text = config.TournamentName.Value,
-                        Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
-                        Scale = new Vector2(priorityScale)
-                    },
-                    new OsuSpriteText
-                    {
-                        RelativePositionAxes = Axes.Both,
-                        Origin = Anchor.CentreLeft,
-                        X = 0.45f,
-                        Y = 0.55f,
-                        Text = config.RoundName.Value,
-                        Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
-                        Scale = new Vector2(priorityScale)
-                    },
-                }
-            };
-
-            AddInternal(introContainer);
-            pushIntroBeatmap();
-
-            introContainer.Delay(3000).FadeIn(1000, Easing.OutQuint);
-
-            // Initialization
-            logo?.Show();
-            logo?.MoveTo(new Vector2(-0.5f, 0.5f));
-            logo?.ScaleTo(0.5f * priorityScale);
-
-            logo?.Delay(3000).FadeIn(500);
-            logo?.Delay(3000).MoveTo(new Vector2((1 - relativeWidth) / 2f + 0.25f * relativeWidth, 0.5f), 1000, Easing.OutQuint);
-            logo?.Delay(4200).ScaleTo(new Vector2(0.8f * priorityScale), 500, Easing.OutQuint);
-
-            logo?.Delay(6000).FadeOut(3000, Easing.OutQuint);
-
-            using (BeginDelayedSequence(6000))
-            {
-                introContainer.FadeOut(1000, Easing.OutQuint);
-                Scheduler.AddDelayed(showTeamPlayer, 3000);
-            }
-        }
-
-        /// <summary>
-        /// Show the round team list.
-        /// </summary>
-        private void showTeamPlayer()
-        {
-            state = ShowcaseState.TeamPlayer;
-            Scheduler.AddDelayed(showMapPool, 5000);
-        }
-
-        /// <summary>
-        /// Show the map pool screen.
-        /// </summary>
-        private void showMapPool()
-        {
-            state = ShowcaseState.MapPool;
-            Scheduler.AddDelayed(pushNextBeatmap, 5000);
-        }
-
-        /// <summary>
-        /// Show the outro screen, fade the showcase container out and then exit.
-        /// </summary>
-        private void showOutro()
-        {
-            state = ShowcaseState.Ending;
-
-            showcaseContainer.BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
-            showcaseContainer.BeatmapAttributes.FadeOut(500, Easing.OutQuint);
-
-            Container outroContainer = new Container
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Width = relativeWidth,
-                Height = relativeHeight,
-                RelativeSizeAxes = Axes.Both,
-                Masking = true,
-                Alpha = 0,
-                Children = new Drawable[]
-                {
-                    new Box
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Colour = Color4.Black,
-                        Alpha = 0.5f
-                    },
-                    new OsuSpriteText
-                    {
-                        RelativePositionAxes = Axes.Both,
-                        Origin = Anchor.CentreLeft,
-                        X = 0.45f,
-                        Y = 0.45f,
-                        Text = !string.IsNullOrWhiteSpace(config.OutroTitle.Value.Trim())
-                            ? config.OutroTitle.Value.Trim()
-                            : @"Thanks for watching!",
-                        Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
-                        Scale = new Vector2(priorityScale)
-                    },
-                    new OsuSpriteText
-                    {
-                        RelativePositionAxes = Axes.Both,
-                        Origin = Anchor.CentreLeft,
-                        X = 0.45f,
-                        Y = 0.55f,
-                        Text = !string.IsNullOrWhiteSpace(config.OutroSubtitle.Value.Trim())
-                            ? config.OutroSubtitle.Value.Trim()
-                            : @"Take care of yourself, and be well.",
-                        Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
-                        Scale = new Vector2(priorityScale)
-                    },
-                }
-            };
-
-            AddInternal(outroContainer);
-
-            // Initialization
-            logo?.Show();
-            logo?.MoveTo(new Vector2(-0.5f, 0.5f));
-            logo?.ScaleTo(0.5f * priorityScale);
-
-            logo?.FadeIn(500);
-            logo?.MoveTo(new Vector2((1 - relativeWidth) / 2f + 0.25f * relativeWidth, 0.5f), 1000, Easing.OutQuint);
-            logo?.Delay(200).ScaleTo(new Vector2(0.8f * priorityScale), 500, Easing.OutQuint);
-
-            outroContainer.FadeIn(1000, Easing.OutQuint);
-            logo?.Delay(3000).FadeOut(3000, Easing.OutQuint);
-
-            using (BeginDelayedSequence(3000))
-            {
-                this.FadeOut(3000, Easing.OutQuint);
-                Scheduler.AddDelayed(this.Exit, 5000);
-            }
         }
     }
 }

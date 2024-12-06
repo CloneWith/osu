@@ -5,11 +5,21 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public enum ShowcaseState
     {
+        /// <summary>
+        /// Getting things ready.
+        /// </summary>
         Initialization,
         Intro,
         TeamPlayer,
         MapPool,
         BeatmapShow,
+        BeatmapTransition,
         StaffList,
-        Ending
-    }}
+        Ending,
+
+        /// <summary>
+        /// The showcase has come to a conclusion.
+        /// </summary>
+        Ended
+    }
+}
