@@ -33,11 +33,13 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly float priorityScale;
 
         private readonly Bindable<ShowcaseState> state = new Bindable<ShowcaseState>();
+        private readonly BindableBool playerLoaded = new BindableBool();
 
-        public ShowcaseContainer(ShowcaseConfig config, Bindable<ShowcaseState> showcaseState)
+        public ShowcaseContainer(ShowcaseConfig config, Bindable<ShowcaseState> showcaseState, BindableBool playerLoaded)
         {
             this.config = config;
             state.BindTo(showcaseState);
+            this.playerLoaded.BindTo(playerLoaded);
 
             yPositionScale = config.Layout.Value == ShowcaseLayout.Immersive ? 1 : 0.95f;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
@@ -80,6 +82,13 @@ namespace osu.Game.Screens.TournamentShowcase
             };
 
             state.BindValueChanged(stateChanged);
+            this.playerLoaded.BindValueChanged(loadStateChanged);
+        }
+
+        private void loadStateChanged(ValueChangedEvent<bool> state)
+        {
+            if (state.NewValue && this.state.Value == ShowcaseState.Intro)
+                showIntro();
         }
 
         private void stateChanged(ValueChangedEvent<ShowcaseState> state)
@@ -95,7 +104,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        public void StartShowcase() => showIntro();
+        public void StartShowcase() => state.Value = ShowcaseState.Intro;
 
         /// <summary>
         /// Show the intro screen, fade the showcase container out and then exit.

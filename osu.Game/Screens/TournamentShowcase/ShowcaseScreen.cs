@@ -57,7 +57,7 @@ namespace osu.Game.Screens.TournamentShowcase
             switch (config.Layout.Value)
             {
                 case ShowcaseLayout.Immersive:
-                    InternalChild = showcaseContainer = new ShowcaseContainer(config, state)
+                    InternalChild = showcaseContainer = new ShowcaseContainer(config, state, replaying)
                     {
                         Width = relativeWidth,
                         Height = relativeHeight,
@@ -67,7 +67,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 case ShowcaseLayout.SimpleControl:
                     InternalChildren =
                     [
-                        showcaseContainer = new ShowcaseContainer(config, state)
+                        showcaseContainer = new ShowcaseContainer(config, state, replaying)
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -108,7 +108,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             {
                                 new Drawable[]
                                 {
-                                    showcaseContainer = new ShowcaseContainer(config, state)
+                                    showcaseContainer = new ShowcaseContainer(config, state, replaying)
                                 },
                             }
                         },
@@ -131,7 +131,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             replaying.BindValueChanged(status =>
             {
-                if (!status.NewValue)
+                if (!status.NewValue && state.Value == ShowcaseState.BeatmapShow)
                 {
                     showcaseContainer.BeatmapAttributes.FadeOut(500, Easing.OutQuint);
                     showcaseContainer.BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
@@ -185,7 +185,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void updateBeatmap(bool introMode = false)
         {
-            state.Value = ShowcaseState.BeatmapShow;
+            state.Value = introMode ? ShowcaseState.Intro : ShowcaseState.BeatmapShow;
             ShowcaseBeatmap selected;
             Score? score;
 
@@ -215,6 +215,7 @@ namespace osu.Game.Screens.TournamentShowcase
             else
             {
                 selected = config.IntroBeatmap.Value;
+                replaying.Value = false;
             }
 
             beatmap = beatmaps.GetWorkingBeatmap(new BeatmapInfo
