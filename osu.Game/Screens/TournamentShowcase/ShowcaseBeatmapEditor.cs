@@ -161,8 +161,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
                 {
                     RelativeSizeAxes = Axes.X,
-                    AllowSelection = false,
-                    AllowReordering = false,
                     AllowEditing = true,
                     AllowDeletion = true,
                     RequestResults = _ =>
@@ -266,8 +264,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 Add(drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
                 {
                     RelativeSizeAxes = Axes.X,
-                    AllowSelection = false,
-                    AllowReordering = false,
                     AllowEditing = true,
                     AllowDeletion = true,
                     RequestResults = _ =>

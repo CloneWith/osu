@@ -29,12 +29,14 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Models;
 using osu.Game.Online;
 using osu.Game.Online.Chat;
+using osu.Game.Online.Placeholders;
 using osu.Game.Overlays;
 using osu.Game.Overlays.BeatmapSet;
 using osu.Game.Resources.Localisation.Web;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
+using osu.Game.Screens.SelectV2.Leaderboards;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
@@ -43,11 +45,9 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class DrawableShowcaseBeatmapItem : OsuRearrangeableListItem<ShowcaseBeatmap>, IHasContextMenu
     {
-        public const float HEIGHT = 50;
+        public const float HEIGHT = 120;
 
         private const float icon_height = 34;
-
-        private const float border_thickness = 3;
 
         /// <summary>
         /// Invoked when this item requests to be deleted.
@@ -64,15 +64,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         public Action<ShowcaseBeatmap> RequestEdit;
 
-        /// <summary>
-        /// The currently-selected item, used to show a border around this item.
-        /// May be updated by this item if <see cref="AllowSelection"/> is <c>true</c>.
-        /// </summary>
-        public readonly Bindable<ShowcaseBeatmap> SelectedItem = new Bindable<ShowcaseBeatmap>();
-
         public readonly ShowcaseBeatmap Item;
-
-        public bool IsSelectedItem => SelectedItem.Value?.BeatmapGuid == Item.BeatmapGuid;
 
         private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
@@ -81,9 +73,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private IRulesetInfo ruleset;
         private Mod[] requiredMods = Array.Empty<Mod>();
 
-        private Container borderContainer;
         private FillFlowContainer difficultyIconContainer;
         private LinkFlowContainer beatmapText;
+        private TextFlowContainer difficultyText;
         private LinkFlowContainer authorText;
         private ExplicitContentBeatmapBadge explicitContent;
         private ModDisplay modDisplay;
@@ -93,20 +85,12 @@ namespace osu.Game.Screens.TournamentShowcase
         private Drawable editButton;
         private Drawable removeButton;
         private PanelBackground panelBackground;
-        private FillFlowContainer mainFillFlow;
+        private FillFlowContainer infoFillFlow;
         private BeatmapCardThumbnail thumbnail;
-
-        [Resolved]
-        private RealmAccess realm { get; set; }
+        private Container recordScoreContainer;
 
         [Resolved]
         private RulesetStore rulesets { get; set; }
-
-        [Resolved]
-        private BeatmapManager beatmaps { get; set; }
-
-        [Resolved]
-        private OsuColour colours { get; set; }
 
         [Resolved]
         private UserLookupCache userLookupCache { get; set; }
@@ -121,14 +105,13 @@ namespace osu.Game.Screens.TournamentShowcase
             : base(item)
         {
             Item = item ?? new ShowcaseBeatmap();
+            ShowDragHandle.Value = false;
             this.config = config;
         }
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            borderContainer.BorderColour = colours.Yellow;
-
             ruleset = rulesets.GetRuleset(Item.RulesetId);
             var rulesetInstance = ruleset?.CreateInstance();
 
@@ -139,11 +122,6 @@ namespace osu.Game.Screens.TournamentShowcase
         protected override void LoadComplete()
         {
             base.LoadComplete();
-
-            SelectedItem.BindValueChanged(selected =>
-            {
-                borderContainer.BorderThickness = IsSelectedItem ? border_thickness : 0;
-            }, true);
 
             onScreenLoader.DelayedLoadStarted += _ =>
             {
@@ -169,20 +147,6 @@ namespace osu.Game.Screens.TournamentShowcase
             };
 
             refresh();
-        }
-
-        /// <summary>
-        /// Whether this item can be selected.
-        /// </summary>
-        public bool AllowSelection { get; set; }
-
-        /// <summary>
-        /// Whether this item can be reordered in the playlist.
-        /// </summary>
-        public bool AllowReordering
-        {
-            get => ShowDragHandle.Value;
-            set => ShowDragHandle.Value = value;
         }
 
         private bool allowDeletion = true;
@@ -236,10 +200,10 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private bool showItemOwner;
+        private bool showItemOwner = true;
 
         /// <summary>
-        /// Whether to display the avatar of the user which owns this playlist item.
+        /// Whether to display the avatar of the user which selects the map.
         /// </summary>
         public bool ShowItemOwner
         {
@@ -253,6 +217,8 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
+        public void Refresh() => refresh();
+
         private void refresh()
         {
             if (beatmap != null)
@@ -263,7 +229,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Width = 60,
+                        Width = 120,
                         Masking = true,
                         CornerRadius = 10,
                         RelativeSizeAxes = Axes.Y,
@@ -284,13 +250,19 @@ namespace osu.Game.Screens.TournamentShowcase
             panelBackground.Beatmap.Value = beatmap;
 
             beatmapText.Clear();
+            difficultyText.Clear();
 
             if (beatmap != null)
             {
-                beatmapText.AddLink(beatmap.GetDisplayTitleRomanisable(includeCreator: false),
+                beatmapText.AddLink(beatmap.GetDisplayTitleRomanisable(includeDifficultyName: false, includeCreator: false),
                     LinkAction.OpenBeatmap,
                     beatmap.OnlineID.ToString(),
                     null,
+                    text =>
+                    {
+                        text.Truncate = true;
+                    });
+                difficultyText.AddText(beatmap.DifficultyName,
                     text =>
                     {
                         text.Truncate = true;
@@ -310,11 +282,18 @@ namespace osu.Game.Screens.TournamentShowcase
 
             modDisplay.Current.Value = requiredMods.ToArray();
 
+            recordScoreContainer.Clear();
+
+            recordScoreContainer.Child = Item.ShowcaseScore != null
+                ? new LeaderboardScoreV2(Item.ShowcaseScore, false)
+                : new MessagePlaceholder("No score associated with this beatmap.");
+
             buttonsFlow.Clear();
             buttonsFlow.ChildrenEnumerable = createButtons();
 
             difficultyIconContainer.FadeInFromZero(500, Easing.OutQuint);
-            mainFillFlow.FadeInFromZero(500, Easing.OutQuint);
+            infoFillFlow.FadeInFromZero(500, Easing.OutQuint);
+            recordScoreContainer.FadeInFromZero(500, Easing.OutQuint);
         }
 
         protected override Drawable CreateContent()
@@ -342,6 +321,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             new GridContainer
                             {
                                 RelativeSizeAxes = Axes.Both,
+                                Height = 0.5f,
                                 ColumnDimensions = new[]
                                 {
                                     new Dimension(GridSizeMode.AutoSize),
@@ -363,7 +343,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                             Spacing = new Vector2(4),
                                             Margin = new MarginPadding { Right = 4 },
                                         },
-                                        mainFillFlow = new MainFlow(() => SelectedItem.Value == Model || !AllowSelection)
+                                        infoFillFlow = new FillFlowContainer
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
@@ -378,6 +358,12 @@ namespace osu.Game.Screens.TournamentShowcase
                                                     RelativeSizeAxes = Axes.X,
                                                     // workaround to ensure only the first line of text shows, emulating truncation (but without ellipsis at the end).
                                                     // TODO: remove when text/link flow can support truncation with ellipsis natively.
+                                                    Height = OsuFont.DEFAULT_FONT_SIZE,
+                                                    Masking = true
+                                                },
+                                                difficultyText = new TextFlowContainer(fontParameters)
+                                                {
+                                                    RelativeSizeAxes = Axes.X,
                                                     Height = OsuFont.DEFAULT_FONT_SIZE,
                                                     Masking = true
                                                 },
@@ -445,27 +431,22 @@ namespace osu.Game.Screens.TournamentShowcase
                                             Margin = new MarginPadding { Right = 8 },
                                             Masking = true,
                                             CornerRadius = 4,
-                                            Alpha = ShowItemOwner ? 1 : 0
+                                            Alpha = ShowItemOwner ? 1 : 0,
                                         },
                                     }
                                 }
                             },
-                        },
-                    },
-                    borderContainer = new Container
-                    {
-                        RelativeSizeAxes = Axes.Both,
-                        Masking = true,
-                        CornerRadius = 10,
-                        Children = new Drawable[]
-                        {
-                            new Box // A transparent box that forces the border to be drawn if the panel background is opaque
+                            recordScoreContainer = new Container
                             {
+                                RelativePositionAxes = Axes.Both,
                                 RelativeSizeAxes = Axes.Both,
-                                Alpha = 0,
-                                AlwaysPresent = true
-                            },
-                        }
+                                Height = 0.5f,
+                                Y = 0.5f,
+                                Child = Item.ShowcaseScore != null
+                                    ? new LeaderboardScoreV2(Item.ShowcaseScore, false)
+                                    : new MessagePlaceholder("No score associated with this beatmap.")
+                            }
+                        },
                     }
                 }
             };
@@ -515,12 +496,6 @@ namespace osu.Game.Screens.TournamentShowcase
             base.OnHoverLost(e);
         }
 
-        protected override bool OnClick(ClickEvent e)
-        {
-            SelectedItem.Value = Model;
-            return true;
-        }
-
         public MenuItem[] ContextMenuItems
         {
             get
@@ -528,7 +503,16 @@ namespace osu.Game.Screens.TournamentShowcase
                 List<MenuItem> items = new List<MenuItem>();
 
                 if (beatmapOverlay != null)
-                    items.Add(new OsuMenuItem("Details...", MenuItemType.Standard, () => beatmapOverlay.FetchAndShowBeatmap(Item.BeatmapId)));
+                    items.Add(new OsuMenuItem("Beatmap Details", MenuItemType.Standard, () => beatmapOverlay.FetchAndShowBeatmap(Item.BeatmapId)));
+
+                if (Item.ShowcaseScore != null)
+                {
+                    items.Add(new OsuMenuItem("Remove replay score", MenuItemType.Highlighted, () =>
+                    {
+                        Item.ShowcaseScore = null;
+                        recordScoreContainer.Child = new MessagePlaceholder("No score associated with this beatmap.");
+                    }));
+                }
 
                 return items.ToArray();
             }
@@ -685,18 +669,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
 
                 public LocalisableString TooltipText => avatar.TooltipText;
-            }
-        }
-
-        public partial class MainFlow : FillFlowContainer
-        {
-            private readonly Func<bool> allowInteraction;
-
-            public override bool PropagatePositionalInputSubTree => allowInteraction();
-
-            public MainFlow(Func<bool> allowInteraction)
-            {
-                this.allowInteraction = allowInteraction;
             }
         }
     }

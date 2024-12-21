@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
@@ -83,168 +84,171 @@ namespace osu.Game.Screens.TournamentShowcase
 
             InternalChildren = new Drawable[]
             {
-                new OsuScrollContainer
+                new OsuContextMenuContainer
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Width = 0.75f,
-                    Height = 0.8f,
-                    Child = innerFlow = new FillFlowContainer
+                    Child = new OsuScrollContainer
                     {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Spacing = new Vector2(10),
-                        Direction = FillDirection.Full,
-                        Children = new Drawable[]
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        RelativeSizeAxes = Axes.Both,
+                        Width = 0.75f,
+                        Height = 0.8f,
+                        Child = innerFlow = new FillFlowContainer
                         {
-                            new FillFlowContainer
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            Spacing = new Vector2(10),
+                            Direction = FillDirection.Full,
+                            Children = new Drawable[]
                             {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Spacing = new Vector2(10),
-                                Direction = FillDirection.Vertical,
-                                Children = new Drawable[]
+                                new FillFlowContainer
                                 {
-                                    new SectionHeader(@"Tournament Information"),
-                                    profileDropdown = new FormDropdown<string>
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Spacing = new Vector2(10),
+                                    Direction = FillDirection.Vertical,
+                                    Children = new Drawable[]
                                     {
-                                        Caption = "Load set",
-                                        Items = availableProfiles
-                                    },
-                                    rulesetDropdown = new FormDropdown<RulesetInfo>
-                                    {
-                                        Caption = "Ruleset",
-                                        HintText = @"The ruleset we should use for showcase and replays.",
-                                        Items = rulesets.AvailableRulesets,
-                                        Current = currentProfile.Value.Ruleset,
-                                    },
-                                    tournamentNameInput = new FormTextBox
-                                    {
-                                        Caption = "Name",
-                                        PlaceholderText = "Tournament series name (e.g. osu! World Cup)",
-                                        HintText = "This would be shown at the intro screen.",
-                                        Current = currentProfile.Value.TournamentName,
-                                        TabbableContentContainer = this,
-                                    },
-                                    roundNameInput = new FormTextBox
-                                    {
-                                        Caption = "Round",
-                                        PlaceholderText = "Tournament round (e.g. Semifinals)",
-                                        Current = currentProfile.Value.RoundName,
-                                        TabbableContentContainer = this,
-                                    },
-                                    dateTimeInput = new FormTextBox
-                                    {
-                                        Caption = "Date and Time",
-                                        PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
-                                        HintText = "This would stay the same in the showcase. So use your own preferred format!",
-                                        Current = currentProfile.Value.DateTime,
-                                        TabbableContentContainer = this,
-                                    },
-                                    commentInput = new FormTextBox
-                                    {
-                                        Caption = "Comment",
-                                        PlaceholderText = "Welcome to osu!",
-                                        HintText = "In fact you can write anything here.\nThis is also part of the intro screen.",
-                                        Current = currentProfile.Value.Comment,
-                                        TabbableContentContainer = this,
-                                    },
-                                }
-                            },
-                            new FillFlowContainer
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Spacing = new Vector2(10),
-                                Direction = FillDirection.Vertical,
-                                Children = new Drawable[]
-                                {
-                                    new SectionHeader(@"Showcase Settings"),
-                                    layoutDropdown = new FormDropdown<ShowcaseLayout>
-                                    {
-                                        Caption = @"Interface layout",
-                                        HintText = @"The layout of the showcases screen.",
-                                        Current = currentProfile.Value.Layout,
-                                        Items = new List<ShowcaseLayout>
+                                        new SectionHeader(@"Tournament Information"),
+                                        profileDropdown = new FormDropdown<string>
                                         {
-                                            ShowcaseLayout.Immersive,
-                                            ShowcaseLayout.SimpleControl,
-                                            ShowcaseLayout.DetailedControl
-                                        }
-                                    },
-                                    aspectRatioInput = new FormSliderBar<float>
-                                    {
-                                        Caption = @"Aspect ratio",
-                                        HintText = @"Defines the ratio of the showcase area. Change this when you need to record a video with specific sizes.",
-                                        Current = currentProfile.Value.AspectRatio,
-                                        TransferValueOnCommit = true,
-                                        TabbableContentContainer = this,
-                                    },
-                                    transformDurationInput = new FormSliderBar<int>
-                                    {
-                                        Caption = @"Transform duration",
-                                        HintText = @"The length of the transform animation between screens, in milliseconds.",
-                                        Current = currentProfile.Value.TransformDuration,
-                                        TransferValueOnCommit = true,
-                                        TabbableContentContainer = this,
-                                    },
-                                    startCountdownInput = new FormSliderBar<int>
-                                    {
-                                        Caption = @"Start countdown",
-                                        HintText = @"A duration to wait for before the showcase starts. Get prepared this time!",
-                                        Current = currentProfile.Value.StartCountdown,
-                                        TransferValueOnCommit = true,
-                                        TabbableContentContainer = this,
-                                    },
-                                    outroTitleInput = new FormTextBox
-                                    {
-                                        Caption = @"Outro title",
-                                        PlaceholderText = @"Thanks for watching!",
-                                        Current = currentProfile.Value.OutroTitle,
-                                        TabbableContentContainer = this,
-                                    },
-                                    outroSubtitleInput = new FormTextBox
-                                    {
-                                        Caption = @"Outro subtitle",
-                                        HintText = @"This would be shown in one line, so shouldn't be too long!",
-                                        PlaceholderText = @"Take care of yourself, and be well.",
-                                        Current = currentProfile.Value.OutroSubtitle,
-                                        TabbableContentContainer = this,
-                                    },
-                                }
-                            },
-                            new ShowcaseTeamEditor(currentProfile),
-                            new ShowcaseBeatmapEditor(currentProfile),
-                            new ShowcaseStaffEditor(currentProfile),
-                            introEditor = new FillFlowContainer
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Spacing = new Vector2(10),
-                                Direction = FillDirection.Vertical,
-                                Children = new Drawable[]
+                                            Caption = "Load set",
+                                            Items = availableProfiles
+                                        },
+                                        rulesetDropdown = new FormDropdown<RulesetInfo>
+                                        {
+                                            Caption = "Ruleset",
+                                            HintText = @"The ruleset we should use for showcase and replays.",
+                                            Items = rulesets.AvailableRulesets,
+                                            Current = currentProfile.Value.Ruleset,
+                                        },
+                                        tournamentNameInput = new FormTextBox
+                                        {
+                                            Caption = "Name",
+                                            PlaceholderText = "Tournament series name (e.g. osu! World Cup)",
+                                            HintText = "This would be shown at the intro screen.",
+                                            Current = currentProfile.Value.TournamentName,
+                                            TabbableContentContainer = this,
+                                        },
+                                        roundNameInput = new FormTextBox
+                                        {
+                                            Caption = "Round",
+                                            PlaceholderText = "Tournament round (e.g. Semifinals)",
+                                            Current = currentProfile.Value.RoundName,
+                                            TabbableContentContainer = this,
+                                        },
+                                        dateTimeInput = new FormTextBox
+                                        {
+                                            Caption = "Date and Time",
+                                            PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
+                                            HintText = "This would stay the same in the showcase. So use your own preferred format!",
+                                            Current = currentProfile.Value.DateTime,
+                                            TabbableContentContainer = this,
+                                        },
+                                        commentInput = new FormTextBox
+                                        {
+                                            Caption = "Comment",
+                                            PlaceholderText = "Welcome to osu!",
+                                            HintText = "In fact you can write anything here.\nThis is also part of the intro screen.",
+                                            Current = currentProfile.Value.Comment,
+                                            TabbableContentContainer = this,
+                                        },
+                                    }
+                                },
+                                new FillFlowContainer
                                 {
-                                    new SectionHeader(@"Intro Beatmap"),
-                                    useCustomIntroSwitch = new FormCheckBox
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Spacing = new Vector2(10),
+                                    Direction = FillDirection.Vertical,
+                                    Children = new Drawable[]
                                     {
-                                        Caption = @"Use custom intro beatmap",
-                                        HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase."
-                                                   + @" Otherwise the first beatmap will be used.",
-                                        Current = currentProfile.Value.UseCustomIntroBeatmap
-                                    },
-                                    introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                                        new SectionHeader(@"Showcase Settings"),
+                                        layoutDropdown = new FormDropdown<ShowcaseLayout>
+                                        {
+                                            Caption = @"Interface layout",
+                                            HintText = @"The layout of the showcases screen.",
+                                            Current = currentProfile.Value.Layout,
+                                            Items = new List<ShowcaseLayout>
+                                            {
+                                                ShowcaseLayout.Immersive,
+                                                ShowcaseLayout.SimpleControl,
+                                                ShowcaseLayout.DetailedControl
+                                            }
+                                        },
+                                        aspectRatioInput = new FormSliderBar<float>
+                                        {
+                                            Caption = @"Aspect ratio",
+                                            HintText = @"Defines the ratio of the showcase area. Change this when you need to record a video with specific sizes.",
+                                            Current = currentProfile.Value.AspectRatio,
+                                            TransferValueOnCommit = true,
+                                            TabbableContentContainer = this,
+                                        },
+                                        transformDurationInput = new FormSliderBar<int>
+                                        {
+                                            Caption = @"Transform duration",
+                                            HintText = @"The length of the transform animation between screens, in milliseconds.",
+                                            Current = currentProfile.Value.TransformDuration,
+                                            TransferValueOnCommit = true,
+                                            TabbableContentContainer = this,
+                                        },
+                                        startCountdownInput = new FormSliderBar<int>
+                                        {
+                                            Caption = @"Start countdown",
+                                            HintText = @"A duration to wait for before the showcase starts. Get prepared this time!",
+                                            Current = currentProfile.Value.StartCountdown,
+                                            TransferValueOnCommit = true,
+                                            TabbableContentContainer = this,
+                                        },
+                                        outroTitleInput = new FormTextBox
+                                        {
+                                            Caption = @"Outro title",
+                                            PlaceholderText = @"Thanks for watching!",
+                                            Current = currentProfile.Value.OutroTitle,
+                                            TabbableContentContainer = this,
+                                        },
+                                        outroSubtitleInput = new FormTextBox
+                                        {
+                                            Caption = @"Outro subtitle",
+                                            HintText = @"This would be shown in one line, so shouldn't be too long!",
+                                            PlaceholderText = @"Take care of yourself, and be well.",
+                                            Current = currentProfile.Value.OutroSubtitle,
+                                            TabbableContentContainer = this,
+                                        },
+                                    }
+                                },
+                                new ShowcaseTeamEditor(currentProfile),
+                                new ShowcaseBeatmapEditor(currentProfile),
+                                new ShowcaseStaffEditor(currentProfile),
+                                introEditor = new FillFlowContainer
+                                {
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Spacing = new Vector2(10),
+                                    Direction = FillDirection.Vertical,
+                                    Children = new Drawable[]
                                     {
-                                        RelativeSizeAxes = Axes.X,
-                                        AllowReordering = false,
-                                        AllowDeletion = false,
-                                        RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                                                s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
-                                            new[] { typeof(ShowcaseConfigScreen) })),
-                                    },
-                                }
-                            },
-                        }
+                                        new SectionHeader(@"Intro Beatmap"),
+                                        useCustomIntroSwitch = new FormCheckBox
+                                        {
+                                            Caption = @"Use custom intro beatmap",
+                                            HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase."
+                                                       + @" Otherwise the first beatmap will be used.",
+                                            Current = currentProfile.Value.UseCustomIntroBeatmap
+                                        },
+                                        introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                                        {
+                                            RelativeSizeAxes = Axes.X,
+                                            AllowDeletion = false,
+                                            RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
+                                                    s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
+                                                new[] { typeof(ShowcaseConfigScreen) })),
+                                        },
+                                    }
+                                },
+                            }
+                        },
                     },
                 },
                 new FillFlowContainer
@@ -305,7 +309,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                 {
                     RelativeSizeAxes = Axes.X,
-                    AllowReordering = false,
                     AllowDeletion = false,
                     RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
                             s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
@@ -376,7 +379,6 @@ namespace osu.Game.Screens.TournamentShowcase
             introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
             {
                 RelativeSizeAxes = Axes.X,
-                AllowReordering = false,
                 AllowDeletion = false,
                 RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
                         s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
