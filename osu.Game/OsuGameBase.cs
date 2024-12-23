@@ -417,7 +417,10 @@ namespace osu.Game
 
             dependencies.Cache(globalBindings);
 
-            dependencies.Cache(new ShowcaseStorage(Storage));
+            ShowcaseStorage showcaseStorage = new ShowcaseStorage(Storage);
+
+            dependencies.Cache(showcaseStorage);
+            Textures.AddTextureSource(new TextureLoaderStore(new StorageBackedResourceStore(showcaseStorage)));
 
             Ruleset.BindValueChanged(onRulesetChanged);
             Beatmap.BindValueChanged(onBeatmapChanged);
