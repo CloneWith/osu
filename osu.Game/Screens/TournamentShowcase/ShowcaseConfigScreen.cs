@@ -321,6 +321,8 @@ namespace osu.Game.Screens.TournamentShowcase
             if (!isValid)
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog());
+
+                return false;
             }
 
             if (!currentProfile.Value.Beatmaps.Any())
@@ -330,6 +332,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     HeaderText = @"Beatmap list empty",
                     BodyText = @"Consider adding one here."
                 });
+
+                return false;
             }
 
             if (useCustomIntroSwitch.Current.Value && currentProfile.Value.IntroBeatmap.Value == null)
