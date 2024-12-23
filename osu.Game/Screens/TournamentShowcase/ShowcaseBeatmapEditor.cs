@@ -34,6 +34,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
+            AutoSizeEasing = Easing.OutQuint;
+            AutoSizeDuration = 200;
             Direction = FillDirection.Vertical;
             Spacing = new Vector2(10);
             Children = new Drawable[]
@@ -49,6 +51,8 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
+                    AutoSizeEasing = Easing.OutQuint,
+                    AutoSizeDuration = 200,
                     Direction = FillDirection.Vertical,
                     Spacing = new Vector2(10),
                     ChildrenEnumerable = config.Value.Beatmaps.Select(t => new BeatmapRow(t, config.Value))

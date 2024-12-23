@@ -34,6 +34,8 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved(canBeNull: true)]
         private IDialogOverlay? dialogOverlay { get; set; }
 
+        private const float sizing_duration = 200;
+
         private FillFlowContainer innerFlow = null!;
 
         private FormDropdown<string> profileDropdown = null!;
@@ -99,6 +101,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                 {
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
+                                    AutoSizeEasing = Easing.OutQuint,
+                                    AutoSizeDuration = sizing_duration,
                                     Spacing = new Vector2(10),
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
@@ -153,6 +157,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                 {
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
+                                    AutoSizeEasing = Easing.OutQuint,
+                                    AutoSizeDuration = sizing_duration,
                                     Spacing = new Vector2(10),
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
@@ -218,6 +224,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                 {
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
+                                    AutoSizeEasing = Easing.OutQuint,
+                                    AutoSizeDuration = sizing_duration,
                                     Spacing = new Vector2(10),
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
