@@ -315,6 +315,15 @@ namespace osu.Game.Screens.TournamentShowcase
                 dialogOverlay?.Push(new ProfileCheckFailedDialog());
             }
 
+            if (!currentProfile.Value.Beatmaps.Any())
+            {
+                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                {
+                    HeaderText = @"Beatmap list empty",
+                    BodyText = @"Consider adding one here."
+                });
+            }
+
             if (useCustomIntroSwitch.Current.Value && currentProfile.Value.IntroBeatmap.Value == null)
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog

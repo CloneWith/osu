@@ -214,7 +214,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
             else
             {
-                selected = config.IntroBeatmap.Value;
+                selected = config.UseCustomIntroBeatmap.Value ? config.IntroBeatmap.Value : config.Beatmaps.First();
                 replaying.Value = false;
             }
 
