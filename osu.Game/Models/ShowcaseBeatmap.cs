@@ -2,8 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Game.Beatmaps;
@@ -26,7 +24,9 @@ namespace osu.Game.Models
         public Bindable<BeatmapType> ModType = new Bindable<BeatmapType>();
         public string ModString = string.Empty;
         public Bindable<string> ModIndex = new Bindable<string>();
-        public IEnumerable<Mod> RequiredMods { get; set; } = Enumerable.Empty<Mod>();
+
+        [JsonIgnore]
+        public BindableList<Mod> RequiredMods = new BindableList<Mod>();
 
         public Bindable<ShowcaseUser> Selector = new Bindable<ShowcaseUser>();
         public BindableBool IsOriginal = new BindableBool();

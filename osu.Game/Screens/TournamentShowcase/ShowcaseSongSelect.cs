@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Overlays;
+using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Ranking;
 using osu.Game.Screens.Select;
@@ -14,9 +15,6 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ShowcaseSongSelect : SongSelect
     {
-        // The footer is unused, thus hiding it.
-        protected override bool ShowSongSelectFooter => false;
-
         public override bool AllowEditing => false;
 
         [Resolved(canBeNull: true)]
@@ -24,11 +22,13 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly Bindable<BeatmapInfo> targetBeatmap = new Bindable<BeatmapInfo>();
         private readonly Bindable<ScoreInfo?> targetScore = new Bindable<ScoreInfo?>();
+        private readonly BindableList<Mod> targetMods = new BindableList<Mod>();
 
-        public ShowcaseSongSelect(Bindable<BeatmapInfo> beatmap, Bindable<ScoreInfo?> score)
+        public ShowcaseSongSelect(Bindable<BeatmapInfo> beatmap, BindableList<Mod> mods, Bindable<ScoreInfo?> score)
         {
             targetBeatmap.BindTo(beatmap);
             targetScore.BindTo(score);
+            targetMods.BindTo(mods);
         }
 
         protected void PresentScore(ScoreInfo score) =>
@@ -49,6 +49,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             // Pass information of the selected beatmap to the bindable.
             targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
+            targetMods.Clear();
+            targetMods.AddRange(Mods.Value);
 
             this.Exit();
             return true;
@@ -58,16 +60,6 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             if (s.BeatmapInfo != null)
             {
-                if (s.BeatmapInfo.ID != targetBeatmap.Value.ID)
-                {
-                    dialogOverlay?.Push(new ProfileCheckFailedDialog
-                    {
-                        HeaderText = @"Inconsistency Detected",
-                        BodyText = @"Please select a score that matches the selected beatmap."
-                    });
-                    return;
-                }
-
                 if (!s.Passed)
                 {
                     dialogOverlay?.Push(new ProfileCheckFailedDialog
@@ -78,7 +70,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
                 }
 
+                targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
                 targetScore.Value = s;
+                targetMods.Clear();
+                targetMods.AddRange(s.Mods);
+
+                this.Exit();
             }
         }
     }

@@ -236,7 +236,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (ruleset == null || autoplayMod == null)
                     return;
 
-                score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), Mods.Value);
+                score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), selected.RequiredMods);
             }
 
             Beatmap.Value = beatmap;
