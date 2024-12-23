@@ -336,7 +336,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 return false;
             }
 
-            if (useCustomIntroSwitch.Current.Value && currentProfile.Value.IntroBeatmap.Value == null)
+            if (useCustomIntroSwitch.Current.Value && !currentProfile.Value.IntroBeatmap.Value.IsValid())
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog
                 {

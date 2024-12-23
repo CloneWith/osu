@@ -48,5 +48,10 @@ namespace osu.Game.Models
             BeatmapId = BeatmapInfo.OnlineID;
             BeatmapGuid = BeatmapInfo.ID;
         }
+
+        public bool IsValid()
+        {
+            return BeatmapGuid != Guid.Empty;
+        }
     }
 }
