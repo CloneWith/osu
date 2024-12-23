@@ -8,7 +8,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Screens;
-using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
@@ -17,7 +16,6 @@ using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
-using osu.Game.Scoring;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -32,9 +30,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
-
-        [Resolved]
-        private IPerformFromScreenRunner? performer { get; set; }
 
         [Resolved(canBeNull: true)]
         private IDialogOverlay? dialogOverlay { get; set; }
@@ -52,13 +47,11 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormSliderBar<int> startCountdownInput = null!;
         private FormDropdown<ShowcaseLayout> layoutDropdown = null!;
         private FormSliderBar<float> aspectRatioInput = null!;
-        private FillFlowContainer introEditor = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
-        private DrawableShowcaseBeatmapItem introBeatmapItem = null!;
         private FormTextBox outroTitleInput = null!;
         private FormTextBox outroSubtitleInput = null!;
-
-        private readonly Bindable<BeatmapInfo> introMapBindable = new Bindable<BeatmapInfo>();
+        private FillFlowContainer introEditor = null!;
+        private BeatmapRow introBeatmapRow = null!;
 
         private Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
 
@@ -80,10 +73,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
             // In case an exception prevents this variable from initializing...
             currentProfile.Value.IntroBeatmap.Value ??= new ShowcaseBeatmap();
-            introMapBindable.Value = currentProfile.Value.IntroBeatmap.Value.BeatmapInfo;
 
             InternalChildren = new Drawable[]
             {
+                new ExtendableBeatmapCard(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value),
                 new OsuContextMenuContainer
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -237,13 +230,9 @@ namespace osu.Game.Screens.TournamentShowcase
                                                        + @" Otherwise the first beatmap will be used.",
                                             Current = currentProfile.Value.UseCustomIntroBeatmap
                                         },
-                                        introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                                        introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                                         {
-                                            RelativeSizeAxes = Axes.X,
-                                            AllowDeletion = false,
-                                            RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                                                    s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
-                                                new[] { typeof(ShowcaseConfigScreen) })),
+                                            AllowDeletion = false
                                         },
                                     }
                                 },
@@ -296,24 +285,6 @@ namespace osu.Game.Screens.TournamentShowcase
             profileDropdown.Current.BindValueChanged(e =>
             {
                 currentProfile.Value = storage.GetConfig(e.NewValue);
-            });
-
-            introMapBindable.BindValueChanged(e =>
-            {
-                // When the new map is selected, update the data in place.
-                currentProfile.Value.IntroBeatmap.Value.BeatmapInfo = e.NewValue;
-                currentProfile.Value.IntroBeatmap.Value.BeatmapGuid = e.NewValue.ID;
-                currentProfile.Value.IntroBeatmap.Value.BeatmapId = e.NewValue.OnlineID;
-
-                introBeatmapItem.Expire();
-                introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AllowDeletion = false,
-                    RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                            s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
-                        new[] { typeof(ShowcaseConfigScreen) })),
-                });
             });
 
             foreach (var f in innerFlow.Children)
@@ -375,14 +346,10 @@ namespace osu.Game.Screens.TournamentShowcase
             outroTitleInput.Current = currentProfile.Value.OutroTitle;
             outroSubtitleInput.Current = currentProfile.Value.OutroSubtitle;
 
-            introBeatmapItem.Expire();
-            introEditor.Add(introBeatmapItem = new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+            introBeatmapRow.Expire();
+            introEditor.Add(introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
             {
-                RelativeSizeAxes = Axes.X,
-                AllowDeletion = false,
-                RequestEdit = _ => Schedule(() => performer?.PerformFromScreen(s =>
-                        s.Push(new ShowcaseSongSelect(introMapBindable, new Bindable<ScoreInfo?>())),
-                    new[] { typeof(ShowcaseConfigScreen) })),
+                AllowDeletion = false
             });
         }
 

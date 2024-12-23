@@ -64,12 +64,28 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         public Action<ShowcaseBeatmap> RequestEdit;
 
-        public readonly ShowcaseBeatmap Item;
+        public ShowcaseBeatmap Item
+        {
+            get => item;
+            set
+            {
+                item = value;
+                beatmapInfo = value.BeatmapInfo;
+                ruleset = rulesets?.GetRuleset(value.RulesetId);
+                var rulesetInstance = ruleset?.CreateInstance();
+
+                if (rulesetInstance != null)
+                    requiredMods = value.RequiredMods.ToArray();
+
+                Refresh();
+            }
+        }
 
         private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
+        private ShowcaseBeatmap item;
         private ShowcaseConfig config;
-        private IBeatmapInfo beatmap;
+        private IBeatmapInfo beatmapInfo;
         private IRulesetInfo ruleset;
         private Mod[] requiredMods = Array.Empty<Mod>();
 
@@ -104,7 +120,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
             : base(item)
         {
-            Item = item ?? new ShowcaseBeatmap();
+            this.item = item ?? new ShowcaseBeatmap();
             ShowDragHandle.Value = false;
             this.config = config;
         }
@@ -112,11 +128,11 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load()
         {
-            ruleset = rulesets.GetRuleset(Item.RulesetId);
+            ruleset = rulesets.GetRuleset(item.RulesetId);
             var rulesetInstance = ruleset?.CreateInstance();
 
             if (rulesetInstance != null)
-                requiredMods = Item.RequiredMods.ToArray();
+                requiredMods = item.RequiredMods.ToArray();
         }
 
         protected override void LoadComplete()
@@ -131,13 +147,13 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         if (showItemOwner)
                         {
-                            var foundUser = await userLookupCache.GetUserAsync(Item.Selector.Value.OnlineID).ConfigureAwait(false);
+                            var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
                             Schedule(() => ownerAvatar.User = foundUser);
                         }
 
-                        beatmap = await beatmapLookupCache.GetBeatmapAsync(Item.BeatmapId).ConfigureAwait(false);
+                        beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
 
-                        Scheduler.AddOnce(refresh);
+                        Scheduler.AddOnce(Refresh, false);
                     }
                     catch (Exception e)
                     {
@@ -146,7 +162,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 });
             };
 
-            refresh();
+            Refresh();
         }
 
         private bool allowDeletion = true;
@@ -217,75 +233,76 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        public void Refresh() => refresh();
-
-        private void refresh()
+        public void Refresh(bool refreshScoreOnly = false)
         {
-            if (beatmap != null)
+            if (!refreshScoreOnly)
             {
-                difficultyIconContainer.Children = new Drawable[]
+                if (beatmapInfo != null)
                 {
-                    thumbnail = new BeatmapCardThumbnail(beatmap.BeatmapSet!, (IBeatmapSetOnlineInfo)beatmap.BeatmapSet!)
+                    difficultyIconContainer.Children = new Drawable[]
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Width = 120,
-                        Masking = true,
-                        CornerRadius = 10,
-                        RelativeSizeAxes = Axes.Y,
-                        Dimmed = { Value = IsHovered }
-                    },
-                    new DifficultyIcon(beatmap, ruleset, requiredMods)
-                    {
-                        Size = new Vector2(24),
-                        TooltipType = DifficultyIconTooltipType.Extended,
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                    },
-                };
+                        thumbnail = new BeatmapCardThumbnail(beatmapInfo.BeatmapSet!, (beatmapInfo.BeatmapSet as IBeatmapSetOnlineInfo)!)
+                        {
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                            Width = 120,
+                            Masking = true,
+                            CornerRadius = 10,
+                            RelativeSizeAxes = Axes.Y,
+                            Dimmed = { Value = IsHovered }
+                        },
+                        new DifficultyIcon(beatmapInfo, ruleset, requiredMods)
+                        {
+                            Size = new Vector2(24),
+                            TooltipType = DifficultyIconTooltipType.Extended,
+                            Anchor = Anchor.CentreLeft,
+                            Origin = Anchor.CentreLeft,
+                        },
+                    };
+                }
+                else
+                    difficultyIconContainer.Clear();
+
+                panelBackground.Beatmap.Value = beatmapInfo;
+
+                beatmapText.Clear();
+                difficultyText.Clear();
+
+                if (beatmapInfo != null)
+                {
+                    beatmapText.AddLink(beatmapInfo.GetDisplayTitleRomanisable(includeDifficultyName: false, includeCreator: false),
+                        LinkAction.OpenBeatmap,
+                        beatmapInfo.OnlineID.ToString(),
+                        null,
+                        text =>
+                        {
+                            text.Truncate = true;
+                        });
+                    difficultyText.AddText(beatmapInfo.DifficultyName,
+                        text =>
+                        {
+                            text.Truncate = true;
+                        });
+                }
+
+                authorText.Clear();
+
+                if (!string.IsNullOrEmpty(beatmapInfo?.Metadata.Author.Username))
+                {
+                    authorText.AddText("mapped by ");
+                    authorText.AddUserLink(beatmapInfo.Metadata.Author);
+                }
+
+                bool hasExplicitContent = (beatmapInfo?.BeatmapSet as IBeatmapSetOnlineInfo)?.HasExplicitContent == true;
+                explicitContent.Alpha = hasExplicitContent ? 1 : 0;
+
+                modDisplay.Current.Value = requiredMods.ToArray();
             }
-            else
-                difficultyIconContainer.Clear();
-
-            panelBackground.Beatmap.Value = beatmap;
-
-            beatmapText.Clear();
-            difficultyText.Clear();
-
-            if (beatmap != null)
-            {
-                beatmapText.AddLink(beatmap.GetDisplayTitleRomanisable(includeDifficultyName: false, includeCreator: false),
-                    LinkAction.OpenBeatmap,
-                    beatmap.OnlineID.ToString(),
-                    null,
-                    text =>
-                    {
-                        text.Truncate = true;
-                    });
-                difficultyText.AddText(beatmap.DifficultyName,
-                    text =>
-                    {
-                        text.Truncate = true;
-                    });
-            }
-
-            authorText.Clear();
-
-            if (!string.IsNullOrEmpty(beatmap?.Metadata.Author.Username))
-            {
-                authorText.AddText("mapped by ");
-                authorText.AddUserLink(beatmap.Metadata.Author);
-            }
-
-            bool hasExplicitContent = (beatmap?.BeatmapSet as IBeatmapSetOnlineInfo)?.HasExplicitContent == true;
-            explicitContent.Alpha = hasExplicitContent ? 1 : 0;
-
-            modDisplay.Current.Value = requiredMods.ToArray();
 
             recordScoreContainer.Clear();
 
-            recordScoreContainer.Child = Item.ShowcaseScore != null
-                ? new LeaderboardScoreV2(Item.ShowcaseScore, false)
+            recordScoreContainer.Child = item.ShowcaseScore != null
+                ? new LeaderboardScoreV2(item.ShowcaseScore, false)
                 : new MessagePlaceholder("No score associated with this beatmap.");
 
             buttonsFlow.Clear();
@@ -442,8 +459,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                 RelativeSizeAxes = Axes.Both,
                                 Height = 0.5f,
                                 Y = 0.5f,
-                                Child = Item.ShowcaseScore != null
-                                    ? new LeaderboardScoreV2(Item.ShowcaseScore, false)
+                                Child = item.ShowcaseScore != null
+                                    ? new LeaderboardScoreV2(item.ShowcaseScore, false)
                                     : new MessagePlaceholder("No score associated with this beatmap.")
                             }
                         },
@@ -454,11 +471,11 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private IEnumerable<Drawable> createButtons() => new[]
         {
-            beatmap == null ? Empty() : new PlaylistDownloadButton(beatmap),
+            beatmapInfo == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
             showResultsButton = new GrayButton(FontAwesome.Solid.ChartPie)
             {
                 Size = new Vector2(30, 30),
-                Action = () => RequestResults?.Invoke(Item),
+                Action = () => RequestResults?.Invoke(item),
                 Alpha = AllowShowingResults ? 1 : 0,
                 TooltipText = "View score"
             },
@@ -466,14 +483,14 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 Size = new Vector2(30, 30),
                 Alpha = AllowEditing ? 1 : 0,
-                Action = () => RequestEdit?.Invoke(Item),
+                Action = () => RequestEdit?.Invoke(item),
                 TooltipText = CommonStrings.ButtonsEdit
             },
             removeButton = new PlaylistRemoveButton
             {
                 Size = new Vector2(30, 30),
                 Alpha = AllowDeletion ? 1 : 0,
-                Action = () => RequestDeletion?.Invoke(Item),
+                Action = () => RequestDeletion?.Invoke(item),
                 TooltipText = "Remove from queue"
             },
         };
@@ -503,13 +520,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 List<MenuItem> items = new List<MenuItem>();
 
                 if (beatmapOverlay != null)
-                    items.Add(new OsuMenuItem("Beatmap Details", MenuItemType.Standard, () => beatmapOverlay.FetchAndShowBeatmap(Item.BeatmapId)));
+                    items.Add(new OsuMenuItem("Beatmap Details", MenuItemType.Standard, () => beatmapOverlay.FetchAndShowBeatmap(item.BeatmapId)));
 
-                if (Item.ShowcaseScore != null)
+                if (item.ShowcaseScore != null)
                 {
                     items.Add(new OsuMenuItem("Remove replay score", MenuItemType.Highlighted, () =>
                     {
-                        Item.ShowcaseScore = null;
+                        item.ShowcaseScore = null;
                         recordScoreContainer.Child = new MessagePlaceholder("No score associated with this beatmap.");
                     }));
                 }

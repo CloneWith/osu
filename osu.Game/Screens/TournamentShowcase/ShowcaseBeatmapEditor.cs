@@ -15,6 +15,7 @@ using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Overlays;
+using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Ranking;
 using osuTK;
@@ -75,9 +76,14 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private ScoreManager scoreManager = null!;
 
+        public bool AllowDeletion = true;
+
         public ShowcaseBeatmap Beatmap { get; }
         private readonly Bindable<BeatmapInfo> beatmapInfoBindable = new Bindable<BeatmapInfo>();
         private readonly Bindable<ScoreInfo?> scoreInfoBindable = new Bindable<ScoreInfo?>();
+        private readonly BindableList<Mod> modListBindable = new BindableList<Mod>();
+        private FormDropdown<BeatmapType> mapTypeDropdown = null!;
+        private DrawableShowcaseBeatmapItem drawableItem = null!;
 
         private ShowcaseConfig config { get; set; }
 
@@ -85,10 +91,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public BeatmapRow(ShowcaseBeatmap beatmap, ShowcaseConfig config)
         {
-            FormDropdown<BeatmapType> mapTypeDropdown;
-            DrawableShowcaseBeatmapItem drawableItem;
             Beatmap = beatmap;
             beatmapInfoBindable.Value = Beatmap.BeatmapInfo;
+            modListBindable.BindTo(Beatmap.RequiredMods);
 
             this.config = config;
             selectorId.Value = beatmap.Selector.Value?.OnlineID.ToString() ?? string.Empty;
@@ -104,6 +109,13 @@ namespace osu.Game.Screens.TournamentShowcase
             Direction = FillDirection.Full;
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(ScoreManager scoreManager)
+        {
+            this.scoreManager = scoreManager;
+
             Children = new Drawable[]
             {
                 new FormCheckBox
@@ -162,7 +174,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     RelativeSizeAxes = Axes.X,
                     AllowEditing = true,
-                    AllowDeletion = true,
+                    AllowDeletion = AllowDeletion,
                     RequestResults = _ =>
                     {
                         if (Beatmap.ShowcaseScore == null)
@@ -182,12 +194,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>
-                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, scoreInfoBindable)),
+                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, modListBindable, scoreInfoBindable)),
                             new[] { typeof(ShowcaseConfigScreen) }));
                     },
                     RequestDeletion = _ =>
                     {
-                        config.Beatmaps.Remove(beatmap);
+                        config.Beatmaps.Remove(Beatmap);
                         Expire();
                     }
                 }
@@ -259,54 +271,15 @@ namespace osu.Game.Screens.TournamentShowcase
                 Beatmap.ShowcaseScore = null;
                 Beatmap.ScoreHash = string.Empty;
 
-                // Is there a better solution?
-                drawableItem.Expire();
-                Add(drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AllowEditing = true,
-                    AllowDeletion = true,
-                    RequestResults = _ =>
-                    {
-                        if (Beatmap.ShowcaseScore == null)
-                        {
-                            dialogOverlay?.Push(new ProfileCheckFailedDialog
-                            {
-                                HeaderText = @"No score selected!",
-                                BodyText = @"An Autoplay-generated score would be used for showcase."
-                            });
-                        }
-                        else
-                        {
-                            Schedule(() => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(Beatmap.ShowcaseScore)),
-                                new[] { typeof(ShowcaseConfigScreen) }));
-                        }
-                    },
-                    RequestEdit = _ =>
-                    {
-                        Schedule(() => performer?.PerformFromScreen(s =>
-                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, scoreInfoBindable)),
-                            new[] { typeof(ShowcaseConfigScreen) }));
-                    },
-                    RequestDeletion = _ =>
-                    {
-                        config.Beatmaps.Remove(beatmap);
-                        Expire();
-                    }
-                });
+                drawableItem.Item = Beatmap;
             });
 
             scoreInfoBindable.BindValueChanged(score =>
             {
                 Beatmap.ShowcaseScore = score.NewValue;
                 Beatmap.ScoreHash = score.NewValue?.Hash ?? string.Empty;
+                drawableItem.Refresh(true);
             });
-        }
-
-        [BackgroundDependencyLoader]
-        private void load(ScoreManager scoreManager)
-        {
-            this.scoreManager = scoreManager;
         }
 
         protected override void LoadComplete()
