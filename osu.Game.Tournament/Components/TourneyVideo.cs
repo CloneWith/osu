@@ -7,9 +7,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Video;
 using osu.Framework.Timing;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.Models;
 
@@ -21,6 +23,7 @@ namespace osu.Game.Tournament.Components
         private readonly bool drawFallbackGradient;
         private Video? video;
         private ManualClock? manualClock;
+        private OsuTextFlowContainer errorFlow = null!;
 
         public bool VideoAvailable => video != null;
 
@@ -51,13 +54,27 @@ namespace osu.Game.Tournament.Components
                     Loop = loop,
                 };
             }
-            else if (drawFallbackGradient)
+            else
             {
-                InternalChild = new Box
+                InternalChildren = new Drawable[]
                 {
-                    Colour = ColourInfo.GradientVertical(OsuColour.Gray(0.3f), OsuColour.Gray(0.6f)),
-                    RelativeSizeAxes = Axes.Both,
+                    new Box
+                    {
+                        Colour = ColourInfo.GradientVertical(OsuColour.Gray(0.3f), OsuColour.Gray(0.6f)),
+                        RelativeSizeAxes = Axes.Both,
+                        Alpha = drawFallbackGradient ? 1 : 0
+                    },
+                    errorFlow = new OsuTextFlowContainer
+                    {
+                        Name = @"Error Text",
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        AutoSizeAxes = Axes.Both
+                    }
                 };
+
+                errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
+                errorFlow.AddText(" Video unavailable!");
             }
         }
 
