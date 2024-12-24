@@ -25,6 +25,14 @@ namespace osu.Game.Tournament.Models
 
         public readonly Bindable<DateTimeOffset> StartDate = new Bindable<DateTimeOffset> { Value = DateTimeOffset.UtcNow };
 
+        public readonly BindableBool UseBoard = new BindableBool();
+
+        public readonly BindableBool TrustAll = new BindableBool();
+
+        public readonly BindableBool IsFinalStage = new BindableBool();
+
+        public readonly BindableList<TournamentUser> Referees = new BindableList<TournamentUser>();
+
         // only used for serialisation
         public List<int> Matches = new List<int>();
 

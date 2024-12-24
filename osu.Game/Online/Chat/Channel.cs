@@ -100,6 +100,16 @@ namespace osu.Game.Online.Chat
         public Bindable<bool> Joined = new Bindable<bool>();
 
         /// <summary>
+        /// Signals if our request to join a channel has been approved.
+        /// </summary>
+        public Bindable<bool> JoinRequestCompleted = new Bindable<bool>();
+
+        /// <summary>
+        /// Signals if failed to join a channel.
+        /// </summary>
+        public Bindable<bool> Failed = new Bindable<bool>();
+
+        /// <summary>
         /// Signals if there is a message to highlight.
         /// This is automatically cleared by the associated <see cref="DrawableChannel"/> after highlighting.
         /// </summary>

@@ -97,13 +97,17 @@ namespace osu.Game.Overlays.Chat
             get => alternatingBackground;
             set
             {
-                if (alternatingBackground == value)
+                if (alternatingBackground == false)
                     return;
 
                 alternatingBackground = value;
                 updateBackground();
             }
         }
+
+        public bool IsBackgroundInverted;
+
+        public bool IsStrong;
 
         private bool isMention;
 
@@ -195,7 +199,7 @@ namespace osu.Game.Overlays.Chat
                                 Anchor = Anchor.TopRight,
                                 Margin = new MarginPadding { Horizontal = Spacing },
                                 AccentColour = UsernameColour,
-                                Inverted = !string.IsNullOrEmpty(message.Sender.Colour),
+                                Inverted = IsBackgroundInverted || !string.IsNullOrEmpty(message.Sender.Colour),
                             },
                             drawableContentFlow = new LinkFlowContainer(styleMessageContent)
                             {
@@ -258,11 +262,11 @@ namespace osu.Game.Overlays.Chat
         private void styleMessageContent(SpriteText text)
         {
             text.Shadow = false;
-            text.Font = text.Font.With(size: font_size, italics: Message.IsAction, weight: isMention ? FontWeight.SemiBold : FontWeight.Medium);
+            text.Font = text.Font.With(size: font_size, italics: Message.IsAction, weight: isMention || IsStrong ? FontWeight.SemiBold : FontWeight.Medium);
 
             Color4 messageColour = colourProvider?.Content1 ?? Colour4.White;
 
-            if (isMention)
+            if (isMention || IsStrong)
                 messageColour = colourProvider?.Highlight1 ?? Color4.Orange;
             else if (Message.IsAction && !string.IsNullOrEmpty(message.Sender.Colour))
                 messageColour = Color4Extensions.FromHex(message.Sender.Colour);

@@ -27,14 +27,21 @@ namespace osu.Game.Tournament.Screens.Editors
     {
         protected override BindableList<TournamentTeam> Storage => LadderInfo.Teams;
 
+        [Resolved]
+        private IDialogOverlay? dialogOverlay { get; set; }
+
         [BackgroundDependencyLoader]
         private void load()
         {
-            ControlPanel.Add(new TourneyButton
+            ControlPanel.Add(new DangerousSettingsButton
             {
                 RelativeSizeAxes = Axes.X,
                 Text = "Add all countries",
-                Action = addAllCountries
+                Action = () => dialogOverlay?.Push(new AddAllDialog(() =>
+                {
+                    Expire();
+                    addAllCountries();
+                }))
             });
         }
 
@@ -74,6 +81,12 @@ namespace osu.Game.Tournament.Screens.Editors
             public TeamRow(TournamentTeam team, TournamentScreen parent)
             {
                 Model = team;
+
+                Model.FullName.Default = Model.FullName.Value;
+                Model.Acronym.Default = Model.Acronym.Value;
+                Model.FlagName.Default = Model.FlagName.Value;
+                Model.LastYearPlacing.Default = Model.LastYearPlacing.Value;
+                Model.Seed.Default = Model.Seed.Value;
 
                 Masking = true;
                 CornerRadius = 10;
@@ -130,6 +143,16 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.2f,
                                 Current = Model.Seed
                             },
+                            new DangerousSettingsButton
+                            {
+                                Width = 0.2f,
+                                Text = "Delete Team",
+                                Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
+                                {
+                                    Expire();
+                                    ladderInfo.Teams.Remove(Model);
+                                })),
+                            },
                             new SettingsSlider<int, LastYearPlacementSlider>
                             {
                                 LabelText = "Last Year Placement",
@@ -139,7 +162,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             new SettingsButton
                             {
                                 Width = 0.2f,
-                                Margin = new MarginPadding(10),
+                                Margin = new MarginPadding { Left = 10 },
                                 Text = "Edit seeding results",
                                 Action = () =>
                                 {
@@ -150,27 +173,8 @@ namespace osu.Game.Tournament.Screens.Editors
                             new SettingsButton
                             {
                                 Text = "Add player",
+                                Margin = new MarginPadding { Top = 10, Bottom = 10 },
                                 Action = () => playerEditor.CreateNew()
-                            },
-                            new Container
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Children = new Drawable[]
-                                {
-                                    new DangerousSettingsButton
-                                    {
-                                        Width = 0.2f,
-                                        Text = "Delete Team",
-                                        Anchor = Anchor.TopRight,
-                                        Origin = Anchor.TopRight,
-                                        Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
-                                        {
-                                            Expire();
-                                            ladderInfo.Teams.Remove(Model);
-                                        })),
-                                    },
-                                }
                             },
                         }
                     },
@@ -218,6 +222,9 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     [Resolved]
                     private TournamentGameBase game { get; set; } = null!;
+
+                    [Resolved]
+                    private IDialogOverlay? dialogOverlay { get; set; }
 
                     private readonly Bindable<int?> playerId = new Bindable<int?>();
 
@@ -271,11 +278,11 @@ namespace osu.Game.Tournament.Screens.Editors
                                 RelativeSizeAxes = Axes.None,
                                 Width = 150,
                                 Text = "Delete Player",
-                                Action = () =>
+                                Action = () => dialogOverlay?.Push(new DeletePlayerDialog(user, () =>
                                 {
                                     Expire();
                                     team.Players.Remove(user);
-                                },
+                                }))
                             }
                         };
                     }
@@ -283,7 +290,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        playerId.Value = user.OnlineID;
+                        playerId.Default = playerId.Value = user.OnlineID;
                         playerId.BindValueChanged(id =>
                         {
                             user.OnlineID = id.NewValue ?? 0;

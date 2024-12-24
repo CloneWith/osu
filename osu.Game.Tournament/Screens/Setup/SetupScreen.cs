@@ -93,11 +93,9 @@ namespace osu.Game.Tournament.Screens.Setup
                 new ActionableInfo
                 {
                     Label = "Current user",
-                    ButtonText = "Change sign-in",
+                    ButtonText = "Show profile",
                     Action = () =>
                     {
-                        api.Logout();
-
                         if (loginOverlay == null)
                         {
                             AddInternal(loginOverlay = new LoginOverlay
@@ -133,6 +131,25 @@ namespace osu.Game.Tournament.Screens.Setup
                     {
                         windowSize.Value = new Size((int)(height * aspect_ratio / TournamentSceneManager.STREAM_AREA_WIDTH * TournamentSceneManager.REQUIRED_WIDTH), height);
                     }
+                },
+                new ActionableInfo
+                {
+                    Label = "Background video settings",
+                    ButtonText = "Change videos",
+                    Description = "Set paths and behaviour of background video display.",
+                    Action = () => sceneManager?.SetScreen(new BackgroundVideoSelectScreen()),
+                },
+                new LabelledSwitchButton
+                {
+                    Label = "Use referee commands",
+                    Description = "Referees can use pre-defined commands to control the tournament client in the multiplayer room.",
+                    Current = LadderInfo.UseRefereeCommands,
+                },
+                new LabelledSwitchButton
+                {
+                    Label = "Need referee response for critical steps",
+                    Description = "The tournament client will wait for referee\'s correct command to progress.",
+                    Current = LadderInfo.NeedRefereeResponse,
                 },
                 new LabelledSwitchButton
                 {

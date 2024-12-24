@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
@@ -42,7 +43,7 @@ namespace osu.Game.Tournament.Screens.MapPool
         {
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo("mappool")
+                new TourneyVideo(BackgroundVideo.Mappool, LadderInfo)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -95,20 +96,25 @@ namespace osu.Game.Tournament.Screens.MapPool
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
+                            Text = "Refresh",
+                            BackgroundColour = Color4.Orange,
+                            Action = updateDisplay
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
                             Text = "Reset",
                             Action = reset
                         },
                         new ControlPanel.Spacer(),
-                        new OsuCheckbox
+                        new LabelledSwitchButton
                         {
-                            LabelText = "Split display by mods",
+                            Label = "Split by mods",
                             Current = LadderInfo.SplitMapPoolByMods,
                         },
                     },
                 }
             };
-
-            ipc.Beatmap.BindValueChanged(beatmapChanged);
         }
 
         private Bindable<bool>? splitMapPoolByMods;
@@ -179,7 +185,7 @@ namespace osu.Game.Tournament.Screens.MapPool
 
             setMode(nextColour, hasAllBans ? ChoiceType.Pick : ChoiceType.Ban);
 
-            TeamColour getOppositeTeamColour(TeamColour colour) => colour == TeamColour.Red ? TeamColour.Blue : TeamColour.Red;
+            static TeamColour getOppositeTeamColour(TeamColour colour) => colour == TeamColour.Red ? TeamColour.Blue : TeamColour.Red;
         }
 
         protected override bool OnMouseDown(MouseDownEvent e)
@@ -231,7 +237,7 @@ namespace osu.Game.Tournament.Screens.MapPool
             {
                 Team = pickColour,
                 Type = pickType,
-                BeatmapID = beatmapId
+                BeatmapID = beatmapId,
             });
 
             setNextMode();
@@ -261,6 +267,7 @@ namespace osu.Game.Tournament.Screens.MapPool
         private void updateDisplay()
         {
             mapFlows.Clear();
+            sceneManager?.ReloadChat();
 
             if (CurrentMatch.Value == null)
                 return;
@@ -275,6 +282,9 @@ namespace osu.Game.Tournament.Screens.MapPool
 
                 foreach (var b in CurrentMatch.Value.Round.Value.Beatmaps)
                 {
+                    // Exclude EX beatmaps from the list
+                    if (b.Mods == "EX") continue;
+
                     if (currentFlow == null || (LadderInfo.SplitMapPoolByMods.Value && currentMods != b.Mods))
                     {
                         mapFlows.Add(currentFlow = new FillFlowContainer<TournamentBeatmapPanel>
@@ -297,7 +307,7 @@ namespace osu.Game.Tournament.Screens.MapPool
                         flowCount = 1;
                     }
 
-                    currentFlow.Add(new TournamentBeatmapPanel(b.Beatmap, b.Mods)
+                    currentFlow.Add(new TournamentBeatmapPanel(b.Beatmap, b.Mods, b.ModIndex)
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,

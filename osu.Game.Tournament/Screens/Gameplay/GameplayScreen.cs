@@ -7,7 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Threading;
-using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
@@ -24,14 +24,15 @@ namespace osu.Game.Tournament.Screens.Gameplay
         private readonly BindableBool warmup = new BindableBool();
 
         public readonly Bindable<TourneyState> State = new Bindable<TourneyState>();
-        private OsuButton warmupButton = null!;
+        private LabelledSwitchButton warmupToggle = null!;
+
+        private bool isChatShown;
+
         private MatchIPCInfo ipc = null!;
+        private bool chatEnforcing;
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
-
-        [Resolved]
-        private TournamentMatchChatDisplay chat { get; set; } = null!;
 
         private Drawable chroma = null!;
 
@@ -42,7 +43,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             AddRangeInternal(new Drawable[]
             {
-                new TourneyVideo("gameplay")
+                new TourneyVideo(BackgroundVideo.Gameplay, LadderInfo)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -95,17 +96,31 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 {
                     Children = new Drawable[]
                     {
-                        warmupButton = new TourneyButton
+                        warmupToggle = new LabelledSwitchButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Toggle warmup",
-                            Action = () => warmup.Toggle()
+                            Label = "Warmup stage",
+                            Current = warmup,
                         },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
                             Text = "Toggle chat",
-                            Action = () => { State.Value = State.Value == TourneyState.Idle ? TourneyState.Playing : TourneyState.Idle; }
+                            Action = () =>
+                            {
+                                chatEnforcing = true;
+
+                                if (isChatShown)
+                                {
+                                    isChatShown = false;
+                                    expand();
+                                }
+                                else
+                                {
+                                    isChatShown = true;
+                                    contract();
+                                }
+                            }
                         },
                         new SettingsSlider<int>
                         {
@@ -127,17 +142,25 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             warmup.BindValueChanged(w =>
             {
-                warmupButton.Alpha = !w.NewValue ? 0.5f : 1;
                 header.ShowScores = !w.NewValue;
             }, true);
+        }
+
+        private void updateWarmup()
+        {
+            warmup.Value = warmupToggle.Current.Value;
+            updateState();
+            warmupToggle.Current.Value = warmup.Value;
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
 
+            warmupToggle.Current.BindValueChanged(_ => updateWarmup(), true);
+
             State.BindTo(ipc.State);
-            State.BindValueChanged(_ => updateState(), true);
+            State.BindValueChanged(updateState, true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -168,8 +191,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             SongBar.Expanded = false;
             scoreDisplay.FadeOut(100);
-            using (chat.BeginDelayedSequence(500))
-                chat.Expand();
+            sceneManager?.UpdateChatState(true);
         }
 
         private void expand()
@@ -179,7 +201,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             scheduledContract?.Cancel();
 
-            chat.Contract();
+            sceneManager?.UpdateChatState(false);
 
             using (BeginDelayedSequence(300))
             {
@@ -188,7 +210,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             }
         }
 
-        private void updateState()
+        private void updateState(ValueChangedEvent<TourneyState>? e = null)
         {
             try
             {
@@ -207,7 +229,12 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 switch (State.Value)
                 {
                     case TourneyState.Idle:
-                        contract();
+                        if (!chatEnforcing || lastState == TourneyState.Ranking)
+                        {
+                            chatEnforcing = false;
+                            isChatShown = true;
+                            contract();
+                        }
 
                         if (LadderInfo.AutoProgressScreens.Value)
                         {
@@ -231,13 +258,18 @@ namespace osu.Game.Tournament.Screens.Gameplay
                         break;
 
                     default:
-                        expand();
+                        if (e == null || !chatEnforcing)
+                        {
+                            isChatShown = false;
+                            expand();
+                        }
+
                         break;
                 }
             }
             finally
             {
-                lastState = State.Value;
+                lastState = e?.NewValue ?? State.Value;
             }
         }
 

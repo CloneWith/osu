@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
@@ -16,6 +17,7 @@ using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Editors.Components;
+using osu.Game.Users;
 using osuTK;
 
 namespace osu.Game.Tournament.Screens.Editors
@@ -38,12 +40,24 @@ namespace osu.Game.Tournament.Screens.Editors
             {
                 Model = round;
 
+                Model.Name.Default = Model.Name.Value;
+                Model.Description.Default = Model.Description.Value;
+                Model.StartDate.Default = Model.StartDate.Value;
+                Model.UseBoard.Default = Model.UseBoard.Value;
+                Model.BanCount.Default = Model.BanCount.Value;
+                Model.BestOf.Default = Model.BestOf.Value;
+
                 Masking = true;
                 CornerRadius = 10;
 
                 RoundBeatmapEditor beatmapEditor = new RoundBeatmapEditor(round)
                 {
-                    Width = 0.95f
+                    Width = 0.98f
+                };
+
+                RoundRefereeEditor refereeEditor = new RoundRefereeEditor(round)
+                {
+                    Width = 0.98f
                 };
 
                 InternalChildren = new Drawable[]
@@ -56,7 +70,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     new FillFlowContainer
                     {
                         Margin = new MarginPadding(5),
-                        Padding = new MarginPadding { Right = 160 },
+                        // Padding = new MarginPadding { Right = 160 },
                         Spacing = new Vector2(5),
                         Direction = FillDirection.Full,
                         RelativeSizeAxes = Axes.X,
@@ -93,33 +107,182 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.33f,
                                 Current = Model.BestOf
                             },
-                            new SettingsButton
+                            new OsuCheckbox
+                            {
+                                LabelText = "Board Mode",
+                                Width = 0.2f,
+                                Current = Model.UseBoard,
+                            },
+                            new OsuCheckbox
+                            {
+                                LabelText = "Trust All Special Commands",
+                                Width = 0.25f,
+                                Current = Model.TrustAll,
+                            },
+                            new DangerousSettingsButton
                             {
                                 Width = 0.2f,
-                                Margin = new MarginPadding(10),
+                                Text = "Delete Round",
+                                Action = () => dialogOverlay?.Push(new DeleteRoundDialog(Model, () =>
+                                {
+                                    Expire();
+                                    ladderInfo.Rounds.Remove(Model);
+                                }))
+                            },
+                            refereeEditor,
+                            new SettingsButton
+                            {
+                                Text = "Add referee",
+                                Margin = new MarginPadding { Top = 10, Bottom = 10 },
+                                Action = () => refereeEditor.CreateNew()
+                            },
+                            beatmapEditor,
+                            new SettingsButton
+                            {
                                 Text = "Add beatmap",
+                                Margin = new MarginPadding { Top = 10, Bottom = 10 },
                                 Action = () => beatmapEditor.CreateNew()
                             },
-                            beatmapEditor
                         }
                     },
-                    new DangerousSettingsButton
-                    {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
-                        RelativeSizeAxes = Axes.None,
-                        Width = 150,
-                        Text = "Delete Round",
-                        Action = () => dialogOverlay?.Push(new DeleteRoundDialog(Model, () =>
-                        {
-                            Expire();
-                            ladderInfo.Rounds.Remove(Model);
-                        }))
-                    }
                 };
 
                 RelativeSizeAxes = Axes.X;
                 AutoSizeAxes = Axes.Y;
+            }
+
+            public partial class RoundRefereeEditor : CompositeDrawable
+            {
+                private readonly TournamentRound round;
+                private readonly FillFlowContainer flow;
+
+                public RoundRefereeEditor(TournamentRound round)
+                {
+                    this.round = round;
+
+                    RelativeSizeAxes = Axes.X;
+                    AutoSizeAxes = Axes.Y;
+
+                    InternalChild = flow = new FillFlowContainer
+                    {
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Direction = FillDirection.Vertical,
+                        Padding = new MarginPadding(5),
+                        Spacing = new Vector2(5),
+                        ChildrenEnumerable = round.Referees.Select(p => new RefereeRow(round, p))
+                    };
+                }
+
+                public void CreateNew()
+                {
+                    var player = new TournamentUser();
+                    round.Referees.Add(player);
+                    flow.Add(new RefereeRow(round, player));
+                }
+
+                public partial class RefereeRow : CompositeDrawable
+                {
+                    private readonly TournamentUser user;
+
+                    [Resolved]
+                    private TournamentGameBase game { get; set; } = null!;
+
+                    [Resolved]
+                    private IDialogOverlay? dialogOverlay { get; set; }
+
+                    private readonly Bindable<int?> playerId = new Bindable<int?>();
+
+                    private readonly Container userPanelContainer;
+
+                    public RefereeRow(TournamentRound round, TournamentUser user)
+                    {
+                        this.user = user;
+
+                        RelativeSizeAxes = Axes.X;
+                        AutoSizeAxes = Axes.Y;
+
+                        Masking = true;
+                        CornerRadius = 10;
+
+                        InternalChildren = new Drawable[]
+                        {
+                            new Box
+                            {
+                                Colour = OsuColour.Gray(0.2f),
+                                RelativeSizeAxes = Axes.Both,
+                            },
+                            new FillFlowContainer
+                            {
+                                Margin = new MarginPadding(5),
+                                Padding = new MarginPadding { Right = 60 },
+                                Spacing = new Vector2(5),
+                                Direction = FillDirection.Horizontal,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Children = new Drawable[]
+                                {
+                                    new SettingsNumberBox
+                                    {
+                                        LabelText = "User ID",
+                                        RelativeSizeAxes = Axes.None,
+                                        Width = 200,
+                                        Current = playerId,
+                                    },
+                                    userPanelContainer = new Container
+                                    {
+                                        Width = 400,
+                                        RelativeSizeAxes = Axes.Y,
+                                    },
+                                }
+                            },
+                            new DangerousSettingsButton
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.None,
+                                Width = 150,
+                                Text = "Delete Referee",
+                                Action = () => dialogOverlay?.Push(new DeleteRefereeDialog(user, () =>
+                                {
+                                    Expire();
+                                    round.Referees.Remove(user);
+                                }))
+                            }
+                        };
+                    }
+
+                    [BackgroundDependencyLoader]
+                    private void load()
+                    {
+                        playerId.Default = playerId.Value = user.OnlineID;
+                        playerId.BindValueChanged(id =>
+                        {
+                            user.OnlineID = id.NewValue ?? 0;
+
+                            if (id.NewValue != id.OldValue)
+                                user.Username = string.Empty;
+
+                            if (!string.IsNullOrEmpty(user.Username))
+                            {
+                                updatePanel();
+                                return;
+                            }
+
+                            game.PopulatePlayer(user, updatePanel, updatePanel);
+                        }, true);
+                    }
+
+                    private void updatePanel() => Scheduler.AddOnce(() =>
+                    {
+                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser())
+                        {
+                            Anchor = Anchor.BottomLeft,
+                            Origin = Anchor.BottomLeft,
+                            Scale = new Vector2(1f),
+                        };
+                    });
+                }
             }
 
             public partial class RoundBeatmapEditor : CompositeDrawable
@@ -159,9 +322,17 @@ namespace osu.Game.Tournament.Screens.Editors
                     [Resolved]
                     protected IAPIProvider API { get; private set; } = null!;
 
+                    [Resolved]
+                    private IDialogOverlay? dialogOverlay { get; set; }
+
                     private readonly Bindable<int?> beatmapId = new Bindable<int?>();
 
+                    private readonly Bindable<string> modIndex = new Bindable<string>(string.Empty);
+
                     private readonly Bindable<string> mods = new Bindable<string>(string.Empty);
+
+                    private readonly Bindable<int?> boardX = new Bindable<int?>();
+                    private readonly Bindable<int?> boardY = new Bindable<int?>();
 
                     private readonly Container drawableContainer;
 
@@ -187,7 +358,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             new FillFlowContainer
                             {
                                 Margin = new MarginPadding(5),
-                                Padding = new MarginPadding { Right = 160 },
+                                Padding = new MarginPadding { Right = 10 },
                                 Spacing = new Vector2(5),
                                 Direction = FillDirection.Horizontal,
                                 AutoSizeAxes = Axes.Both,
@@ -197,15 +368,36 @@ namespace osu.Game.Tournament.Screens.Editors
                                     {
                                         LabelText = "Beatmap ID",
                                         RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Width = 125,
                                         Current = beatmapId,
                                     },
                                     new SettingsTextBox
                                     {
                                         LabelText = "Mods",
                                         RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Width = 100,
                                         Current = mods,
+                                    },
+                                    new SettingsTextBox
+                                    {
+                                        LabelText = "Mod Index",
+                                        RelativeSizeAxes = Axes.None,
+                                        Width = 100,
+                                        Current = modIndex,
+                                    },
+                                    new SettingsNumberBox
+                                    {
+                                        LabelText = "Row",
+                                        RelativeSizeAxes = Axes.None,
+                                        Width = 100,
+                                        Current = boardY,
+                                    },
+                                    new SettingsNumberBox
+                                    {
+                                        LabelText = "Column",
+                                        RelativeSizeAxes = Axes.None,
+                                        Width = 100,
+                                        Current = boardX,
                                     },
                                     drawableContainer = new Container
                                     {
@@ -220,11 +412,11 @@ namespace osu.Game.Tournament.Screens.Editors
                                 RelativeSizeAxes = Axes.None,
                                 Width = 150,
                                 Text = "Delete Beatmap",
-                                Action = () =>
+                                Action = () => dialogOverlay?.Push(new DeleteBeatmapDialog(Model, () =>
                                 {
                                     Expire();
                                     team.Beatmaps.Remove(beatmap);
-                                },
+                                })),
                             }
                         };
                     }
@@ -232,7 +424,8 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        beatmapId.Value = Model.ID;
+                        beatmapId.Default = beatmapId.Value = Model.ID;
+
                         beatmapId.BindValueChanged(id =>
                         {
                             Model.ID = id.NewValue ?? 0;
@@ -263,8 +456,17 @@ namespace osu.Game.Tournament.Screens.Editors
                             API.Queue(req);
                         }, true);
 
-                        mods.Value = Model.Mods;
+                        mods.Default = mods.Value = Model.Mods;
                         mods.BindValueChanged(modString => Model.Mods = modString.NewValue);
+
+                        modIndex.Default = modIndex.Value = Model.ModIndex;
+                        modIndex.BindValueChanged(newIndex => Model.ModIndex = newIndex.NewValue);
+
+                        boardX.Default = boardX.Value = Model.BoardX;
+                        boardX.BindValueChanged(newX => { Model.BoardX = newX.NewValue ?? 0; });
+
+                        boardY.Default = boardY.Value = Model.BoardY;
+                        boardY.BindValueChanged(newY => { Model.BoardY = newY.NewValue ?? 0; });
                     }
 
                     private void updatePanel() => Schedule(() =>
@@ -273,11 +475,11 @@ namespace osu.Game.Tournament.Screens.Editors
 
                         if (Model.Beatmap != null)
                         {
-                            drawableContainer.Child = new TournamentBeatmapPanel(Model.Beatmap, Model.Mods)
+                            drawableContainer.Child = new TournamentBeatmapPanel(Model.Beatmap, Model.Mods, Model.ModIndex)
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Width = 300
+                                Width = 500
                             };
                         }
                     });

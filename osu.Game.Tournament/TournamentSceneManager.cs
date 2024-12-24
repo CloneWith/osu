@@ -24,9 +24,13 @@ using osu.Game.Tournament.Screens.Setup;
 using osu.Game.Tournament.Screens.Showcase;
 using osu.Game.Tournament.Screens.TeamIntro;
 using osu.Game.Tournament.Screens.TeamWin;
+using osu.Game.Tournament.Screens.Board;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
+using osu.Game.Tournament.Models;
+using osu.Framework.Bindables;
+using osu.Game.Tournament.Components.Animations;
 
 namespace osu.Game.Tournament
 {
@@ -35,6 +39,9 @@ namespace osu.Game.Tournament
     {
         private Container screens = null!;
         private TourneyVideo video = null!;
+        private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
+
+        private IAnimation? currentAnimation;
 
         public const int CONTROL_AREA_WIDTH = 200;
 
@@ -45,15 +52,39 @@ namespace osu.Game.Tournament
 
         public const int REQUIRED_WIDTH = CONTROL_AREA_WIDTH * 2 + STREAM_AREA_WIDTH;
 
-        [Cached]
-        private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay();
+        public bool IsChatShown = true;
 
-        private Container chatContainer = null!;
+        [Cached]
+        private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
+
+        private Container chatContainer = new Container
+        {
+            Anchor = Anchor.TopLeft,
+            Origin = Anchor.TopLeft,
+            RelativeSizeAxes = Axes.None,
+            Width = STREAM_AREA_WIDTH,
+            Height = 480,
+        };
+
         private FillFlowContainer buttons = null!;
+
+        private TournamentScreen middle = null!;
 
         public TournamentSceneManager()
         {
             RelativeSizeAxes = Axes.Both;
+
+            animationQueue.BindCollectionChanged((_, arg) =>
+            {
+                if (!animationQueue.Any())
+                    return;
+
+                if (currentAnimation == null || currentAnimation.Status == AnimationStatus.Complete)
+                {
+                    var animation = animationQueue.First();
+                    startAnimation(animation);
+                }
+            });
         }
 
         [BackgroundDependencyLoader]
@@ -102,12 +133,18 @@ namespace osu.Game.Tournament
                                 new SeedingScreen(),
                                 new DrawingsScreen(),
                                 new GameplayScreen(),
-                                new TeamWinScreen()
+                                new TeamWinScreen(),
+                                middle = new BoardScreen(),
+                                new ExBoardScreen()
                             }
                         },
                         chatContainer = new Container
                         {
-                            RelativeSizeAxes = Axes.Both,
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
+                            RelativeSizeAxes = Axes.None,
+                            Width = STREAM_AREA_WIDTH,
+                            Height = 480,
                             Child = chat
                         },
                     }
@@ -138,11 +175,14 @@ namespace osu.Game.Tournament
                                 new ScreenButton(typeof(LadderEditorScreen)) { Text = "Bracket Editor", RequestSelection = SetScreen },
                                 new Separator(),
                                 new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = "Schedule", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(LadderScreen), Key.B) { Text = "Bracket", RequestSelection = SetScreen },
+                                new ScreenButton(typeof(LadderScreen), Key.R) { Text = "Bracket", RequestSelection = SetScreen },
                                 new Separator(),
                                 new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = "Team Intro", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
                                 new Separator(),
+                                /* Append new screen "board" for board display */
+                                new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
+                                new ScreenButton(typeof(ExBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
                                 new Separator(),
@@ -211,16 +251,32 @@ namespace osu.Game.Tournament
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
 
+            var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
+
             switch (currentScreen)
             {
                 case MapPoolScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(1, 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144), 500, Easing.OutQuint);
+                    chat.ChangeRadius(0);
                     break;
 
                 case GameplayScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(0.5f, 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
+                    chat.ChangeRadius(0);
+                    break;
+
+                case BoardScreen or ExBoardScreen:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
+                    chat.ChangeRadius(10);
                     break;
 
                 default:
@@ -237,7 +293,7 @@ namespace osu.Game.Tournament
             public Separator()
             {
                 RelativeSizeAxes = Axes.X;
-                Height = 20;
+                Height = 5;
             }
         }
 
@@ -318,5 +374,61 @@ namespace osu.Game.Tournament
                 }
             }
         }
+
+        public void UpdateChatState(bool isShown)
+        {
+            switch (currentScreen)
+            {
+                case GameplayScreen:
+                    chatContainer.MoveToY(isShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200, 500, Easing.OutQuint);
+                    break;
+
+                default:
+                    return;
+            }
+        }
+
+        public void HideShowChat(int duration) =>
+            chatContainer.Delay(1500).FadeTo(0.6f, duration, Easing.OutQuint)
+                         .Then().Delay(5700).FadeIn(duration, Easing.OutQuint);
+
+        public void ShowChat(int duration) => chatContainer.FadeIn(duration, Easing.OutQuint);
+
+        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral, TrapInfo? trap = null) => queueAnimation(new TournamentIntro(map, colour, trap)
+        {
+            Anchor = Anchor.CentreLeft,
+            Origin = Anchor.CentreLeft,
+            X = CONTROL_AREA_WIDTH + STREAM_AREA_WIDTH / 2,
+        });
+
+        public void ShowWinAnimation(TournamentTeam? team, TeamColour colour = TeamColour.Neutral) => queueAnimation(new RoundAnimation(team, colour)
+        {
+            Anchor = Anchor.CentreLeft,
+            Origin = Anchor.CentreLeft,
+        });
+
+        private void startAnimation(IAnimation animation)
+        {
+            AddInternal((Drawable)(currentAnimation = animation));
+
+            animation.Fire();
+            animation.OnAnimationComplete += () =>
+            {
+                animationQueue.Remove(animation);
+            };
+        }
+
+        private void queueAnimation(IAnimation d)
+        {
+            animationQueue.Add(d);
+        }
+
+        public void MoveChatTo(Vector2 pos, int duration, Easing easing) =>
+            chatContainer.MoveTo(pos, duration, easing);
+
+        public void ResizeChatTo(Vector2 size, int duration, Easing easing) =>
+            chatContainer.ResizeTo(size, duration, easing);
+
+        public void ReloadChat() => chat.ReloadChannel();
     }
 }

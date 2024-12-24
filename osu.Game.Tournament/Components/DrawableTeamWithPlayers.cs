@@ -15,7 +15,7 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamWithPlayers : CompositeDrawable
     {
-        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour)
+        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool autoAdjust = true)
         {
             AutoSizeAxes = Axes.Both;
 
@@ -46,13 +46,17 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Both,
-                                    ChildrenEnumerable = players.Take(split).Select(createPlayerText),
+                                    ChildrenEnumerable = players.Count <= 4 || !autoAdjust
+                                        ? players.Take(split).Select(createPlayerCard)
+                                        : players.Take(split).Select(createPlayerText),
                                 },
                                 new FillFlowContainer
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Both,
-                                    ChildrenEnumerable = players.Skip(split).Select(createPlayerText),
+                                    ChildrenEnumerable = players.Count <= 4 || !autoAdjust
+                                        ? players.Skip(split).Select(createPlayerCard)
+                                        : players.Skip(split).Select(createPlayerText),
                                 },
                             }
                         },
@@ -60,12 +64,24 @@ namespace osu.Game.Tournament.Components
                 },
             };
 
-            TournamentSpriteText createPlayerText(TournamentUser p) =>
+            static TournamentSpriteText createPlayerText(TournamentUser p) =>
                 new TournamentSpriteText
                 {
                     Text = p.Username,
                     Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
                     Colour = Color4.White,
+                };
+
+            static TeamPlayerCard createPlayerCard(TournamentUser user) =>
+                new TeamPlayerCard(user.ToAPIUser())
+                {
+                    RelativeSizeAxes = Axes.None,
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    Width = 250,
+                    Height = 50,
+                    Margin = new MarginPadding { Bottom = 10 },
+                    Scale = new Vector2(1f),
                 };
         }
     }

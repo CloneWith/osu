@@ -1,17 +1,17 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
 using osu.Game.Tournament.Models;
 using osuTK.Graphics;
@@ -22,6 +22,8 @@ namespace osu.Game.Tournament.Components
     {
         public readonly IBeatmapInfo? Beatmap;
 
+        private readonly string modIndex;
+
         private readonly string mod;
 
         public const float HEIGHT = 50;
@@ -30,9 +32,14 @@ namespace osu.Game.Tournament.Components
 
         private Box flash = null!;
 
-        public TournamentBeatmapPanel(IBeatmapInfo? beatmap, string mod = "")
+        private Box backgroundAddition = null!;
+
+        private SpriteIcon icon = null!;
+
+        public TournamentBeatmapPanel(IBeatmapInfo? beatmap, string mod = "", string index = "")
         {
             Beatmap = beatmap;
+            modIndex = index;
             this.mod = mod;
 
             Width = 400;
@@ -49,16 +56,17 @@ namespace osu.Game.Tournament.Components
 
             AddRangeInternal(new Drawable[]
             {
-                new Box
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black,
-                },
                 new NoUnloadBeatmapSetCover
                 {
                     RelativeSizeAxes = Axes.Both,
                     Colour = OsuColour.Gray(0.5f),
                     OnlineInfo = (Beatmap as IBeatmapSetOnlineInfo),
+                },
+                backgroundAddition = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black,
+                    Alpha = 0.1f
                 },
                 new FillFlowContainer
                 {
@@ -114,11 +122,20 @@ namespace osu.Game.Tournament.Components
                     Blending = BlendingParameters.Additive,
                     Alpha = 0,
                 },
+                icon = new SpriteIcon
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.White,
+                    Size = new osuTK.Vector2(0.2f),
+                    Alpha = 0
+                }
             });
 
             if (!string.IsNullOrEmpty(mod))
             {
-                AddInternal(new TournamentModIcon(mod)
+                AddInternal(new TournamentModIcon(modIndex.IsNull() ? mod : mod + modIndex)
                 {
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
@@ -168,33 +185,58 @@ namespace osu.Game.Tournament.Components
                 {
                     case ChoiceType.Pick:
                         Colour = Color4.White;
+                        backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
                         Alpha = 1;
                         break;
 
                     case ChoiceType.Ban:
                         Colour = Color4.Gray;
-                        Alpha = 0.5f;
+                        backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+                        this.FadeTo(newAlpha: 0.5f, duration: 150, easing: Easing.InCubic);
+                        break;
+
+                    case ChoiceType.Protect:
+                        icon.Icon = FontAwesome.Solid.Lock;
+                        icon.Alpha = 0.9f;
+                        Alpha = 1;
+                        backgroundAddition.Colour = new OsuColour().Cyan;
+                        backgroundAddition.FadeTo(newAlpha: 0.5f, duration: 150, easing: Easing.InCubic);
+                        break;
+
+                    case ChoiceType.RedWin:
+                        Alpha = 1;
+                        backgroundAddition.Colour = new OsuColour().Red;
+                        backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 150, easing: Easing.InCubic);
+                        break;
+
+                    case ChoiceType.BlueWin:
+                        Alpha = 1;
+                        backgroundAddition.Colour = new OsuColour().Blue;
+                        backgroundAddition.FadeTo(newAlpha: 0.6f, duration: 150, easing: Easing.InCubic);
+                        break;
+
+                    case ChoiceType.Trap:
+                        Alpha = 1;
+                        backgroundAddition.Colour = new OsuColour().PurpleLight;
+                        backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 150, easing: Easing.InCubic);
                         break;
                 }
             }
             else
             {
+                flash.ClearTransforms();
+                icon.ClearTransforms();
+
                 Colour = Color4.White;
+                backgroundAddition.Colour = Color4.White;
                 BorderThickness = 0;
                 Alpha = 1;
+                flash.Alpha = 0;
+                icon.FadeOut(duration: 100, easing: Easing.OutCubic);
+                backgroundAddition.FadeOut(duration: 100, easing: Easing.OutCubic);
             }
 
             choice = newChoice;
-        }
-
-        private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
-        {
-            // As covers are displayed on stream, we want them to load as soon as possible.
-            protected override double LoadDelay => 0;
-
-            // Use DelayedLoadWrapper to avoid content unloading when switching away to another screen.
-            protected override DelayedLoadWrapper CreateDelayedLoadWrapper(Func<Drawable> createContentFunc, double timeBeforeLoad)
-                => new DelayedLoadWrapper(createContentFunc(), timeBeforeLoad);
         }
     }
 }

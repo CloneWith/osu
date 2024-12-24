@@ -14,25 +14,56 @@ namespace osu.Game.Tournament.Models
     public class BeatmapChoice
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public TeamColour Team;
+        public TeamColour Team = TeamColour.Neutral;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public ChoiceType Type;
+        public ChoiceType Type = ChoiceType.Neutral;
 
         public int BeatmapID;
+
+        public BeatmapChoice()
+        {
+        }
+
+        public BeatmapChoice(int beatmapID)
+        {
+            BeatmapID = beatmapID;
+        }
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TeamColour
     {
+        /// <summary>
+        /// The default colour. Used for winner, EX detection, etc.
+        /// </summary>
+        None,
         Red,
-        Blue
+        Blue,
+
+        /// <summary>
+        /// Internally given colour. Should only be used by actions.
+        /// </summary>
+        Neutral
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ChoiceType
     {
+        /// <summary>
+        /// Another special type placeholder, shouldn't be used in normal conditions.
+        /// </summary>
+        Neutral,
         Pick,
         Ban,
+        Protect,
+        RedWin,
+        BlueWin,
+        Trap,
+
+        /// <summary>
+        /// A special type, Swap trap specific.
+        /// </summary>
+        Swap
     }
 }

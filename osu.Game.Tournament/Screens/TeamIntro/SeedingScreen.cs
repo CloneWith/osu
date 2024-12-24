@@ -34,7 +34,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
 
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo("seeding")
+                new TourneyVideo(BackgroundVideo.Seeding, LadderInfo)
                 {
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
@@ -63,6 +63,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                         {
                             LabelText = "Show specific team",
                             Current = currentTeam,
+                            ShowsDefaultIndicator = false,
                         }
                     }
                 }
@@ -332,7 +333,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                             new OsuSpriteText
                             {
                                 Text = team?.FullName.Value ?? "???",
-                                Font = OsuFont.Torus.With(size: 32, weight: FontWeight.SemiBold),
+                                Font = OsuFont.Torus.With(size: 45, weight: FontWeight.SemiBold),
                                 Colour = TournamentGame.TEXT_COLOUR,
                             },
                         }
