@@ -29,8 +29,6 @@ using osu.Game.Users.Drawables;
 using osuTK;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.LocalisationExtensions;
-using osu.Framework.Localisation;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Sprites;
 
 namespace osu.Game.Users
@@ -47,7 +45,7 @@ namespace osu.Game.Users
 
         protected Action ViewProfile { get; private set; } = null!;
 
-        private readonly IBindable<UserStatistics?> statistics = new Bindable<UserStatistics?>();
+        private readonly Bindable<UserStatistics?> statistics = new Bindable<UserStatistics?>();
 
         protected Sprite AltBackground { get; private set; } = null!;
 
@@ -91,7 +89,7 @@ namespace osu.Game.Users
         private MultiplayerClient? multiplayerClient { get; set; }
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load()
         {
             // Initialize globalRankDisplay
             globalRankDisplay = new OsuSpriteText
@@ -100,16 +98,11 @@ namespace osu.Game.Users
                 Shadow = false
             };
 
-            statistics.BindTo(api.Statistics);
+            statistics.Value = User.Statistics;
             statistics.BindValueChanged(stats =>
             {
                 globalRank = stats.NewValue?.GlobalRank?.ToLocalisableString("\\##,##0") ?? "-";
-
-                // Ensure globalRankDisplay is not null before setting its content
-                if (globalRankDisplay != null)
-                {
-                    globalRankDisplay.Text = globalRank;
-                }
+                globalRankDisplay.Text = globalRank;
             }, true);
 
             Masking = true;
@@ -122,12 +115,11 @@ namespace osu.Game.Users
             });
 
             var altBackground = CreateAltBackground();
-            if (altBackground != null)
-            {
-                Add(altBackground);
-            }
+
+            Add(altBackground);
 
             var background = CreateBackground();
+
             if (background != null)
             {
                 Add(background);
@@ -157,7 +149,7 @@ namespace osu.Game.Users
             User = User
         };
 
-        protected virtual Sprite? CreateAltBackground() => AltBackground = new Sprite
+        protected virtual Sprite CreateAltBackground() => AltBackground = new Sprite
         {
             RelativeSizeAxes = Axes.Both,
             Anchor = Anchor.Centre,
@@ -169,13 +161,6 @@ namespace osu.Game.Users
             Font = OsuFont.GetFont(size: 20, weight: FontWeight.Bold),
             Shadow = false,
             Text = User.Username,
-        };
-
-        protected OsuSpriteText CreateUserrank() => new OsuSpriteText
-        {
-            Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
-            Shadow = false,
-            Text = globalRank
         };
 
         protected UpdateableAvatar CreateAvatar() => new UpdateableAvatar(User, false);
