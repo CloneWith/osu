@@ -20,12 +20,16 @@ namespace osu.Game.Users
     {
         public ColourInfo BackgroundColour = ColourInfo.GradientHorizontal(Color4.White.Opacity(1), Color4.White.Opacity(0.3f));
 
-        public UserListPanel(APIUser user, int height = 40, int cornerRadius = 6)
+        private readonly ListDisplayMode displayMode;
+
+        public UserListPanel(APIUser user, int height = 40, int cornerRadius = 6, ListDisplayMode mode = ListDisplayMode.Status)
             : base(user)
         {
             RelativeSizeAxes = Axes.X;
             Height = height;
             CornerRadius = cornerRadius;
+
+            displayMode = mode;
         }
 
         [BackgroundDependencyLoader]
@@ -37,7 +41,7 @@ namespace osu.Game.Users
             Background.Colour = BackgroundColour;
         }
 
-        protected new OsuSpriteText CreateUserrank()
+        protected OsuSpriteText CreateUserRank()
         {
             // Assuming statistics is a property of APIUser and contains the necessary rank information
             var globalRank = User.Statistics?.GlobalRank?.ToLocalisableString("\\##,##0") ?? "-";
@@ -58,7 +62,7 @@ namespace osu.Game.Users
             {
                 Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
                 Shadow = false,
-                Text = performance
+                Text = performance + "pp"
             };
         }
 
@@ -113,24 +117,26 @@ namespace osu.Game.Users
                             {
                                 pp.Anchor = Anchor.CentreRight;
                                 pp.Origin = Anchor.CentreRight;
+                                pp.Alpha = displayMode != ListDisplayMode.Status ? 1f : 0f;
                             }),
-                            CreateUserrank().With(rank =>
+                            CreateUserRank().With(rank =>
                             {
                                 rank.Anchor = Anchor.CentreRight;
                                 rank.Origin = Anchor.CentreRight;
+                                rank.Alpha = displayMode != ListDisplayMode.Status ? 1f : 0f;
                             }),
                             // Disable these two function will cause a strange exception, using Alpha = 0f; instead
                             CreateStatusMessage(true).With(message =>
                             {
                                 message.Anchor = Anchor.CentreRight;
                                 message.Origin = Anchor.CentreRight;
-                                message.Alpha = 0f;
+                                message.Alpha = displayMode != ListDisplayMode.Statistics ? 1f : 0f;
                             }),
                             CreateStatusIcon().With(icon =>
                             {
                                 icon.Anchor = Anchor.CentreRight;
                                 icon.Origin = Anchor.CentreRight;
-                                icon.Alpha = 0f;
+                                icon.Alpha = displayMode != ListDisplayMode.Statistics ? 1f : 0f;
                             })
                         }
                     }
@@ -160,5 +166,12 @@ namespace osu.Game.Users
 
             return layout;
         }
+    }
+
+    public enum ListDisplayMode
+    {
+        Status,
+        Statistics,
+        Both
     }
 }
