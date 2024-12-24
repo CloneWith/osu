@@ -17,6 +17,7 @@ namespace osu.Game.Graphics.UserInterface
         protected Box Background { get; private set; }
 
         private readonly IconUsage icon;
+        private readonly Vector2 iconSize = new Vector2(13);
 
         [Resolved]
         private OsuColour colours { get; set; }
@@ -24,6 +25,12 @@ namespace osu.Game.Graphics.UserInterface
         public GrayButton(IconUsage icon)
         {
             this.icon = icon;
+        }
+
+        public GrayButton(IconUsage icon, Vector2 iconSize)
+        {
+            this.icon = icon;
+            this.iconSize = iconSize;
         }
 
         [BackgroundDependencyLoader]
@@ -41,7 +48,7 @@ namespace osu.Game.Graphics.UserInterface
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Size = new Vector2(13),
+                    Size = iconSize,
                     Icon = icon,
                 },
             });

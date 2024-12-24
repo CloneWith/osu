@@ -116,8 +116,11 @@ namespace osu.Game.Tournament.Components
             CornerRadius = radius;
         }
 
-        protected override ChatLine CreateMessage(Message message)
+        protected override ChatLine? CreateMessage(Message message)
         {
+            if (message.Content.StartsWith("!mp", StringComparison.Ordinal))
+                return null;
+
             var currentMatch = ladderInfo.CurrentMatch;
             bool isCommand = false;
             bool isRef = false;

@@ -59,6 +59,11 @@ namespace osu.Game.Localisation
         /// </summary>
         public static LocalisableString DailyChallenge => new TranslatableString(getKey(@"daily_challenge"), @"daily challenge");
 
+        /// <summary>
+        /// "showcase"
+        /// </summary>
+        public static LocalisableString TournamentShowcase => new TranslatableString(getKey(@"tournament_showcase"), @"showcase");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

@@ -43,7 +43,7 @@ namespace osu.Game.Screens.Play.HUD.JudgementCounter
                     ResultName = new OsuSpriteText
                     {
                         Alpha = 0,
-                        Font = OsuFont.Numeric.With(size: 8),
+                        Font = OsuFont.TorusAlternate.With(size: 8),
                         Text = Result.DisplayName,
                     }
                 }
