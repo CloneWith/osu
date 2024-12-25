@@ -333,7 +333,7 @@ namespace osu.Game.Tournament.Screens.Board
                         new ControlPanel.Spacer(),
                         trapTypeDropdown = new TrapTypeDropdown
                         {
-                            LabelText = "Trap type"
+                            Caption = "Trap type"
                         },
                         new GridContainer
                         {
