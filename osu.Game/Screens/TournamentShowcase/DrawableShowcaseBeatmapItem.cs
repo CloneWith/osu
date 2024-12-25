@@ -161,8 +161,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     }
                 });
             };
-
-            Refresh();
         }
 
         private bool allowDeletion = true;
