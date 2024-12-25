@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API;
 using osu.Game.Overlays;
@@ -80,6 +81,7 @@ namespace osu.Game.Tournament.Screens.Setup
             var fileBasedIpc = ipc as FileBasedIPC;
             fillFlow.Children = new Drawable[]
             {
+                new SectionHeader(@"General"),
                 new ActionableInfo
                 {
                     Label = "Current IPC source",
@@ -111,13 +113,6 @@ namespace osu.Game.Tournament.Screens.Setup
                     Failing = api.IsLoggedIn != true,
                     Description = "In order to access the API and display metadata, signing in is required."
                 },
-                new LabelledDropdown<RulesetInfo?>
-                {
-                    Label = "Ruleset",
-                    Description = "Decides what stats are displayed and which ranks are retrieved for players. This requires a restart to reload data for an existing bracket.",
-                    Items = rulesets.AvailableRulesets,
-                    Current = LadderInfo.Ruleset,
-                },
                 new TournamentSwitcher
                 {
                     Label = "Current tournament",
@@ -132,6 +127,14 @@ namespace osu.Game.Tournament.Screens.Setup
                         windowSize.Value = new Size((int)(height * aspect_ratio / TournamentSceneManager.STREAM_AREA_WIDTH * TournamentSceneManager.REQUIRED_WIDTH), height);
                     }
                 },
+                new SectionHeader(@"Tournament Specific"),
+                new LabelledDropdown<RulesetInfo?>
+                {
+                    Label = "Ruleset",
+                    Description = "Decides what stats are displayed and which ranks are retrieved for players. This requires a restart to reload data for an existing bracket.",
+                    Items = rulesets.AvailableRulesets,
+                    Current = LadderInfo.Ruleset,
+                },
                 new ActionableInfo
                 {
                     Label = "Background video settings",
@@ -139,6 +142,13 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = "Set paths and behaviour of background video display.",
                     Action = () => sceneManager?.SetScreen(new BackgroundVideoSelectScreen()),
                 },
+                new LabelledSwitchButton
+                {
+                    Label = "Display team seeds",
+                    Description = "Team seeds will display alongside each team at the top in gameplay/map pool screens.",
+                    Current = LadderInfo.DisplayTeamSeeds,
+                },
+                new SectionHeader(@"Automation"),
                 new LabelledSwitchButton
                 {
                     Label = "Use referee commands",
@@ -156,13 +166,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     Label = "Auto advance screens",
                     Description = "Screens will progress automatically from gameplay -> results -> map pool",
                     Current = LadderInfo.AutoProgressScreens,
-                },
-                new LabelledSwitchButton
-                {
-                    Label = "Display team seeds",
-                    Description = "Team seeds will display alongside each team at the top in gameplay/map pool screens.",
-                    Current = LadderInfo.DisplayTeamSeeds,
-                },
+                }
             };
         }
 

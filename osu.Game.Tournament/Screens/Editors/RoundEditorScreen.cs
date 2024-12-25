@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
@@ -76,6 +77,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
+                            new SectionHeader(@"Round Information"),
                             new FormTextBox
                             {
                                 Caption = "Name",
@@ -169,8 +171,10 @@ namespace osu.Game.Tournament.Screens.Editors
                         Direction = FillDirection.Vertical,
                         Padding = new MarginPadding(5),
                         Spacing = new Vector2(5),
-                        ChildrenEnumerable = round.Referees.Select(p => new RefereeRow(round, p))
+                        Child = new SectionHeader(@"Referee List")
                     };
+
+                    flow.AddRange(round.Referees.Select(p => new RefereeRow(round, p)));
                 }
 
                 public void CreateNew()
@@ -301,8 +305,10 @@ namespace osu.Game.Tournament.Screens.Editors
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
-                        ChildrenEnumerable = round.Beatmaps.Select(p => new RoundBeatmapRow(round, p))
+                        Child = new SectionHeader(@"Round Beatmaps")
                     };
+
+                    flow.AddRange(round.Beatmaps.Select(p => new RoundBeatmapRow(round, p)));
                 }
 
                 public void CreateNew()

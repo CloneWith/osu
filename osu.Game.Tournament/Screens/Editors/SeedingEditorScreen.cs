@@ -67,6 +67,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
+                            new SectionHeader(@"Seeding Entry"),
                             new FormTextBox
                             {
                                 Caption = "Mod",
@@ -128,8 +129,10 @@ namespace osu.Game.Tournament.Screens.Editors
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
-                        ChildrenEnumerable = round.Beatmaps.Select(p => new SeedingBeatmapRow(round, p))
+                        Child = new SectionHeader(@"Seeding Beatmaps")
                     };
+
+                    flow.AddRange(round.Beatmaps.Select(p => new SeedingBeatmapRow(round, p)));
                 }
 
                 public void CreateNew()

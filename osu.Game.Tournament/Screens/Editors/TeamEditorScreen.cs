@@ -11,6 +11,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
@@ -118,6 +119,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
+                            new SectionHeader(@"Team Information"),
                             new FormTextBox
                             {
                                 Caption = "Name",
@@ -201,8 +203,10 @@ namespace osu.Game.Tournament.Screens.Editors
                         Direction = FillDirection.Vertical,
                         Padding = new MarginPadding(5),
                         Spacing = new Vector2(5),
-                        ChildrenEnumerable = team.Players.Select(p => new PlayerRow(team, p))
+                        Child = new SectionHeader(@"Player List")
                     };
+
+                    flow.AddRange(team.Players.Select(p => new PlayerRow(team, p)));
                 }
 
                 public void CreateNew()
