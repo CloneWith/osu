@@ -121,13 +121,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                         new SectionHeader(@"Tournament Information"),
                                         profileDropdown = new FormDropdown<string>
                                         {
-                                            Caption = "Load set",
+                                            Caption = @"Current Profile",
+                                            HintText = "The profile to be loaded and edited. You can find the files under the \"showcase\" directory of the data path.",
                                             Items = availableProfiles
                                         },
                                         rulesetDropdown = new FormDropdown<RulesetInfo>
                                         {
                                             Caption = "Ruleset",
-                                            HintText = @"The ruleset we should use for showcase and replays.",
+                                            HintText = @"The ruleset we use for showcase and replays. Replays must strictly match the selected ruleset.",
                                             Items = rulesets.AvailableRulesets,
                                             Current = currentProfile.Value.Ruleset,
                                         },
@@ -135,7 +136,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         {
                                             Caption = "Name",
                                             PlaceholderText = "Tournament series name (e.g. osu! World Cup)",
-                                            HintText = "This would be shown at the intro screen.",
+                                            HintText = "This would be shown as the subtitle at the intro screen.",
                                             Current = currentProfile.Value.TournamentName,
                                             TabbableContentContainer = this,
                                         },
@@ -143,6 +144,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         {
                                             Caption = "Round",
                                             PlaceholderText = "Tournament round (e.g. Semifinals)",
+                                            HintText = @"This would be shown as the main title at the intro screen.",
                                             Current = currentProfile.Value.RoundName,
                                             TabbableContentContainer = this,
                                         },
@@ -158,7 +160,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         {
                                             Caption = "Comment",
                                             PlaceholderText = "Welcome to osu!",
-                                            HintText = "In fact you can write anything here.\nThis is also part of the intro screen.",
+                                            HintText = "In fact you can write anything here.\nThis would be shown below the main title at the intro screen.",
                                             Current = currentProfile.Value.Comment,
                                             TabbableContentContainer = this,
                                         },
@@ -206,7 +208,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         startCountdownInput = new FormSliderBar<int>
                                         {
                                             Caption = @"Start countdown",
-                                            HintText = @"A duration to wait for before the showcase starts. Get prepared this time!",
+                                            HintText = @"A duration before the showcase starts in immersive layout and before continuing halfway. Get prepared this time!",
                                             Current = currentProfile.Value.StartCountdown,
                                             TransferValueOnCommit = true,
                                             TabbableContentContainer = this,
@@ -215,6 +217,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         {
                                             Caption = @"Outro title",
                                             PlaceholderText = @"Thanks for watching!",
+                                            HintText = @"This would be shown as the main title at the outro screen.",
                                             Current = currentProfile.Value.OutroTitle,
                                             TabbableContentContainer = this,
                                         },

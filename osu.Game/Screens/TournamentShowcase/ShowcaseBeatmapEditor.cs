@@ -126,14 +126,15 @@ namespace osu.Game.Screens.TournamentShowcase
                 },
                 new FormNumberBox
                 {
-                    Caption = @"Selector ID",
+                    Caption = @"Beatmap Chooser ID",
+                    HintText = @"The user who chose or suggested this beatmap.",
                     Width = 0.49f,
                     Current = selectorId
                 },
                 mapTypeDropdown = new FormDropdown<BeatmapType>
                 {
                     Caption = @"Beatmap Type",
-                    HintText = @"Choose a type matching the beatmap mod best. Will be used to show the current icon for the showcase.",
+                    HintText = @"Choose a type matching the beatmap mod best. Will be used to show a correct icon for the beatmap.",
                     Width = 0.49f,
                     Current = Beatmap.ModType,
                     Items = new[]
