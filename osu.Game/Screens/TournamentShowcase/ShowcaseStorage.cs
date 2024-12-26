@@ -21,12 +21,12 @@ namespace osu.Game.Screens.TournamentShowcase
             this.storage = storage.GetStorageForDirectory("showcase");
         }
 
-        public ShowcaseConfig GetConfig(string name)
+        public ShowcaseConfig? GetConfig(string name)
         {
             if (!storage.Exists(name))
             {
-                Logger.Log(@$"Cannot found showcase profile {name}, reverting to default.");
-                return new ShowcaseConfig();
+                Logger.Error(null, $"Cannot found showcase profile \"{name}\".");
+                return null;
             }
 
             using (Stream stream = storage.GetStream(name, FileAccess.Read, FileMode.Open))
@@ -35,12 +35,12 @@ namespace osu.Game.Screens.TournamentShowcase
                 try
                 {
                     // TODO: Need an async Task?
-                    return JsonConvert.DeserializeObject<ShowcaseConfig>(sr.ReadToEnd()) ?? new ShowcaseConfig();
+                    return JsonConvert.DeserializeObject<ShowcaseConfig>(sr.ReadToEnd());
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(e, $"Failed to load showcase profile {name}, reverting to default.");
-                    return new ShowcaseConfig();
+                    Logger.Error(e, $"An exception occurred while loading showcase profile \"{name}\".");
+                    return null;
                 }
             }
         }

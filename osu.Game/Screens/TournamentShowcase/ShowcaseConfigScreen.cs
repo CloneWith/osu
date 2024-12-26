@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -9,6 +10,7 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
@@ -58,7 +60,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FillFlowContainer introEditor = null!;
         private BeatmapRow introBeatmapRow = null!;
 
-        private Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
+        private readonly Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
 
         public ShowcaseConfigScreen()
         {
@@ -69,15 +71,16 @@ namespace osu.Game.Screens.TournamentShowcase
         private void load()
         {
             var availableProfiles = storage.ListTournaments();
-            if (!availableProfiles.Any())
-                currentProfile = new Bindable<ShowcaseConfig>();
-            else
-                currentProfile = new Bindable<ShowcaseConfig>(storage.GetConfig(availableProfiles.First()));
+            var firstConfig = storage.GetConfig(availableProfiles.First());
 
+            if (firstConfig != null)
+                currentProfile.Value = firstConfig;
+
+            // Enforce a non-null current profile and necessary properties.
             currentProfile.Value ??= new ShowcaseConfig();
-
-            // In case an exception prevents this variable from initializing...
             currentProfile.Value.IntroBeatmap.Value ??= new ShowcaseBeatmap();
+
+            Debug.Assert(currentProfile.Value != null);
 
             InternalChildren = new Drawable[]
             {
@@ -278,6 +281,8 @@ namespace osu.Game.Screens.TournamentShowcase
                             {
                                 if (checkConfig())
                                     storage.SaveChanges(currentProfile.Value);
+
+                                refreshProfileList();
                             },
                         },
                         new RoundedButton
@@ -300,7 +305,15 @@ namespace osu.Game.Screens.TournamentShowcase
             currentProfile.BindValueChanged(_ => updateForm());
             profileDropdown.Current.BindValueChanged(e =>
             {
-                currentProfile.Value = storage.GetConfig(e.NewValue);
+                var newProfile = storage.GetConfig(e.NewValue);
+
+                if (newProfile != null)
+                    currentProfile.Value = newProfile;
+                else
+                {
+                    Logger.Error(null, $"The given showcase configuration file \"{e.NewValue}\" cannot be loaded properly."
+                                       + $" You are still editing \"{e.OldValue}\".");
+                }
             });
 
             foreach (var f in innerFlow.Children)
@@ -313,6 +326,12 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
             this.FadeInFromZero(500, Easing.OutQuint);
+        }
+
+        private void refreshProfileList()
+        {
+            var availableProfiles = storage.ListTournaments();
+            profileDropdown.Items = availableProfiles;
         }
 
         /// <summary>
