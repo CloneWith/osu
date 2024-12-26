@@ -14,10 +14,8 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
-using osu.Game.Overlays;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
-using osu.Game.Screens.Ranking;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -74,9 +72,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private IAPIProvider api { get; set; } = null!;
-
-        [Resolved]
-        private DialogOverlay? dialogOverlay { get; set; }
 
         private ScoreManager scoreManager = null!;
 
@@ -179,22 +174,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     AllowEditing = true,
                     AllowDeletion = AllowDeletion,
-                    RequestResults = _ =>
-                    {
-                        if (Beatmap.ShowcaseScore == null)
-                        {
-                            dialogOverlay?.Push(new ProfileCheckFailedDialog
-                            {
-                                HeaderText = @"No score selected!",
-                                BodyText = @"An Autoplay-generated score would be used for showcase."
-                            });
-                        }
-                        else
-                        {
-                            Schedule(() => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(Beatmap.ShowcaseScore)),
-                                new[] { typeof(ShowcaseConfigScreen) }));
-                        }
-                    },
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>

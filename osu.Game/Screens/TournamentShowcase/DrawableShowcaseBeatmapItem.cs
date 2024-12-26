@@ -19,6 +19,7 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
+using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Beatmaps.Drawables.Cards;
@@ -36,6 +37,7 @@ using osu.Game.Resources.Localisation.Web;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
+using osu.Game.Screens.Ranking;
 using osu.Game.Screens.SelectV2.Leaderboards;
 using osu.Game.Users.Drawables;
 using osuTK;
@@ -53,11 +55,6 @@ namespace osu.Game.Screens.TournamentShowcase
         /// Invoked when this item requests to be deleted.
         /// </summary>
         public Action<ShowcaseBeatmap> RequestDeletion;
-
-        /// <summary>
-        /// Invoked when this item requests its results to be shown.
-        /// </summary>
-        public Action<ShowcaseBeatmap> RequestResults;
 
         /// <summary>
         /// Invoked when this item requests to be edited.
@@ -97,7 +94,6 @@ namespace osu.Game.Screens.TournamentShowcase
         private ModDisplay modDisplay;
         private FillFlowContainer buttonsFlow;
         private UpdateableAvatar ownerAvatar;
-        private Drawable showResultsButton;
         private Drawable editButton;
         private Drawable removeButton;
         private PanelBackground panelBackground;
@@ -116,6 +112,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved(CanBeNull = true)]
         private BeatmapSetOverlay beatmapOverlay { get; set; }
+
+        [Resolved(CanBeNull = true)]
+        private IPerformFromScreenRunner performer { get; set; }
 
         public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
             : base(item)
@@ -177,23 +176,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 if (removeButton != null)
                     removeButton.Alpha = value ? 1 : 0;
-            }
-        }
-
-        private bool allowShowingResults = true;
-
-        /// <summary>
-        /// Whether this item can have results shown.
-        /// </summary>
-        public bool AllowShowingResults
-        {
-            get => allowShowingResults;
-            set
-            {
-                allowShowingResults = value;
-
-                if (showResultsButton != null)
-                    showResultsButton.Alpha = value ? 1 : 0;
             }
         }
 
@@ -301,6 +283,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
             recordScoreContainer.Child = item.ShowcaseScore != null
                 ? new LeaderboardScoreV2(item.ShowcaseScore, false)
+                {
+                    ActionOnClick = () => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(item.ShowcaseScore)), [typeof(ShowcaseConfigScreen)])
+                }
                 : new MessagePlaceholder("No score associated with this beatmap.");
 
             buttonsFlow.Clear();
@@ -470,13 +455,6 @@ namespace osu.Game.Screens.TournamentShowcase
         private IEnumerable<Drawable> createButtons() => new[]
         {
             beatmapInfo == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
-            showResultsButton = new GrayButton(FontAwesome.Solid.ChartPie)
-            {
-                Size = new Vector2(30, 30),
-                Action = () => RequestResults?.Invoke(item),
-                Alpha = AllowShowingResults ? 1 : 0,
-                TooltipText = "View score"
-            },
             editButton = new PlaylistEditButton
             {
                 Size = new Vector2(30, 30),
