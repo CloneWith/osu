@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
@@ -17,6 +19,7 @@ using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
 using osuTK;
+using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
@@ -78,6 +81,11 @@ namespace osu.Game.Screens.TournamentShowcase
 
             InternalChildren = new Drawable[]
             {
+                new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black.Opacity(0.6f)
+                },
                 new ExtendableBeatmapCard(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value),
                 new OsuContextMenuContainer
                 {
