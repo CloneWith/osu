@@ -54,6 +54,8 @@ namespace osu.Game.Screens.SelectV2.Leaderboards
         /// </summary>
         public Func<Mod, bool> IsValidMod { get; set; } = _ => true;
 
+        public Action? ActionOnClick;
+
         public int? Rank { get; init; }
         public bool IsPersonalBest { get; init; }
 
@@ -545,6 +547,16 @@ namespace osu.Game.Screens.SelectV2.Leaderboards
                     }
                 }
             }
+        }
+
+        protected override bool OnClick(ClickEvent e)
+        {
+            if (ActionOnClick != null)
+            {
+                Scheduler.Add(ActionOnClick);
+            }
+
+            return base.OnClick(e);
         }
 
         protected override bool OnHover(HoverEvent e)
