@@ -19,12 +19,12 @@ namespace osu.Game.Tournament.Components.Dialogs
                 new PopupDialogDangerousButton
                 {
                     Text = @"Yes, but just reset the selected one.",
-                    Action = () => resetOneAction()
+                    Action = resetOneAction
                 },
                 new PopupDialogDangerousButton
                 {
                     Text = @"Yes, reset all of them.",
-                    Action = () => resetAllAction()
+                    Action = resetAllAction
                 },
                 new PopupDialogCancelButton
                 {

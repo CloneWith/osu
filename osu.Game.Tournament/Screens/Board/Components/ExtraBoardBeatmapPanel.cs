@@ -19,7 +19,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components
 {
-    public partial class EXBoardBeatmapPanel : CompositeDrawable
+    public partial class ExtraBoardBeatmapPanel : CompositeDrawable
     {
         public readonly IBeatmapInfo? Beatmap;
 
@@ -34,7 +34,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private Box flash = null!;
         private Box backgroundAddition = null!;
 
-        public EXBoardBeatmapPanel(IBeatmapInfo? beatmap, string mod = "", string index = "")
+        public ExtraBoardBeatmapPanel(IBeatmapInfo? beatmap, string mod = "", string index = "")
         {
             Beatmap = beatmap;
             this.index = index;
@@ -124,9 +124,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
             if (match.OldValue != null)
-                match.OldValue.EXPicks.CollectionChanged -= picksBansOnCollectionChanged;
+                match.OldValue.ExtraPicks.CollectionChanged -= picksBansOnCollectionChanged;
             if (match.NewValue != null)
-                match.NewValue.EXPicks.CollectionChanged += picksBansOnCollectionChanged;
+                match.NewValue.ExtraPicks.CollectionChanged += picksBansOnCollectionChanged;
 
             Scheduler.AddOnce(updateState);
         }
@@ -143,7 +143,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 return;
             }
 
-            var newChoice = currentMatch.Value.EXPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
+            var newChoice = currentMatch.Value.ExtraPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
             bool shouldFlash = newChoice != choice;
 

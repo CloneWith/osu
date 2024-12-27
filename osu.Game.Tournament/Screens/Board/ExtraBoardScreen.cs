@@ -27,7 +27,7 @@ using osuTK.Input;
 
 namespace osu.Game.Tournament.Screens.Board
 {
-    public partial class ExBoardScreen : TournamentMatchScreen
+    public partial class ExtraBoardScreen : TournamentMatchScreen
     {
         private FillFlowContainer<FillFlowContainer<DrawableMapCard>> mapFlows = null!;
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
@@ -382,11 +382,11 @@ namespace osu.Game.Tournament.Screens.Board
                     addForBeatmap(map.Beatmap.OnlineID);
                 else
                 {
-                    var existing = CurrentMatch.Value?.EXPicks.FirstOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
+                    var existing = CurrentMatch.Value?.ExtraPicks.FirstOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
 
                     if (existing != null)
                     {
-                        CurrentMatch.Value?.EXPicks.Remove(existing);
+                        CurrentMatch.Value?.ExtraPicks.Remove(existing);
                     }
                 }
 
@@ -398,7 +398,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void reset()
         {
-            CurrentMatch.Value?.EXPicks.Clear();
+            CurrentMatch.Value?.ExtraPicks.Clear();
             CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
             // Reset buttons
@@ -429,13 +429,13 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             // In EX stage, just remove any existing marks before adding a new one.
-            if (CurrentMatch.Value.EXPicks.Any(p => p.BeatmapID == beatmapId))
+            if (CurrentMatch.Value.ExtraPicks.Any(p => p.BeatmapID == beatmapId))
             {
-                var existing = CurrentMatch.Value.EXPicks.FirstOrDefault(p => p.BeatmapID == beatmapId);
-                if (existing != null) CurrentMatch.Value.EXPicks.Remove(existing);
+                var existing = CurrentMatch.Value.ExtraPicks.FirstOrDefault(p => p.BeatmapID == beatmapId);
+                if (existing != null) CurrentMatch.Value.ExtraPicks.Remove(existing);
             }
 
-            CurrentMatch.Value.EXPicks.Add(new BeatmapChoice
+            CurrentMatch.Value.ExtraPicks.Add(new BeatmapChoice
             {
                 Team = TeamColour.Neutral,
                 Type = pickType,
@@ -456,7 +456,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
-                if (pickType == ChoiceType.Pick && CurrentMatch.Value.EXPicks.Any(i => i.Type == ChoiceType.Pick))
+                if (pickType == ChoiceType.Pick && CurrentMatch.Value.ExtraPicks.Any(i => i.Type == ChoiceType.Pick))
                 {
                     scheduledScreenChange?.Cancel();
                     scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(GameplayScreen)); }, 10000);

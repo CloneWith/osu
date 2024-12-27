@@ -19,12 +19,12 @@ namespace osu.Game.Tournament.Components.Dialogs
                 new PopupDialogDangerousButton
                 {
                     Text = @"Yes, revert to the initial state.",
-                    Action = () => revertAction()
+                    Action = revertAction
                 },
                 new PopupDialogDangerousButton
                 {
                     Text = @"Yes, but keep the swaps.",
-                    Action = () => resetAction()
+                    Action = resetAction
                 },
                 new PopupDialogCancelButton
                 {

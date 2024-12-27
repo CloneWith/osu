@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 
 namespace osu.Game.Tournament
@@ -25,7 +26,7 @@ namespace osu.Game.Tournament
             if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
                 return text;
 
-            return text.Substring(0, maxLength - 3) + "...";
+            return string.Concat(text.AsSpan(0, maxLength - 3), "...");
         }
 
         public static string ExtractSongTitleFromMetadata(this string displayTitle)

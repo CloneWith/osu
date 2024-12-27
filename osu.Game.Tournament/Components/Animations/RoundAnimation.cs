@@ -24,9 +24,6 @@ namespace osu.Game.Tournament.Components.Animations
 {
     public partial class RoundAnimation : VisibilityContainer, IAnimation
     {
-        [Resolved]
-        private TournamentSceneManager sceneManager { get; set; } = null!;
-
         public const float DISC_SIZE = 400;
 
         private const float border_width = 5;

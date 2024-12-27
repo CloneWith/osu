@@ -79,7 +79,7 @@ namespace osu.Game.Online.Chat
                     Alpha = 0,
                     Children = new Drawable[]
                     {
-                        new SpriteIcon()
+                        new SpriteIcon
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
@@ -158,7 +158,7 @@ namespace osu.Game.Online.Chat
 
             TextBox?.Current.BindTo(e.NewValue.TextBoxMessage);
 
-            Channel.Value.JoinRequestCompleted.BindValueChanged(r =>
+            Channel.Value!.JoinRequestCompleted.BindValueChanged(r =>
             {
                 if (!r.NewValue)
                 {

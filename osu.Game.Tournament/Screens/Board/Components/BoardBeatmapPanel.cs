@@ -301,7 +301,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     BorderThickness = 0;
                     Alpha = 1f;
                     icon.Icon = FontAwesome.Solid.ExclamationCircle;
-                    instructText.Text = $"Trap set!";
+                    instructText.Text = "Trap set!";
                     if (trapChoice != tChoice) runAnimation(isBothTrapped ? Color4.White : trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky, false);
                     backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
 

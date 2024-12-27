@@ -157,9 +157,11 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
         public void AddStateAnimate(int initDelay = 0)
         {
+            if (currentMatch.Value == null || Beatmap == null) return;
+
             using (BeginDelayedSequence(initDelay))
             {
-                var relatedBPChoices = currentMatch.Value.PicksBans.Where(p => p.BeatmapID == Beatmap.OnlineID);
+                var relatedBanPickChoices = currentMatch.Value.PicksBans.Where(p => p.BeatmapID == Beatmap.OnlineID);
                 var relatedTrapChoices = currentMatch.Value.Traps.Where(p => p.BeatmapID == Beatmap.OnlineID);
                 var relatedProtectChoices = currentMatch.Value.Protects.Where(p => p.BeatmapID == Beatmap.OnlineID);
                 bool isBothTrapped = relatedTrapChoices.Any(p => p.Team == TeamColour.Red) && relatedTrapChoices.Any(p => p.Team == TeamColour.Blue);
@@ -188,9 +190,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     }
                 }
 
-                for (int i = 0; i < relatedBPChoices.Count(); i++)
+                for (int i = 0; i < relatedBanPickChoices.Count(); i++)
                 {
-                    var choice = relatedBPChoices.ElementAt(i);
+                    var choice = relatedBanPickChoices.ElementAt(i);
 
                     using (BeginDelayedSequence((i + relatedProtectChoices.Count() + relatedTrapChoices.Count()) * 250))
                     {
