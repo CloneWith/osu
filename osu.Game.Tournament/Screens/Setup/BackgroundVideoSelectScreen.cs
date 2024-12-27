@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
@@ -34,7 +36,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private Container videoContainer = null!;
 
         private SpriteIcon currentFileIcon = null!;
-        private OsuSpriteText currentFileText = null!;
+        private OsuTextFlowContainer currentFileText = null!;
 
         private RoundedButton saveButton = null!;
         private RoundedButton resetButton = null!;
@@ -50,7 +52,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private DialogOverlay? overlay;
 
         [BackgroundDependencyLoader(true)]
-        private void load(TournamentStorage storage, OsuColour colours)
+        private void load(TournamentStorage storage)
         {
             initialPath = new DirectoryInfo(storage.GetFullPath(string.Empty)).FullName;
             videoPath = new DirectoryInfo(storage.GetFullPath("./Videos")).FullName;
@@ -69,7 +71,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     {
                         new Box
                         {
-                            Colour = colours.GreySeaFoamDark,
+                            Colour = new OsuColour().GreySeaFoamDark,
                             RelativeSizeAxes = Axes.Both,
                         },
                         new GridContainer
@@ -118,12 +120,13 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Icon = FontAwesome.Solid.Edit,
                                                 Size = new Vector2(16),
                                             },
-                                            currentFileText = new OsuSpriteText
+                                            currentFileText = new OsuTextFlowContainer
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
-                                                Text = "Select a file!",
-                                                Font = OsuFont.Default.With(size: 16),
+                                                AutoSizeAxes = Axes.Both,
+                                                AutoSizeEasing = Easing.OutQuint,
+                                                AutoSizeDuration = 100
                                             },
                                         }
                                     }
@@ -266,6 +269,8 @@ namespace osu.Game.Tournament.Screens.Setup
                 overlay = new DialogOverlay(),
             };
 
+            currentFileText.AddText(@"Select a file!", t => t.Font = OsuFont.Default.With(size: 16));
+
             saveButton.Enabled.Value = false;
 
             videoInfo.Text = LadderInfo.BackgroundVideoFiles.Last(v => v.Key == BackgroundVideoProps.GetVideoFromName(videoDropdown.Current.Value)).Value;
@@ -289,6 +294,8 @@ namespace osu.Game.Tournament.Screens.Setup
 
         private void pathChanged(ValueChangedEvent<DirectoryInfo> e)
         {
+            // This can be null initially, and throws an exception.
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (e.NewValue == null)
             {
                 pathValid = false;
@@ -300,6 +307,8 @@ namespace osu.Game.Tournament.Screens.Setup
 
         private void fileChanged(ValueChangedEvent<FileInfo> selectedFile)
         {
+            // This can be null initially, and throws an exception.
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (selectedFile.NewValue == null)
             {
                 currentFileText.Text = "Select a file!";
@@ -309,12 +318,16 @@ namespace osu.Game.Tournament.Screens.Setup
 
             string lowerFileName = selectedFile.NewValue.Name.ToLowerInvariant();
 
-            bool valid = lowerFileName.EndsWith(".mp4") || lowerFileName.EndsWith(".avi") || lowerFileName.EndsWith(".m4v");
+            bool valid = lowerFileName.EndsWith(".mp4", StringComparison.Ordinal)
+                         || lowerFileName.EndsWith(".avi", StringComparison.Ordinal)
+                         || lowerFileName.EndsWith(".m4v", StringComparison.Ordinal);
 
             if (!valid)
             {
-                currentFileText.Text = $"{selectedFile.NewValue.Name}: Invalid file type.";
-                currentFileText.Colour = Color4.Orange;
+                currentFileText.Clear();
+                currentFileText.AddText($"{selectedFile.NewValue.Name}",
+                    t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
+                currentFileText.AddText(@": Invalid file type.", t => t.Colour = Color4.Orange);
                 currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                 currentFileIcon.Colour = Color4.Orange;
                 saveButton.Enabled.Value = false;
@@ -323,8 +336,10 @@ namespace osu.Game.Tournament.Screens.Setup
             {
                 if (pathValid)
                 {
-                    currentFileText.Text = $"{selectedFile.NewValue.Name}: Preview on the right!";
-                    currentFileText.Colour = Color4.SkyBlue;
+                    currentFileText.Clear();
+                    currentFileText.AddText($"{selectedFile.NewValue.Name}",
+                        t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
+                    currentFileText.AddText(": Preview on the right!", t => t.Colour = Color4.SkyBlue);
                     currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
                     currentFileIcon.Colour = Color4.SkyBlue;
                     videoContainer.Child = new TourneyVideo(selectedFile.NewValue.Name.Split('.')[0])
@@ -337,8 +352,9 @@ namespace osu.Game.Tournament.Screens.Setup
                 }
                 else
                 {
-                    currentFileText.Text = "Must select a file from current tournament's Video path.";
-                    currentFileText.Colour = Color4.Orange;
+                    currentFileText.Clear();
+                    currentFileText.AddText("Must select a file from current tournament's Video path.",
+                        t => t.Colour = Color4.Orange);
                     currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                     currentFileIcon.Colour = Color4.Orange;
                     saveButton.Enabled.Value = false;
