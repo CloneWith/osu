@@ -264,8 +264,11 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
+                        Name = @"Draw State Caption",
                         Y = 200,
                         AutoSizeAxes = Axes.Both,
+                        AutoSizeEasing = Easing.OutQuint,
+                        AutoSizeDuration = 300,
                         Direction = FillDirection.Vertical,
                         Spacing = new Vector2(10),
                         Children = new Drawable[]

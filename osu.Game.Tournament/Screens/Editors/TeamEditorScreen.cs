@@ -10,9 +10,9 @@ using osu.Framework.Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Models;
@@ -119,27 +119,28 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new SettingsTextBox
+                            new SectionHeader(@"Team Information"),
+                            new FormTextBox
                             {
-                                LabelText = "Name",
+                                Caption = "Name",
                                 Width = 0.2f,
                                 Current = Model.FullName
                             },
-                            new SettingsTextBox
+                            new FormTextBox
                             {
-                                LabelText = "Acronym",
+                                Caption = "Acronym",
                                 Width = 0.2f,
                                 Current = Model.Acronym
                             },
-                            new SettingsTextBox
+                            new FormTextBox
                             {
-                                LabelText = "Flag",
+                                Caption = "Flag",
                                 Width = 0.2f,
                                 Current = Model.FlagName
                             },
-                            new SettingsTextBox
+                            new FormTextBox
                             {
-                                LabelText = "Seed",
+                                Caption = "Seed",
                                 Width = 0.2f,
                                 Current = Model.Seed
                             },
@@ -153,11 +154,13 @@ namespace osu.Game.Tournament.Screens.Editors
                                     ladderInfo.Teams.Remove(Model);
                                 })),
                             },
-                            new SettingsSlider<int, LastYearPlacementSlider>
+                            new FormSliderBar<int>
                             {
-                                LabelText = "Last Year Placement",
+                                Caption = "Last Year Placement",
                                 Width = 0.33f,
-                                Current = Model.LastYearPlacing
+                                Current = Model.LastYearPlacing,
+                                TransferValueOnCommit = true,
+                                TabbableContentContainer = this,
                             },
                             new SettingsButton
                             {
@@ -181,11 +184,6 @@ namespace osu.Game.Tournament.Screens.Editors
                 };
             }
 
-            private partial class LastYearPlacementSlider : RoundedSliderBar<int>
-            {
-                public override LocalisableString TooltipText => Current.Value == 0 ? "N/A" : base.TooltipText;
-            }
-
             public partial class PlayerEditor : CompositeDrawable
             {
                 private readonly TournamentTeam team;
@@ -205,8 +203,10 @@ namespace osu.Game.Tournament.Screens.Editors
                         Direction = FillDirection.Vertical,
                         Padding = new MarginPadding(5),
                         Spacing = new Vector2(5),
-                        ChildrenEnumerable = team.Players.Select(p => new PlayerRow(team, p))
+                        Child = new SectionHeader(@"Player List")
                     };
+
+                    flow.AddRange(team.Players.Select(p => new PlayerRow(team, p)));
                 }
 
                 public void CreateNew()
@@ -260,8 +260,7 @@ namespace osu.Game.Tournament.Screens.Editors
                                     new SettingsNumberBox
                                     {
                                         LabelText = "User ID",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Width = 0.15f,
                                         Current = playerId,
                                     },
                                     userPanelContainer = new Container
