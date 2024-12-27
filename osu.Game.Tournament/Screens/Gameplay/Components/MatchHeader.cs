@@ -129,7 +129,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
 
             logo.Alpha = showLogo ? 1 : 0;
 
-            if (showRound) roundDisplay.FadeOut(duration: 200, easing: Easing.OutCubic);
+            if (!showRound) roundDisplay.FadeOut(duration: 200, easing: Easing.OutCubic);
             else roundDisplay.FadeIn(duration: 200, easing: Easing.InCubic);
         }
     }

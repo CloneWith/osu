@@ -30,6 +30,8 @@ using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Framework.Bindables;
+using osu.Game.Overlays;
+using osu.Game.Tournament.Components.Animations;
 
 namespace osu.Game.Tournament
 {
@@ -55,6 +57,9 @@ namespace osu.Game.Tournament
 
         [Cached]
         private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
+
+        [Cached]
+        private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         private Container chatContainer = new Container
         {
@@ -134,7 +139,7 @@ namespace osu.Game.Tournament
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
                                 middle = new BoardScreen(),
-                                new ExBoardScreen()
+                                new ExtraBoardScreen()
                             }
                         },
                         chatContainer = new Container
@@ -181,7 +186,7 @@ namespace osu.Game.Tournament
                                 new Separator(),
                                 /* Append new screen "board" for board display */
                                 new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(ExBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
+                                new ScreenButton(typeof(ExtraBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
                                 new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
                                 new Separator(),
@@ -264,13 +269,13 @@ namespace osu.Game.Tournament
 
                 case GameplayScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2, 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f, 500, Easing.OutQuint);
                     chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
                     chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
                     chat.ChangeRadius(0);
                     break;
 
-                case BoardScreen or ExBoardScreen:
+                case BoardScreen or ExtraBoardScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
                     chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
                     chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
@@ -397,7 +402,7 @@ namespace osu.Game.Tournament
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            X = CONTROL_AREA_WIDTH + STREAM_AREA_WIDTH / 2,
+            X = CONTROL_AREA_WIDTH + STREAM_AREA_WIDTH / 2f,
         });
 
         public void ShowWinAnimation(TournamentTeam? team, TeamColour colour = TeamColour.Neutral) => queueAnimation(new RoundAnimation(team, colour)

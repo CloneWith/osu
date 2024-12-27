@@ -1,51 +1,42 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
+using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
+using osuTK;
 using osuTK.Graphics;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Screens.Board.Components
 {
-
-    public static class StringExtensions
-    {
-        public static string TruncateWithEllipsis(this string text, int maxLength)
-        {
-            if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
-                return text;
-
-            return text.Substring(0, maxLength - 3) + "...";
-        }
-    }
-
     public partial class BoardBeatmapPanel : CompositeDrawable
     {
         public readonly IBeatmapInfo? Beatmap;
 
         public readonly string Index;
-
         public readonly string Mod;
 
         public const float HEIGHT = 150;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
+        private TournamentSpriteText instructText = null!;
+        private Container infoContainer = null!;
         private FillFlowContainer textArea = null!;
 
+        private Box slideBackground = null!;
         private Box backgroundAddition = null!;
         private Box flash = null!;
 
@@ -70,90 +61,127 @@ namespace osu.Game.Tournament.Components
             Height = HEIGHT * scale;
         }
 
-
         [BackgroundDependencyLoader]
         private void load(LadderInfo ladder)
         {
             currentMatch.BindValueChanged(matchChanged);
             currentMatch.BindTo(ladder.CurrentMatch);
 
-            var displayTitle = Beatmap?.GetDisplayTitleRomanisable(false, false) ?? (LocalisableString)@"unknown";
+            var displayTitle = Beatmap?.GetDisplayTitleRomanisable(false, false)
+                                      .ToString().ExtractSongTitleFromMetadata().Trim().TruncateWithEllipsis(17) ?? (LocalisableString)@"unknown";
 
-            string[] songNameList = displayTitle.ToString().Split(' ');
-
-            int firstHyphenIndex = 0;
-
-            // Find the first " - " (Hopefully it isn't in the Artists field)
-            for (int i = 0; i < songNameList.Count(); i++)
-            {
-                string obj = songNameList.ElementAt(i);
-                if (obj == "-")
-                {
-                    firstHyphenIndex = i;
-                    break;
-                }
-            }
-
-            var TitleList = songNameList.Skip(firstHyphenIndex + 1);
-
-            // Re-construct
-            string songName = string.Empty;
-            for (int i = 0; i < TitleList.Count(); i++)
-            {
-                songName += TitleList.ElementAt(i).Trim();
-                if (i != TitleList.Count() - 1) songName += ' ';
-            }
-
-            string truncatedSongName = songName.Trim().TruncateWithEllipsis(17);
-
-            string displayDifficulty = Beatmap?.DifficultyName ?? "unknown";
-            string truncatedDifficultyName = displayDifficulty.TruncateWithEllipsis(19);
+            string displayDifficulty = Beatmap?.DifficultyName.TruncateWithEllipsis(19) ?? "unknown";
 
             Masking = true;
 
-            AddRangeInternal(new Drawable[]
+            InternalChildren = new Drawable[]
             {
-                new NoUnloadBeatmapSetCover
+                slideBackground = new Box
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Y = -Height,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.White,
+                    Alpha = 0,
+                },
+                instructText = new TournamentSpriteText
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Y = Height,
+                    Font = OsuFont.TorusAlternate.With(size: 20, weight: FontWeight.SemiBold),
+                    Text = "This is a new map",
+                    Alpha = 0,
+                },
+                infoContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = OsuColour.Gray(0.5f),
-                    OnlineInfo = (Beatmap as IBeatmapSetOnlineInfo),
-                },
-                backgroundAddition = new Box
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black,
-                    Alpha = 0.1f
-                },
-                textArea = new FillFlowContainer
-                {
-                    AutoSizeAxes = Axes.Both,
-                    Anchor = Anchor.TopLeft,
-                    Origin = Anchor.TopLeft,
-                    Padding = new MarginPadding(15),
-                    Direction = FillDirection.Vertical,
-                
-                    /* This section of code adds Beatmap Information to the Board grid. */
                     Children = new Drawable[]
                     {
-                        new TournamentSpriteText
+                        new NoUnloadBeatmapSetCover
                         {
-                            Text = truncatedSongName,
-                            Padding = new MarginPadding { Left = 0 },
-                            Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 18),
-                            Margin = new MarginPadding { Left = -9, Top = -7 },
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = OsuColour.Gray(0.5f),
+                            OnlineInfo = (Beatmap as IBeatmapSetOnlineInfo),
                         },
-                        new FillFlowContainer
+                        backgroundAddition = new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Black,
+                            Alpha = 0.1f
+                        },
+                        textArea = new FillFlowContainer
                         {
                             AutoSizeAxes = Axes.Both,
-                            Direction = FillDirection.Horizontal,
-                            Margin = new MarginPadding { Left = -9, Top = 5 }, // Adjust this value to change the distance
-                            Child = new TournamentSpriteText
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
+                            Padding = new MarginPadding(15),
+                            Direction = FillDirection.Vertical,
+
+                            /* This section of code adds Beatmap Information to the Board grid. */
+                            Children = new Drawable[]
                             {
-                                Text = truncatedDifficultyName,
-                                MaxWidth = 120,
-                                Font = OsuFont.Torus.With(weight: FontWeight.Medium, size: 14),
+                                new TournamentSpriteText
+                                {
+                                    Text = displayTitle,
+                                    Padding = new MarginPadding { Left = 0 },
+                                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 18),
+                                    Margin = new MarginPadding { Left = -9, Top = -7 },
+                                },
+                                new FillFlowContainer
+                                {
+                                    AutoSizeAxes = Axes.Both,
+                                    Direction = FillDirection.Horizontal,
+                                    Margin = new MarginPadding { Left = -9, Top = 5 }, // Adjust this value to change the distance
+                                    Child = new TournamentSpriteText
+                                    {
+                                        Text = displayDifficulty,
+                                        MaxWidth = 120,
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Medium, size: 14),
+                                    },
+                                }
                             },
+                        },
+                        swapIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Yellow,
+                            Size = new Vector2(0.4f),
+                            Icon = FontAwesome.Solid.ExchangeAlt,
+                            Alpha = 0,
+                        },
+                        protectIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.BottomLeft,
+                            Origin = Anchor.BottomLeft,
+                            Icon = FontAwesome.Solid.Lock,
+                            Colour = Color4.White,
+                            Size = new Vector2(24),
+                            Position = new Vector2(5, -5),
+                            Alpha = 0,
+                        },
+                        trapIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.BottomLeft,
+                            Origin = Anchor.BottomLeft,
+                            Icon = FontAwesome.Solid.ExclamationCircle,
+                            Colour = Color4.White,
+                            Size = new Vector2(24),
+                            Position = new Vector2(5, -5),
+                            Alpha = 0,
+                        },
+                        new TournamentModIcon(Index.IsNull() ? Mod : Mod + Index)
+                        {
+                            Anchor = Anchor.BottomCentre,
+                            Origin = Anchor.Centre,
+                            Margin = new MarginPadding(10),
+                            Width = 60,
+                            Size = new Vector2(80),
+                            RelativeSizeAxes = Axes.Y,
+                            Position = new Vector2(34, -18) // (x, y). Increment of x = Move right; Decrement of y = Move upwards.
                         }
                     },
                 },
@@ -163,37 +191,7 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.White,
-                    Size = new osuTK.Vector2(0.4f),
-                    Alpha = 0,
-                },
-                swapIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Yellow,
-                    Size = new osuTK.Vector2(0.4f),
-                    Icon = FontAwesome.Solid.ExchangeAlt,
-                    Alpha = 0,
-                },
-                protectIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Icon = FontAwesome.Solid.Lock,
-                    Colour = Color4.White,
-                    Size = new osuTK.Vector2(24),
-                    Position = new osuTK.Vector2(5, -5),
-                    Alpha = 0,
-                },
-                trapIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Icon = FontAwesome.Solid.ExclamationCircle,
-                    Colour = Color4.White,
-                    Size = new osuTK.Vector2(24),
-                    Position = new osuTK.Vector2(5, -5),
+                    Size = new Vector2(0.4f),
                     Alpha = 0,
                 },
                 flash = new Box
@@ -203,21 +201,7 @@ namespace osu.Game.Tournament.Components
                     Blending = BlendingParameters.Additive,
                     Alpha = 0,
                 },
-            });
-
-            if (!string.IsNullOrEmpty(Mod))
-            {
-                AddInternal(new TournamentModIcon(Index.IsNull() ? Mod : Mod + Index)
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.Centre,
-                    Margin = new MarginPadding(10),
-                    Width = 60,
-                    Size = new osuTK.Vector2(80),
-                    RelativeSizeAxes = Axes.Y,
-                    Position = new osuTK.Vector2(34, -18) // (x, y). Increment of x = Move right; Decrement of y = Move upwards. 
-                });
-            }
+            };
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -229,6 +213,7 @@ namespace osu.Game.Tournament.Components
                 match.OldValue.Traps.CollectionChanged -= picksBansOnCollectionChanged;
                 match.OldValue.PendingSwaps.CollectionChanged -= picksBansOnCollectionChanged;
             }
+
             if (match.NewValue != null)
             {
                 match.NewValue.PicksBans.CollectionChanged += picksBansOnCollectionChanged;
@@ -254,9 +239,9 @@ namespace osu.Game.Tournament.Components
             }
 
             bool isBothTrapped = currentMatch.Value.Traps.Any(p => p.BeatmapID == Beatmap?.OnlineID && p.Team == TeamColour.Red)
-                && currentMatch.Value.Traps.Any(p => p.BeatmapID == Beatmap?.OnlineID && p.Team == TeamColour.Blue);
+                                 && currentMatch.Value.Traps.Any(p => p.BeatmapID == Beatmap?.OnlineID && p.Team == TeamColour.Blue);
 
-            var newBPChoice = currentMatch.Value.PicksBans.LastOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
+            var newBpChoice = currentMatch.Value.PicksBans.LastOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
             var protectChoice = currentMatch.Value.Protects.LastOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
@@ -266,14 +251,16 @@ namespace osu.Game.Tournament.Components
 
             var pickerChoice = currentMatch.Value.PicksBans.LastOrDefault(p => p.BeatmapID == Beatmap?.OnlineID && p.Type == ChoiceType.Pick);
 
-            TeamColour borderColor = newBPChoice != null ? newBPChoice.Team : TeamColour.Neutral;
-            TeamColour protectColor = protectChoice != null ? protectChoice.Team : TeamColour.Neutral;
-            TeamColour trapColor = trapChoice != null ? trapChoice.Team : TeamColour.Neutral;
+            TeamColour protectColor = protectChoice?.Team ?? TeamColour.Neutral;
+            TeamColour trapColor = trapChoice?.Team ?? TeamColour.Neutral;
 
             // Flash when new changes are made.
-            bool shouldFlash = newBPChoice != bpChoice || protectChoice != pChoice || trapChoice != tChoice || swapChoice != null;
+            bool shouldFlash = newBpChoice != bpChoice || protectChoice != pChoice || trapChoice != tChoice || swapChoice != null;
 
-            if (newBPChoice != null || protectChoice != null || trapChoice != null || swapChoice != null)
+            string choiceText = newBpChoice?.Team == TeamColour.Red ? "Red" :
+                newBpChoice?.Team == TeamColour.Blue ? "Blue" : "Map";
+
+            if (newBpChoice != null || protectChoice != null || trapChoice != null || swapChoice != null)
             {
                 if (shouldFlash)
                 {
@@ -282,35 +269,17 @@ namespace osu.Game.Tournament.Components
 
                 if (protectChoice != null && trapChoice != null)
                 {
-                    trapIcon.MoveTo(newPosition: new osuTK.Vector2(30, -5), duration: 200, easing: Easing.OutCubic);
+                    trapIcon.MoveTo(newPosition: new Vector2(30, -5), duration: 200, easing: Easing.OutCubic);
                 }
                 else
                 {
-                    trapIcon.MoveTo(newPosition: new osuTK.Vector2(5, -5), duration: 150, easing: Easing.OutCubic);
+                    trapIcon.MoveTo(newPosition: new Vector2(5, -5), duration: 150, easing: Easing.OutCubic);
                 }
 
                 protectIcon.FadeTo(newAlpha: protectChoice != null ? 1 : 0, duration: 200, easing: Easing.OutCubic);
                 trapIcon.FadeTo(newAlpha: trapChoice != null ? 1 : 0, duration: 200, easing: Easing.OutCubic);
 
                 BorderThickness = 4;
-
-                if (trapChoice != null)
-                {
-                    Alpha = 1f;
-                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                    trapIcon.FadeIn(duration: 150, easing: Easing.InCubic);
-                    trapIcon.Colour = isBothTrapped ? Color4.White : (trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky);
-                    BorderThickness = 0;
-                }
-
-                if (protectChoice != null)
-                {
-                    Alpha = 1f;
-                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                    protectIcon.FadeIn(duration: 150, easing: Easing.InCubic);
-                    protectIcon.Colour = protectColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
-                    BorderThickness = 0;
-                }
 
                 if (pickerChoice != null)
                 {
@@ -323,30 +292,54 @@ namespace osu.Game.Tournament.Components
 
                 if (swapChoice != null)
                 {
-                    swapIcon.FadeInFromZero(duration: 800, easing: Easing.InCubic);
+                    swapIcon.RotateTo(0);
+                    swapIcon.FadeInFromZero(duration: 100, easing: Easing.InCubic);
                 }
 
-                if (newBPChoice != null)
+                if (trapChoice != null)
                 {
+                    BorderThickness = 0;
+                    Alpha = 1f;
+                    icon.Icon = FontAwesome.Solid.ExclamationCircle;
+                    instructText.Text = "Trap set!";
+                    if (trapChoice != tChoice) runAnimation(isBothTrapped ? Color4.White : trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky, false);
+                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
 
-                    if (newBPChoice.Type == ChoiceType.Ban)
+                    using (BeginDelayedSequence(3000))
                     {
-                        textArea.FadeTo(newAlpha: 0.5f, duration: 200, easing: Easing.OutCubic);
+                        trapIcon.FadeIn(duration: 150, easing: Easing.InCubic);
+                        trapIcon.Colour = isBothTrapped ? Color4.White : trapColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
                     }
-                    else
-                    {
-                        textArea.FadeTo(newAlpha: 1f, duration: 200, easing: Easing.OutCubic);
-                    }
+                }
 
-                    switch (newBPChoice.Type)
+                if (protectChoice != null && trapChoice == null)
+                {
+                    BorderThickness = 0;
+                    Alpha = 1f;
+                    icon.Icon = FontAwesome.Solid.Lock;
+                    instructText.Text = $"{choiceText} protected!";
+                    if (protectChoice != pChoice) runAnimation(TournamentGame.GetTeamColour(protectChoice.Team), false);
+                    backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
+
+                    protectIcon.FadeIn(duration: 150, easing: Easing.InCubic);
+                    protectIcon.Colour = protectColor == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
+                }
+
+                if (newBpChoice != null)
+                {
+                    textArea.FadeTo(newAlpha: newBpChoice.Type == ChoiceType.Ban ? 0.5f : 1f, duration: 200, easing: Easing.OutCubic);
+
+                    switch (newBpChoice.Type)
                     {
                         case ChoiceType.Pick:
                             Colour = Color4.White;
                             Alpha = 1f;
                             backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                            icon.FadeOut(duration: 100, easing: Easing.OutCubic);
-                            BorderColour = TournamentGame.GetTeamColour(newBPChoice.Team);
+                            icon.Icon = FontAwesome.Solid.Check;
+                            BorderColour = TournamentGame.GetTeamColour(newBpChoice.Team);
                             BorderThickness = 4;
+                            instructText.Text = $"{choiceText} picked!";
+                            if (shouldFlash) runAnimation(TournamentGame.GetTeamColour(newBpChoice.Team), false);
                             break;
 
                         // Ban: All darker
@@ -354,28 +347,28 @@ namespace osu.Game.Tournament.Components
                             backgroundAddition.Colour = Color4.Black;
                             backgroundAddition.FadeTo(newAlpha: 0.7f, duration: 150, easing: Easing.InCubic);
                             icon.Icon = FontAwesome.Solid.Ban;
-                            icon.Colour = newBPChoice.Team == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
-                            icon.FadeTo(newAlpha: 0.6f, duration: 200, easing: Easing.InCubic);
                             BorderThickness = 0;
+                            instructText.Text = $"{choiceText} banned!";
+                            if (shouldFlash) runAnimation(newBpChoice.Team == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky);
                             break;
 
                         // Win: Background colour
                         case ChoiceType.RedWin:
                             backgroundAddition.Colour = Color4.Red;
                             backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 150, easing: Easing.InCubic);
-                            icon.FadeIn(duration: 150, easing: Easing.InCubic);
                             icon.Icon = FontAwesome.Solid.Trophy;
-                            icon.Colour = new OsuColour().Red;
                             BorderThickness = 4;
+                            instructText.Text = "Red wins!";
+                            if (shouldFlash) runAnimation(new OsuColour().Red);
                             break;
 
                         case ChoiceType.BlueWin:
                             backgroundAddition.Colour = new OsuColour().Sky;
                             backgroundAddition.FadeTo(newAlpha: 0.5f, duration: 150, easing: Easing.InCubic);
-                            icon.FadeIn(duration: 150, easing: Easing.InCubic);
                             icon.Icon = FontAwesome.Solid.Trophy;
-                            icon.Colour = new OsuColour().Blue;
                             BorderThickness = 4;
+                            instructText.Text = "Blue wins!";
+                            if (shouldFlash) runAnimation(new OsuColour().Blue);
                             break;
 
                         default:
@@ -407,7 +400,8 @@ namespace osu.Game.Tournament.Components
                 icon.Colour = Color4.White;
                 backgroundAddition.Colour = Color4.White;
             }
-            bpChoice = newBPChoice;
+
+            bpChoice = newBpChoice;
             pChoice = protectChoice;
             tChoice = trapChoice;
         }
@@ -415,20 +409,91 @@ namespace osu.Game.Tournament.Components
         public void Flash(int count = 1)
         {
             if (count <= 0) return;
+
             if (count == 1) flash.FadeOutFromOne(duration: 900, easing: Easing.OutSine);
             else flash.FadeOutFromOne(duration: 900, easing: Easing.OutSine).Loop(0, count);
 
             swapIcon.FadeOutFromOne(1000, Easing.InCubic);
         }
 
-        private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
+        /// <summary>
+        /// Start the animation sequence for the board block.
+        /// </summary>
+        /// <param name="colour">The background colour in Step 2.</param>
+        /// <param name="showIconAfterComplete">Whether to show the icon at the centre after the animation finishes.</param>
+        private void runAnimation(ColourInfo? colour = null, bool showIconAfterComplete = true)
         {
-            // As covers are displayed on stream, we want them to load as soon as possible.
-            protected override double LoadDelay => 0;
+            // Stop any transform process (if exists) first
+            ClearTransforms();
 
-            // Use DelayedLoadWrapper to avoid content unloading when switching away to another screen.
-            protected override DelayedLoadWrapper CreateDelayedLoadWrapper(Func<Drawable> createContentFunc, double timeBeforeLoad)
-                => new DelayedLoadWrapper(createContentFunc(), timeBeforeLoad);
+            ColourInfo useColour = colour ?? Color4.White;
+            ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
+
+            // Fade statusIcon out first, for positioning later
+            icon.FadeOut(150, Easing.OutQuint);
+
+            using (BeginDelayedSequence(200))
+            {
+                slideBackground.Y = -Height;
+                slideBackground.Colour = Color4.White;
+                slideBackground.Alpha = 1f;
+                icon.Colour = Color4.Black;
+                instructText.Y = Height;
+                instructText.Colour = Color4.Black;
+                infoContainer.MoveToY(Height, 200, Easing.OutQuint);
+
+                using (BeginDelayedSequence(300))
+                {
+                    slideBackground.MoveToY(0, 500, Easing.OutQuint);
+                }
+
+                using (BeginDelayedSequence(700))
+                {
+                    icon.FadeIn(300, Easing.OutQuint);
+                    icon.ScaleTo(3f, 0)
+                        .Then().ScaleTo(1.2f, 400, Easing.OutQuint);
+                }
+
+                using (BeginDelayedSequence(1200))
+                {
+                    slideBackground.FadeColour(useColour, 1000, Easing.OutQuint);
+                    icon.FadeColour(fadeColour, 1000, Easing.OutQuint);
+                    instructText.FadeIn(800, Easing.OutQuint);
+                    instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
+                    instructText.MoveToY(-Height * 0.1f, 900, Easing.OutExpo);
+
+                    // Execute backgroundAddition commands before the last delayed sequence
+                    if (colour != null)
+                    {
+                        // backgroundAddition.FadeColour(useColour, 1000, Easing.OutQuint);
+                        // backgroundAddition.FadeTo(0.5f, 1000, Easing.OutQuint);
+                    }
+
+                    using (BeginDelayedSequence(3000))
+                    {
+                        slideBackground.Delay(500).MoveToY(-Height, 800, Easing.OutExpo);
+                        slideBackground.FadeOut(1000, Easing.OutQuint);
+                        icon.ScaleTo(1f, 1200, Easing.OutQuint);
+                        icon.FadeColour(useColour, 1200, Easing.OutQuint);
+
+                        // Hide icons under special circumstances (e.g. picks).
+                        if (!showIconAfterComplete)
+                        {
+                            icon.Delay(500).FadeOut(1000, Easing.OutQuint);
+                        }
+
+                        // A swift movement would be too visual distracting.
+                        instructText.MoveToY(0, 2000, Easing.OutQuint);
+                        instructText.FadeOut(700, Easing.OutQuint);
+                        infoContainer.MoveToY(0, 1200, Easing.OutExpo);
+                    }
+                }
+            }
+        }
+
+        public void RotateSwapIconTo(float angle = 0, int delay = 0)
+        {
+            swapIcon.Delay(delay).RotateTo(angle, 800, Easing.OutQuint);
         }
     }
 }

@@ -4,7 +4,7 @@
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Models;
 
-namespace osu.Game.Tournament.Screens.Board.Components
+namespace osu.Game.Tournament.Components
 {
     public partial class VideoTypeDropdown : SettingsDropdown<string>
     {

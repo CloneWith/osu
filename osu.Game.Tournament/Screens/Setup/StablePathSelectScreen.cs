@@ -13,7 +13,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
-using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.IPC;
 using osuTK;
 
@@ -26,6 +26,9 @@ namespace osu.Game.Tournament.Screens.Setup
 
         [Resolved]
         private MatchIPCInfo ipc { get; set; } = null!;
+
+        [Cached]
+        private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         private OsuDirectorySelector directorySelector = null!;
         private DialogOverlay? dialogOverlay;

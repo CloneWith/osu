@@ -32,10 +32,7 @@ namespace osu.Game.Tournament.Models
             Colour = new OsuColour().Yellow,
         };
 
-        private LocalisableString name = string.Empty;
-        private LocalisableString description = string.Empty;
-
-        private LocalisableString teamPrompt = string.Empty;
+        private LocalisableString teamPrompt;
 
         /// <summary>
         /// A constructor to set up an instance of <see cref="InstructionInfo"/>.
@@ -53,70 +50,72 @@ namespace osu.Game.Tournament.Models
             switch (Step)
             {
                 case Steps.Protect:
-                    name = @$"标记保图·{teamPrompt}";
-                    description = @"被保护的图无法被禁与设置陷阱。";
+                    Name = @$"标记保图·{teamPrompt}";
+                    Description = @"被保护的图无法被禁与设置陷阱。";
                     icon.Icon = FontAwesome.Solid.Lock;
                     icon.Colour = new OsuColour().Cyan;
                     break;
 
                 case Steps.Ban:
-                    name = @$"标记禁图·{teamPrompt}";
-                    description = @"被禁止的图无法被选与设置陷阱。";
+                    Name = @$"标记禁图·{teamPrompt}";
+                    Description = @"被禁止的图无法被选与设置陷阱。";
                     icon.Icon = FontAwesome.Solid.Ban;
                     icon.Colour = Color4.Orange;
                     break;
 
                 case Steps.Trap:
-                    name = @$"设置陷阱";
-                    description = @"请队长*私信*告知裁判，切勿外泄。";
+                    Name = @"设置陷阱";
+                    Description = @"请队长*私信*告知裁判，切勿外泄。";
                     icon.Icon = FontAwesome.Solid.ExclamationCircle;
                     icon.Colour = new OsuColour().Pink1;
                     break;
 
                 case Steps.Pick:
-                    name = @$"标记选图·{teamPrompt}";
-                    description = @"选择该轮要游玩的图。";
+                    Name = @$"标记选图·{teamPrompt}";
+                    Description = @"选择该轮要游玩的图。";
                     icon.Icon = FontAwesome.Solid.Check;
                     icon.Colour = new OsuColour().Green;
                     break;
 
                 case Steps.Win:
-                    name = @$"胜方染色·{teamPrompt}";
-                    description = @"此图所在格将染成获胜队颜色。";
+                    Name = @$"胜方染色·{teamPrompt}";
+                    Description = @"此图所在格将染成获胜队颜色。";
                     icon.Icon = FontAwesome.Solid.Trophy;
                     icon.Colour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
                     break;
 
-                case Steps.EX:
-                    name = @"即将进入 EX 模式";
-                    description = @"当前棋盘不足以任一方取胜，需要重新染色。";
+                case Steps.Ex:
+                    Name = @"即将进入 EX 模式";
+                    Description = @"当前棋盘不足以任一方取胜，需要重新染色。";
                     icon.Icon = FontAwesome.Solid.Bolt;
                     icon.Colour = Color4.Orange;
                     break;
 
                 case Steps.FinalWin:
-                    name = notDraw ? @$"{teamPrompt}获胜！" : team == TeamColour.Neutral ? @"EX: 决胜局" : @"Do you want smoke?";
-                    description = notDraw ? @$"恭喜{teamPrompt}获得最终胜利！" : team == TeamColour.Neutral ? @"我只是个笨蛋，也没有你聪明。" : @"来看看礼堂顶针？";
+                    Name = notDraw ? @$"{teamPrompt}获胜！" : team == TeamColour.Neutral ? @"EX: 决胜局" : @"Do you want smoke?";
+                    Description = notDraw ? @$"恭喜{teamPrompt}获得最终胜利！" : team == TeamColour.Neutral ? @"我只是个笨蛋，也没有你聪明。" : @"来看看礼堂顶针？";
                     icon.Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
                     icon.Colour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
                     break;
 
                 case Steps.Halt:
-                    name = @"请稍候...";
-                    description = @"等待JuroeBot响应...";
+                    Name = @"请稍候...";
+                    Description = @"等待裁判响应...";
                     icon.Icon = FontAwesome.Solid.ExclamationCircle;
                     icon.Colour = Color4.Orange;
                     break;
 
                 default:
-                    name = @"Welcome to the Fumo era!";
-                    description = @"(ᗜˬᗜ)";
+                    Name = @"Welcome to the Fumo era!";
+                    Description = @"(ᗜˬᗜ)";
                     break;
-            };
+            }
         }
 
-        public LocalisableString Name => name;
-        public LocalisableString Description => description;
+        public LocalisableString Name { get; }
+
+        public LocalisableString Description { get; }
+
         public IconUsage Icon => icon.Icon;
         public ColourInfo IconColor => icon.Colour;
 
@@ -146,7 +145,7 @@ namespace osu.Game.Tournament.Models
                     return Steps.Win;
 
                 case @"即将进入 EX 模式":
-                    return Steps.EX;
+                    return Steps.Ex;
 
                 case @"请稍候...":
                     return Steps.Halt;
@@ -167,34 +166,42 @@ namespace osu.Game.Tournament.Models
         /// Mark maps unable to be set a trap on and banned.
         /// </summary>
         Protect,
+
         /// <summary>
         /// Mark maps unable to be chosen and set a trap on.
         /// </summary>
         Ban,
+
         /// <summary>
         /// Add traps.
         /// </summary>
         Trap,
+
         /// <summary>
         /// Pick maps.
         /// </summary>
         Pick,
+
         /// <summary>
         /// Mark colours.
         /// </summary>
         Win,
+
         /// <summary>
         /// The EX stage.
         /// </summary>
-        EX,
+        Ex,
+
         /// <summary>
         /// The winner is decided.
         /// </summary>
         FinalWin,
+
         /// <summary>
         /// Something went wrong.
         /// </summary>
         Halt,
+
         /// <summary>
         /// Placeholder for default conditions.
         /// </summary>

@@ -12,14 +12,14 @@ using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Screens.Board.Components
 {
     public partial class InstructionDisplay : CompositeDrawable
     {
-        private readonly InstructionInfo thisStep = null!;
+        private readonly InstructionInfo thisStep;
 
-        private Container iconHolder = null!;
-        private Container descHolder = null!;
+        private readonly Container iconHolder;
+        private readonly Container descHolder;
 
         public InstructionDisplay(TeamColour team = TeamColour.Neutral, Steps step = Steps.Default)
         {
@@ -97,7 +97,6 @@ namespace osu.Game.Tournament.Components
 
             if (thisStep.Step == Steps.Default && welcomeTexture != null)
             {
-
                 iconHolder.Child = new Sprite
                 {
                     Anchor = Anchor.CentreLeft,

@@ -32,9 +32,10 @@ namespace osu.Game.Tournament.Models
         };
 
         [JsonIgnore]
-        public string Name { get; private set; } = string.Empty;
+        public string Name { get; private set; }
+
         [JsonIgnore]
-        public string Description { get; private set; } = string.Empty;
+        public string Description { get; private set; }
 
         /// <summary>
         /// A constructor to set up an instance of <see cref="TrapInfo"/>.
@@ -75,7 +76,7 @@ namespace osu.Game.Tournament.Models
                     Name = @"Unknown Trap";
                     Description = @"We don't know this one.";
                     break;
-            };
+            }
         }
 
         /// <summary>
@@ -113,14 +114,17 @@ namespace osu.Game.Tournament.Models
         /// Swap the specified map block with another after the current gameplay comes to an end.
         /// </summary>
         Swap,
+
         /// <summary>
         /// Set a temporary Win state for this block, then reset to Pick.
         /// </summary>
         Reverse,
+
         /// <summary>
         /// The trap has no effect.
         /// </summary>
         Unused,
+
         /// <summary>
         /// Placeholder for unimplemented or empty traps.
         /// </summary>

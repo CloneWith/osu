@@ -223,6 +223,12 @@ namespace osu.Game.Tournament.Tests.Components
 
             AddStep("change channel to 1", () => chatDisplay.Channel.Value = testChannel);
 
+            AddStep("!mp message (shouldn't display)", () => testChannel.AddNewMessages(new Message(nextMessageId())
+            {
+                Sender = redUser.ToAPIUser(),
+                Content = "!mp wangs"
+            }));
+
             AddStep("resize container to 500x500 with animation", () =>
             {
                 chatDisplay.RelativeSizeAxes = Axes.None;

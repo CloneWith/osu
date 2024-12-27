@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -13,7 +12,6 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
 using osu.Game.Tournament.Models;
 using osuTK.Graphics;
@@ -176,13 +174,6 @@ namespace osu.Game.Tournament.Components
 
             if (newChoice != null)
             {
-                // Auto selecting is bothering us! Fight back!
-                if (!newChoice.Token)
-                {
-                    currentMatch.Value.PicksBans.Remove(newChoice);
-                    return;
-                }
-
                 if (shouldFlash)
                     flash.FadeOutFromOne(500).Loop(0, 10);
 
@@ -246,16 +237,6 @@ namespace osu.Game.Tournament.Components
             }
 
             choice = newChoice;
-        }
-
-        private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
-        {
-            // As covers are displayed on stream, we want them to load as soon as possible.
-            protected override double LoadDelay => 0;
-
-            // Use DelayedLoadWrapper to avoid content unloading when switching away to another screen.
-            protected override DelayedLoadWrapper CreateDelayedLoadWrapper(Func<Drawable> createContentFunc, double timeBeforeLoad)
-                => new DelayedLoadWrapper(createContentFunc(), timeBeforeLoad);
         }
     }
 }

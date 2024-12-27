@@ -16,7 +16,8 @@ namespace osu.Game.Tournament.Components
 
         protected readonly Box Background;
 
-        public TournamentSpriteTextWithBackground(string text = "", int fontSize = 50,
+        public TournamentSpriteTextWithBackground(
+            string text = "", int fontSize = 50,
             Color4? backgroundColor = null, Color4? textColor = null, FontWeight? textWeight = FontWeight.SemiBold)
         {
             AutoSizeAxes = Axes.Both;

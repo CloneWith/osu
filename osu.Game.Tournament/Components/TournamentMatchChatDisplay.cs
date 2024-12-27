@@ -7,7 +7,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Online.API;
-using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
 using osu.Game.Overlays.Chat;
 using osu.Game.Tournament.IPC;
@@ -70,12 +69,10 @@ namespace osu.Game.Tournament.Components
 
                     if (channel == null)
                     {
-                        // channel = new Channel(new APIUser { Id = 3 })
                         channel = new Channel
                         {
                             Id = channelId,
                             Type = ChannelType.Public,
-                            // Type = ChannelType.PM,
                         };
                         manager.JoinChannel(channel);
                     }
@@ -119,8 +116,11 @@ namespace osu.Game.Tournament.Components
             CornerRadius = radius;
         }
 
-        protected override ChatLine CreateMessage(Message message)
+        protected override ChatLine? CreateMessage(Message message)
         {
+            if (message.Content.StartsWith("!mp", StringComparison.Ordinal))
+                return null;
+
             var currentMatch = ladderInfo.CurrentMatch;
             bool isCommand = false;
             bool isRef = false;
@@ -166,13 +166,12 @@ namespace osu.Game.Tournament.Components
                 AlternatingBackground = false;
                 IsStrong = isCommand;
 
-                if (info.CurrentMatch.Value is TournamentMatch match)
-                {
-                    if (match.Team1.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
-                        UsernameColour = TournamentGame.COLOUR_RED;
-                    else if (match.Team2.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
-                        UsernameColour = TournamentGame.COLOUR_BLUE;
-                }
+                if (info.CurrentMatch.Value is not TournamentMatch match) return;
+
+                if (match.Team1.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
+                    UsernameColour = TournamentGame.COLOUR_RED;
+                else if (match.Team2.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
+                    UsernameColour = TournamentGame.COLOUR_BLUE;
             }
         }
     }

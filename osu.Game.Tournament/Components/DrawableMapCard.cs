@@ -247,7 +247,7 @@ namespace osu.Game.Tournament.Components
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
-                                            Text = $"mapper: {Beatmap?.Metadata.Author}",
+                                            Text = $"mapper: {Beatmap?.Metadata.Author.Username}",
                                             Shear = new Vector2(-OsuGame.SHEAR, 0f),
                                             Font = OsuFont.Torus.With(size: 18)
                                         }
@@ -277,9 +277,9 @@ namespace osu.Game.Tournament.Components
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
             if (match.OldValue != null)
-                match.OldValue.EXPicks.CollectionChanged -= picksBansOnCollectionChanged;
+                match.OldValue.ExtraPicks.CollectionChanged -= picksBansOnCollectionChanged;
             if (match.NewValue != null)
-                match.NewValue.EXPicks.CollectionChanged += picksBansOnCollectionChanged;
+                match.NewValue.ExtraPicks.CollectionChanged += picksBansOnCollectionChanged;
 
             Scheduler.AddOnce(updateState);
         }
@@ -296,7 +296,7 @@ namespace osu.Game.Tournament.Components
                 return;
             }
 
-            var newChoice = currentMatch.Value.EXPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
+            var newChoice = currentMatch.Value.ExtraPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
             string choiceText = newChoice?.Team == TeamColour.Red ? "Red" :
                 newChoice?.Team == TeamColour.Blue ? "Blue" : "Map";

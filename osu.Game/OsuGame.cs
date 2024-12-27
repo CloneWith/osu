@@ -57,7 +57,6 @@ using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.OSD;
 using osu.Game.Overlays.SkinEditor;
 using osu.Game.Overlays.Toolbar;
-using osu.Game.Overlays.Volume;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens;
@@ -87,9 +86,9 @@ namespace osu.Game
     {
 #if DEBUG
         // Different port allows running release and debug builds alongside each other.
-        public const int IPC_PORT = 44824;
+        public const string IPC_PIPE_NAME = "osu-lazer-debug";
 #else
-        public const int IPC_PORT = 44823;
+        public const string IPC_PIPE_NAME = "osu-lazer";
 #endif
 
         /// <summary>
@@ -148,8 +147,7 @@ namespace osu.Game
         [Resolved]
         private FrameworkConfigManager frameworkConfig { get; set; }
 
-        [Cached]
-        private readonly DifficultyRecommender difficultyRecommender = new DifficultyRecommender();
+        private DifficultyRecommender difficultyRecommender;
 
         [Cached]
         private readonly LegacyImportManager legacyImportManager = new LegacyImportManager();
@@ -176,13 +174,13 @@ namespace osu.Game
         public readonly IBindable<OverlayActivation> OverlayActivationMode = new Bindable<OverlayActivation>();
 
         /// <summary>
-        /// Whether the local user is currently interacting with the game in a way that should not be interrupted.
+        /// Whether the back button is currently displayed.
         /// </summary>
-        /// <remarks>
-        /// This is exclusively managed by <see cref="Player"/>. If other components are mutating this state, a more
-        /// resilient method should be used to ensure correct state.
-        /// </remarks>
-        public Bindable<bool> LocalUserPlaying = new BindableBool();
+        private readonly IBindable<bool> backButtonVisibility = new Bindable<bool>();
+
+        IBindable<LocalUserPlayingState> ILocalUserPlayInfo.PlayingState => playingState;
+
+        private readonly Bindable<LocalUserPlayingState> playingState = new Bindable<LocalUserPlayingState>();
 
         protected OsuScreenStack ScreenStack;
 
@@ -201,7 +199,8 @@ namespace osu.Game
 
         private MainMenu menuScreen;
 
-        private VersionManager versionManager;
+        [CanBeNull]
+        private DevBuildBanner devBuildBanner;
 
         [CanBeNull]
         private IntroScreen introScreen;
@@ -302,7 +301,7 @@ namespace osu.Game
         protected override UserInputManager CreateUserInputManager()
         {
             var userInputManager = base.CreateUserInputManager();
-            (userInputManager as OsuUserInputManager)?.LocalUserPlaying.BindTo(LocalUserPlaying);
+            (userInputManager as OsuUserInputManager)?.PlayingState.BindTo(playingState);
             return userInputManager;
         }
 
@@ -391,11 +390,11 @@ namespace osu.Game
             // Transfer any runtime changes back to configuration file.
             SkinManager.CurrentSkinInfo.ValueChanged += skin => configSkin.Value = skin.NewValue.ID.ToString();
 
-            LocalUserPlaying.BindValueChanged(p =>
+            playingState.BindValueChanged(p =>
             {
-                BeatmapManager.PauseImports = p.NewValue;
-                SkinManager.PauseImports = p.NewValue;
-                ScoreManager.PauseImports = p.NewValue;
+                BeatmapManager.PauseImports = p.NewValue != LocalUserPlayingState.NotPlaying;
+                SkinManager.PauseImports = p.NewValue != LocalUserPlayingState.NotPlaying;
+                ScoreManager.PauseImports = p.NewValue != LocalUserPlayingState.NotPlaying;
             }, true);
 
             IsActive.BindValueChanged(active => updateActiveState(active.NewValue), true);
@@ -445,10 +444,11 @@ namespace osu.Game
                     break;
 
                 case LinkAction.SearchBeatmapSet:
-                    if (link.Argument is RomanisableString romanisable)
-                        SearchBeatmapSet(romanisable.GetPreferred(Localisation.CurrentParameters.Value.PreferOriginalScript));
+                    if (link.Argument is LocalisableString localisable)
+                        SearchBeatmapSet(Localisation.GetLocalisedString(localisable));
                     else
                         SearchBeatmapSet(argString);
+
                     break;
 
                 case LinkAction.FilterBeatmapSetGenre:
@@ -979,12 +979,6 @@ namespace osu.Game
 
             AddRange(new Drawable[]
             {
-                new VolumeControlReceptor
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    ActionRequested = action => volume.Adjust(action),
-                    ScrollActionRequested = (action, amount, isPrecise) => volume.Adjust(action, amount, isPrecise),
-                },
                 ScreenOffsetContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -1023,7 +1017,7 @@ namespace osu.Game
                                             if (!(ScreenStack.CurrentScreen is IOsuScreen currentScreen))
                                                 return;
 
-                                            if (!((Drawable)currentScreen).IsLoaded || (currentScreen.AllowBackButton && !currentScreen.OnBackButton()))
+                                            if (!((Drawable)currentScreen).IsLoaded || (currentScreen.AllowUserExit && !currentScreen.OnBackButton()))
                                                 ScreenStack.Exit();
                                         }
                                     },
@@ -1060,10 +1054,7 @@ namespace osu.Game
             }, topMostOverlayContent.Add);
 
             if (!IsDeployedBuild)
-            {
-                dependencies.Cache(versionManager = new VersionManager());
-                loadComponentSingleFile(versionManager, ScreenContainer.Add);
-            }
+                loadComponentSingleFile(devBuildBanner = new DevBuildBanner(), ScreenContainer.Add);
 
             loadComponentSingleFile(osuLogo, _ =>
             {
@@ -1073,7 +1064,11 @@ namespace osu.Game
                 ScreenStack.Push(CreateLoader().With(l => l.RelativeSizeAxes = Axes.Both));
             });
 
-            loadComponentSingleFile(new UserStatisticsWatcher(), Add, true);
+            LocalUserStatisticsProvider statisticsProvider;
+
+            loadComponentSingleFile(statisticsProvider = new LocalUserStatisticsProvider(), Add, true);
+            loadComponentSingleFile(difficultyRecommender = new DifficultyRecommender(statisticsProvider), Add, true);
+            loadComponentSingleFile(new UserStatisticsWatcher(statisticsProvider), Add, true);
             loadComponentSingleFile(Toolbar = new Toolbar
             {
                 OnHome = delegate
@@ -1141,9 +1136,8 @@ namespace osu.Game
             loadComponentSingleFile(new MedalOverlay(), topMostOverlayContent.Add);
 
             loadComponentSingleFile(new BackgroundDataStoreProcessor(), Add);
-            loadComponentSingleFile(new DetachedBeatmapStore(), Add, true);
+            loadComponentSingleFile<BeatmapStore>(new RealmDetachedBeatmapStore(), Add, true);
 
-            Add(difficultyRecommender);
             Add(externalLinkOpener = new ExternalLinkOpener());
             Add(new MusicKeyBindingHandler());
             Add(new OnlineStatusNotifier(() => ScreenStack.CurrentScreen));
@@ -1191,6 +1185,14 @@ namespace osu.Game
             OverlayActivationMode.ValueChanged += mode =>
             {
                 if (mode.NewValue != OverlayActivation.All) CloseAllOverlays();
+            };
+
+            backButtonVisibility.ValueChanged += visible =>
+            {
+                if (visible.NewValue)
+                    BackButton.Show();
+                else
+                    BackButton.Hide();
             };
 
             // Importantly, this should be run after binding PostNotification to the import handlers so they can present the import after game startup.
@@ -1423,6 +1425,19 @@ namespace osu.Game
 
             switch (e.Action)
             {
+                case GlobalAction.DecreaseVolume:
+                case GlobalAction.IncreaseVolume:
+                    return volume.Adjust(e.Action);
+
+                case GlobalAction.ToggleMute:
+                case GlobalAction.NextVolumeMeter:
+                case GlobalAction.PreviousVolumeMeter:
+
+                    if (e.Repeat)
+                        return true;
+
+                    return volume.Adjust(e.Action);
+
                 case GlobalAction.ToggleFPSDisplay:
                     fpsCounter.ToggleVisibility();
                     return true;
@@ -1552,34 +1567,47 @@ namespace osu.Game
                 scope.SetTag(@"screen", newScreen?.GetType().ReadableName() ?? @"none");
             });
 
+            switch (current)
+            {
+                case Player player:
+                    player.PlayingState.UnbindFrom(playingState);
+
+                    // reset for sanity.
+                    playingState.Value = LocalUserPlayingState.NotPlaying;
+                    break;
+            }
+
             switch (newScreen)
             {
                 case IntroScreen intro:
                     introScreen = intro;
-                    versionManager?.Show();
+                    devBuildBanner?.Show();
                     break;
 
                 case MainMenu menu:
                     menuScreen = menu;
-                    versionManager?.Show();
+                    devBuildBanner?.Show();
+                    break;
+
+                case Player player:
+                    player.PlayingState.BindTo(playingState);
                     break;
 
                 default:
-                    versionManager?.Hide();
+                    devBuildBanner?.Hide();
                     break;
             }
 
-            // reset on screen change for sanity.
-            LocalUserPlaying.Value = false;
-
             if (current is IOsuScreen currentOsuScreen)
             {
+                backButtonVisibility.UnbindFrom(currentOsuScreen.BackButtonVisibility);
                 OverlayActivationMode.UnbindFrom(currentOsuScreen.OverlayActivationMode);
                 API.Activity.UnbindFrom(currentOsuScreen.Activity);
             }
 
             if (newScreen is IOsuScreen newOsuScreen)
             {
+                backButtonVisibility.BindTo(newOsuScreen.BackButtonVisibility);
                 OverlayActivationMode.BindTo(newOsuScreen.OverlayActivationMode);
                 API.Activity.BindTo(newOsuScreen.Activity);
 
@@ -1589,11 +1617,6 @@ namespace osu.Game
                     CloseAllOverlays();
                 else
                     Toolbar.Show();
-
-                if (newOsuScreen.AllowBackButton)
-                    BackButton.Show();
-                else
-                    BackButton.Hide();
 
                 if (newOsuScreen.ShowFooter)
                 {
@@ -1620,7 +1643,5 @@ namespace osu.Game
             if (newScreen == null)
                 Exit();
         }
-
-        IBindable<bool> ILocalUserPlayInfo.IsPlaying => LocalUserPlaying;
     }
 }

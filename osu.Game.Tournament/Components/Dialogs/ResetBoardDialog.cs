@@ -5,7 +5,7 @@ using System;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Overlays.Dialog;
 
-namespace osu.Game.Tournament.Components
+namespace osu.Game.Tournament.Components.Dialogs
 {
     public partial class ResetBoardDialog : PopupDialog
     {
@@ -19,12 +19,12 @@ namespace osu.Game.Tournament.Components
                 new PopupDialogDangerousButton
                 {
                     Text = @"Yes, revert to the initial state.",
-                    Action = () => revertAction()
+                    Action = revertAction
                 },
                 new PopupDialogDangerousButton
                 {
                     Text = @"Yes, but keep the swaps.",
-                    Action = () => resetAction()
+                    Action = resetAction
                 },
                 new PopupDialogCancelButton
                 {
