@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
@@ -35,6 +36,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private IBeatmapInfo? beatmapInfo;
         private UpdateableOnlineBeatmapSetCover setCover = null!;
         private StarRatingDisplay starRatingDisplay = null!;
+        private Container difficultyIconContainer = null!;
+        private DifficultyIcon difficultyIcon = null!;
+        private FillFlowContainer beatmapInfoFlow = null!;
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
@@ -92,6 +96,25 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativePositionAxes = Axes.Both,
                     Y = star_rating_y_expanded + centre_offset,
                     Scale = new Vector2(1.75f)
+                },
+                difficultyIconContainer = new Container
+                {
+                    Origin = Anchor.Centre,
+                    RelativePositionAxes = Axes.Both,
+                    AutoSizeAxes = Axes.Both,
+                    AutoSizeEasing = Easing.OutQuint,
+                    AutoSizeDuration = 100,
+                    X = 0.07f,
+                    Y = 0.9f
+                },
+                beatmapInfoFlow = new FillFlowContainer
+                {
+                    Origin = Anchor.CentreLeft,
+                    Direction = FillDirection.Vertical,
+                    AutoSizeAxes = Axes.Y,
+                    AutoSizeEasing = Easing.OutQuint,
+                    AutoSizeDuration = 100,
+                    Y = 0.9f
                 }
             };
         }
@@ -118,6 +141,23 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     Logger.Log($"Error while populating showcase item {e}");
                 }
+            }).ContinueWith(_ =>
+            {
+                // Ensure we are working on the correct thread!
+                Scheduler.AddOnce(_ =>
+                {
+                    difficultyIconContainer.Child = difficultyIcon = new DifficultyIcon(beatmapInfo ?? new BeatmapInfo(),
+                        beatmapInfo?.Ruleset, beatmap.RequiredMods.ToArray())
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        TooltipType = DifficultyIconTooltipType.None,
+                        Scale = new Vector2(1.25f),
+                        Alpha = 0
+                    };
+                    difficultyIcon.ScaleTo(1.75f, 250, Easing.OutQuint);
+                    difficultyIcon.FadeIn(300, Easing.OutQuint);
+                }, true);
             });
         }
 
