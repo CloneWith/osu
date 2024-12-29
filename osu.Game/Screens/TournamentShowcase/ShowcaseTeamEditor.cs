@@ -75,7 +75,7 @@ namespace osu.Game.Screens.TournamentShowcase
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
 
-            PlayerEditor playerEditor = new PlayerEditor(Team, config.Ruleset.Value);
+            PlayerEditor playerEditor = new PlayerEditor(Team, config.FallbackRuleset.Value);
 
             Spacing = new Vector2(5);
             Padding = new MarginPadding(10);

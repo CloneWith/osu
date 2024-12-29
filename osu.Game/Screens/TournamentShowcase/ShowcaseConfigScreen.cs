@@ -130,7 +130,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                             Caption = "Ruleset",
                                             HintText = @"The ruleset we use for showcase and replays. Replays must strictly match the selected ruleset.",
                                             Items = rulesets.AvailableRulesets,
-                                            Current = currentProfile.Value.Ruleset,
+                                            Current = currentProfile.Value.FallbackRuleset,
                                         },
                                         tournamentNameInput = new FormTextBox
                                         {
@@ -385,7 +385,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void updateForm()
         {
-            rulesetDropdown.Current = currentProfile.Value.Ruleset;
+            rulesetDropdown.Current = currentProfile.Value.FallbackRuleset;
             tournamentNameInput.Current = currentProfile.Value.TournamentName;
             roundNameInput.Current = currentProfile.Value.RoundName;
             dateTimeInput.Current = currentProfile.Value.DateTime;

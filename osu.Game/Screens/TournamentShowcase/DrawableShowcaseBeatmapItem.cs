@@ -1,8 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,12 +52,12 @@ namespace osu.Game.Screens.TournamentShowcase
         /// <summary>
         /// Invoked when this item requests to be deleted.
         /// </summary>
-        public Action<ShowcaseBeatmap> RequestDeletion;
+        public Action<ShowcaseBeatmap>? RequestDeletion;
 
         /// <summary>
         /// Invoked when this item requests to be edited.
         /// </summary>
-        public Action<ShowcaseBeatmap> RequestEdit;
+        public Action<ShowcaseBeatmap>? RequestEdit;
 
         public ShowcaseBeatmap Item
         {
@@ -68,7 +66,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 item = value;
                 beatmapInfo = value.BeatmapInfo;
-                ruleset = rulesets?.GetRuleset(value.RulesetId);
+                ruleset = rulesetStore.GetRuleset(value.RulesetId) ?? config.FallbackRuleset.Value;
                 var rulesetInstance = ruleset?.CreateInstance();
 
                 if (rulesetInstance != null)
@@ -80,63 +78,55 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
+        private readonly ShowcaseConfig config;
         private ShowcaseBeatmap item;
-        private ShowcaseConfig config;
-        private IBeatmapInfo beatmapInfo;
-        private IRulesetInfo ruleset;
+        private IBeatmapInfo? beatmapInfo;
+        private IRulesetInfo? ruleset;
         private Mod[] requiredMods = Array.Empty<Mod>();
 
-        private FillFlowContainer difficultyIconContainer;
-        private LinkFlowContainer beatmapText;
-        private TextFlowContainer difficultyText;
-        private LinkFlowContainer authorText;
-        private ExplicitContentBeatmapBadge explicitContent;
-        private ModDisplay modDisplay;
-        private FillFlowContainer buttonsFlow;
-        private UpdateableAvatar ownerAvatar;
-        private Drawable editButton;
-        private Drawable removeButton;
-        private PanelBackground panelBackground;
-        private FillFlowContainer infoFillFlow;
-        private BeatmapCardThumbnail thumbnail;
-        private Container recordScoreContainer;
+        private FillFlowContainer difficultyIconContainer = null!;
+        private LinkFlowContainer beatmapText = null!;
+        private TextFlowContainer difficultyText = null!;
+        private LinkFlowContainer authorText = null!;
+        private ExplicitContentBeatmapBadge explicitContent = null!;
+        private ModDisplay modDisplay = null!;
+        private FillFlowContainer buttonsFlow = null!;
+        private UpdateableAvatar ownerAvatar = null!;
+        private Drawable? editButton;
+        private Drawable? removeButton;
+        private PanelBackground panelBackground = null!;
+        private FillFlowContainer infoFillFlow = null!;
+        private BeatmapCardThumbnail? thumbnail;
+        private Container recordScoreContainer = null!;
 
         [Resolved]
-        private RulesetStore rulesets { get; set; }
+        private RulesetStore rulesetStore { get; set; } = null!;
 
         [Resolved]
-        private UserLookupCache userLookupCache { get; set; }
+        private UserLookupCache userLookupCache { get; set; } = null!;
 
         [Resolved]
-        private BeatmapLookupCache beatmapLookupCache { get; set; }
+        private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
 
-        [Resolved(CanBeNull = true)]
-        private BeatmapSetOverlay beatmapOverlay { get; set; }
+        [Resolved]
+        private BeatmapSetOverlay? beatmapOverlay { get; set; }
 
-        [Resolved(CanBeNull = true)]
-        private IPerformFromScreenRunner performer { get; set; }
+        [Resolved]
+        private IPerformFromScreenRunner? performer { get; set; }
 
         public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
             : base(item)
         {
-            this.item = item ?? new ShowcaseBeatmap();
-            ShowDragHandle.Value = false;
+            this.item = item;
             this.config = config;
-        }
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            ruleset = rulesets.GetRuleset(item.RulesetId);
-            var rulesetInstance = ruleset?.CreateInstance();
-
-            if (rulesetInstance != null)
-                requiredMods = item.RequiredMods.ToArray();
+            ShowDragHandle.Value = false;
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? config.FallbackRuleset.Value;
 
             onScreenLoader.DelayedLoadStarted += _ =>
             {
@@ -151,6 +141,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         }
 
                         beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
+                        requiredMods = item.RequiredMods.ToArray();
 
                         Scheduler.AddOnce(Refresh, false);
                     }
@@ -208,8 +199,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 showItemOwner = value;
 
-                if (ownerAvatar != null)
-                    ownerAvatar.Alpha = value ? 1 : 0;
+                ownerAvatar.Alpha = value ? 1 : 0;
             }
         }
 
@@ -243,13 +233,12 @@ namespace osu.Game.Screens.TournamentShowcase
                 else
                     difficultyIconContainer.Clear();
 
-                panelBackground.Beatmap.Value = beatmapInfo;
-
                 beatmapText.Clear();
                 difficultyText.Clear();
 
                 if (beatmapInfo != null)
                 {
+                    panelBackground.Beatmap.Value = beatmapInfo;
                     beatmapText.AddLink(beatmapInfo.GetDisplayTitleRomanisable(includeDifficultyName: false, includeCreator: false),
                         LinkAction.OpenBeatmap,
                         beatmapInfo.OnlineID.ToString(),
@@ -532,7 +521,7 @@ namespace osu.Game.Screens.TournamentShowcase
             private readonly IBeatmapInfo beatmap;
 
             [Resolved]
-            private BeatmapManager beatmapManager { get; set; }
+            private BeatmapManager beatmapManager { get; set; } = null!;
 
             // required for download tracking, as this button hides itself. can probably be removed with a bit of consideration.
             public override bool IsPresent => true;

@@ -11,7 +11,12 @@ namespace osu.Game.Screens.TournamentShowcase
     [Serializable]
     public class ShowcaseConfig
     {
-        public Bindable<RulesetInfo> Ruleset = new Bindable<RulesetInfo>();
+        /// <summary>
+        /// A fallback ruleset for the showcase.
+        /// <br/>When unable to find a specific ruleset using the ID provided by a <see cref="ShowcaseBeatmap"/>,
+        /// we can turn to use this.
+        /// </summary>
+        public Bindable<RulesetInfo> FallbackRuleset = new Bindable<RulesetInfo>();
 
         public Bindable<string> TournamentName = new Bindable<string>();
         public Bindable<string> RoundName = new Bindable<string>();

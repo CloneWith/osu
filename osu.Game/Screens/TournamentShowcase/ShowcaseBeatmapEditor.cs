@@ -14,6 +14,7 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
+using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osuTK;
@@ -73,29 +74,33 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private IAPIProvider api { get; set; } = null!;
 
+        [Resolved]
+        private RulesetStore rulesetStore { get; set; } = null!;
+
         private ScoreManager scoreManager = null!;
 
         public bool AllowDeletion = true;
 
         public ShowcaseBeatmap Beatmap { get; }
-        private readonly Bindable<BeatmapInfo> beatmapInfoBindable = new Bindable<BeatmapInfo>();
+        private readonly Bindable<BeatmapInfo> beatmapInfoBindable;
         private readonly Bindable<ScoreInfo?> scoreInfoBindable = new Bindable<ScoreInfo?>();
         private readonly BindableList<Mod> modListBindable = new BindableList<Mod>();
+        private Bindable<RulesetInfo> rulesetBindable = new Bindable<RulesetInfo>();
         private FormDropdown<BeatmapType> mapTypeDropdown = null!;
         private DrawableShowcaseBeatmapItem drawableItem = null!;
 
         private ShowcaseConfig config { get; set; }
 
-        private readonly Bindable<string> selectorId = new Bindable<string>();
+        private readonly Bindable<string> selectorId;
 
         public BeatmapRow(ShowcaseBeatmap beatmap, ShowcaseConfig config)
         {
             Beatmap = beatmap;
-            beatmapInfoBindable.Value = Beatmap.BeatmapInfo;
-            modListBindable.BindTo(Beatmap.RequiredMods);
-
             this.config = config;
-            selectorId.Value = beatmap.Selector.Value?.OnlineID.ToString() ?? string.Empty;
+
+            beatmapInfoBindable = new Bindable<BeatmapInfo>(Beatmap.BeatmapInfo);
+            modListBindable.BindTo(Beatmap.RequiredMods);
+            selectorId = new Bindable<string>(beatmap.Selector.Value?.OnlineID.ToString() ?? string.Empty);
 
             Masking = true;
             CornerRadius = 10;
@@ -114,6 +119,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private void load(ScoreManager scoreManager)
         {
             this.scoreManager = scoreManager;
+
+            // RulesetStore needs to be resolved first.
+            rulesetBindable = new Bindable<RulesetInfo>(rulesetStore.GetRuleset(Beatmap.RulesetId) ?? config.FallbackRuleset.Value);
 
             Children = new Drawable[]
             {
@@ -178,7 +186,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RequestEdit = _ =>
                     {
                         Schedule(() => performer?.PerformFromScreen(s =>
-                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, modListBindable, scoreInfoBindable)),
+                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, modListBindable, scoreInfoBindable, rulesetBindable)),
                             new[] { typeof(ShowcaseConfigScreen) }));
                     },
                     RequestDeletion = _ =>
@@ -263,6 +271,11 @@ namespace osu.Game.Screens.TournamentShowcase
                 Beatmap.ShowcaseScore = score.NewValue;
                 Beatmap.ScoreHash = score.NewValue?.Hash ?? string.Empty;
                 drawableItem.Refresh(true);
+            });
+
+            rulesetBindable.BindValueChanged(ruleset =>
+            {
+                Beatmap.RulesetId = ruleset.NewValue.OnlineID;
             });
         }
 

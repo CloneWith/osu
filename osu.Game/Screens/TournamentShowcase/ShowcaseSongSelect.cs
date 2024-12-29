@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Overlays;
+using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Ranking;
@@ -17,18 +18,21 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         public override bool AllowEditing => false;
 
-        [Resolved(canBeNull: true)]
+        [Resolved]
         private IDialogOverlay? dialogOverlay { get; set; }
 
         private readonly Bindable<BeatmapInfo> targetBeatmap = new Bindable<BeatmapInfo>();
         private readonly Bindable<ScoreInfo?> targetScore = new Bindable<ScoreInfo?>();
         private readonly BindableList<Mod> targetMods = new BindableList<Mod>();
+        private readonly Bindable<RulesetInfo> targetRuleset = new Bindable<RulesetInfo>();
 
-        public ShowcaseSongSelect(Bindable<BeatmapInfo> beatmap, BindableList<Mod> mods, Bindable<ScoreInfo?> score)
+        public ShowcaseSongSelect(Bindable<BeatmapInfo> beatmap, BindableList<Mod> mods,
+                                  Bindable<ScoreInfo?> score, Bindable<RulesetInfo> rulesetInfo)
         {
             targetBeatmap.BindTo(beatmap);
             targetScore.BindTo(score);
             targetMods.BindTo(mods);
+            targetRuleset.BindTo(rulesetInfo);
         }
 
         protected void PresentScore(ScoreInfo score) =>
@@ -49,6 +53,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             // Pass information of the selected beatmap to the bindable.
             targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
+            targetRuleset.Value = Ruleset.Value;
             targetMods.Clear();
             targetMods.AddRange(Mods.Value);
 
@@ -72,6 +77,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
                 targetScore.Value = s;
+                targetRuleset.Value = s.Ruleset;
                 targetMods.Clear();
                 targetMods.AddRange(s.Mods);
 

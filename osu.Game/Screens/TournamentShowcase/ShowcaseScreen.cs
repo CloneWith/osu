@@ -12,6 +12,7 @@ using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Models;
+using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Play.HUD;
@@ -32,10 +33,13 @@ namespace osu.Game.Screens.TournamentShowcase
         public override bool HideOverlaysOnEnter => true;
 
         [Resolved]
-        private BeatmapManager beatmaps { get; set; } = null!;
+        private BeatmapManager beatmapManager { get; set; } = null!;
 
         [Resolved]
         private ScoreManager scoreManager { get; set; } = null!;
+
+        [Resolved]
+        private RulesetStore rulesetStore { get; set; } = null!;
 
         private WorkingBeatmap beatmap = null!;
         private ShowcasePlayer? player;
@@ -146,7 +150,7 @@ namespace osu.Game.Screens.TournamentShowcase
             base.LoadComplete();
 
             // Switch the ruleset beforehand to avoid cast exception.
-            Ruleset.Value = config.Ruleset.Value;
+            Ruleset.Value = config.FallbackRuleset.Value;
 
             AddInternal(new ShowcaseCountdownOverlay(config.StartCountdown.Value));
             state.BindValueChanged(stateChanged);
@@ -181,13 +185,13 @@ namespace osu.Game.Screens.TournamentShowcase
 
         /// <summary>
         /// Load the next beatmap in the queue and push it to the player.
-        /// If no map presents, this will trigger the outro screen.
+        /// <br/>If no map presents, this will trigger the outro screen.
         /// </summary>
         private void updateBeatmap(bool introMode = false)
         {
             state.Value = introMode ? ShowcaseState.Intro : ShowcaseState.BeatmapShow;
             ShowcaseBeatmap selected;
-            Score? score;
+            Score score;
 
             if (!introMode)
             {
@@ -218,38 +222,46 @@ namespace osu.Game.Screens.TournamentShowcase
                 replaying.Value = false;
             }
 
-            beatmap = beatmaps.GetWorkingBeatmap(new BeatmapInfo
+            beatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo
             {
                 ID = selected.BeatmapGuid,
                 OnlineID = selected.BeatmapId
             }, true);
 
-            var ruleset = config.Ruleset.Value?.CreateInstance();
+            var ruleset = (rulesetStore.GetRuleset(selected.RulesetId) ?? config.FallbackRuleset.Value).CreateInstance();
+            Ruleset.Value = ruleset.RulesetInfo;
 
             if (selected.ShowcaseScore != null)
             {
-                score = scoreManager.GetScore(selected.ShowcaseScore);
+                var fetchedScore = scoreManager.GetScore(selected.ShowcaseScore);
+
+                if (fetchedScore == null)
+                {
+                    Logger.Error(null, $"Could not find a score for {selected.ShowcaseScore}. Skipping.");
+                    pushNextBeatmap();
+                    return;
+                }
+
+                score = fetchedScore;
             }
             else
             {
-                var autoplayMod = ruleset?.GetAutoplayMod();
-                if (ruleset == null || autoplayMod == null)
+                var autoplayMod = ruleset.GetAutoplayMod();
+
+                if (autoplayMod == null)
+                {
+                    Logger.Error(null, $"Unable to use the autoplay mod of {ruleset} for {selected.ShowcaseScore}. Skipping.");
+                    pushNextBeatmap();
                     return;
+                }
 
                 score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), selected.RequiredMods);
             }
 
             Beatmap.Value = beatmap;
             showcaseContainer.BeatmapAttributes.BeatmapInfo.Value = beatmap.BeatmapInfo;
-            showcaseContainer.BeatmapAttributes.Mods.Value = score?.ScoreInfo.Mods.ToList() ?? selected.RequiredMods.ToList();
+            showcaseContainer.BeatmapAttributes.Mods.Value = score.ScoreInfo.Mods.ToList();
             showcaseContainer.BeatmapInfoDisplay.Beatmap.Value = selected;
-
-            if (score == null)
-            {
-                Logger.Error(null, $"Could not find a score for {selected.ShowcaseScore}. Skipping.");
-                pushNextBeatmap();
-                return;
-            }
 
             Mods.Value = score.ScoreInfo.Mods;
 
