@@ -65,7 +65,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             new Container(),
                             new FormTextBox
                             {
-                                Caption = @"Staff role",
+                                Caption = @"Staff Role",
                                 HintText = @"This would be shown on the staff list screen, in the staff card.",
                                 Current = role,
                             },

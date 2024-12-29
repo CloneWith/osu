@@ -127,8 +127,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                         },
                                         rulesetDropdown = new FormDropdown<RulesetInfo>
                                         {
-                                            Caption = "Ruleset",
-                                            HintText = @"The ruleset we use for showcase and replays. Replays must strictly match the selected ruleset.",
+                                            Caption = "Default Ruleset",
+                                            HintText = @"The default and fallback ruleset for showcase beatmaps.",
                                             Items = rulesets.AvailableRulesets,
                                             Current = currentProfile.Value.FallbackRuleset,
                                         },
@@ -179,7 +179,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         new SectionHeader(@"Showcase Settings"),
                                         layoutDropdown = new FormDropdown<ShowcaseLayout>
                                         {
-                                            Caption = @"Interface layout",
+                                            Caption = @"Interface Layout",
                                             HintText = @"The layout of the showcases screen.",
                                             Current = currentProfile.Value.Layout,
                                             Items = new List<ShowcaseLayout>
@@ -191,7 +191,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         },
                                         aspectRatioInput = new FormSliderBar<float>
                                         {
-                                            Caption = @"Aspect ratio",
+                                            Caption = @"Aspect Ratio",
                                             HintText = @"Defines the ratio of the showcase area. Change this when you need to record a video with specific sizes.",
                                             Current = currentProfile.Value.AspectRatio,
                                             TransferValueOnCommit = true,
@@ -199,7 +199,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         },
                                         transformDurationInput = new FormSliderBar<int>
                                         {
-                                            Caption = @"Transform duration",
+                                            Caption = @"Transform Duration",
                                             HintText = @"The length of the transform animation between screens, in milliseconds.",
                                             Current = currentProfile.Value.TransformDuration,
                                             TransferValueOnCommit = true,
@@ -207,7 +207,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         },
                                         startCountdownInput = new FormSliderBar<int>
                                         {
-                                            Caption = @"Start countdown",
+                                            Caption = @"Start Countdown",
                                             HintText = @"A duration before the showcase starts in immersive layout and before continuing halfway. Get prepared this time!",
                                             Current = currentProfile.Value.StartCountdown,
                                             TransferValueOnCommit = true,
@@ -215,7 +215,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         },
                                         outroTitleInput = new FormTextBox
                                         {
-                                            Caption = @"Outro title",
+                                            Caption = @"Outro Title",
                                             PlaceholderText = @"Thanks for watching!",
                                             HintText = @"This would be shown as the main title at the outro screen.",
                                             Current = currentProfile.Value.OutroTitle,
@@ -223,7 +223,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         },
                                         outroSubtitleInput = new FormTextBox
                                         {
-                                            Caption = @"Outro subtitle",
+                                            Caption = @"Outro Subtitle",
                                             HintText = @"This would be shown in one line, so shouldn't be too long!",
                                             PlaceholderText = @"Take care of yourself, and be well.",
                                             Current = currentProfile.Value.OutroSubtitle,
