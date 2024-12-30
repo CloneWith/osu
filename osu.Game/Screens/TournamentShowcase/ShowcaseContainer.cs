@@ -167,11 +167,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
             logo?.Delay(6000).FadeOut(3000, Easing.OutQuint);
 
-            using (BeginDelayedSequence(6000))
-            {
-                introContainer.FadeOut(1000, Easing.OutQuint);
-                Scheduler.AddDelayed(showTeamPlayer, 3000);
-            }
+            introContainer.Delay(6000).FadeOut(1000, Easing.OutQuint);
+            Scheduler.AddDelayed(showTeamPlayer, 3000 + 6000);
         }
 
         /// <summary>
@@ -180,7 +177,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private void showTeamPlayer()
         {
             state.Value = ShowcaseState.TeamPlayer;
-            Scheduler.AddDelayed(showMapPool, 5000);
+            Scheduler.AddDelayed(showMapPool, config.ShowTeamList.Value ? 5000 : 0);
         }
 
         /// <summary>
@@ -188,6 +185,12 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void showMapPool()
         {
+            if (!config.ShowMapPool.Value)
+            {
+                state.Value = ShowcaseState.BeatmapTransition;
+                return;
+            }
+
             state.Value = ShowcaseState.MapPool;
 
             OsuSpriteText mapPoolHeaderText, mapPoolSubText;
