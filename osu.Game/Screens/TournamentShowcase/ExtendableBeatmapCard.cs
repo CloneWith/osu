@@ -15,6 +15,8 @@ using osu.Framework.Logging;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Database;
+using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Models;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Rulesets;
@@ -27,8 +29,6 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         private const float star_rating_y_expanded = 0.075f;
         private const float centre_offset = -0.1f;
-        private const float star_rating_x = 0.3f;
-        private const float star_rating_y = 0.4f;
 
         private readonly string iconBaseDir;
 
@@ -36,15 +36,13 @@ namespace osu.Game.Screens.TournamentShowcase
         private IBeatmapInfo? beatmapInfo;
         private UpdateableOnlineBeatmapSetCover setCover = null!;
         private StarRatingDisplay starRatingDisplay = null!;
+        private Sprite modIcon = null!;
         private Container difficultyIconContainer = null!;
         private DifficultyIcon difficultyIcon = null!;
-        private FillFlowContainer beatmapInfoFlow = null!;
+        private OsuTextFlowContainer beatmapInfoFlow = null!;
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
-
-        [Resolved]
-        private UserLookupCache userLookupCache { get; set; } = null!;
 
         [Resolved]
         private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
@@ -78,7 +76,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     Height = 0.8f,
                 },
-                new Sprite
+                modIcon = new Sprite
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -107,13 +105,16 @@ namespace osu.Game.Screens.TournamentShowcase
                     X = 0.07f,
                     Y = 0.9f
                 },
-                beatmapInfoFlow = new FillFlowContainer
+                beatmapInfoFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold))
                 {
                     Origin = Anchor.CentreLeft,
-                    Direction = FillDirection.Vertical,
+                    RelativePositionAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     AutoSizeEasing = Easing.OutQuint,
                     AutoSizeDuration = 100,
+                    Width = 0.88f,
+                    X = 0.14f,
                     Y = 0.9f
                 }
             };
@@ -147,7 +148,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Scheduler.AddOnce(_ =>
                 {
                     difficultyIconContainer.Child = difficultyIcon = new DifficultyIcon(beatmapInfo ?? new BeatmapInfo(),
-                        beatmapInfo?.Ruleset, beatmap.RequiredMods.ToArray())
+                        rulesets.GetRuleset(beatmap.RulesetId), beatmap.RequiredMods.ToArray())
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
@@ -155,20 +156,43 @@ namespace osu.Game.Screens.TournamentShowcase
                         Scale = new Vector2(1.25f),
                         Alpha = 0
                     };
+
+                    if (beatmapInfo != null)
+                    {
+                        beatmapInfoFlow.AddParagraph(beatmapInfo.GetDisplayTitleRomanisable(false, false));
+                        beatmapInfoFlow.AddParagraph(beatmapInfo.DifficultyName);
+                        beatmapInfoFlow.AddParagraph("Mapped by ");
+                        beatmapInfoFlow.AddText(beatmapInfo.Metadata.Author.Username, t => t.Colour = Color4.SkyBlue);
+                    }
+
                     difficultyIcon.ScaleTo(1.75f, 250, Easing.OutQuint);
                     difficultyIcon.FadeIn(300, Easing.OutQuint);
                 }, true);
             });
         }
 
-        public void Shrink()
+        public void Shrink(int duration = 800)
         {
-            // TODO: Animation
+            setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
+            this.ResizeHeightTo(80, duration, Easing.OutQuint);
+            difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
+            beatmapInfoFlow.MoveToY(0.5f, duration, Easing.OutQuint);
+            modIcon.ResizeWidthTo(0.15f, duration, Easing.OutQuint);
+            modIcon.MoveTo(new Vector2(0.4f, -0.15f), duration, Easing.OutQuint);
+            starRatingDisplay.MoveTo(new Vector2(0.4f, 0.15f), duration, Easing.OutQuint);
+            starRatingDisplay.ScaleTo(1.05f, duration, Easing.OutQuint);
         }
 
-        public void Expand()
+        public void Expand(int duration = 800)
         {
-            // TODO: Animation
+            setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
+            this.ResizeHeightTo(400, duration, Easing.OutQuint);
+            difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
+            beatmapInfoFlow.MoveToY(0.9f, duration, Easing.OutQuint);
+            modIcon.ResizeWidthTo(0.25f, duration, Easing.OutQuint);
+            modIcon.MoveTo(new Vector2(0, -star_rating_y_expanded + centre_offset), duration, Easing.OutQuint);
+            starRatingDisplay.ScaleTo(1.75f, duration, Easing.OutQuint);
+            starRatingDisplay.MoveTo(new Vector2(0, star_rating_y_expanded + centre_offset), duration, Easing.OutQuint);
         }
     }
 }
