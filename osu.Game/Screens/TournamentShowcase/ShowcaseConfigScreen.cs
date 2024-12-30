@@ -89,7 +89,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Black.Opacity(0.6f)
                 },
-                new ExtendableBeatmapCard(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value),
                 new OsuContextMenuContainer
                 {
                     RelativeSizeAxes = Axes.Both,

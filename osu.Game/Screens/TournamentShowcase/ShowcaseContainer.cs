@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -188,10 +189,106 @@ namespace osu.Game.Screens.TournamentShowcase
         private void showMapPool()
         {
             state.Value = ShowcaseState.MapPool;
+
+            OsuSpriteText mapPoolHeaderText, mapPoolSubText;
+            FillFlowContainer mapPoolFlow;
+
+            Container mapPoolContainer = new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                Alpha = 0,
+                Masking = true,
+                Children = new Drawable[]
+                {
+                    new Box
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Color4.Black,
+                        Alpha = 0.5f
+                    },
+                    mapPoolHeaderText = new OsuSpriteText
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativePositionAxes = Axes.Both,
+                        Y = -0.3f,
+                        Font = OsuFont.TorusAlternate.With(size: 30, weight: FontWeight.SemiBold),
+                        Text = @"Map Pool",
+                    },
+                    mapPoolSubText = new OsuSpriteText
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        RelativePositionAxes = Axes.Both,
+                        Y = -0.3f,
+                        Font = OsuFont.TorusAlternate.With(size: 20),
+                        Text = config.RoundName.Value,
+                    },
+                    mapPoolFlow = new FillFlowContainer
+                    {
+                        Anchor = Anchor.TopCentre,
+                        Origin = Anchor.TopCentre,
+                        Direction = FillDirection.Full,
+                        RelativeSizeAxes = Axes.X,
+                        RelativePositionAxes = Axes.Both,
+                        AutoSizeAxes = Axes.Y,
+                        AutoSizeDuration = 300,
+                        AutoSizeEasing = Easing.OutQuint,
+                        Width = 0.9f,
+                        Spacing = new Vector2(5),
+                        Y = 0.2f,
+                    }
+                }
+            };
+
+            AddInternal(mapPoolContainer);
+            mapPoolContainer.FadeIn(1000, Easing.OutQuint);
+
+            using (BeginDelayedSequence(800))
+            {
+                mapPoolHeaderText.MoveToY(0.1f, 500, Easing.OutQuint);
+                mapPoolSubText.Delay(100).MoveToY(0.15f, 500, Easing.OutQuint);
+            }
+
+            var mapList = config.Beatmaps.ToList();
+
+            for (int i = 0; i * 3 < mapList.Count; i++)
+            {
+                var activeMaps = mapList.Skip(i * 3).Take(3).ToList();
+
+                for (int j = 0; j < activeMaps.Count; j++)
+                {
+                    int j1 = j;
+                    Scheduler.AddDelayed(_ =>
+                    {
+                        var card = new ExtendableBeatmapCard(activeMaps[j1], config)
+                        {
+                            Alpha = 0
+                        };
+
+                        mapPoolFlow.Add(card);
+                        card.MoveToY(card.Y + 100).Then().MoveToY(card.Y - 100, 500, Easing.OutQuint);
+                        card.Delay(100).FadeIn(500, Easing.OutQuint);
+
+                        using (BeginDelayedSequence(2000 - j1 * 200))
+                        {
+                            card.Shrink();
+                        }
+                    }, false, i * 1000 + j * 200 + 800);
+                }
+            }
+
+            int totalTime = mapList.Count * 1000 + 5000;
+
+            using (BeginDelayedSequence(totalTime))
+            {
+                mapPoolContainer.FadeOut(1000, Easing.OutQuint);
+            }
+
             Scheduler.AddDelayed(_ =>
             {
                 state.Value = ShowcaseState.BeatmapTransition;
-            }, false, 5000);
+            }, false, totalTime + 2000);
         }
 
         /// <summary>
