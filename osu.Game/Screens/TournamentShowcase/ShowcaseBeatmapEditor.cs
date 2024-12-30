@@ -86,7 +86,6 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly Bindable<ScoreInfo?> scoreInfoBindable = new Bindable<ScoreInfo?>();
         private readonly BindableList<Mod> modListBindable = new BindableList<Mod>();
         private Bindable<RulesetInfo> rulesetBindable = new Bindable<RulesetInfo>();
-        private FormDropdown<BeatmapType> mapTypeDropdown = null!;
         private DrawableShowcaseBeatmapItem drawableItem = null!;
 
         private ShowcaseConfig config { get; set; }
@@ -139,23 +138,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     Width = 0.49f,
                     Current = selectorId
                 },
-                mapTypeDropdown = new FormDropdown<BeatmapType>
+                new FormTextBox
                 {
                     Caption = @"Beatmap Type",
-                    HintText = @"Choose a type matching the beatmap mod best. Will be used to show a correct icon for the beatmap.",
+                    HintText = @"Will be used to show a correct icon for the beatmap.",
                     Width = 0.49f,
-                    Current = Beatmap.ModType,
-                    Items = new[]
-                    {
-                        BeatmapType.NoMod,
-                        BeatmapType.HardRock,
-                        BeatmapType.DoubleTime,
-                        BeatmapType.Hidden,
-                        BeatmapType.FlashLight,
-                        BeatmapType.FreeMod,
-                        BeatmapType.Tiebreaker,
-                        BeatmapType.Extra
-                    }
+                    Current = Beatmap.ModString,
                 },
                 new FormTextBox
                 {
@@ -197,44 +185,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
             };
 
-            mapTypeDropdown.Current.BindValueChanged(type =>
-            {
-                switch (type.NewValue)
-                {
-                    case BeatmapType.NoMod:
-                        Beatmap.ModString = "NM";
-                        break;
-
-                    case BeatmapType.Tiebreaker:
-                        Beatmap.ModString = "TB";
-                        break;
-
-                    case BeatmapType.Extra:
-                        Beatmap.ModString = "EX";
-                        break;
-
-                    case BeatmapType.HardRock:
-                        Beatmap.ModString = "HR";
-                        break;
-
-                    case BeatmapType.DoubleTime:
-                        Beatmap.ModString = "DT";
-                        break;
-
-                    case BeatmapType.Hidden:
-                        Beatmap.ModString = "HD";
-                        break;
-
-                    case BeatmapType.FlashLight:
-                        Beatmap.ModString = "FL";
-                        break;
-
-                    case BeatmapType.FreeMod:
-                        Beatmap.ModString = "FM";
-                        break;
-                }
-            });
-
             selectorId.BindValueChanged(id =>
             {
                 bool idValid = int.TryParse(id.NewValue, out int newId) && newId >= 0;
@@ -270,13 +220,16 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 Beatmap.ShowcaseScore = score.NewValue;
                 Beatmap.ScoreHash = score.NewValue?.Hash ?? string.Empty;
-                drawableItem.Refresh(true);
+                drawableItem.Refresh(refreshScoreOnly: true);
             });
 
             rulesetBindable.BindValueChanged(ruleset =>
             {
                 Beatmap.RulesetId = ruleset.NewValue.OnlineID;
+                drawableItem.Refresh(needPopulation: true);
             });
+
+            modListBindable.BindCollectionChanged((_, _) => drawableItem.Refresh());
         }
 
         protected override void LoadComplete()
@@ -306,6 +259,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 Beatmap.Selector.Value.Username = res.Username;
                 Beatmap.Selector.Value.Rank = res.Statistics?.GlobalRank;
+
+                Scheduler.AddOnce(_ => drawableItem.Refresh(needPopulation: true), false);
             });
         }
     }

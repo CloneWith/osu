@@ -72,7 +72,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (rulesetInstance != null)
                     requiredMods = value.RequiredMods.ToArray();
 
-                Refresh();
+                Refresh(needPopulation: true);
             }
         }
 
@@ -122,34 +122,35 @@ namespace osu.Game.Screens.TournamentShowcase
             ShowDragHandle.Value = false;
         }
 
+        private async Task populateInfo()
+        {
+            try
+            {
+                if (showItemOwner)
+                {
+                    var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
+                    Schedule(() => ownerAvatar.User = foundUser);
+                }
+
+                beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
+                ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? config.FallbackRuleset.Value;
+                requiredMods = item.RequiredMods.ToArray();
+
+                Scheduler.AddOnce(_ => Refresh(), false);
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Error while populating showcase item {e}");
+            }
+        }
+
         protected override void LoadComplete()
         {
             base.LoadComplete();
 
-            ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? config.FallbackRuleset.Value;
-
             onScreenLoader.DelayedLoadStarted += _ =>
             {
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        if (showItemOwner)
-                        {
-                            var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
-                            Schedule(() => ownerAvatar.User = foundUser);
-                        }
-
-                        beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
-                        requiredMods = item.RequiredMods.ToArray();
-
-                        Scheduler.AddOnce(Refresh, false);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Log($"Error while populating showcase item {e}");
-                    }
-                });
+                Task.Run(populateInfo);
             };
         }
 
@@ -203,8 +204,13 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        public void Refresh(bool refreshScoreOnly = false)
+        public void Refresh(bool refreshScoreOnly = false, bool needPopulation = false)
         {
+            if (needPopulation)
+            {
+                Task.Run(populateInfo);
+            }
+
             if (!refreshScoreOnly)
             {
                 if (beatmapInfo != null)

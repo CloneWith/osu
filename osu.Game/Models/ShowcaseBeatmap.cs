@@ -7,7 +7,6 @@ using osu.Framework.Bindables;
 using osu.Game.Beatmaps;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
-using osu.Game.Screens.TournamentShowcase;
 
 namespace osu.Game.Models
 {
@@ -21,8 +20,7 @@ namespace osu.Game.Models
         public int BeatmapId;
         public Guid BeatmapGuid = Guid.Empty;
         public int RulesetId;
-        public Bindable<BeatmapType> ModType = new Bindable<BeatmapType>();
-        public string ModString = string.Empty;
+        public Bindable<string> ModString = new Bindable<string>();
         public Bindable<string> ModIndex = new Bindable<string>();
 
         [JsonIgnore]
