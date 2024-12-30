@@ -62,7 +62,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public Bindable<TimeSpan> IntroTimestamp = new Bindable<TimeSpan>();
 
         public BindableBool ShowMapPool = new BindableBool(true);
-        public BindableBool ShowBoardPool = new BindableBool();
+        public BindableBool ShowTeamList = new BindableBool();
         public BindableBool ShowStaffList = new BindableBool(true);
         public BindableBool SplitMapPoolByMods = new BindableBool(true);
 

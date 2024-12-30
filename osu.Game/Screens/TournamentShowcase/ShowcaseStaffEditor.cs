@@ -18,6 +18,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly Bindable<ShowcaseConfig> config = new Bindable<ShowcaseConfig>();
 
         private readonly FillFlowContainer staffContainer;
+        private readonly FormCheckBox showListCheckBox;
 
         public ShowcaseStaffEditor(Bindable<ShowcaseConfig> config)
         {
@@ -32,11 +33,11 @@ namespace osu.Game.Screens.TournamentShowcase
             Children = new Drawable[]
             {
                 new SectionHeader(@"Staff List"),
-                new FormCheckBox
+                showListCheckBox = new FormCheckBox
                 {
                     Caption = @"Show staff list in the showcase",
                     HintText = @"List all staffs at the end of the showcase.",
-                    Current = config.Value.ShowStaffList
+                    Current = this.config.Value.ShowStaffList
                 },
                 new ShowcaseAddButton(@"Add staff", () =>
                 {
@@ -60,6 +61,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             config.BindValueChanged(conf =>
             {
+                showListCheckBox.Current = conf.NewValue.ShowStaffList;
                 staffContainer.ChildrenEnumerable = conf.NewValue.Staffs.Select(t => new StaffRow(t, config.Value));
             });
         }

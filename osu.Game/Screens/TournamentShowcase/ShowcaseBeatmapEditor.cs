@@ -29,6 +29,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ShowcaseBeatmapEditor(Bindable<ShowcaseConfig> config)
         {
+            FormCheckBox showListCheckBox;
             this.config.BindTo(config);
 
             RelativeSizeAxes = Axes.X;
@@ -40,6 +41,12 @@ namespace osu.Game.Screens.TournamentShowcase
             Children = new Drawable[]
             {
                 new SectionHeader(@"Beatmap Queue"),
+                showListCheckBox = new FormCheckBox
+                {
+                    Caption = @"Show Beatmap List in the Showcase",
+                    HintText = @"List out all beatmaps at the beginning of the showcase.",
+                    Current = this.config.Value.ShowMapPool
+                },
                 new ShowcaseAddButton(@"Add beatmap", () =>
                 {
                     var addedBeatmap = new ShowcaseBeatmap();
@@ -60,7 +67,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             config.BindValueChanged(conf =>
             {
-                beatmapContainer.Clear();
+                showListCheckBox.Current = conf.NewValue.ShowMapPool;
                 beatmapContainer.ChildrenEnumerable = conf.NewValue.Beatmaps.Select(t => new BeatmapRow(t, config.Value));
             });
         }

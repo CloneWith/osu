@@ -395,6 +395,7 @@ namespace osu.Game.Screens.TournamentShowcase
             startCountdownInput.Current = currentProfile.Value.StartCountdown;
             outroTitleInput.Current = currentProfile.Value.OutroTitle;
             outroSubtitleInput.Current = currentProfile.Value.OutroSubtitle;
+            useCustomIntroSwitch.Current = currentProfile.Value.UseCustomIntroBeatmap;
 
             introBeatmapRow.Expire();
             introEditor.Add(introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)

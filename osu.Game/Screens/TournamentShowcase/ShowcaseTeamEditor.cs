@@ -23,6 +23,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ShowcaseTeamEditor(Bindable<ShowcaseConfig> config)
         {
+            FormCheckBox showListCheckBox;
             this.config.BindTo(config);
 
             RelativeSizeAxes = Axes.X;
@@ -34,6 +35,11 @@ namespace osu.Game.Screens.TournamentShowcase
             Children = new Drawable[]
             {
                 new SectionHeader(@"Team List"),
+                showListCheckBox = new FormCheckBox
+                {
+                    Caption = @"Show Team List in the Showcase",
+                    Current = this.config.Value.ShowTeamList
+                },
                 new ShowcaseAddButton(@"Add team", () =>
                 {
                     var addedTeam = new ShowcaseTeam();
@@ -52,7 +58,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             config.BindValueChanged(conf =>
             {
-                teamsContainer.Clear();
+                showListCheckBox.Current = conf.NewValue.ShowTeamList;
                 teamsContainer.ChildrenEnumerable = conf.NewValue.Teams.Select(t => new TeamRow(t, config.Value));
             });
         }
