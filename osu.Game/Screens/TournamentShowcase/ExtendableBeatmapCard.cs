@@ -174,6 +174,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public void Shrink(int duration = 800)
         {
             setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
+            setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
             this.ResizeHeightTo(80, duration, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.5f, duration, Easing.OutQuint);
@@ -186,6 +187,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public void Expand(int duration = 800)
         {
             setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
+            setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
             this.ResizeHeightTo(400, duration, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.9f, duration, Easing.OutQuint);
