@@ -60,7 +60,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             selector = Beatmap.Value.Selector.Value;
 
-            if (selector == null)
+            if (selector == null || selector.OnlineID == 0)
             {
                 selectText.FadeOut(500, Easing.OutQuint);
                 selectorAvatar.FadeOut(500, Easing.OutQuint);

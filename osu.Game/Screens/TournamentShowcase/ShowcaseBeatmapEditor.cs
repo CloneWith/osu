@@ -95,7 +95,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private Bindable<RulesetInfo> rulesetBindable = new Bindable<RulesetInfo>();
         private DrawableShowcaseBeatmapItem drawableItem = null!;
 
-        private ShowcaseConfig config { get; set; }
+        private ShowcaseConfig config { get; }
 
         private readonly Bindable<string> selectorId;
 
@@ -259,13 +259,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 var res = req.Response;
 
-                if (res == null)
-                    return;
+                Beatmap.Selector.Value.OnlineID = res?.Id ?? 0;
 
-                Beatmap.Selector.Value.OnlineID = res.Id;
-
-                Beatmap.Selector.Value.Username = res.Username;
-                Beatmap.Selector.Value.Rank = res.Statistics?.GlobalRank;
+                Beatmap.Selector.Value.Username = res?.Username ?? string.Empty;
+                Beatmap.Selector.Value.Rank = res?.Statistics?.GlobalRank;
 
                 Scheduler.AddOnce(_ => drawableItem.Refresh(needPopulation: true), false);
             });
