@@ -338,7 +338,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             foreach (var item in msg)
             {
-                BotCommand command = new BotCommand().ParseFromText(item.Content);
+                BotCommand command = BotCommand.ParseFromText(item.Content);
 
                 switch (command.Command)
                 {
@@ -489,7 +489,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value == null)
             {
-                warningContainer.Child = new WarningBox("Select a match from bracket screen first");
+                warningContainer.Child = new WarningBox("No match selected");
                 warningContainer.FadeIn(200, Easing.OutQuint);
                 return;
             }

@@ -179,7 +179,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
             foreach (var item in msg)
             {
-                BotCommand command = new BotCommand().ParseFromText(item.Content);
+                BotCommand command = BotCommand.ParseFromText(item.Content);
 
                 switch (command.Command)
                 {

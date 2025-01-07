@@ -15,18 +15,18 @@ namespace osu.Game.Tournament.Models
     [Serializable]
     public class BotCommand
     {
-        private Regex finalRegex = new Regex("\\[\\*\\] (.+)获胜");
-        private Regex banRegex = new Regex("\\[\\*\\] 执行(.*)禁用(.*) - 已完成");
-        private Regex winRegex = new Regex("\\[\\*\\] 执行将(.*)设为(.*)获胜 - 已完成");
-        private Regex protectRegex = new Regex("\\[\\*\\] 执行将(.*)设为(.*)的保护图 - 已完成");
-        private Regex pickRegex = new Regex("\\[\\*\\] 执行(.*)选取(.*) - 已完成");
-        private Regex stateRegex = new Regex("\\[\\*\\] 检查棋盘: 进入(.*)");
-        private Regex pickExRegex = new Regex("\\[\\*\\] 执行强制选取EX(.*) - 已完成");
-        private Regex panicRegex = new Regex("\\[\\*\\] 收到异常信号, 启动通知进程");
+        private static Regex finalRegex = new Regex("\\[\\*\\] (.+)获胜");
+        private static Regex banRegex = new Regex("\\[\\*\\] 执行(.*)禁用(.*) - 已完成");
+        private static Regex winRegex = new Regex("\\[\\*\\] 执行将(.*)设为(.*)获胜 - 已完成");
+        private static Regex protectRegex = new Regex("\\[\\*\\] 执行将(.*)设为(.*)的保护图 - 已完成");
+        private static Regex pickRegex = new Regex("\\[\\*\\] 执行(.*)选取(.*) - 已完成");
+        private static Regex stateRegex = new Regex("\\[\\*\\] 检查棋盘: 进入(.*)");
+        private static Regex pickExRegex = new Regex("\\[\\*\\] 执行强制选取EX(.*) - 已完成");
+        private static Regex panicRegex = new Regex("\\[\\*\\] 收到异常信号, 启动通知进程");
 
         // 1, 3, 5, 7 MapID
         // 2, 4, 6, 8 Status
-        private Regex boardLineRegex = new Regex("\\[\\*\\] 当前棋盘: (.+) \\((.+)\\) (.+) \\((.+)\\) (.+) \\((.+)\\) (.+) \\((.+)\\)");
+        private static Regex boardLineRegex = new Regex("\\[\\*\\] 当前棋盘: (.+) \\((.+)\\) (.+) \\((.+)\\) (.+) \\((.+)\\) (.+) \\((.+)\\)");
 
         public Commands Command;
         public TeamColour Team;
@@ -42,9 +42,10 @@ namespace osu.Game.Tournament.Models
             DefList = line ?? new List<RoundBeatmap>();
         }
 
-        public BotCommand ParseFromText(string line)
+        public static BotCommand ParseFromText(string line)
         {
             GroupCollection obj;
+            List<RoundBeatmap> beatmaps = new List<RoundBeatmap>();
 
             if (panicRegex.Match(line).Success)
             {
@@ -103,7 +104,7 @@ namespace osu.Game.Tournament.Models
 
                 for (int i = 1; i <= 7; i += 2)
                 {
-                    DefList.Add(new RoundBeatmap
+                    beatmaps.Add(new RoundBeatmap
                     {
                         // Don't have BoardY and Beatmap reference here!
                         // Example: EX1 (黑)
@@ -113,13 +114,13 @@ namespace osu.Game.Tournament.Models
                     });
                 }
 
-                return new BotCommand(Commands.BoardDefinition, line: DefList);
+                return new BotCommand(Commands.BoardDefinition, line: beatmaps);
             }
 
             return new BotCommand(Commands.Unknown);
         }
 
-        public TeamColour TranslateFromTeamName(string name)
+        public static TeamColour TranslateFromTeamName(string name)
         {
             switch (name.ToLowerInvariant())
             {
