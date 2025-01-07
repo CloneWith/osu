@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using osu.Framework.Graphics.Sprites;
@@ -113,11 +114,13 @@ namespace osu.Game.Tournament.Models
         /// <summary>
         /// Swap the specified map block with another after the current gameplay comes to an end.
         /// </summary>
+        [Description("大陆漂移")]
         Swap,
 
         /// <summary>
         /// Set a temporary Win state for this block, then reset to Pick.
         /// </summary>
+        [Description("时空之门")]
         Reverse,
 
         /// <summary>

@@ -902,7 +902,7 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Traps.Add(new TrapInfo
                 (
                     colour: pickTeam,
-                    type: new TrapInfo().GetReversedType(trapTypeDropdown.Current.Value),
+                    type: trapTypeDropdown.Current.Value,
                     mapID: beatmapId
                 ));
             }
@@ -979,7 +979,7 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Traps.Add(new TrapInfo
                 (
                     colour: pickTeam,
-                    type: new TrapInfo().GetReversedType(trapTypeDropdown.Current.Value),
+                    type: trapTypeDropdown.Current.Value,
                     mapID: beatmapId
                 ));
             }

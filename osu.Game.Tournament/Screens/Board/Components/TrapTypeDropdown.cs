@@ -8,14 +8,14 @@ using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Screens.Board.Components
 {
-    public partial class TrapTypeDropdown : FormDropdown<LocalisableString>
+    public partial class TrapTypeDropdown : FormDropdown<TrapType>
     {
         public TrapTypeDropdown()
         {
-            Items = new List<LocalisableString>
+            Items = new List<TrapType>
             {
-                new TrapInfo(type: TrapType.Swap).Name,
-                new TrapInfo(type: TrapType.Reverse).Name
+                TrapType.Swap,
+                TrapType.Reverse
             };
         }
     }
