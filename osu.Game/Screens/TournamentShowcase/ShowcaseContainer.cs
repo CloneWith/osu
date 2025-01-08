@@ -325,7 +325,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         Origin = Anchor.CentreLeft,
                         X = 0.45f,
                         Y = 0.45f,
-                        Text = !string.IsNullOrWhiteSpace(config.OutroTitle.Value.Trim())
+                        Text = !string.IsNullOrWhiteSpace(config.OutroTitle.Value?.Trim())
                             ? config.OutroTitle.Value.Trim()
                             : @"Thanks for watching!",
                         Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
@@ -337,7 +337,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         Origin = Anchor.CentreLeft,
                         X = 0.45f,
                         Y = 0.55f,
-                        Text = !string.IsNullOrWhiteSpace(config.OutroSubtitle.Value.Trim())
+                        Text = !string.IsNullOrWhiteSpace(config.OutroSubtitle.Value?.Trim())
                             ? config.OutroSubtitle.Value.Trim()
                             : @"Take care of yourself, and be well.",
                         Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
