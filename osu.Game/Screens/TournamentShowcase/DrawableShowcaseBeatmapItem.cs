@@ -76,7 +76,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
+        private readonly DelayedLoadUnloadWrapper onScreenLoader = new DelayedLoadUnloadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
         private readonly ShowcaseConfig config;
         private ShowcaseBeatmap item;
@@ -110,6 +110,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private BeatmapManager beatmapManager { get; set; } = null!;
 
         [Resolved]
+        private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
+
+        [Resolved]
         private BeatmapSetOverlay? beatmapOverlay { get; set; }
 
         [Resolved]
@@ -134,7 +137,16 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
 
                 workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = item.BeatmapGuid }, true);
-                beatmapInfo = workingBeatmap.BeatmapInfo;
+
+                if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
+                {
+                    beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
+                }
+                else
+                {
+                    beatmapInfo = workingBeatmap.BeatmapInfo;
+                }
+
                 ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? config.FallbackRuleset.Value;
                 requiredMods = item.RequiredMods.ToArray();
 

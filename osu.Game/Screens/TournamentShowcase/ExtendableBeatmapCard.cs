@@ -14,6 +14,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
+using osu.Game.Database;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Models;
@@ -45,6 +46,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private BeatmapManager beatmapManager { get; set; } = null!;
+
+        [Resolved]
+        private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
 
         [Resolved]
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
@@ -128,7 +132,15 @@ namespace osu.Game.Screens.TournamentShowcase
                 try
                 {
                     workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = beatmap.BeatmapGuid }, true);
-                    beatmapInfo = workingBeatmap.BeatmapInfo;
+
+                    if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
+                    {
+                        beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(beatmap.BeatmapId).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        beatmapInfo = workingBeatmap.BeatmapInfo;
+                    }
 
                     if (beatmapInfo != null)
                     {
