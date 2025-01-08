@@ -14,11 +14,9 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
-using osu.Game.Database;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Models;
-using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Rulesets;
 using osuTK;
 using osuTK.Graphics;
@@ -33,8 +31,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly string iconBaseDir;
 
         private readonly ShowcaseBeatmap beatmap;
+        private WorkingBeatmap? workingBeatmap;
         private IBeatmapInfo? beatmapInfo;
-        private UpdateableOnlineBeatmapSetCover setCover = null!;
+        private Sprite setCover = null!;
         private StarRatingDisplay starRatingDisplay = null!;
         private Sprite modIcon = null!;
         private Container difficultyIconContainer = null!;
@@ -45,7 +44,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private RulesetStore rulesets { get; set; } = null!;
 
         [Resolved]
-        private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
+        private BeatmapManager beatmapManager { get; set; } = null!;
 
         [Resolved]
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
@@ -71,7 +70,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Black.Opacity(0.8f)
                 },
-                setCover = new UpdateableOnlineBeatmapSetCover(BeatmapSetCoverType.Card, timeBeforeLoad: 0)
+                setCover = new Sprite
                 {
                     RelativeSizeAxes = Axes.Both,
                     Height = 0.8f,
@@ -128,11 +127,12 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 try
                 {
-                    beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(beatmap.BeatmapId).ConfigureAwait(false);
+                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = beatmap.BeatmapGuid }, true);
+                    beatmapInfo = workingBeatmap.BeatmapInfo;
 
                     if (beatmapInfo != null)
                     {
-                        setCover.OnlineInfo = beatmapInfo.BeatmapSet as APIBeatmapSet;
+                        setCover.Texture = workingBeatmap.GetBackground();
 
                         var diff = await difficultyCache.GetDifficultyAsync(beatmapInfo).ConfigureAwait(false);
                         starRatingDisplay.Current.Value = diff ?? new StarDifficulty();

@@ -80,6 +80,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly ShowcaseConfig config;
         private ShowcaseBeatmap item;
+        private WorkingBeatmap? workingBeatmap;
         private IBeatmapInfo? beatmapInfo;
         private IRulesetInfo? ruleset;
         private Mod[] requiredMods = Array.Empty<Mod>();
@@ -106,7 +107,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private UserLookupCache userLookupCache { get; set; } = null!;
 
         [Resolved]
-        private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
+        private BeatmapManager beatmapManager { get; set; } = null!;
 
         [Resolved]
         private BeatmapSetOverlay? beatmapOverlay { get; set; }
@@ -132,7 +133,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     Schedule(() => ownerAvatar.User = foundUser);
                 }
 
-                beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
+                workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = item.BeatmapGuid }, true);
+                beatmapInfo = workingBeatmap.BeatmapInfo;
                 ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? config.FallbackRuleset.Value;
                 requiredMods = item.RequiredMods.ToArray();
 
