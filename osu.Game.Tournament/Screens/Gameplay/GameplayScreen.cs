@@ -92,7 +92,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.TopCentre,
                 },
-                new ControlPanel
+                new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {

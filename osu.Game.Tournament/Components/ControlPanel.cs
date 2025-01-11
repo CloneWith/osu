@@ -20,7 +20,7 @@ namespace osu.Game.Tournament.Components
 
         protected override Container<Drawable> Content => buttons;
 
-        public ControlPanel()
+        public ControlPanel(bool needSaving = false)
         {
             RelativeSizeAxes = Axes.Y;
             AlwaysPresent = true;
@@ -54,6 +54,17 @@ namespace osu.Game.Tournament.Components
                     Spacing = new Vector2(0, 5f),
                 },
             };
+
+            if (needSaving)
+            {
+                AddInternal(new SaveChangesButton
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Padding = new MarginPadding(5),
+                    Depth = float.MinValue
+                });
+            }
         }
 
         public partial class Spacer : CompositeDrawable

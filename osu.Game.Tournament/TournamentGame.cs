@@ -95,10 +95,6 @@ namespace osu.Game.Tournament
 
                 LoadComponentsAsync(new[]
                 {
-                    new SaveChangesOverlay
-                    {
-                        Depth = float.MinValue,
-                    },
                     windowSizeIndicator = new WindowSizeIndicator(windowSize)
                     {
                         Depth = float.MinValue,

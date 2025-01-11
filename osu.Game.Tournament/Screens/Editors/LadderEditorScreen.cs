@@ -44,7 +44,7 @@ namespace osu.Game.Tournament.Screens.Editors
         [BackgroundDependencyLoader]
         private void load()
         {
-            AddInternal(new ControlPanel
+            AddInternal(new ControlPanel(true)
             {
                 Child = new LadderEditorSettings(),
             });

@@ -60,7 +60,7 @@ namespace osu.Game.Tournament.Screens.MapPool
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                 },
-                new ControlPanel
+                new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {

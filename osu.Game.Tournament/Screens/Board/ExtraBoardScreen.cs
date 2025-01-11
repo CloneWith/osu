@@ -225,7 +225,7 @@ namespace osu.Game.Tournament.Screens.Board
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                 },
-                new ControlPanel
+                new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {

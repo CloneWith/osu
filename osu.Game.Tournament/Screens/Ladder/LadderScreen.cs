@@ -39,7 +39,7 @@ namespace osu.Game.Tournament.Screens.Ladder
             InternalChild = Content = new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                Masking = true,
+                // Masking = true,
                 Children = new Drawable[]
                 {
                     new TourneyVideo(BackgroundVideo.Ladder, LadderInfo)
@@ -66,6 +66,7 @@ namespace osu.Game.Tournament.Screens.Ladder
                             },
                         }
                     },
+                    new ControlPanel(true)
                 }
             };
 

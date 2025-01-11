@@ -69,7 +69,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         Padding = new MarginPadding(20),
                     },
                 },
-                ControlPanel = new ControlPanel
+                ControlPanel = new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {
