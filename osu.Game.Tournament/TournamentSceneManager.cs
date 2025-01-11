@@ -30,7 +30,9 @@ using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Framework.Bindables;
+using osu.Game.Graphics.Containers;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components.Animations;
 
 namespace osu.Game.Tournament
@@ -164,36 +166,41 @@ namespace osu.Game.Tournament
                             Colour = Color4.Black,
                             RelativeSizeAxes = Axes.Both,
                         },
-                        buttons = new FillFlowContainer
+                        new OsuScrollContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(5),
-                            Padding = new MarginPadding(5),
-                            Children = new Drawable[]
+                            ScrollbarVisible = false,
+                            Child = buttons = new FillFlowContainer
                             {
-                                new ScreenButton(typeof(SetupScreen)) { Text = "Setup", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(TeamEditorScreen)) { Text = "Team Editor", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(RoundEditorScreen)) { Text = "Rounds Editor", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(LadderEditorScreen)) { Text = "Bracket Editor", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = "Schedule", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(LadderScreen), Key.R) { Text = "Bracket", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = "Team Intro", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
-                                new Separator(),
-                                /* Append new screen "board" for board display */
-                                new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(ExtraBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = "Win", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(DrawingsScreen)) { Text = "Drawings", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(ShowcaseScreen)) { Text = "Showcase", RequestSelection = SetScreen },
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(5),
+                                Padding = new MarginPadding(5),
+                                Children = new Drawable[]
+                                {
+                                    new ScreenButton(typeof(SetupScreen)) { Text = "Setup", RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new ScreenButton(typeof(TeamEditorScreen)) { Text = "Team Editor", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(RoundEditorScreen)) { Text = "Rounds Editor", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(LadderEditorScreen)) { Text = "Bracket Editor", RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = "Schedule", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(LadderScreen), Key.R) { Text = "Bracket", RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = "Team Intro", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(ExtraBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = "Win", RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new ScreenButton(typeof(DrawingsScreen)) { Text = "Drawings", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(ShowcaseScreen)) { Text = "Showcase", RequestSelection = SetScreen },
+                                }
                             }
                         },
                     },
@@ -289,7 +296,7 @@ namespace osu.Game.Tournament
             }
 
             foreach (var s in buttons.OfType<ScreenButton>())
-                s.IsSelected = screenType == s.Type;
+                s.Selected = screenType == s.Type;
         }
 
         private partial class Separator : CompositeDrawable
@@ -301,26 +308,28 @@ namespace osu.Game.Tournament
             }
         }
 
-        private partial class ScreenButton : TourneyButton
+        private partial class ScreenButton : SidebarIconButton
         {
             public readonly Type Type;
 
             private readonly Key? shortcutKey;
+            private readonly CircularContainer? keyIndicator;
 
             public ScreenButton(Type type, Key? shortcutKey = null)
             {
                 this.shortcutKey = shortcutKey;
+                Height = 46;
+
+                Padding = new MarginPadding(0);
 
                 Type = type;
-
-                BackgroundColour = OsuColour.Gray(0.2f);
                 Action = () => RequestSelection?.Invoke(type);
 
                 RelativeSizeAxes = Axes.X;
 
                 if (shortcutKey != null)
                 {
-                    Add(new CircularContainer
+                    Add(keyIndicator = new CircularContainer
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
@@ -360,23 +369,14 @@ namespace osu.Game.Tournament
                 return base.OnKeyDown(e);
             }
 
-            private bool isSelected;
+            protected override void UpdateState()
+            {
+                base.UpdateState();
+
+                keyIndicator?.MoveToX(Selected ? 15 : 0, 150, Easing.OutQuint);
+            }
 
             public Action<Type>? RequestSelection;
-
-            public bool IsSelected
-            {
-                get => isSelected;
-                set
-                {
-                    if (value == isSelected)
-                        return;
-
-                    isSelected = value;
-                    BackgroundColour = isSelected ? Color4.SkyBlue : OsuColour.Gray(0.2f);
-                    SpriteText.Colour = isSelected ? Color4.Black : Color4.White;
-                }
-            }
         }
 
         public void UpdateChatState(bool isShown)
