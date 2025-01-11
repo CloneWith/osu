@@ -21,13 +21,14 @@ namespace osu.Game.Users
         public ColourInfo BackgroundColour = ColourInfo.GradientHorizontal(Color4.White.Opacity(1), Color4.White.Opacity(0.3f));
 
         private readonly ListDisplayMode displayMode;
+        private readonly int absoluteHeight;
 
         public UserListPanel(APIUser user, int height = 40, int cornerRadius = 6, ListDisplayMode mode = ListDisplayMode.Status)
             : base(user)
         {
             RelativeSizeAxes = Axes.X;
-            Height = height;
             CornerRadius = cornerRadius;
+            absoluteHeight = height;
 
             displayMode = mode;
         }
@@ -35,6 +36,7 @@ namespace osu.Game.Users
         [BackgroundDependencyLoader]
         private void load()
         {
+            Height = RelativeSizeAxes is Axes.Y or Axes.Both ? 1f : absoluteHeight;
             Background.Width = 0.5f;
             Background.Origin = Anchor.CentreRight;
             Background.Anchor = Anchor.CentreRight;
@@ -88,7 +90,7 @@ namespace osu.Game.Users
                             {
                                 avatar.Anchor = Anchor.CentreLeft;
                                 avatar.Origin = Anchor.CentreLeft;
-                                avatar.Size = new Vector2(Height);
+                                avatar.Size = new Vector2(absoluteHeight);
                             }),
                             CreateFlag().With(flag =>
                             {

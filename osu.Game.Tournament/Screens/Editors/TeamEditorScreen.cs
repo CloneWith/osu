@@ -200,7 +200,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     {
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
+                        Direction = FillDirection.Full,
                         Padding = new MarginPadding(5),
                         Spacing = new Vector2(5),
                         Child = new SectionHeader(@"Player List")
@@ -235,6 +235,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         this.user = user;
 
                         RelativeSizeAxes = Axes.X;
+                        Width = 0.49f;
                         AutoSizeAxes = Axes.Y;
 
                         Masking = true;
@@ -260,12 +261,12 @@ namespace osu.Game.Tournament.Screens.Editors
                                     new SettingsNumberBox
                                     {
                                         LabelText = "User ID",
-                                        Width = 0.15f,
+                                        Width = 0.25f,
                                         Current = playerId,
                                     },
                                     userPanelContainer = new Container
                                     {
-                                        Width = 400,
+                                        Width = 350,
                                         RelativeSizeAxes = Axes.Y,
                                     },
                                 }
@@ -276,7 +277,7 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.None,
                                 Width = 150,
-                                Text = "Delete Player",
+                                Text = "Remove",
                                 Action = () => dialogOverlay?.Push(new DeletePlayerDialog(user, () =>
                                 {
                                     Expire();
@@ -309,8 +310,9 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     private void updatePanel() => Scheduler.AddOnce(() =>
                     {
-                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), mode: ListDisplayMode.Statistics)
+                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), 60, mode: ListDisplayMode.Statistics)
                         {
+                            RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
                             Scale = new Vector2(1f),
