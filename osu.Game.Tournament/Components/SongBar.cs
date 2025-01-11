@@ -3,7 +3,9 @@
 
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shapes;
@@ -231,7 +233,7 @@ namespace osu.Game.Tournament.Components
                                         {
                                             new Box
                                             {
-                                                Colour = Color4.Black,
+                                                Colour = ColourInfo.GradientHorizontal(Color4.Black.Opacity(0), Color4.Black),
                                                 RelativeSizeAxes = Axes.Both,
                                                 Alpha = 0.1f,
                                             },
