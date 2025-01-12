@@ -25,16 +25,12 @@ namespace osu.Game.Tournament
     public partial class TournamentGame : TournamentGameBase
     {
         public static ColourInfo GetTeamColour(TeamColour teamColour)
-        {
-            switch (teamColour)
+            => teamColour switch
             {
-                case TeamColour.Red: return COLOUR_RED;
-
-                case TeamColour.Blue: return COLOUR_BLUE;
-
-                default: return COLOUR_NEUTRAL;
-            }
-        }
+                TeamColour.Red => COLOUR_RED,
+                TeamColour.Blue => COLOUR_BLUE,
+                _ => COLOUR_NEUTRAL
+            };
 
         public static readonly Color4 COLOUR_RED = new OsuColour().TeamColourRed;
         public static readonly Color4 COLOUR_BLUE = new OsuColour().TeamColourBlue;

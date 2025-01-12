@@ -107,7 +107,6 @@ namespace osu.Game.Tournament
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Width = STREAM_AREA_WIDTH,
-                    //Masking = true,
                     Children = new Drawable[]
                     {
                         new Box

@@ -21,22 +21,26 @@ namespace osu.Game.Tournament.Components
     {
         private readonly string filename;
         private readonly bool drawFallbackGradient;
+        private readonly bool showError;
         private Video? video;
         private ManualClock? manualClock;
         private OsuTextFlowContainer errorFlow = null!;
 
         public bool VideoAvailable => video != null;
 
-        public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder, bool drawFallbackGradient = false)
+        public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder,
+                                 bool drawFallbackGradient = false, bool showError = false)
         {
             filename = ladder.BackgroundFiles.Last(v => v.Key == backgroundType).Value;
             this.drawFallbackGradient = drawFallbackGradient;
+            this.showError = showError;
         }
 
-        public TourneyBackground(string filename, bool drawFallbackGradient = false)
+        public TourneyBackground(string filename, bool drawFallbackGradient = false, bool showError = false)
         {
             this.filename = filename;
             this.drawFallbackGradient = drawFallbackGradient;
+            this.showError = showError;
         }
 
         [BackgroundDependencyLoader]
@@ -69,12 +73,13 @@ namespace osu.Game.Tournament.Components
                         Name = @"Error Text",
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        AutoSizeAxes = Axes.Both
+                        AutoSizeAxes = Axes.Both,
+                        Alpha = showError ? 1 : 0
                     }
                 };
 
                 errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
-                errorFlow.AddText(" Video unavailable!");
+                errorFlow.AddText(" Background unavailable!");
             }
         }
 

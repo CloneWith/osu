@@ -196,7 +196,8 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.TopCentre,
                                                 Origin = Anchor.TopCentre,
                                                 RelativeSizeAxes = Axes.Both,
-                                                Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundFiles.Last(v => v.Key == backgroundDropdown.Current.Value).Value)
+                                                Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundFiles.Last(v => v.Key == backgroundDropdown.Current.Value).Value,
+                                                    showError: true)
                                                 {
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
@@ -283,7 +284,8 @@ namespace osu.Game.Tournament.Screens.Setup
 
             backgroundDropdown.Current.BindValueChanged(e =>
             {
-                backgroundContainer.Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundFiles.Last(v => v.Key == e.NewValue).Value)
+                backgroundContainer.Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundFiles.Last(v => v.Key == e.NewValue).Value,
+                    showError: true)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -347,7 +349,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     currentFileText.AddText(": Preview on the right!", t => t.Colour = Color4.SkyBlue);
                     currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
                     currentFileIcon.Colour = Color4.SkyBlue;
-                    backgroundContainer.Child = new TourneyBackground(selectedFile.NewValue.Name.Split('.')[0])
+                    backgroundContainer.Child = new TourneyBackground(selectedFile.NewValue.Name.Split('.')[0], showError: true)
                     {
                         Loop = true,
                         RelativeSizeAxes = Axes.Both,
