@@ -49,6 +49,6 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> DisplayTeamSeeds = new BindableBool();
 
-        public BindableList<KeyValuePair<BackgroundType, string>> BackgroundFiles = new BindableList<KeyValuePair<BackgroundType, string>>();
+        public BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> BackgroundMap = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>();
     }
 }

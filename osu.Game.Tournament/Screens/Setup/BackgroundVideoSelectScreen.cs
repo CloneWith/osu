@@ -41,7 +41,9 @@ namespace osu.Game.Tournament.Screens.Setup
         private RoundedButton saveButton = null!;
 
         private string initialPath = null!;
-        private string backgroundPath = null!;
+        private string videoPath = null!;
+        private string imagePath = null!;
+        private BackgroundInfo availableInfo;
         private bool pathValid;
 
         [Resolved]
@@ -54,10 +56,16 @@ namespace osu.Game.Tournament.Screens.Setup
         private void load(TournamentStorage storage)
         {
             initialPath = new DirectoryInfo(storage.GetFullPath(string.Empty)).FullName;
-            backgroundPath = new DirectoryInfo(storage.GetFullPath("./Videos")).FullName;
+            videoPath = new DirectoryInfo(storage.GetFullPath("./Videos")).FullName;
+            imagePath = new DirectoryInfo(storage.GetFullPath("./Backgrounds")).FullName;
 
             InternalChildren = new Drawable[]
             {
+                new TourneyBackground(BackgroundType.Main, LadderInfo)
+                {
+                    Loop = true,
+                    RelativeSizeAxes = Axes.Both,
+                },
                 new Container
                 {
                     Masking = true,
@@ -190,13 +198,12 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 LabelText = "Select background for",
                                                 Margin = new MarginPadding { Top = 10 },
                                             },
-
                                             backgroundContainer = new Container
                                             {
                                                 Anchor = Anchor.TopCentre,
                                                 Origin = Anchor.TopCentre,
                                                 RelativeSizeAxes = Axes.Both,
-                                                Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundFiles.Last(v => v.Key == backgroundDropdown.Current.Value).Value,
+                                                Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == backgroundDropdown.Current.Value).Value,
                                                     showError: true)
                                                 {
                                                     Anchor = Anchor.TopCentre,
@@ -237,18 +244,18 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 (
                                                     resetOneAction: () =>
                                                     {
-                                                        string defaultVideo = BackgroundProps.PATHS.First(v => v.Key == backgroundDropdown.Current.Value).Value;
-                                                        LadderInfo.BackgroundFiles.RemoveAll(v => v.Key == backgroundDropdown.Current.Value);
-                                                        LadderInfo.BackgroundFiles.Add(new KeyValuePair<BackgroundType, string>(backgroundDropdown.Current.Value, defaultVideo));
+                                                        string defaultVideo = BackgroundProps.PATHS.First(v => v.Key == backgroundDropdown.Current.Value).Value.Name;
+                                                        LadderInfo.BackgroundMap.RemoveAll(v => v.Key == backgroundDropdown.Current.Value);
+                                                        LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(backgroundDropdown.Current.Value, new BackgroundInfo
+                                                        {
+                                                            Name = defaultVideo,
+                                                            Source = BackgroundSource.Video
+                                                        }));
                                                     },
                                                     resetAllAction: () =>
                                                     {
-                                                        LadderInfo.BackgroundFiles.Clear();
-
-                                                        foreach (var v in BackgroundProps.PATHS)
-                                                        {
-                                                            LadderInfo.BackgroundFiles.Add(new KeyValuePair<BackgroundType, string>(v.Key, v.Value));
-                                                        }
+                                                        LadderInfo.BackgroundMap.Clear();
+                                                        LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
                                                     }
                                                 )),
                                             },
@@ -274,24 +281,24 @@ namespace osu.Game.Tournament.Screens.Setup
 
             saveButton.Enabled.Value = false;
 
-            backgroundInfo.Text = LadderInfo.BackgroundFiles.Last(v => v.Key == backgroundDropdown.Current.Value).Value;
-            backgroundInfo.Colour = backgroundPreview.VideoAvailable ? Color4.SkyBlue : Color4.Orange;
-
-            if (!LadderInfo.BackgroundFiles.Any())
+            if (!LadderInfo.BackgroundMap.Any())
             {
-                LadderInfo.BackgroundFiles.AddRange(BackgroundProps.PATHS);
+                LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
             }
+
+            backgroundInfo.Text = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == backgroundDropdown.Current.Value).Value.Name;
+            backgroundInfo.Colour = backgroundPreview.VideoAvailable ? Color4.SkyBlue : Color4.Orange;
 
             backgroundDropdown.Current.BindValueChanged(e =>
             {
-                backgroundContainer.Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundFiles.Last(v => v.Key == e.NewValue).Value,
+                backgroundContainer.Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value,
                     showError: true)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 };
 
-                backgroundInfo.Text = $"Using: {LadderInfo.BackgroundFiles.Last(v => v.Key == e.NewValue).Value}";
+                backgroundInfo.Text = $"Using: {LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value.Name}";
                 backgroundInfo.Colour = backgroundPreview.VideoAvailable ? Color4.SkyBlue : Color4.Orange;
             }, true);
 
@@ -306,10 +313,7 @@ namespace osu.Game.Tournament.Screens.Setup
             if (e.NewValue == null)
             {
                 pathValid = false;
-                return;
             }
-
-            pathValid = e.NewValue.FullName == backgroundPath;
         }
 
         private void fileChanged(ValueChangedEvent<FileInfo> selectedFile)
@@ -325,11 +329,15 @@ namespace osu.Game.Tournament.Screens.Setup
 
             string lowerFileName = selectedFile.NewValue.Name.ToLowerInvariant();
 
-            bool valid = lowerFileName.EndsWith(".mp4", StringComparison.Ordinal)
-                         || lowerFileName.EndsWith(".avi", StringComparison.Ordinal)
-                         || lowerFileName.EndsWith(".m4v", StringComparison.Ordinal);
+            bool validVideo = lowerFileName.EndsWith(".mp4", StringComparison.Ordinal)
+                              || lowerFileName.EndsWith(".avi", StringComparison.Ordinal)
+                              || lowerFileName.EndsWith(".m4v", StringComparison.Ordinal);
+            bool validImage = lowerFileName.EndsWith(".png", StringComparison.Ordinal)
+                              || lowerFileName.EndsWith(".jpg", StringComparison.Ordinal)
+                              || lowerFileName.EndsWith(".jpeg", StringComparison.Ordinal)
+                              || lowerFileName.EndsWith(".bmp", StringComparison.Ordinal);
 
-            if (!valid)
+            if (!validVideo && !validImage)
             {
                 currentFileText.Clear();
                 currentFileText.AddText($"{selectedFile.NewValue.Name}",
@@ -341,6 +349,9 @@ namespace osu.Game.Tournament.Screens.Setup
             }
             else
             {
+                pathValid = (validVideo && fileSelector.CurrentPath.Value.FullName == videoPath)
+                            || (validImage && fileSelector.CurrentPath.Value.FullName == imagePath);
+
                 if (pathValid)
                 {
                     currentFileText.Clear();
@@ -349,7 +360,11 @@ namespace osu.Game.Tournament.Screens.Setup
                     currentFileText.AddText(": Preview on the right!", t => t.Colour = Color4.SkyBlue);
                     currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
                     currentFileIcon.Colour = Color4.SkyBlue;
-                    backgroundContainer.Child = new TourneyBackground(selectedFile.NewValue.Name.Split('.')[0], showError: true)
+                    backgroundContainer.Child = new TourneyBackground(availableInfo = new BackgroundInfo
+                    {
+                        Source = validVideo ? BackgroundSource.Video : BackgroundSource.Image,
+                        Name = selectedFile.NewValue.Name.Split('.')[0]
+                    }, showError: true)
                     {
                         Loop = true,
                         RelativeSizeAxes = Axes.Both,
@@ -372,10 +387,12 @@ namespace osu.Game.Tournament.Screens.Setup
         private void saveSetting()
         {
             BackgroundType currentType = backgroundDropdown.Current.Value;
-            LadderInfo.BackgroundFiles.RemoveAll(v => v.Key == currentType);
+            LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
 
-            LadderInfo.BackgroundFiles.Add(
-                new KeyValuePair<BackgroundType, string>(currentType, fileSelector.CurrentFile.Value.Name.Split('.')[0]));
+            LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(
+                currentType,
+                availableInfo
+            ));
 
             saveButton.FlashColour(Color4.White, 500);
             saveButton.Enabled.Value = false;

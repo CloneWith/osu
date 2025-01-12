@@ -116,7 +116,7 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.Both,
                             Width = 10,
                         },
-                        background = new TourneyBackground("main", true)
+                        background = new TourneyBackground("main")
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,

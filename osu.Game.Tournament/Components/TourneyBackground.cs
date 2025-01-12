@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Video;
 using osu.Framework.Timing;
 using osu.Game.Graphics;
@@ -19,6 +20,7 @@ namespace osu.Game.Tournament.Components
 {
     public partial class TourneyBackground : CompositeDrawable
     {
+        private readonly BackgroundSource source;
         private readonly string filename;
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
@@ -26,39 +28,75 @@ namespace osu.Game.Tournament.Components
         private ManualClock? manualClock;
         private OsuTextFlowContainer errorFlow = null!;
 
+        private bool needDetection;
+
         public bool VideoAvailable => video != null;
 
         public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder,
-                                 bool drawFallbackGradient = false, bool showError = false)
+                                 bool drawFallbackGradient = true, bool showError = false)
         {
-            filename = ladder.BackgroundFiles.Last(v => v.Key == backgroundType).Value;
+            source = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Source;
+            filename = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Name ?? string.Empty;
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
         }
 
-        public TourneyBackground(string filename, bool drawFallbackGradient = false, bool showError = false)
+        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false)
+        {
+            source = info.Source;
+            filename = info.Name;
+            this.drawFallbackGradient = drawFallbackGradient;
+            this.showError = showError;
+        }
+
+        public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false)
         {
             this.filename = filename;
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
+            needDetection = true;
         }
 
         [BackgroundDependencyLoader]
-        private void load(TournamentVideoResourceStore storage)
+        private void load(TournamentVideoResourceStore storage, TextureStore textureStore)
         {
-            var stream = storage.GetStream(filename);
+            bool isFaulted = false;
 
-            if (stream != null)
+            if (source == BackgroundSource.Image || needDetection)
             {
-                InternalChild = video = new Video(stream, false)
+                var image = textureStore.Get($"Backgrounds/{filename}");
+
+                if (image != null)
                 {
-                    RelativeSizeAxes = Axes.Both,
-                    FillMode = FillMode.Fit,
-                    Clock = new FramedClock(manualClock = new ManualClock()),
-                    Loop = loop,
-                };
+                    needDetection = false;
+                    InternalChild = new Sprite
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Texture = image
+                    };
+                }
+                else isFaulted = !needDetection;
             }
-            else
+            else if (source == BackgroundSource.Video || needDetection)
+            {
+                var stream = storage.GetStream(filename);
+
+                if (stream != null)
+                {
+                    needDetection = false;
+                    InternalChild = video = new Video(stream, false)
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        FillMode = FillMode.Fit,
+                        Clock = new FramedClock(manualClock = new ManualClock()),
+                        Loop = loop,
+                    };
+                }
+                else isFaulted = true;
+            }
+
+            if (isFaulted || source == BackgroundSource.None)
             {
                 InternalChildren = new Drawable[]
                 {
@@ -74,7 +112,7 @@ namespace osu.Game.Tournament.Components
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         AutoSizeAxes = Axes.Both,
-                        Alpha = showError ? 1 : 0
+                        Alpha = isFaulted && showError ? 1 : 0
                     }
                 };
 
