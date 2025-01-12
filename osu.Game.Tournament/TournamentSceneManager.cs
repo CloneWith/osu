@@ -41,7 +41,7 @@ namespace osu.Game.Tournament
     public partial class TournamentSceneManager : CompositeDrawable
     {
         private Container screens = null!;
-        private TourneyVideo video = null!;
+        private TourneyBackground background = null!;
         private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
 
         private IAnimation? currentAnimation;
@@ -117,7 +117,7 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.Both,
                             Width = 10,
                         },
-                        video = new TourneyVideo("main", true)
+                        background = new TourneyBackground("main", true)
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,
@@ -141,7 +141,6 @@ namespace osu.Game.Tournament
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
                                 middle = new BoardScreen(),
-                                new ExtraBoardScreen()
                             }
                         },
                         chatContainer = new Container
@@ -192,7 +191,6 @@ namespace osu.Game.Tournament
                                     new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
                                     new Separator(),
                                     new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(ExtraBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
                                     new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
                                     new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
                                     new Separator(),
@@ -246,9 +244,9 @@ namespace osu.Game.Tournament
             var lastScreen = currentScreen;
             currentScreen = target;
 
-            if (currentScreen.ChildrenOfType<TourneyVideo>().FirstOrDefault()?.VideoAvailable == true)
+            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.VideoAvailable == true)
             {
-                video.FadeOut(200);
+                background.FadeOut(200);
 
                 // delay the hide to avoid a double-fade transition.
                 scheduledHide = Scheduler.AddDelayed(() => lastScreen?.Hide(), TournamentScreen.FADE_DELAY);
@@ -256,7 +254,7 @@ namespace osu.Game.Tournament
             else
             {
                 lastScreen?.Hide();
-                video.Show();
+                background.Show();
             }
 
             screens.ChangeChildDepth(currentScreen, depth--);
@@ -282,7 +280,7 @@ namespace osu.Game.Tournament
                     chat.ChangeRadius(0);
                     break;
 
-                case BoardScreen or ExtraBoardScreen:
+                case BoardScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
                     chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
                     chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);

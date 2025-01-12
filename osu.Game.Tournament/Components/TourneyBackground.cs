@@ -17,7 +17,7 @@ using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class TourneyVideo : CompositeDrawable
+    public partial class TourneyBackground : CompositeDrawable
     {
         private readonly string filename;
         private readonly bool drawFallbackGradient;
@@ -27,13 +27,13 @@ namespace osu.Game.Tournament.Components
 
         public bool VideoAvailable => video != null;
 
-        public TourneyVideo(BackgroundVideo videoType, LadderInfo ladder, bool drawFallbackGradient = false)
+        public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder, bool drawFallbackGradient = false)
         {
-            filename = ladder.BackgroundVideoFiles.Last(v => v.Key == videoType).Value;
+            filename = ladder.BackgroundFiles.Last(v => v.Key == backgroundType).Value;
             this.drawFallbackGradient = drawFallbackGradient;
         }
 
-        public TourneyVideo(string filename, bool drawFallbackGradient = false)
+        public TourneyBackground(string filename, bool drawFallbackGradient = false)
         {
             this.filename = filename;
             this.drawFallbackGradient = drawFallbackGradient;

@@ -49,22 +49,6 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> DisplayTeamSeeds = new BindableBool();
 
-        public BindableList<KeyValuePair<BackgroundVideo, string>> BackgroundVideoFiles = new BindableList<KeyValuePair<BackgroundVideo, string>>
-        {
-            KeyValuePair.Create(BackgroundVideo.Gameplay, "gameplay"),
-            KeyValuePair.Create(BackgroundVideo.Mappool, "mappool"),
-            KeyValuePair.Create(BackgroundVideo.Main, "main"),
-            KeyValuePair.Create(BackgroundVideo.Ladder, "ladder"),
-            KeyValuePair.Create(BackgroundVideo.Schedule, "schedule"),
-            KeyValuePair.Create(BackgroundVideo.Drawings, "drawings"),
-            KeyValuePair.Create(BackgroundVideo.Showcase, "showcase"),
-            KeyValuePair.Create(BackgroundVideo.Seeding, "seeding"),
-            KeyValuePair.Create(BackgroundVideo.TeamIntro, "teamintro"),
-            KeyValuePair.Create(BackgroundVideo.RedWin, "teamwin-red"),
-            KeyValuePair.Create(BackgroundVideo.BlueWin, "teamwin-blue"),
-            KeyValuePair.Create(BackgroundVideo.Draw, "mappool"),
-            KeyValuePair.Create(BackgroundVideo.Board, "mappool"),
-            KeyValuePair.Create(BackgroundVideo.ExStage, "mappool"),
-        };
+        public BindableList<KeyValuePair<BackgroundType, string>> BackgroundFiles = new BindableList<KeyValuePair<BackgroundType, string>>();
     }
 }
