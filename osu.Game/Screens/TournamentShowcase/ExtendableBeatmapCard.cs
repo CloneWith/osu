@@ -76,8 +76,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 },
                 setCover = new Sprite
                 {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativePositionAxes = Axes.Both,
+                    Y = centre_offset,
                     RelativeSizeAxes = Axes.Both,
                     Height = 0.8f,
+                    FillMode = FillMode.Fill
                 },
                 modIcon = new Sprite
                 {
@@ -186,6 +191,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public void Shrink(int duration = 800)
         {
             setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
+            setCover.MoveToY(0, duration, Easing.OutQuint);
             setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
             this.ResizeHeightTo(80, duration, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
@@ -199,6 +205,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public void Expand(int duration = 800)
         {
             setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
+            setCover.MoveToY(centre_offset, duration, Easing.OutQuint);
             setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
             this.ResizeHeightTo(400, duration, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
