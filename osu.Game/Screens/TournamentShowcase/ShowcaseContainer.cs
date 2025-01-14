@@ -19,7 +19,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseContainer : CompositeDrawable
+    public partial class ShowcaseContainer : Container
     {
         [Resolved]
         private OsuLogo? logo { get; set; }
@@ -28,6 +28,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public readonly BeatmapAttributesDisplay BeatmapAttributes;
         public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
+
+        private readonly PlayerContainer playerContainer;
 
         private readonly ShowcaseConfig config;
         private readonly float yPositionScale;
@@ -51,7 +53,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             InternalChildren = new Drawable[]
             {
-                new PlayerContainer
+                playerContainer = new PlayerContainer
                 {
                     Masking = true,
                     RelativeSizeAxes = Axes.Both,
@@ -113,6 +115,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private void showIntro()
         {
             state.Value = ShowcaseState.Intro;
+            playerContainer.BlurTo(new Vector2(10), 1500, Easing.OutQuint);
 
             Container introContainer = new Container
             {
@@ -286,6 +289,7 @@ namespace osu.Game.Screens.TournamentShowcase
             using (BeginDelayedSequence(totalTime))
             {
                 mapPoolContainer.FadeOut(1000, Easing.OutQuint);
+                playerContainer.BlurTo(Vector2.Zero, 1500, Easing.OutQuint);
             }
 
             Scheduler.AddDelayed(_ =>
@@ -303,6 +307,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
             BeatmapAttributes.FadeOut(500, Easing.OutQuint);
+            playerContainer.BlurTo(new Vector2(10), 1500, Easing.OutQuint);
 
             Container outroContainer = new Container
             {
@@ -367,7 +372,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private partial class PlayerContainer : Container
+        private partial class PlayerContainer : BufferedContainer
         {
             public override bool PropagatePositionalInputSubTree => false;
             public override bool PropagateNonPositionalInputSubTree => false;
