@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
@@ -97,7 +98,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private Drawable? removeButton;
         private PanelBackground panelBackground = null!;
         private FillFlowContainer infoFillFlow = null!;
-        private BeatmapCardThumbnail? thumbnail;
+        private Sprite modIcon = null!;
         private Container recordScoreContainer = null!;
 
         [Resolved]
@@ -111,6 +112,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private BeatmapLookupCache beatmapLookupCache { get; set; } = null!;
+
+        [Resolved]
+        private TextureStore textureStore { get; set; } = null!;
 
         [Resolved]
         private BeatmapSetOverlay? beatmapOverlay { get; set; }
@@ -229,25 +233,12 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 if (beatmapInfo != null)
                 {
-                    difficultyIconContainer.Children = new Drawable[]
+                    difficultyIconContainer.Child = new DifficultyIcon(beatmapInfo, ruleset, requiredMods)
                     {
-                        thumbnail = new BeatmapCardThumbnail(beatmapInfo.BeatmapSet!, (beatmapInfo.BeatmapSet as IBeatmapSetOnlineInfo)!)
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Width = 120,
-                            Masking = true,
-                            CornerRadius = 10,
-                            RelativeSizeAxes = Axes.Y,
-                            Dimmed = { Value = IsHovered }
-                        },
-                        new DifficultyIcon(beatmapInfo, ruleset, requiredMods)
-                        {
-                            Size = new Vector2(24),
-                            TooltipType = DifficultyIconTooltipType.Extended,
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                        },
+                        Size = new Vector2(32),
+                        TooltipType = DifficultyIconTooltipType.Extended,
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
                     };
                 }
                 else
@@ -297,9 +288,12 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
                 : new MessagePlaceholder("No score associated with this beatmap.");
 
+            modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
+
             buttonsFlow.Clear();
             buttonsFlow.ChildrenEnumerable = createButtons();
 
+            modIcon.FadeInFromZero(500, Easing.OutQuint);
             difficultyIconContainer.FadeInFromZero(500, Easing.OutQuint);
             infoFillFlow.FadeInFromZero(500, Easing.OutQuint);
             recordScoreContainer.FadeInFromZero(500, Easing.OutQuint);
@@ -335,6 +329,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                 {
                                     new Dimension(GridSizeMode.AutoSize),
                                     new Dimension(),
+                                    new Dimension(GridSizeMode.Relative, 0.1f),
                                     new Dimension(GridSizeMode.AutoSize),
                                     new Dimension(GridSizeMode.AutoSize)
                                 },
@@ -350,7 +345,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                             RelativeSizeAxes = Axes.Y,
                                             Direction = FillDirection.Horizontal,
                                             Spacing = new Vector2(4),
-                                            Margin = new MarginPadding { Right = 4 },
+                                            Margin = new MarginPadding { Horizontal = 8 },
                                         },
                                         infoFillFlow = new FillFlowContainer
                                         {
@@ -418,6 +413,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                                 }
                                             }
                                         },
+                                        modIcon = new Sprite
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            FillMode = FillMode.Fit,
+                                            Margin = new MarginPadding { Horizontal = 4 }
+                                        },
                                         buttonsFlow = new FillFlowContainer
                                         {
                                             Anchor = Anchor.CentreRight,
@@ -480,20 +483,29 @@ namespace osu.Game.Screens.TournamentShowcase
             },
         };
 
+        public void UpdateModIcon()
+        {
+            modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
+            modIcon.FadeInFromZero(500, Easing.OutQuint);
+        }
+
+        public async Task UpdateOwnerAvatar()
+        {
+            if (showItemOwner)
+            {
+                var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
+                Schedule(() => ownerAvatar.User = foundUser);
+            }
+        }
+
         protected override bool OnHover(HoverEvent e)
         {
-            if (thumbnail != null)
-                thumbnail.Dimmed.Value = true;
-
             panelBackground.FadeColour(OsuColour.Gray(0.7f), BeatmapCard.TRANSITION_DURATION, Easing.OutQuint);
             return base.OnHover(e);
         }
 
         protected override void OnHoverLost(HoverLostEvent e)
         {
-            if (thumbnail != null)
-                thumbnail.Dimmed.Value = false;
-
             panelBackground.FadeColour(OsuColour.Gray(1f), BeatmapCard.TRANSITION_DURATION, Easing.OutQuint);
             base.OnHoverLost(e);
         }
