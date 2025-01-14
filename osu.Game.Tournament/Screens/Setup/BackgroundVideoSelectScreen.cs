@@ -339,13 +339,14 @@ namespace osu.Game.Tournament.Screens.Setup
 
             if (!validVideo && !validImage)
             {
+                saveButton.Enabled.Value = false;
+
                 currentFileText.Clear();
                 currentFileText.AddText($"{selectedFile.NewValue.Name}",
                     t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
                 currentFileText.AddText(@": Invalid file type.", t => t.Colour = Color4.Orange);
                 currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                 currentFileIcon.Colour = Color4.Orange;
-                saveButton.Enabled.Value = false;
             }
             else
             {
@@ -354,6 +355,8 @@ namespace osu.Game.Tournament.Screens.Setup
 
                 if (pathValid)
                 {
+                    saveButton.Enabled.Value = true;
+
                     currentFileText.Clear();
                     currentFileText.AddText($"{selectedFile.NewValue.Name}",
                         t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
@@ -369,17 +372,17 @@ namespace osu.Game.Tournament.Screens.Setup
                         Loop = true,
                         RelativeSizeAxes = Axes.Both,
                     };
-
-                    saveButton.Enabled.Value = true;
                 }
                 else
                 {
+                    (string, string) prompt = validVideo ? ("Videos", "Videos") : ("Images", "Backgrounds");
+
+                    saveButton.Enabled.Value = false;
                     currentFileText.Clear();
-                    currentFileText.AddText("Must select a file from current tournament's Video path.",
+                    currentFileText.AddText($"{prompt.Item1} must be selected from current \"{prompt.Item2}\" directory.",
                         t => t.Colour = Color4.Orange);
                     currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                     currentFileIcon.Colour = Color4.Orange;
-                    saveButton.Enabled.Value = false;
                 }
             }
         }
