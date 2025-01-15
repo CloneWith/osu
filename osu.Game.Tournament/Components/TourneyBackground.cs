@@ -24,16 +24,18 @@ namespace osu.Game.Tournament.Components
         private readonly string filename;
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
+
+        private Sprite? imageSprite;
         private Video? video;
         private ManualClock? manualClock;
         private OsuTextFlowContainer errorFlow = null!;
 
         private bool needDetection;
 
-        public bool VideoAvailable => video != null;
+        public bool BackgroundAvailable => video != null || imageSprite != null;
 
         public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder,
-                                 bool drawFallbackGradient = true, bool showError = false)
+                                 bool drawFallbackGradient = false, bool showError = false)
         {
             source = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Source;
             filename = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Name ?? string.Empty;
@@ -69,7 +71,7 @@ namespace osu.Game.Tournament.Components
                 if (image != null)
                 {
                     needDetection = false;
-                    InternalChild = new Sprite
+                    InternalChild = imageSprite = new Sprite
                     {
                         RelativeSizeAxes = Axes.Both,
                         FillMode = FillMode.Fill,

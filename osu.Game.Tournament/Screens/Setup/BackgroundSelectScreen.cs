@@ -289,7 +289,7 @@ namespace osu.Game.Tournament.Screens.Setup
             }
 
             backgroundInfo.Text = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == backgroundDropdown.Current.Value).Value.Name;
-            backgroundInfo.Colour = backgroundPreview.VideoAvailable ? Color4.SkyBlue : Color4.Orange;
+            backgroundInfo.Colour = backgroundPreview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
 
             backgroundDropdown.Current.BindValueChanged(e =>
             {
@@ -301,7 +301,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 };
 
                 backgroundInfo.Text = $"Using: {LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value.Name}";
-                backgroundInfo.Colour = backgroundPreview.VideoAvailable ? Color4.SkyBlue : Color4.Orange;
+                backgroundInfo.Colour = backgroundPreview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
             }, true);
 
             fileSelector.CurrentPath.BindValueChanged(pathChanged, true);

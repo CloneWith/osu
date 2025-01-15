@@ -63,6 +63,9 @@ namespace osu.Game.Tournament
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
+        [Resolved]
+        private LadderInfo ladderInfo { get; set; } = null!;
+
         private Container chatContainer = new Container
         {
             Anchor = Anchor.TopLeft,
@@ -116,7 +119,7 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.Both,
                             Width = 10,
                         },
-                        background = new TourneyBackground("main")
+                        background = new TourneyBackground(BackgroundType.Main, ladderInfo, drawFallbackGradient: true)
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,
@@ -243,7 +246,7 @@ namespace osu.Game.Tournament
             var lastScreen = currentScreen;
             currentScreen = target;
 
-            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.VideoAvailable == true)
+            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.BackgroundAvailable == true)
             {
                 background.FadeOut(200);
 
