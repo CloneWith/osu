@@ -72,7 +72,7 @@ namespace osu.Game.Tournament.Components
                     InternalChild = new Sprite
                     {
                         RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
+                        FillMode = FillMode.Fill,
                         Texture = image
                     };
                 }
@@ -88,7 +88,7 @@ namespace osu.Game.Tournament.Components
                     InternalChild = video = new Video(stream, false)
                     {
                         RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fit,
+                        FillMode = FillMode.Fill,
                         Clock = new FramedClock(manualClock = new ManualClock()),
                         Loop = loop,
                     };
