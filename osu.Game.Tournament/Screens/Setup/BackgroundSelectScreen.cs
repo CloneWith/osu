@@ -26,7 +26,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Setup
 {
-    public partial class BackgroundVideoSelectScreen : TournamentScreen
+    public partial class BackgroundSelectScreen : TournamentScreen
     {
         private BackgroundTypeDropdown backgroundDropdown = null!;
         private TournamentSpriteText backgroundInfo = null!;
@@ -48,6 +48,9 @@ namespace osu.Game.Tournament.Screens.Setup
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
+
+        [Resolved]
+        private TournamentGame game { get; set; } = null!;
 
         private OsuFileSelector fileSelector = null!;
         private DialogOverlay? overlay;
@@ -273,7 +276,6 @@ namespace osu.Game.Tournament.Screens.Setup
                     State = { Value = Visibility.Visible },
                     Action = () => sceneManager?.SetScreen(typeof(SetupScreen))
                 },
-                new ControlPanel(true),
                 overlay = new DialogOverlay(),
             };
 
@@ -396,6 +398,8 @@ namespace osu.Game.Tournament.Screens.Setup
                 currentType,
                 availableInfo
             ));
+
+            game.SaveChanges();
 
             saveButton.FlashColour(Color4.White, 500);
             saveButton.Enabled.Value = false;
