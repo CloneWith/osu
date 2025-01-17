@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -28,6 +29,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         protected SpriteIcon IconSprite = null!;
         protected SpriteText TextSprite = null!;
 
+        public new Action? Action;
+
         public string IdleText = string.Empty;
         public string ActiveText = string.Empty;
         public IconUsage? IdleIcon;
@@ -38,8 +41,13 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         public ColourInfo ActiveBackgroundColour = Color4.SkyBlue;
         public ColourInfo ActiveForegroundColour = Color4.Black;
 
+        public static void DummyAction() { }
+
         public FumoButton(FillDirection direction = FillDirection.Horizontal)
         {
+            // Overriding this to avoid accidentally triggering clicks.
+            base.Action = DummyAction;
+
             LayoutDirection = direction;
             AutoSizeAxes = Axes.Both;
             AutoSizeDuration = TRANSFORM_DURATION;

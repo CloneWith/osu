@@ -22,14 +22,11 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         public StateSwitchButton(FillDirection direction = FillDirection.Horizontal)
             : base(direction)
         {
-            Action = dummyAction;
         }
-
-        private void dummyAction() { }
 
         protected override void LoadComplete()
         {
-            IconSprite.Icon = Current.Value ? ActiveIcon ?? new IconUsage() : IdleIcon ?? new IconUsage();
+            IconSprite.Icon = Current.Value ? ActiveIcon ?? IdleIcon ?? new IconUsage() : IdleIcon ?? new IconUsage();
             TextSprite.Text = Current.Value ? ActiveText : IdleText;
             Background.Colour = Current.Value ? ActiveBackgroundColour : IdleBackgroundColour;
             IconSprite.Colour = Current.Value ? ActiveForegroundColour : IdleForegroundColour;
@@ -47,7 +44,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
 
         private void switchChanged(ValueChangedEvent<bool> e)
         {
-            IconSprite.Icon = e.NewValue ? ActiveIcon ?? new IconUsage() : IdleIcon ?? new IconUsage();
+            IconSprite.Icon = e.NewValue ? ActiveIcon ?? IdleIcon ?? new IconUsage() : IdleIcon ?? new IconUsage();
             TextSprite.Text = e.NewValue ? ActiveText : IdleText;
             Background.FadeColour(e.NewValue ? ActiveBackgroundColour : IdleBackgroundColour, TRANSFORM_DURATION, Easing.OutQuint);
             IconSprite.FadeColour(e.NewValue ? ActiveForegroundColour : IdleForegroundColour, TRANSFORM_DURATION, Easing.OutQuint);
