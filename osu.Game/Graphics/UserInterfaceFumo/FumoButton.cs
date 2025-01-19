@@ -58,7 +58,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         }
 
         [BackgroundDependencyLoader]
-        protected void Load()
+        private void load()
         {
             Content.AddRange(new Drawable[]
             {
