@@ -45,13 +45,14 @@ namespace osu.Game.Graphics.UserInterfaceFumo
 
         public FumoButton(FillDirection direction = FillDirection.Horizontal)
         {
-            // Overriding this to avoid accidentally triggering clicks.
-            base.Action = DummyAction;
-
+            Content.Name = "Content of FumoButton";
+            Anchor = Anchor.Centre;
+            Origin = Anchor.Centre;
             LayoutDirection = direction;
             AutoSizeAxes = Axes.Both;
-            AutoSizeDuration = TRANSFORM_DURATION;
-            AutoSizeEasing = Easing.OutQuint;
+
+            // Overriding this to avoid accidentally triggering clicks.
+            base.Action = DummyAction;
 
             if (ActiveText == string.Empty) ActiveText = IdleText;
             ActiveIcon ??= IdleIcon;
@@ -60,7 +61,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         [BackgroundDependencyLoader]
         private void load()
         {
-            Content.AddRange(new Drawable[]
+            AddRange(new Drawable[]
             {
                 Background = new Box
                 {
@@ -70,6 +71,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
                 },
                 new FillFlowContainer
                 {
+                    Name = @"Icon and text flow",
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     AutoSizeAxes = Axes.Both,
