@@ -63,7 +63,7 @@ namespace osu.Game.Tournament.Components
                 iconSprite.Icon = value.Value;
                 imageSprite.Hide();
                 iconSprite.Show();
-                iconSprite.ScaleTo(0.8f).Then().ScaleTo(0.75f, 300, Easing.OutQuint);
+                iconSprite.ScaleTo(0.9f).Then().ScaleTo(0.75f, 300, Easing.OutQuint);
             }
         }
 
@@ -148,6 +148,7 @@ namespace osu.Game.Tournament.Components
                         },
                         imageSprite = new Sprite
                         {
+                            Name = "Sprite Icon",
                             FillMode = FillMode.Fit,
                             RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.Centre,
@@ -156,6 +157,7 @@ namespace osu.Game.Tournament.Components
                         },
                         iconSprite = new SpriteIcon
                         {
+                            Name = "Sprite Icon",
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Colour = mainIconColour,
