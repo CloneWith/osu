@@ -27,13 +27,90 @@ namespace osu.Game.Tournament.Components
     {
         private readonly string modAcronym;
         private readonly string modIndex;
-        private readonly CircularContainer mainContainer;
+        private readonly Box mainBackground;
+        private readonly Box badgeBackground;
         private readonly OsuSpriteText badgeText;
+        private readonly Sprite imageSprite;
+        private readonly SpriteIcon iconSprite;
 
-        public Color4 MainBackgroundColour = Color4Extensions.FromHex("#535353");
-        public Color4 BadgeBackgroundColour = Color4Extensions.FromHex("#535353");
-        public Color4 BadgeTextColour = Color4.White;
-        public Color4 MainIconColour = Color4.White;
+        /// <summary>
+        /// The currently displaying texture (as icon) of this mod icon.
+        /// </summary>
+        public Texture? Texture
+        {
+            get => imageSprite.Texture;
+            set
+            {
+                if (value == null) return;
+
+                imageSprite.Texture = value;
+                iconSprite.Hide();
+                imageSprite.Show();
+                imageSprite.ScaleTo(1.25f).Then().ScaleTo(1f, 300, Easing.OutQuint);
+            }
+        }
+
+        /// <summary>
+        /// The currently displaying icon of this mod icon.
+        /// </summary>
+        public IconUsage? Icon
+        {
+            get => iconSprite.Icon;
+            set
+            {
+                if (value == null) return;
+
+                iconSprite.Icon = value.Value;
+                imageSprite.Hide();
+                iconSprite.Show();
+                iconSprite.ScaleTo(0.8f).Then().ScaleTo(0.75f, 300, Easing.OutQuint);
+            }
+        }
+
+        public Color4 MainBackgroundColour
+        {
+            get => mainBackgroundColour;
+            set
+            {
+                mainBackgroundColour = value;
+                mainBackground.FadeColour(value, 300, Easing.OutQuint);
+            }
+        }
+
+        public Color4 BadgeBackgroundColour
+        {
+            get => badgeBackgroundColour;
+            set
+            {
+                badgeBackgroundColour = value;
+                badgeBackground.FadeColour(value, 300, Easing.OutQuint);
+            }
+        }
+
+        public Color4 BadgeTextColour
+        {
+            get => badgeTextColour;
+            set
+            {
+                badgeTextColour = value;
+                badgeText.FadeColour(value, 300, Easing.OutQuint);
+            }
+        }
+
+        public Color4 MainIconColour
+        {
+            get => mainIconColour;
+            set
+            {
+                mainIconColour = value;
+                iconSprite.FadeColour(value, 300, Easing.OutQuint);
+            }
+        }
+
+        private Color4 mainBackgroundColour = Color4Extensions.FromHex("#535353");
+        private Color4 badgeBackgroundColour = Color4Extensions.FromHex("#535353");
+        private Color4 badgeTextColour = Color4.White;
+        private Color4 mainIconColour = Color4.White;
 
         [Resolved]
         private IRulesetStore rulesets { get; set; } = null!;
@@ -49,15 +126,15 @@ namespace osu.Game.Tournament.Components
 
             if (colorScheme != null)
             {
-                MainBackgroundColour = colorScheme.Value.MainBackground;
-                BadgeBackgroundColour = colorScheme.Value.BadgeBackground;
-                BadgeTextColour = colorScheme.Value.BadgeText;
-                MainIconColour = colorScheme.Value.MainIcon;
+                mainBackgroundColour = colorScheme.Value.MainBackground;
+                badgeBackgroundColour = colorScheme.Value.BadgeBackground;
+                badgeTextColour = colorScheme.Value.BadgeText;
+                mainIconColour = colorScheme.Value.MainIcon;
             }
 
             InternalChildren = new Drawable[]
             {
-                mainContainer = new CircularContainer
+                new CircularContainer
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
@@ -65,9 +142,26 @@ namespace osu.Game.Tournament.Components
                     Masking = true,
                     Children = new Drawable[]
                     {
-                        new Box
+                        mainBackground = new Box
                         {
-                            RelativeSizeAxes = Axes.Both, Colour = MainBackgroundColour
+                            RelativeSizeAxes = Axes.Both, Colour = mainBackgroundColour
+                        },
+                        imageSprite = new Sprite
+                        {
+                            FillMode = FillMode.Fit,
+                            RelativeSizeAxes = Axes.Both,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Alpha = 0
+                        },
+                        iconSprite = new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Colour = mainIconColour,
+                            Size = new Vector2(36),
+                            Scale = new Vector2(0.75f),
+                            Alpha = 0
                         }
                     }
                 },
@@ -83,16 +177,16 @@ namespace osu.Game.Tournament.Components
                     Masking = true,
                     Children = new Drawable[]
                     {
-                        new Box
+                        badgeBackground = new Box
                         {
-                            RelativeSizeAxes = Axes.Both, Colour = BadgeBackgroundColour
+                            RelativeSizeAxes = Axes.Both, Colour = badgeBackgroundColour
                         },
                         badgeText = new OsuSpriteText
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Text = modAcronym + modIndex,
-                            Colour = BadgeTextColour,
+                            Colour = badgeTextColour,
                             Font = OsuFont.Torus.With(size: 11, weight: FontWeight.SemiBold),
                             Padding = new MarginPadding
                             {
@@ -116,32 +210,16 @@ namespace osu.Game.Tournament.Components
 
             if (customTexture != null)
             {
-                mainContainer.Add(new Sprite
-                {
-                    FillMode = FillMode.Fit,
-                    RelativeSizeAxes = Axes.Both,
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Texture = customTexture,
-                    Depth = float.MinValue
-                });
-
+                imageSprite.Show();
+                imageSprite.Texture = customTexture;
                 return;
             }
 
             var ruleset = rulesets.GetRuleset(ladderInfo.Ruleset.Value?.OnlineID ?? 0);
             var modIcon = ruleset?.CreateInstance().CreateModFromAcronym(modAcronym);
 
-            mainContainer.Add(new SpriteIcon
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                Colour = MainIconColour,
-                Icon = modIcon?.Icon ?? FontAwesome.Solid.Question,
-                Size = new Vector2(36),
-                Scale = new Vector2(0.75f),
-                Depth = float.MinValue
-            });
+            iconSprite.Show();
+            iconSprite.Icon = modIcon?.Icon ?? FontAwesome.Solid.Question;
         }
 
         /// <summary>
