@@ -14,6 +14,7 @@ using osu.Framework.Platform;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
@@ -36,8 +37,8 @@ namespace osu.Game.Tournament
             }
         }
 
-        public static readonly Color4 COLOUR_RED = new OsuColour().TeamColourRed;
-        public static readonly Color4 COLOUR_BLUE = new OsuColour().TeamColourBlue;
+        public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
+        public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
         public static readonly Color4 COLOUR_NEUTRAL = Color4.White;
 
         public static readonly Color4 ELEMENT_BACKGROUND_COLOUR = Color4Extensions.FromHex("#fff");
