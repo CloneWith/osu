@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
+using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament
@@ -29,21 +30,33 @@ namespace osu.Game.Tournament
                     Colour = Color4.Orange.Opacity(0.6f),
                     RelativeSizeAxes = Axes.Both,
                 },
-                new SpriteIcon
+                new FillFlowContainer
                 {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    Icon = FontAwesome.Solid.ExclamationTriangle,
-                    Colour = Color4.White,
-                    Size = new osuTK.Vector2(30),
-                    Margin = new MarginPadding { Left = 10, Right = 10 },
-                },
-                new TournamentSpriteText
-                {
-                    Text = text,
-                    Font = OsuFont.Torus.With(weight: FontWeight.Bold),
-                    Colour = Color4.White,
-                    Padding = new MarginPadding { Left = 50, Top = 20, Bottom = 20, Right = 30 },
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(5),
+                    Margin = new MarginPadding { Horizontal = 10, Vertical = 5 },
+                    Children = new Drawable[]
+                    {
+                        new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Icon = FontAwesome.Solid.ExclamationTriangle,
+                            Colour = Color4.White,
+                            Size = new Vector2(30),
+                        },
+                        new TournamentSpriteText
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Text = text,
+                            Font = OsuFont.Torus.With(weight: FontWeight.Bold),
+                            Colour = Color4.White,
+                        },
+                    }
                 },
             };
         }
