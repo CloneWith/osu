@@ -39,6 +39,8 @@ namespace osu.Game.Tournament.Models
             MaxValue = 4,
         };
 
+        public Bindable<bool> UseUtcTime = new BindableBool();
+
         public Bindable<bool> UseRefereeCommands = new BindableBool();
 
         public Bindable<bool> NeedRefereeResponse = new BindableBool();
