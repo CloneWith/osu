@@ -360,7 +360,7 @@ namespace osu.Game.Tournament
 
             protected override bool OnKeyDown(KeyDownEvent e)
             {
-                if (e.Key == shortcutKey)
+                if (e.Key == shortcutKey && !e.Repeat)
                 {
                     TriggerClick();
                     return true;
