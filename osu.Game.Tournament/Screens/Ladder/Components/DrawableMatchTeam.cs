@@ -26,6 +26,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
     {
         private readonly TournamentMatch match;
         private readonly bool losers;
+        private readonly bool interactive;
         private TournamentSpriteText scoreText = null!;
         private Box background = null!;
         private Box backgroundRight = null!;
@@ -56,11 +57,12 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
         [Resolved]
         private LadderEditorInfo? editorInfo { get; set; }
 
-        public DrawableMatchTeam(TournamentTeam? team, TournamentMatch match, bool losers)
+        public DrawableMatchTeam(TournamentTeam? team, TournamentMatch match, bool losers, bool interactive = true)
             : base(team)
         {
             this.match = match;
             this.losers = losers;
+            this.interactive = interactive;
             Size = new Vector2(150, 40);
 
             Flag.Scale = new Vector2(0.54f);
@@ -138,7 +140,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 
         protected override bool OnClick(ClickEvent e)
         {
-            if (Team == null || editorInfo != null) return false;
+            if (!interactive || Team == null || editorInfo != null) return false;
 
             if (!match.Current.Value)
             {

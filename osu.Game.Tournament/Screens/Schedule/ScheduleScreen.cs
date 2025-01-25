@@ -244,7 +244,7 @@ namespace osu.Game.Tournament.Screens.Schedule
             private TournamentSpriteText timeText = null!;
 
             public ScheduleMatch(TournamentMatch match, bool showTimestamp = true)
-                : base(match)
+                : base(match, interactive: false)
             {
                 this.match = match;
                 this.showTimestamp = showTimestamp;
