@@ -12,7 +12,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osu.Game.Overlays.Settings;
-using osu.Game.Screens.Play.PlayerSettings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osuTK;
@@ -22,7 +21,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
     public partial class LadderEditorSettings : CompositeDrawable
     {
         private SettingsDropdown<TournamentRound?> roundDropdown = null!;
-        private PlayerCheckbox losersCheckbox = null!;
+        private SettingsCheckbox losersCheckbox = null!;
         private DateTextBox dateTimeBox = null!;
         private SettingsTeamDropdown team1Dropdown = null!;
         private SettingsTeamDropdown team2Dropdown = null!;
@@ -50,7 +49,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                     team1Dropdown = new SettingsTeamDropdown(ladderInfo.Teams) { LabelText = "Team 1" },
                     team2Dropdown = new SettingsTeamDropdown(ladderInfo.Teams) { LabelText = "Team 2" },
                     roundDropdown = new SettingsRoundDropdown(ladderInfo.Rounds) { LabelText = "Round" },
-                    losersCheckbox = new PlayerCheckbox { LabelText = "Losers Bracket" },
+                    losersCheckbox = new SettingsCheckbox { LabelText = "Losers Bracket" },
                     dateTimeBox = new DateTextBox { Caption = "Match Time" },
                 },
             };
