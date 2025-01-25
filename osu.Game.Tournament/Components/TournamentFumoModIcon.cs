@@ -122,14 +122,14 @@ namespace osu.Game.Tournament.Components
             this.modAcronym = modAcronym;
             this.modIndex = modIndex;
 
-            ModColour? colorScheme = ModIconColours.ColourMap.FirstOrDefault(kv => kv.Key == modAcronym).Value;
-
-            if (colorScheme != null)
+            if (ModIconColours.ColourMap.Exists(kv => kv.Key == modAcronym))
             {
-                mainBackgroundColour = colorScheme.Value.MainBackground;
-                badgeBackgroundColour = colorScheme.Value.BadgeBackground;
-                badgeTextColour = colorScheme.Value.BadgeText;
-                mainIconColour = colorScheme.Value.MainIcon;
+                var colorScheme = ModIconColours.ColourMap.First(kv => kv.Key == modAcronym).Value;
+
+                mainBackgroundColour = colorScheme.MainBackground;
+                badgeBackgroundColour = colorScheme.BadgeBackground;
+                badgeTextColour = colorScheme.BadgeText;
+                mainIconColour = colorScheme.MainIcon;
             }
 
             InternalChildren = new Drawable[]
