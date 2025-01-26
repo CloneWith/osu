@@ -8,9 +8,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*" />
     <EmbeddedResource Include="Textures\**\*" />
+    <EmbeddedResource Include="Shaders\**\*" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
     <Folder Include="Textures\" />
+    <Folder Include="Shaders\" />
   </ItemGroup>
 </Project>
