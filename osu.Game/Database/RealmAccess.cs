@@ -317,6 +317,8 @@ namespace osu.Game.Database
 
             try
             {
+                // Always create a backup in our forked version. Drive carefully.
+                createBackup($"{Filename.Replace(realm_extension, string.Empty)}_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}_dev_backup{realm_extension}");
                 return getRealmInstance();
             }
             catch (Exception e)
