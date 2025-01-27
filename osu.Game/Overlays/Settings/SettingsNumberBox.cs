@@ -5,7 +5,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.UserInterface;
-using osu.Framework.Input;
 
 namespace osu.Game.Overlays.Settings
 {
@@ -67,11 +66,6 @@ namespace osu.Game.Overlays.Settings
 
         private partial class OutlinedNumberBox : OutlinedTextBox
         {
-            public OutlinedNumberBox()
-            {
-                InputProperties = new TextInputProperties(TextInputType.Number, false);
-            }
-
             protected override bool CanAddCharacter(char character) => char.IsAsciiDigit(character);
 
             public new void NotifyInputError() => base.NotifyInputError();

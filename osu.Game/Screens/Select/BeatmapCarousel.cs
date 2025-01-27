@@ -1176,37 +1176,19 @@ namespace osu.Game.Screens.Select
 
             protected override bool IsDragging => base.IsDragging || absoluteScrolling;
 
-            public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
-            {
-                switch (e.Action)
-                {
-                    case GlobalAction.AbsoluteScrollSongList:
-                        beginAbsoluteScrolling(e);
-                        return true;
-                }
-
-                return false;
-            }
-
-            public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
-            {
-                switch (e.Action)
-                {
-                    case GlobalAction.AbsoluteScrollSongList:
-                        endAbsoluteScrolling();
-                        break;
-                }
-            }
-
             protected override bool OnMouseDown(MouseDownEvent e)
             {
                 if (e.Button == MouseButton.Right)
                 {
-                    // To avoid conflicts with context menus, disallow absolute scroll if it looks like things will fall over.
-                    if (GetContainingInputManager()!.HoveredDrawables.OfType<IHasContextMenu>().Any())
+                    // The default binding for absolute scroll is right mouse button.
+                    // To avoid conflicts with context menus, disallow absolute scroll completely if it looks like things will fall over.
+                    if (e.CurrentState.Mouse.Buttons.Contains(MouseButton.Right)
+                        && GetContainingInputManager()!.HoveredDrawables.OfType<IHasContextMenu>().Any())
                         return false;
 
-                    beginAbsoluteScrolling(e);
+                    ScrollToAbsolutePosition(e.CurrentState.Mouse.Position);
+                    absoluteScrolling = true;
+                    return true;
                 }
 
                 return base.OnMouseDown(e);
@@ -1214,9 +1196,17 @@ namespace osu.Game.Screens.Select
 
             protected override void OnMouseUp(MouseUpEvent e)
             {
-                if (e.Button == MouseButton.Right)
-                    endAbsoluteScrolling();
+                absoluteScrolling = false;
                 base.OnMouseUp(e);
+            }
+
+            public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+            {
+                return false;
+            }
+
+            public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+            {
             }
 
             protected override bool OnMouseMove(MouseMoveEvent e)
@@ -1229,14 +1219,6 @@ namespace osu.Game.Screens.Select
 
                 return base.OnMouseMove(e);
             }
-
-            private void beginAbsoluteScrolling(UIEvent e)
-            {
-                ScrollToAbsolutePosition(e.CurrentState.Mouse.Position);
-                absoluteScrolling = true;
-            }
-
-            private void endAbsoluteScrolling() => absoluteScrolling = false;
 
             #endregion
 
