@@ -25,16 +25,15 @@ namespace osu.Game.Tournament.Components
         public DrawableTeamFlag(TournamentTeam? team)
         {
             this.team = team;
+
+            Size = new Vector2(75, 54);
+            Masking = true;
+            CornerRadius = 5;
         }
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            //if (team == null) return;
-
-            Size = new Vector2(75, 54);
-            Masking = true;
-            CornerRadius = 5;
             Child = flagSprite = new Sprite
             {
                 RelativeSizeAxes = Axes.Both,
