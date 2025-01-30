@@ -49,7 +49,7 @@ namespace osu.Game.Tournament.Components
             }
             else
             {
-                flagSprite.Texture = textures.Get(@"Flags/alt");
+                flagSprite.Texture = textures.Get(@"Flags/alt") ?? textures.Get(@"Flags/__");
             }
         }
     }
