@@ -357,7 +357,12 @@ namespace osu.Game.Tournament
                     Formatting = Formatting.Indented,
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.Ignore,
-                    Converters = new JsonConverter[] { new JsonPointConverter() }
+                    Converters = new JsonConverter[] { new JsonPointConverter() },
+                    Error = (_, err) =>
+                    {
+                        Logger.Error(null, err.ErrorContext.Error.Message);
+                        err.ErrorContext.Handled = true;
+                    },
                 });
         }
 

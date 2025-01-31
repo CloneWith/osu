@@ -65,6 +65,11 @@ namespace osu.Game.Screens.TournamentShowcase
                     Formatting = Formatting.Indented,
                     NullValueHandling = NullValueHandling.Ignore,
                     DefaultValueHandling = DefaultValueHandling.Ignore,
+                    Error = (_, err) =>
+                    {
+                        Logger.Error(null, err.ErrorContext.Error.Message);
+                        err.ErrorContext.Handled = true;
+                    },
                 });
         }
     }

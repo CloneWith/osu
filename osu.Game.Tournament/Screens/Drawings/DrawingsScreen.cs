@@ -89,7 +89,7 @@ namespace osu.Game.Tournament.Screens.Drawings
                     RelativeSizeAxes = Axes.Both,
                     Children = new Drawable[]
                     {
-                        new TourneyVideo(BackgroundVideo.Drawings, LadderInfo)
+                        new TourneyBackground(BackgroundType.Drawings, LadderInfo)
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,

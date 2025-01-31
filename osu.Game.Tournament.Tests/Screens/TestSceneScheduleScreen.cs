@@ -22,7 +22,7 @@ namespace osu.Game.Tournament.Tests.Screens
         [BackgroundDependencyLoader]
         private void load()
         {
-            Add(new TourneyVideo("main") { RelativeSizeAxes = Axes.Both });
+            Add(new TourneyBackground("main") { RelativeSizeAxes = Axes.Both });
             Add(new ScheduleScreen());
         }
 

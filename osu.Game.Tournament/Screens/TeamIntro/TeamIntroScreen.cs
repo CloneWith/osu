@@ -22,7 +22,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
 
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo(BackgroundVideo.TeamIntro, LadderInfo)
+                new TourneyBackground(BackgroundType.TeamIntro, LadderInfo)
                 {
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
