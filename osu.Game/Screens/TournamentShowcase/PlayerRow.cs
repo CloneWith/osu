@@ -43,12 +43,11 @@ namespace osu.Game.Screens.TournamentShowcase
 
             InternalChildren = new Drawable[]
             {
-                new FormNumberBox
+                new FormNumberBox(allowDecimals: false)
                 {
                     Width = 0.3f,
                     Caption = @"Player ID",
                     Current = playerId,
-                    AllowDecimals = false
                 },
                 userPanelContainer = new Container
                 {
