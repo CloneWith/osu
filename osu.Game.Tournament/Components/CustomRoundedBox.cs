@@ -41,6 +41,9 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load()
         {
+            // Set a margin for children to maintain a basically sane layout.
+            Child.Margin = new MarginPadding { Horizontal = 10, Vertical = 2 };
+
             AddInternal(background = new CustomRoundedBoxBase
             {
                 Anchor = Anchor.CentreLeft,

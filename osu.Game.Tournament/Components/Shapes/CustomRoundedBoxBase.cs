@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Runtime.InteropServices;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -27,7 +26,6 @@ namespace osu.Game.Tournament.Components.Shapes
                     return;
 
                 base.Width = value;
-                targetSize = new Vector2(1, Height / value);
                 Invalidate(Invalidation.DrawNode);
             }
         }
@@ -41,34 +39,6 @@ namespace osu.Game.Tournament.Components.Shapes
                     return;
 
                 base.Height = value;
-                targetSize = new Vector2(1, Height / Width);
-                Invalidate(Invalidation.DrawNode);
-            }
-        }
-
-        private Vector2 targetSize = new Vector2(1, 0.25f);
-
-        public Vector2 TargetSize
-        {
-            get => targetSize;
-            set
-            {
-                if (targetSize == value)
-                    return;
-
-                if (targetSize.X == 0 || targetSize.Y == 0)
-                {
-                    throw new ArgumentException($"Either {nameof(targetSize.X)} or {nameof(targetSize.Y)} cannot be zero.");
-                }
-
-                targetSize = value;
-
-                if (targetSize.X != 1)
-                {
-                    targetSize.Y /= targetSize.X;
-                    targetSize.X = 1;
-                }
-
                 Invalidate(Invalidation.DrawNode);
             }
         }
@@ -119,11 +89,9 @@ namespace osu.Game.Tournament.Components.Shapes
         }
 
         [BackgroundDependencyLoader]
-        private void load(ShaderManager shaders, IRenderer renderer)
+        private void load(ShaderManager shaders)
         {
             RelativeSizeAxes = Axes.Both;
-            FillMode = FillMode.Fill;
-            // Texture = renderer.WhitePixel;
             TextureShader = shaders.Load(VertexShaderDescriptor.TEXTURE_2, "CustomRoundedBoxPath");
         }
 
@@ -149,7 +117,7 @@ namespace osu.Game.Tournament.Components.Shapes
             {
                 base.ApplyState();
 
-                size = Source.targetSize;
+                size = Source.DrawSize;
                 borderColour = Source.borderColour;
                 backgroundColour = Source.BackgroundColour;
                 borderWidth = Source.BorderWidth;

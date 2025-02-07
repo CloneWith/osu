@@ -19,6 +19,7 @@ namespace osu.Game.Tournament.Tests.Components
     {
         private readonly CustomRoundedBoxBase customRoundedBoxBase;
         private readonly CustomRoundedBox roundedBoxWithText;
+        private readonly OsuSpriteText innerSizeText;
 
         public TestSceneCustomRoundedBox()
         {
@@ -41,14 +42,10 @@ namespace osu.Game.Tournament.Tests.Components
                     {
                         roundedBoxWithText = new CustomRoundedBox
                         {
-                            Child = new OsuSpriteText
+                            Child = innerSizeText = new OsuSpriteText
                             {
                                 Text = "Hello shaders!",
                                 Font = OsuFont.TorusAlternate.With(size: 24, weight: FontWeight.SemiBold),
-                                Padding = new MarginPadding
-                                {
-                                    Horizontal = 10, Vertical = 2
-                                }
                             }
                         },
                         new CustomRoundedBox
@@ -60,10 +57,6 @@ namespace osu.Game.Tournament.Tests.Components
                                 AutoSizeAxes = Axes.Both,
                                 Direction = FillDirection.Horizontal,
                                 Spacing = new Vector2(4),
-                                Padding = new MarginPadding
-                                {
-                                    Horizontal = 8
-                                },
                                 Children = new Drawable[]
                                 {
                                     new SpriteIcon
@@ -92,7 +85,6 @@ namespace osu.Game.Tournament.Tests.Components
         public void TestBaseProperties()
         {
             AddStep("Set background colour", () => customRoundedBoxBase.BackgroundColour = Color4.SkyBlue);
-            AddAssert("Ensure correct Filling mode", () => customRoundedBoxBase.FillMode == FillMode.Fill);
             AddStep("Invalidate and reload", () => customRoundedBoxBase.Invalidate());
             AddSliderStep("Width", 0, 1, 0.75f, v => customRoundedBoxBase.Width = v);
             AddSliderStep("Height", 0, 1, 0.1f, v => customRoundedBoxBase.Height = v);
@@ -102,6 +94,7 @@ namespace osu.Game.Tournament.Tests.Components
         public void TestBoxProperties()
         {
             AddStep("Set background colour", () => roundedBoxWithText.BackgroundColour = FumoColours.FlandreRed.Regular);
+            AddStep("Set container text", () => innerSizeText.Text = "Man, what can I say? Manba out!");
         }
     }
 }

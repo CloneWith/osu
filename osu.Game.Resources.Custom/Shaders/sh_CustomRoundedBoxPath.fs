@@ -9,6 +9,7 @@ layout(std140, set = 0, binding = 0) uniform m_CustomRoundedBoxPathParameters
 {
     lowp vec4 backgroundColour;
     lowp vec4 borderColour;
+    // Assuming we are receiving truly absolute position data... 
     mediump vec2 size;
     mediump float borderWidth;
 };
@@ -38,7 +39,7 @@ vec4 AltCircle(in vec2 _st, in vec2 _origin, in highp float _radius)
     return vec4(0.0);
 }
 
-vec4 CustomRect(in vec2 _st, in vec2 _origin, in vec2 _size, in highp float _border)
+vec4 CustomRect(in vec2 _abspos, in vec2 _origin, in vec2 _size, in highp float _border)
 {
     vec2 leftP = vec2(_size.y / 2.0, _origin.y);
     vec2 rightP = vec2(_size.x - _size.y / 2.0, _origin.y);
@@ -46,38 +47,40 @@ vec4 CustomRect(in vec2 _st, in vec2 _origin, in vec2 _size, in highp float _bor
     vec2 mainRectSize = vec2(_size.x - _size.y, _size.y);
     
     // The main rectangle
-    if (_st.x >= leftP.x && _st.x <= rightP.x && abs(_st.y - _origin.y) <= _size.y / 2.0)
-        return backgroundColour; // Rect(_st, _origin, mainRectSize);
+    if (_abspos.x >= leftP.x && _abspos.x <= rightP.x && abs(_abspos.y - _origin.y) <= _size.y / 2.0)
+        return backgroundColour; // Rect(_abspos, _origin, mainRectSize);
     
     // Top left corner square
-    if (_st.x - leftP.x <= 0.0 && _st.x - leftP.x >= -(_size.y / 2.0) && _st.y - leftP.y <= 0.0 && _st.y - leftP.y >= -(_size.y / 2.0))
+    if (_abspos.x - leftP.x <= 0.0 && _abspos.x - leftP.x >= -(_size.y / 2.0) && _abspos.y - leftP.y <= 0.0 && _abspos.y - leftP.y >= -(_size.y / 2.0))
         return backgroundColour;
     
     /*
-    if (abs(distance(_st, leftP) - _size.y / 2.0) <= 0.01 && leftP.x - _st.x >= 0.0)
+    if (abs(distance(_abspos, leftP) - _size.y / 2.0) <= 0.01 && leftP.x - _abspos.x >= 0.0)
         return borderColour;
     
-    if (abs(distance(_st, leftP) - _size.y / 2.0) <= 0.01 && _st.x - rightP.x >= 0.0)
+    if (abs(distance(_abspos, leftP) - _size.y / 2.0) <= 0.01 && _abspos.x - rightP.x >= 0.0)
         return borderColour;
     */
 
     // Two Circles
-    if (distance(_st, leftP) <= _size.y / 2.0 && leftP.x - _st.x >= 0.0)
-        return AltCircle(_st, leftP, _size.y / 2.0);
+    if (distance(_abspos, leftP) <= _size.y / 2.0 && leftP.x - _abspos.x >= 0.0)
+        return AltCircle(_abspos, leftP, _size.y / 2.0);
     
-    if (distance(_st, rightP) <= _size.y / 2.0 && _st.x - rightP.x >= 0.0)
-        return AltCircle(_st, rightP, _size.y / 2.0);
+    if (distance(_abspos, rightP) <= _size.y / 2.0 && _abspos.x - rightP.x >= 0.0)
+        return AltCircle(_abspos, rightP, _size.y / 2.0);
     
     return vec4(0.0);
 }
 
 void main(void)
 {
+    // Get the position of every pixel relative to our drawing space.
     highp vec2 resolution = v_TexRect.zw - v_TexRect.xy;
     highp vec2 pixelPos = (v_TexCoord - v_TexRect.xy) / resolution;
 
+    // Turn the relative position into our familiar absolute position.
     mediump vec2 absolutePos = size * pixelPos;
     highp vec2 st = v_TexCoord / (v_TexRect.zw - v_TexRect.xy);
 
-    o_Colour = vec4(CustomRect(st, vec2(0.5, 0.5), size, 1.0));
+    o_Colour = vec4(CustomRect(absolutePos, size / 2.0, size, 1.0));
 }
