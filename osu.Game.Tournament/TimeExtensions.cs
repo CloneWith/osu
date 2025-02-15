@@ -34,5 +34,19 @@ namespace osu.Game.Tournament
 
             return humanizedTime;
         }
+
+        /// <summary>
+        /// Check if a span of time is nearly zero, useful for checking if two time points are almost the same.
+        /// </summary>
+        /// <param name="timeSpan">the span of time</param>
+        /// <param name="precision">allowable time difference, in milliseconds (only used when <paramref name="allowEarlier"/> is true)</param>
+        /// <param name="allowEarlier">allow positive time span</param>
+        /// <returns>true is nearly equals to zero, otherwise false</returns>
+        public static bool NearlyEqualsZero(this TimeSpan timeSpan, int precision = 10, bool allowEarlier = false)
+        {
+            return allowEarlier
+                ? timeSpan.TotalMilliseconds <= precision
+                : timeSpan.TotalMilliseconds <= 0;
+        }
     }
 }

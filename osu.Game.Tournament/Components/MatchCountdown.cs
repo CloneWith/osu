@@ -7,6 +7,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
@@ -27,10 +28,10 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public bool OnGoing { get; private set; }
 
-        public Color4 NormalColour = Color4.White;
-        public Color4 AccentColour = FumoColours.SeaBlue.Regular;
-        public Color4 NormalContentColour = Color4.Black;
-        public Color4 AccentContentColour = Color4.White;
+        public static Color4 NormalColour = Color4.White;
+        public static Color4 AccentColour = FumoColours.SeaBlue.Regular;
+        public static Color4 NormalContentColour = Color4.Black;
+        public static Color4 AccentContentColour = Color4.White;
 
         private const string long_waiting_string = @"还要等很久呢...";
         private const string empty_time_string = @"在等着什么呢 >.<";
@@ -38,17 +39,25 @@ namespace osu.Game.Tournament.Components
         private const string just_ended_string = @"前就开始了";
         private const string long_ended_string = @"早就开始啦 >.<";
 
-        private readonly Container topLayer;
-        private readonly Container bottomLayer;
-
         private readonly Box bottomBox;
         private readonly Box topBox;
         private readonly FillFlowContainer contentFlow;
 
         // Elements specifically used for cases with target time unset.
-        private readonly SpriteIcon hourglassIcon;
+        private readonly SpriteIcon indicatorIcon;
         private readonly OsuSpriteText waitingText;
-        private readonly OsuSpriteText longCountdownText;
+        private readonly FillFlowContainer timerFlow;
+
+        private OsuSpriteText? countdownHourPart;
+        private OsuSpriteText? countdownMinutePart;
+        private OsuSpriteText? countdownSecondPart;
+        private OsuSpriteText? countdownMSecondPart;
+
+        private string lastHour = string.Empty;
+        private string lastMinute = string.Empty;
+        private string lastSecond = string.Empty;
+
+        private TimeSpan? remainingTime;
 
         public MatchCountdown()
         {
@@ -57,7 +66,7 @@ namespace osu.Game.Tournament.Components
 
             InternalChildren = new Drawable[]
             {
-                bottomLayer = new Container
+                new Container
                 {
                     Name = "Bottom Layer",
                     Anchor = Anchor.TopCentre,
@@ -76,7 +85,7 @@ namespace osu.Game.Tournament.Components
                         },
                     },
                 },
-                topLayer = new Container
+                new Container
                 {
                     Name = "Top Layer",
                     Anchor = Anchor.TopCentre,
@@ -109,11 +118,11 @@ namespace osu.Game.Tournament.Components
                 },
             };
 
-            hourglassIcon = new SpriteIcon
+            indicatorIcon = new SpriteIcon
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Icon = FontAwesome.Regular.Hourglass,
+                Icon = FontAwesome.Solid.HourglassHalf,
                 Size = new Vector2(32),
                 Colour = NormalContentColour,
             };
@@ -123,17 +132,19 @@ namespace osu.Game.Tournament.Components
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Font = OsuFont.Torus.With(size: 32, weight: FontWeight.SemiBold),
-                Text = empty_time_string,
                 Colour = NormalContentColour,
+                Shadow = false,
             };
 
-            longCountdownText = new OsuSpriteText
+            timerFlow = new FillFlowContainer
             {
+                Name = "Timer",
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Font = OsuFont.Torus.With(size: 32, weight: FontWeight.SemiBold),
-                Text = long_waiting_string,
-                Colour = NormalContentColour,
+                AutoSizeAxes = Axes.Both,
+                AutoSizeDuration = 300,
+                AutoSizeEasing = Easing.OutQuint,
+                Direction = FillDirection.Horizontal,
             };
         }
 
@@ -154,10 +165,78 @@ namespace osu.Game.Tournament.Components
             countdownEnded(timeOffset) && DateTimeOffset.Now - timeOffset.ToLocalTime() <= TimeSpan.FromMinutes(3);
 
         private string getWaitingString() => Target.Value.HasValue
-            ? countdownJustEnded(Target.Value.Value)
-                ? @$"{(Target.Value.Value - DateTimeOffset.Now).ToHumanizedString()}{just_ended_string}"
-                : long_ended_string
+            ? !countdownEnded(Target.Value.Value)
+                ? countdownLongProgress(Target.Value.Value)
+                    ? long_waiting_string
+                    : (Target.Value.Value - DateTimeOffset.Now).ToString()
+                : countdownJustEnded(Target.Value.Value)
+                    ? @$"{(Target.Value.Value - DateTimeOffset.Now).ToHumanizedString()}{just_ended_string}"
+                    : long_ended_string
             : empty_time_string;
+
+        private void updateTimerTextParts(bool init = false)
+        {
+            if (!remainingTime.HasValue) return;
+
+            if (init)
+            {
+                timerFlow.Clear();
+
+                countdownHourPart = new CountdownSpriteText();
+                countdownMinutePart = new CountdownSpriteText();
+                countdownSecondPart = new CountdownSpriteText();
+                countdownMSecondPart = new CountdownSpriteText
+                {
+                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold, fixedWidth: true),
+                };
+
+                timerFlow.AddRange(new Drawable[]
+                {
+                    countdownHourPart,
+                    countdownMinutePart,
+                    countdownSecondPart,
+                    countdownMSecondPart,
+                });
+            }
+
+            if (countdownHourPart == null || countdownMinutePart == null || countdownSecondPart == null || countdownMSecondPart == null)
+                return;
+
+            countdownHourPart.Text = remainingTime.Value.ToString(@"hh\:");
+            countdownMinutePart.Text = remainingTime.Value.ToString(@"mm\:");
+            countdownSecondPart.Text = remainingTime.Value.ToString(@"ss");
+            countdownMSecondPart.Text = $".{remainingTime.Value.Milliseconds:000}";
+
+            countdownHourPart.FadeTo(remainingTime.Value.Hours > 0 ? 1 : 0, 100, Easing.OutQuint);
+            countdownMSecondPart.FadeTo(remainingTime.Value.TotalMinutes <= 1f ? 1 : 0, 100, Easing.OutQuint);
+
+            if ((remainingTime.Value - TimeSpan.FromMinutes(1)).NearlyEqualsZero())
+            {
+                bottomBox.FadeColour(NormalColour, 1000, Easing.OutQuint);
+                topBox.FadeColour(AccentColour, 1000, Easing.OutQuint);
+
+                foreach (var t in timerFlow)
+                {
+                    t?.FadeColour(AccentContentColour, 1000, Easing.OutQuint);
+                }
+            }
+            else if (lastHour != countdownHourPart.Text && remainingTime.Value.Hours == 0
+                     || lastMinute != countdownMinutePart.Text && remainingTime.Value.Minutes == 0
+                     || remainingTime.Value.TotalMinutes <= 30 && lastSecond != countdownSecondPart.Text && remainingTime.Value.Seconds == 0)
+            {
+                bottomBox.FlashColour(NormalColour, 1000, Easing.OutQuint);
+                topBox.FlashColour(AccentColour, 1000, Easing.OutQuint);
+
+                foreach (var t in timerFlow)
+                {
+                    t?.FlashColour(AccentContentColour, 1000, Easing.OutQuint);
+                }
+            }
+
+            lastHour = countdownHourPart.Text.ToString();
+            lastMinute = countdownMinutePart.Text.ToString();
+            lastSecond = countdownSecondPart.Text.ToString();
+        }
 
         /// <summary>
         /// If the countdown is ended.
@@ -170,27 +249,148 @@ namespace osu.Game.Tournament.Components
         {
             base.LoadComplete();
 
-            // TODO: Add code logic for real countdown
-            if (!Target.Value.HasValue || countdownEnded(Target.Value.Value)) fillPlaceholderContent();
+            if (!Target.Value.HasValue || countdownEnded(Target.Value.Value) || countdownLongProgress(Target.Value.Value))
+                fillPlaceholderContent();
             else fillTimerContent();
 
             Target.BindValueChanged(targetTimeChanged);
         }
 
+        protected override void Update()
+        {
+            base.Update();
+
+            if (!Target.Value.HasValue || !OnGoing)
+                return;
+
+            remainingTime = Target.Value.Value - DateTimeOffset.Now;
+
+            if (remainingTime.Value.NearlyEqualsZero())
+            {
+                OnGoing = false;
+                fillDoneContent();
+            }
+            else updateTimerTextParts();
+        }
+
         private void targetTimeChanged(ValueChangedEvent<DateTimeOffset?> target)
         {
-            if (target.NewValue == null || countdownEnded(target.NewValue.Value)) fillPlaceholderContent();
+            if (target.NewValue == null || countdownEnded(target.NewValue.Value) || countdownLongProgress(target.NewValue.Value))
+                fillPlaceholderContent();
             else fillTimerContent();
+        }
+
+        /// <summary>
+        /// Fade out the main content flow and ensure everything is in place.
+        /// </summary>
+        /// <remarks>Note that this method takes 450ms to complete. You may need to add a delay manually.</remarks>
+        private void reset()
+        {
+            Scheduler.Add(() =>
+            {
+                contentFlow.FadeOut(150, Easing.OutQuint)
+                           .Delay(300).FadeIn();
+
+                bottomBox.FadeColour(AccentColour, 300, Easing.OutQuint);
+                topBox.FadeColour(NormalColour, 300, Easing.OutQuint);
+            });
+
+            Scheduler.AddDelayed(() =>
+            {
+                contentFlow.Clear(false);
+                contentFlow.ScaleTo(1);
+
+                indicatorIcon.FadeOut();
+                waitingText.FadeOut();
+                timerFlow.FadeOut();
+                indicatorIcon.ClearTransforms();
+                indicatorIcon.RotateTo(0);
+                indicatorIcon.Icon = FontAwesome.Solid.HourglassHalf;
+                indicatorIcon.Colour = NormalContentColour;
+                waitingText.Colour = NormalContentColour;
+                waitingText.ClearTransforms();
+                timerFlow.ClearTransforms();
+
+                if (Target.Value.HasValue && !countdownJustEnded(Target.Value.Value) && !countdownLongProgress(Target.Value.Value))
+                    updateTimerTextParts(true);
+                else
+                    waitingText.Text = getWaitingString();
+            }, 300);
+        }
+
+        private void showHourglassIcon()
+        {
+            contentFlow.Add(indicatorIcon);
+            indicatorIcon.ScaleTo(2.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
+            indicatorIcon.Delay(100).FadeIn(300, Easing.OutQuint);
+        }
+
+        private void fillDoneContent()
+        {
+            contentFlow.Clear(false);
+            indicatorIcon.ClearTransforms();
+            indicatorIcon.RotateTo(0);
+            indicatorIcon.Icon = FontAwesome.Solid.Bell;
+            indicatorIcon.Colour = AccentContentColour;
+            waitingText.Text = ended_string;
+            waitingText.Colour = AccentContentColour;
+
+            indicatorIcon.Show();
+            waitingText.Show();
+
+            contentFlow.AddRange(new Drawable[]
+            {
+                indicatorIcon,
+                waitingText,
+            });
+
+            contentFlow.ScaleTo(1.5f, 500, Easing.OutQuint);
+            this.Shake(shakeMagnitude: 4f);
+            contentFlow.FadeColour(AccentColour, 500, Easing.OutQuint)
+                       .Then().FadeColour(AccentContentColour, 1000, Easing.OutQuint)
+                       .Loop(500, 5);
         }
 
         private void fillTimerContent()
         {
+            if (!OnGoing || !Target.Value.HasValue)
+            {
+                reset();
+
+                Scheduler.AddDelayed(showHourglassIcon, 500);
+
+                Scheduler.AddDelayed(() =>
+                {
+                    // Add the placeholder text after a little delay to make it look better
+                    contentFlow.Add(timerFlow);
+                    timerFlow.Delay(200).FadeIn(300, Easing.OutQuint);
+
+                    using (BeginDelayedSequence(300))
+                    {
+                        indicatorIcon.FadeOut(300, Easing.OutQuint);
+                    }
+                }, 1000);
+            }
+            else
+            {
+                if (Target.Value.HasValue && Target.Value.Value - DateTimeOffset.Now > TimeSpan.FromMinutes(1))
+                {
+                    bottomBox.FadeColour(AccentColour, 1000, Easing.OutQuint);
+                    topBox.FadeColour(NormalColour, 1000, Easing.OutQuint);
+
+                    foreach (var t in timerFlow)
+                    {
+                        t?.FadeColour(NormalContentColour, 1000, Easing.OutQuint);
+                    }
+                }
+
+                foreach (var t in timerFlow)
+                {
+                    t?.FlashColour(AccentContentColour, 500, Easing.OutQuint);
+                }
+            }
+
             OnGoing = true;
-
-            contentFlow.FadeOut(150, Easing.OutQuint)
-                       .Delay(300).FadeIn();
-
-            Scheduler.AddDelayed(contentFlow.Clear, false, 300);
         }
 
         private void fillPlaceholderContent()
@@ -198,28 +398,12 @@ namespace osu.Game.Tournament.Components
             // No need to fade the whole content when countdown state is unchanged
             if (OnGoing || !Target.Value.HasValue)
             {
-                contentFlow.FadeOut(150, Easing.OutQuint)
-                           .Delay(300).FadeIn();
+                reset();
 
                 Scheduler.AddDelayed(() =>
                 {
-                    // Keep children for reusing purposes
-                    contentFlow.Clear(false);
-
-                    hourglassIcon.FadeOut();
-                    waitingText.FadeOut();
-                    hourglassIcon.ClearTransforms();
-                    hourglassIcon.RotateTo(0);
-                    waitingText.ClearTransforms();
-
-                    waitingText.Text = getWaitingString();
-                }, 150);
-
-                Scheduler.AddDelayed(() =>
-                {
-                    contentFlow.Add(hourglassIcon);
-                    hourglassIcon.ScaleTo(2.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
-                    hourglassIcon.Delay(100).FadeIn(300, Easing.OutQuint);
+                    contentFlow.Direction = FillDirection.Horizontal;
+                    showHourglassIcon();
                 }, 500);
 
                 Scheduler.AddDelayed(() =>
@@ -230,7 +414,7 @@ namespace osu.Game.Tournament.Components
 
                     using (BeginDelayedSequence(1000))
                     {
-                        hourglassIcon.RotateTo(0)
+                        indicatorIcon.RotateTo(0)
                                      .Then().RotateTo(360 * 5, 3000, Easing.InOutQuint)
                                      .Loop(3000);
                     }
@@ -248,6 +432,18 @@ namespace osu.Game.Tournament.Components
             }
 
             OnGoing = false;
+        }
+
+        private partial class CountdownSpriteText : OsuSpriteText
+        {
+            public CountdownSpriteText()
+            {
+                Anchor = Anchor.BottomLeft;
+                Origin = Anchor.BottomLeft;
+                Font = OsuFont.Torus.With(size: 60, weight: FontWeight.SemiBold, fixedWidth: true);
+                Colour = NormalContentColour;
+                Shadow = false;
+            }
         }
     }
 }

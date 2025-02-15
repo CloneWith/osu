@@ -19,12 +19,18 @@ namespace osu.Game.Tournament.Tests.Components
         [Test]
         public void TestCountdown()
         {
+            AddStep("Unset target time", () => countdown.Target.Value = null);
             AddAssert("Target time is null (unset)", () => !countdown.Target.Value.HasValue);
 
-            AddStep("Set countdown time to 5s later",
-                () => countdown.Target.Value = new DateTimeOffset(DateTime.Now.AddSeconds(5)));
+            AddStep("Countdown 3d",
+                () => countdown.Target.Value = new DateTimeOffset(DateTime.Now.AddDays(3)));
+            AddStep("Countdown 2h",
+                () => countdown.Target.Value = new DateTimeOffset(DateTime.Now.AddHours(2)));
+            AddStep("Countdown 5min",
+                () => countdown.Target.Value = new DateTimeOffset(DateTime.Now.AddMinutes(5)));
+            AddStep("Countdown 10s",
+                () => countdown.Target.Value = new DateTimeOffset(DateTime.Now.AddSeconds(10)));
 
-            // TODO: Wait for class-side work to complete, then rewrite these steps
             AddAssert("Countdown started", () => countdown.OnGoing);
             AddUntilStep("Wait for complete", () => !countdown.OnGoing);
 
