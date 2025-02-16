@@ -157,6 +157,7 @@ namespace osu.Game.Tournament
                 },
                 new Container
                 {
+                    Name = "Left Sidebar",
                     RelativeSizeAxes = Axes.Y,
                     Width = CONTROL_AREA_WIDTH,
                     Children = new Drawable[]
