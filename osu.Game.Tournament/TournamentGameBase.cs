@@ -2,11 +2,13 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
@@ -30,6 +32,8 @@ namespace osu.Game.Tournament
     public partial class TournamentGameBase : OsuGameBase
     {
         public const string BRACKET_FILENAME = @"bracket.json";
+        public const string BACKGROUND_MAPPING_FILENAME = @"backgrounds.json";
+
         private LadderInfo ladder = new LadderInfo();
         private TournamentStorage storage = null!;
         private DependencyContainer dependencies = null!;
@@ -93,6 +97,7 @@ namespace osu.Game.Tournament
 
         private async Task readBracket()
         {
+            // Try to read and parse main bracket file
             try
             {
                 if (storage.Exists(BRACKET_FILENAME))
@@ -187,6 +192,29 @@ namespace osu.Game.Tournament
             {
                 bracketLoadTaskCompletionSource.SetException(e);
                 return;
+            }
+
+            // Try to read and parse background mapping file
+            try
+            {
+                if (storage.Exists(BACKGROUND_MAPPING_FILENAME))
+                {
+                    using (Stream stream = storage.GetStream(BACKGROUND_MAPPING_FILENAME, FileAccess.Read, FileMode.Open))
+                    using (var sr = new StreamReader(stream))
+                    {
+                        ladder.BackgroundVideoFiles =
+                            JsonConvert.DeserializeObject<BindableList<KeyValuePair<BackgroundVideo, string>>>(await sr.ReadToEndAsync().ConfigureAwait(false), new JsonPointConverter())
+                            ?? ladder.BackgroundVideoFiles;
+                    }
+                }
+                else
+                {
+                    Logger.Log("Unable to find background mapping file. Is it included in the main bracket file?", level: LogLevel.Important);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Failed to parse background mapping information, falling back to default values.");
             }
 
             Schedule(() =>
@@ -335,15 +363,38 @@ namespace osu.Game.Tournament
         private void saveChanges()
         {
             // Serialise before opening stream for writing, so if there's a failure it will leave the file in the previous state.
-            string serialisedLadder = GetSerialisedLadder();
-
+            string serialisedLadder = GetSerialisedLadder(false);
             using (var stream = storage.CreateFileSafely(BRACKET_FILENAME))
             using (var sw = new StreamWriter(stream))
                 sw.Write(serialisedLadder);
+
+            string serialisedBackgroundMapping = JsonConvert.SerializeObject(ladder.BackgroundVideoFiles, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+            });
+
+            using (var stream = storage.CreateFileSafely(BACKGROUND_MAPPING_FILENAME))
+            using (var sw = new StreamWriter(stream))
+                sw.Write(serialisedBackgroundMapping);
         }
 
-        public string GetSerialisedLadder()
+        public string GetSerialisedLadder(bool includeAllParts = true)
         {
+            List<JsonConverter> converters = new List<JsonConverter>
+            {
+                new JsonPointConverter(),
+            };
+
+            if (!includeAllParts)
+            {
+                converters.AddRange(new JsonConverter[]
+                {
+                    new JsonIgnoreBackgroundMappingConverter(),
+                });
+            }
+
             foreach (var r in ladder.Rounds)
                 r.Matches = ladder.Matches.Where(p => p.Round.Value == r).Select(p => p.ID).ToList();
 
@@ -351,14 +402,13 @@ namespace osu.Game.Tournament
                                             ladder.Matches.Where(p => p.LosersProgression.Value != null).Select(p => new TournamentProgression(p.ID, p.LosersProgression.Value.AsNonNull().ID, true)))
                                         .ToList();
 
-            return JsonConvert.SerializeObject(ladder,
-                new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented,
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.Ignore,
-                    Converters = new JsonConverter[] { new JsonPointConverter() }
-                });
+            return JsonConvert.SerializeObject(ladder, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore,
+                Converters = converters,
+            });
         }
 
         protected override UserInputManager CreateUserInputManager() => new TournamentInputManager();
@@ -387,6 +437,21 @@ namespace osu.Game.Tournament
                 public override bool EnableClick => true;
                 public override bool ChangeFocusOnClick => false;
             }
+        }
+    }
+
+    /// <summary>
+    /// A dummy JSON converter that ignores background mapping information from the ladder.
+    /// </summary>
+    public class JsonIgnoreBackgroundMappingConverter : JsonConverter<BindableList<KeyValuePair<BackgroundVideo, string>>>
+    {
+        public override void WriteJson(JsonWriter writer, BindableList<KeyValuePair<BackgroundVideo, string>>? value, JsonSerializer serializer)
+        {
+        }
+
+        public override BindableList<KeyValuePair<BackgroundVideo, string>>? ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundVideo, string>>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            throw new ArgumentException("This converter does not support reading from JSON.");
         }
     }
 }
