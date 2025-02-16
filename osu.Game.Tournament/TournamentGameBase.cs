@@ -449,7 +449,7 @@ namespace osu.Game.Tournament
         {
         }
 
-        public override BindableList<KeyValuePair<BackgroundVideo, string>>? ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundVideo, string>>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BindableList<KeyValuePair<BackgroundVideo, string>> ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundVideo, string>>? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new ArgumentException("This converter does not support reading from JSON.");
         }
