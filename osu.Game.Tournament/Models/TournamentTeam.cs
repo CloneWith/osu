@@ -55,6 +55,11 @@ namespace osu.Game.Tournament.Models
             MaxValue = 256
         };
 
+        /// <summary>
+        /// The team's rating information.
+        /// </summary>
+        public RatingInfo Ratings { get; set; } = new RatingInfo();
+
         [JsonProperty]
         public BindableList<TournamentUser> Players { get; } = new BindableList<TournamentUser>();
 
