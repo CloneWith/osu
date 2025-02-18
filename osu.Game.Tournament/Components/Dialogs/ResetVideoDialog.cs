@@ -12,7 +12,7 @@ namespace osu.Game.Tournament.Components.Dialogs
         public ResetVideoDialog(Action resetOneAction, Action resetAllAction)
         {
             HeaderText = @"Reset video settings?";
-            BodyText = @"Are you sure to reset these to default?";
+            BodyText = @"Are you sure to reset these to default? This cannot be undone.";
             Icon = FontAwesome.Solid.Undo;
             Buttons = new PopupDialogButton[]
             {

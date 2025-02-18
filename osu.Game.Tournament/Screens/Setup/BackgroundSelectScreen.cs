@@ -259,19 +259,17 @@ namespace osu.Game.Tournament.Screens.Setup
                                                         string defaultVideo = BackgroundProps.PATHS.First(v => v.Key == backgroundDropdown.Current.Value).Value.Name;
                                                         LadderInfo.BackgroundMap.RemoveAll(v => v.Key == backgroundDropdown.Current.Value);
                                                         LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(backgroundDropdown.Current.Value, new BackgroundInfo
-                                                        {
-                                                            Name = defaultVideo,
-                                                            Source = BackgroundSource.Video
-                                                        }));
                                                         (
                                                             name: defaultVideo,
                                                             source: BackgroundSource.Video
                                                         )));
+                                                        game.SaveChanges();
                                                     },
                                                     resetAllAction: () =>
                                                     {
                                                         LadderInfo.BackgroundMap.Clear();
                                                         LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
+                                                        game.SaveChanges();
                                                     }
                                                 )),
                                             },
