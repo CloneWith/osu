@@ -24,6 +24,17 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public static Color4 Lightest { get; } = Color4Extensions.FromHex("#7DC6FE");
         }
 
+        public static class SunshineYellow
+        {
+            public static Color4 Regular { get; } = Color4Extensions.FromHex("#F29F00");
+            public static Color4 Dark { get; } = Color4Extensions.FromHex("#F18F00");
+            public static Color4 Darker { get; } = Color4Extensions.FromHex("#ED8300");
+            public static Color4 Darkest { get; } = Color4Extensions.FromHex("#E87300");
+            public static Color4 Light { get; } = Color4Extensions.FromHex("#F4B03B");
+            public static Color4 Lighter { get; } = Color4Extensions.FromHex("#F7C775");
+            public static Color4 Lightest { get; } = Color4Extensions.FromHex("#FADDAC");
+        }
+
         public static class FlandreRed
         {
             public static Color4 Regular { get; } = Color4Extensions.FromHex("#D05677");

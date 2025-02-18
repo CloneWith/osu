@@ -15,7 +15,7 @@ namespace osu.Game.Tournament
     internal partial class SaveChangesButton : OsuButton, IKeyBindingHandler<PlatformAction>
     {
         [Resolved]
-        private TournamentGame tournamentGame { get; set; } = null!;
+        private TournamentGame? tournamentGame { get; set; }
 
         private string? lastSerialisedLadder;
         private static bool ladderUnchanged = true;
@@ -37,6 +37,12 @@ namespace osu.Game.Tournament
 
         private async Task checkForChanges()
         {
+            if (tournamentGame == null)
+            {
+                Enabled.Value = false;
+                return;
+            }
+
             string serialisedLadder = await Task.Run(() => tournamentGame.GetSerialisedLadder()).ConfigureAwait(true);
 
             // If a save hasn't been triggered by the user yet, populate the initial value
@@ -66,8 +72,8 @@ namespace osu.Game.Tournament
 
         private void saveChanges()
         {
-            tournamentGame.SaveChanges();
-            lastSerialisedLadder = tournamentGame.GetSerialisedLadder();
+            tournamentGame?.SaveChanges();
+            lastSerialisedLadder = tournamentGame?.GetSerialisedLadder();
             ladderUnchanged = true;
 
             Enabled.Value = false;

@@ -95,6 +95,8 @@ namespace osu.Game.Tournament.Components
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Full,
+                    LayoutEasing = Easing.OutQuint,
+                    LayoutDuration = 300,
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
                 }

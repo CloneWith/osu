@@ -238,13 +238,24 @@ namespace osu.Game.Tournament.Screens.Schedule
 
         public partial class ScheduleMatch : DrawableTournamentMatch
         {
+            private readonly TournamentMatch match;
+            private readonly bool showTimestamp;
+
+            private TournamentSpriteText timeText = null!;
+
             public ScheduleMatch(TournamentMatch match, bool showTimestamp = true)
-                : base(match)
+                : base(match, interactive: false)
             {
+                this.match = match;
+                this.showTimestamp = showTimestamp;
                 Flow.Direction = FillDirection.Horizontal;
 
                 Scale = new Vector2(0.8f);
+            }
 
+            [BackgroundDependencyLoader]
+            private void load(LadderInfo ladder)
+            {
                 bool conditional = match is ConditionalTournamentMatch;
 
                 if (conditional)
@@ -259,17 +270,31 @@ namespace osu.Game.Tournament.Screens.Schedule
                         Colour = OsuColour.Gray(0.7f),
                         Alpha = conditional ? 0.6f : 1,
                         Font = OsuFont.Torus,
-                        Margin = new MarginPadding { Horizontal = 10, Vertical = 5 },
+                        Margin = new MarginPadding
+                        {
+                            Horizontal = 10, Vertical = 5
+                        },
                     });
-                    AddInternal(new TournamentSpriteText
+                    AddInternal(timeText = new TournamentSpriteText
                     {
                         Anchor = Anchor.BottomRight,
                         Origin = Anchor.BottomLeft,
                         Colour = OsuColour.Gray(0.7f),
                         Alpha = conditional ? 0.6f : 1,
-                        Margin = new MarginPadding { Horizontal = 10, Vertical = 5 },
-                        Text = match.Date.Value.ToUniversalTime().ToString("HH:mm UTC") + (conditional ? " (conditional)" : "")
+                        Margin = new MarginPadding
+                        {
+                            Horizontal = 10, Vertical = 5
+                        },
+                        Text = (ladder.UseUtcTime.Value
+                                   ? match.Date.Value.ToUniversalTime().ToString("HH:mm UTC")
+                                   : match.Date.Value.ToLocalTime().ToString("HH:mm"))
+                               + (conditional ? " (conditional)" : "")
                     });
+
+                    ladder.UseUtcTime.BindValueChanged(e => timeText.Text = (e.NewValue
+                                                                                ? match.Date.Value.ToUniversalTime().ToString("HH:mm UTC")
+                                                                                : match.Date.Value.ToLocalTime().ToString("HH:mm"))
+                                                                            + (conditional ? " (conditional)" : ""));
                 }
             }
         }

@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Authors></Authors>
-    <Copyright></Copyright>
     <PackageTags />
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*" />
     <EmbeddedResource Include="Textures\**\*" />
+    <EmbeddedResource Include="Shaders\**\*" />
+    <EmbeddedResource Include="Samples\**\*" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
     <Folder Include="Textures\" />
+    <Folder Include="Shaders\" />
+    <Folder Include="Samples\" />
   </ItemGroup>
 </Project>

@@ -158,6 +158,7 @@ namespace osu.Game.Tournament
                 },
                 new Container
                 {
+                    Name = "Left Sidebar",
                     RelativeSizeAxes = Axes.Y,
                     Width = CONTROL_AREA_WIDTH,
                     Children = new Drawable[]
@@ -360,7 +361,7 @@ namespace osu.Game.Tournament
 
             protected override bool OnKeyDown(KeyDownEvent e)
             {
-                if (e.Key == shortcutKey)
+                if (e.Key == shortcutKey && !e.Repeat)
                 {
                     TriggerClick();
                     return true;

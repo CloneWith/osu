@@ -129,6 +129,12 @@ namespace osu.Game.Tournament.Screens.Setup
                         windowSize.Value = new Size((int)(height * aspect_ratio / TournamentSceneManager.STREAM_AREA_WIDTH * TournamentSceneManager.REQUIRED_WIDTH), height);
                     }
                 },
+                new LabelledSwitchButton
+                {
+                    Label = "Show time in UTC",
+                    Description = "Show Coordinated Universal Time instead of local time for schedules.",
+                    Current = LadderInfo.UseUtcTime,
+                },
                 new SectionHeader(@"Tournament Specific"),
                 new LabelledDropdown<RulesetInfo?>
                 {

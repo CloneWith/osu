@@ -237,6 +237,9 @@ namespace osu.Game.Screens.TournamentShowcase
             });
 
             modListBindable.BindCollectionChanged((_, _) => drawableItem.Refresh());
+
+            Beatmap.ModString.BindValueChanged(_ => drawableItem.UpdateModIcon());
+            Beatmap.ModIndex.BindValueChanged(_ => drawableItem.UpdateModIcon());
         }
 
         protected override void LoadComplete()

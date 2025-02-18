@@ -39,7 +39,7 @@ namespace osu.Game.Beatmaps.Drawables
 
         private readonly Bindable<double> displayedStars = new BindableDouble();
 
-        private readonly Container textContainer;
+        protected readonly FillFlowContainer TextContainer;
 
         /// <summary>
         /// The currently displayed stars of this display wrapped in a bindable.
@@ -119,9 +119,11 @@ namespace osu.Game.Beatmaps.Drawables
                                     Size = new Vector2(8f),
                                 },
                                 Empty(),
-                                textContainer = new Container
+                                TextContainer = new FillFlowContainer
                                 {
                                     AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Horizontal,
+                                    Spacing = new Vector2(4),
                                     Child = starsText = new OsuSpriteText
                                     {
                                         Anchor = Anchor.Centre,
@@ -143,6 +145,11 @@ namespace osu.Game.Beatmaps.Drawables
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            if (TextContainer.Children.Count >= 1)
+            {
+                TextContainer.AutoSizeAxes = Axes.Both;
+            }
 
             Current.BindValueChanged(c =>
             {
@@ -166,7 +173,8 @@ namespace osu.Game.Beatmaps.Drawables
                 // In order to avoid autosize throwing the width of these displays all over the place,
                 // let's lock in some sane defaults for the text width based on how many digits we're
                 // displaying.
-                textContainer.Width = 24 + Math.Max(starsText.Text.ToString().Length - 4, 0) * 6;
+                if (TextContainer.AutoSizeAxes == Axes.Y)
+                    TextContainer.Width = 24 + Math.Max(starsText.Text.ToString().Length - 4, 0) * 6;
             }, true);
         }
     }

@@ -56,11 +56,10 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         new Drawable[]
                         {
-                            new FormNumberBox
+                            new FormNumberBox(allowDecimals: false)
                             {
                                 Caption = @"Staff ID",
                                 Current = playerId,
-                                AllowDecimals = false,
                             },
                             new Container(),
                             new FormTextBox

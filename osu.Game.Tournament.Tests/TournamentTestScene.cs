@@ -28,6 +28,9 @@ namespace osu.Game.Tournament.Tests
         [Cached]
         protected MatchIPCInfo IPCInfo { get; private set; } = new MatchIPCInfo();
 
+        [Cached]
+        protected OverlayColourProvider ColourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
+
         [Resolved]
         private RulesetStore rulesetStore { get; set; } = null!;
 
@@ -128,7 +131,7 @@ namespace osu.Game.Tournament.Tests
                         new TournamentUser { Username = "Hello", Rank = 12 },
                         new TournamentUser { Username = "Don't know an appropriate name so got a very long one", Rank = 16 },
                         new TournamentUser { Username = "Hello", Rank = 20 },
-                        new TournamentUser { Username = "大家好啊 我是说的道理", Rank = 24 },
+                        new TournamentUser { Username = "璇寸殑閬撶悊", Rank = 24 },
                     }
                 }
             },
@@ -142,7 +145,7 @@ namespace osu.Game.Tournament.Tests
                     Seed = { Value = "#3" },
                     Players =
                     {
-                        new TournamentUser { Username = "选购" },
+                        new TournamentUser { Username = "鐐嫍" },
                         new TournamentUser { Username = "Hello" },
                         new TournamentUser { Username = "I love very very long names like the opposite do!" },
                         new TournamentUser { Username = "Hello" },

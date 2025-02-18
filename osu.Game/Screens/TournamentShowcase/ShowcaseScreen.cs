@@ -71,13 +71,29 @@ namespace osu.Game.Screens.TournamentShowcase
                 case ShowcaseLayout.SimpleControl:
                     InternalChildren =
                     [
-                        showcaseContainer = new ShowcaseContainer(config, state, replaying)
+                        new FillFlowContainer
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.Both,
-                            Width = relativeWidth,
-                            Height = 0.95f * relativeHeight,
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(5),
+                            Children = new Drawable[]
+                            {
+                                showcaseContainer = new ShowcaseContainer(config, state, replaying)
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Width = relativeWidth,
+                                    Height = 0.95f * relativeHeight,
+                                },
+                                new SimpleShowcaseControl(this.Exit)
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                }
+                            }
                         },
                         new HoldForMenuButton
                         {
