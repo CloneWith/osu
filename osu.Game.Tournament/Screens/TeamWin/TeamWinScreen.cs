@@ -73,19 +73,19 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
             InternalChildren = new Drawable[]
             {
-                blueWinBackground = new TourneyBackground(BackgroundType.BlueWin, LadderInfo)
+                blueWinBackground = new TourneyBackground(BackgroundType.BlueWin)
                 {
                     Alpha = 0,
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                redWinBackground = new TourneyBackground(BackgroundType.RedWin, LadderInfo)
+                redWinBackground = new TourneyBackground(BackgroundType.RedWin)
                 {
                     Alpha = 0,
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                mainBackground = new TourneyBackground(BackgroundType.Draw, LadderInfo)
+                mainBackground = new TourneyBackground(BackgroundType.Draw)
                 {
                     Alpha = 1,
                     RelativeSizeAxes = Axes.Both,

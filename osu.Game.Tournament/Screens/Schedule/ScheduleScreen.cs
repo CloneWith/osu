@@ -35,7 +35,7 @@ namespace osu.Game.Tournament.Screens.Schedule
 
             InternalChildren = new Drawable[]
             {
-                new TourneyBackground(BackgroundType.Schedule, LadderInfo)
+                new TourneyBackground(BackgroundType.Schedule)
                 {
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,

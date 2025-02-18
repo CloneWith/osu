@@ -65,7 +65,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
             InternalChildren = new Drawable[]
             {
-                new TourneyBackground(BackgroundType.Main, LadderInfo)
+                new TourneyBackground(BackgroundType.Main)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -263,6 +263,10 @@ namespace osu.Game.Tournament.Screens.Setup
                                                             Name = defaultVideo,
                                                             Source = BackgroundSource.Video
                                                         }));
+                                                        (
+                                                            name: defaultVideo,
+                                                            source: BackgroundSource.Video
+                                                        )));
                                                     },
                                                     resetAllAction: () =>
                                                     {
@@ -375,10 +379,10 @@ namespace osu.Game.Tournament.Screens.Setup
                     currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
                     currentFileIcon.Colour = Color4.SkyBlue;
                     backgroundContainer.Child = new TourneyBackground(availableInfo = new BackgroundInfo
-                    {
-                        Source = validVideo ? BackgroundSource.Video : BackgroundSource.Image,
-                        Name = selectedFile.NewValue.Name.Split('.')[0]
-                    }, showError: true, fillMode: FillMode.Fit)
+                    (
+                        source: validVideo ? BackgroundSource.Video : BackgroundSource.Image,
+                        name: selectedFile.NewValue.Name.Split('.')[0]
+                    ), showError: true, fillMode: FillMode.Fit)
                     {
                         Loop = true,
                         RelativeSizeAxes = Axes.Both,

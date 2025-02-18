@@ -56,9 +56,12 @@ namespace osu.Game.Tournament.Models
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BackgroundSource
     {
+        /// <summary>
+        /// Reserved zero position for auto detection.
+        /// </summary>
+        Auto,
         Video,
         Image,
-        None
     }
 
     [Serializable]
@@ -66,25 +69,47 @@ namespace osu.Game.Tournament.Models
     {
         public BackgroundSource Source;
         public string Name;
+
+        #region Constructors
+
+        public BackgroundInfo()
+        {
+            Source = BackgroundSource.Video;
+            Name = string.Empty;
+        }
+
+        public BackgroundInfo(BackgroundSource source, string name)
+        {
+            Source = source;
+            Name = name;
+        }
+
+        public BackgroundInfo(string name)
+        {
+            Source = BackgroundSource.Video;
+            Name = name;
+        }
+
+        #endregion
     }
 
     public static class BackgroundProps
     {
         public static readonly BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> PATHS = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>
         {
-            KeyValuePair.Create(BackgroundType.Gameplay, new BackgroundInfo { Name = "gameplay" }),
-            KeyValuePair.Create(BackgroundType.MapPool, new BackgroundInfo { Name = "mappool" }),
-            KeyValuePair.Create(BackgroundType.Main, new BackgroundInfo { Name = "main" }),
-            KeyValuePair.Create(BackgroundType.Ladder, new BackgroundInfo { Name = "ladder" }),
-            KeyValuePair.Create(BackgroundType.Schedule, new BackgroundInfo { Name = "schedule" }),
-            KeyValuePair.Create(BackgroundType.Drawings, new BackgroundInfo { Name = "drawings" }),
-            KeyValuePair.Create(BackgroundType.Showcase, new BackgroundInfo { Name = "showcase" }),
-            KeyValuePair.Create(BackgroundType.Seeding, new BackgroundInfo { Name = "seeding" }),
-            KeyValuePair.Create(BackgroundType.TeamIntro, new BackgroundInfo { Name = "teamintro" }),
-            KeyValuePair.Create(BackgroundType.RedWin, new BackgroundInfo { Name = "teamwin-red" }),
-            KeyValuePair.Create(BackgroundType.BlueWin, new BackgroundInfo { Name = "teamwin-blue" }),
-            KeyValuePair.Create(BackgroundType.Draw, new BackgroundInfo { Name = "mappool" }),
-            KeyValuePair.Create(BackgroundType.Board, new BackgroundInfo { Name = "mappool" }),
+            KeyValuePair.Create(BackgroundType.Gameplay, new BackgroundInfo("gameplay")),
+            KeyValuePair.Create(BackgroundType.MapPool, new BackgroundInfo("mappool")),
+            KeyValuePair.Create(BackgroundType.Main, new BackgroundInfo("main")),
+            KeyValuePair.Create(BackgroundType.Ladder, new BackgroundInfo("ladder")),
+            KeyValuePair.Create(BackgroundType.Schedule, new BackgroundInfo("schedule")),
+            KeyValuePair.Create(BackgroundType.Drawings, new BackgroundInfo("drawings")),
+            KeyValuePair.Create(BackgroundType.Showcase, new BackgroundInfo("showcase")),
+            KeyValuePair.Create(BackgroundType.Seeding, new BackgroundInfo("seeding")),
+            KeyValuePair.Create(BackgroundType.TeamIntro, new BackgroundInfo("teamintro")),
+            KeyValuePair.Create(BackgroundType.RedWin, new BackgroundInfo("teamwin-red")),
+            KeyValuePair.Create(BackgroundType.BlueWin, new BackgroundInfo("teamwin-blue")),
+            KeyValuePair.Create(BackgroundType.Draw, new BackgroundInfo("mappool")),
+            KeyValuePair.Create(BackgroundType.Board, new BackgroundInfo("mappool")),
         };
     }
 }

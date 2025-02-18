@@ -20,7 +20,7 @@ namespace osu.Game.Tournament.Screens.Showcase
             AddRangeInternal(new Drawable[]
             {
                 new TournamentLogo(),
-                new TourneyBackground(BackgroundType.Showcase, LadderInfo)
+                new TourneyBackground(BackgroundType.Showcase)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,

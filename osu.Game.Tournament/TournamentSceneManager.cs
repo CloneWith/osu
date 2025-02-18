@@ -119,7 +119,7 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.Both,
                             Width = 10,
                         },
-                        background = new TourneyBackground(BackgroundType.Main, ladderInfo, drawFallbackGradient: true)
+                        background = new TourneyBackground(BackgroundType.Main, drawFallbackGradient: true)
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,

@@ -98,7 +98,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             InternalChildren = new Drawable[]
             {
-                new TourneyBackground(BackgroundType.Board, LadderInfo)
+                new TourneyBackground(BackgroundType.Board)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,

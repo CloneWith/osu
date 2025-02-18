@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -12,6 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.Video;
+using osu.Framework.Logging;
 using osu.Framework.Timing;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
@@ -26,8 +26,8 @@ namespace osu.Game.Tournament.Components
     /// </summary>
     public partial class TourneyBackground : CompositeDrawable
     {
-        private BackgroundSource source;
-        private string filename;
+        private readonly BackgroundType requestedType;
+        private BackgroundInfo info;
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
         private readonly FillMode fillMode;
@@ -36,85 +36,109 @@ namespace osu.Game.Tournament.Components
         private Sprite? imageSprite;
         private Video? video;
         private ManualClock? manualClock;
+        private readonly Container spriteContainer;
         private OsuTextFlowContainer errorFlow = null!;
-        private Box dimBox = null!;
+        private readonly Box dimBox;
 
+        private readonly bool skipLadderLookup;
         private bool needDetection;
-        private TextureStore? textureStore;
-        private TournamentVideoResourceStore? videoStore;
+
+        [Resolved]
+        private TextureStore? textureStore { get; set; }
+
+        [Resolved]
+        private TournamentVideoResourceStore? videoStore { get; set; }
 
         public bool BackgroundAvailable => video != null || imageSprite != null;
 
-        private readonly LadderInfo ladder;
-        private readonly BackgroundType currentBackgroundType;
+        [Resolved]
+        private LadderInfo ladder { get; set; } = null!;
 
         /// <summary>
-        /// Fetch background information from specified <paramref name="ladder"/> and try to display it.
+        /// Fetch background information from cached <see cref="LadderInfo"/> and try to display it.
         /// </summary>
-        public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder,
+        public TourneyBackground(BackgroundType backgroundType,
                                  bool drawFallbackGradient = false, bool showError = false,
                                  FillMode fillMode = FillMode.Fill)
         {
-            this.ladder = ladder;
-            currentBackgroundType = backgroundType;
-            readMapping();
+            requestedType = backgroundType;
 
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
             this.fillMode = fillMode;
-            backgroundDim.BindTo(ladder.BackgroundDim);
 
-            // Subscribe changes
-            ladder.BackgroundMap.BindCollectionChanged((_, _) =>
+            InternalChildren = new Drawable[]
             {
-                readMapping();
-                reloadBackgroundResources();
-            });
+                spriteContainer = new Container
+                {
+                    RelativeSizeAxes = Axes.Both,
+                },
+                dimBox = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black,
+                    Alpha = 0,
+                },
+            };
         }
 
-        private void readMapping()
+        /// <summary>
+        /// Use specified <see cref="BackgroundInfo"/> to lookup and display a background.
+        /// </summary>
+        /// <remarks>This constructor is for background preview only, and doesn't support ladder-based features.</remarks>
+        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
+            : this(default(BackgroundType), drawFallbackGradient, showError, fillMode)
         {
-            var mapping = ladder.BackgroundMap.LastOrDefault(v => v.Key == currentBackgroundType).Value;
-            if (!EqualityComparer<BackgroundInfo>.Default.Equals(mapping, default))
-            {
-                source = mapping.Source;
-                filename = mapping.Name ?? string.Empty;
-            }
+            this.info = info;
+            skipLadderLookup = true;
         }
 
         [BackgroundDependencyLoader]
-        private void load(TournamentVideoResourceStore storage, TextureStore texStore)
+        private void load()
         {
-            videoStore = storage;
-            textureStore = texStore;
-            reloadBackgroundResources();
+            loadSprites();
 
-            // Add dim effect
-            AddInternal(dimBox = new Box
+            dimBox.Alpha = ladder.BackgroundDim.Value;
+            backgroundDim.BindTo(ladder.BackgroundDim);
+
+            // Subscribe changes (only when fetched from ladder)
+            if (!skipLadderLookup)
             {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Color4.Black,
-                Alpha = backgroundDim.Value,
-            });
+                ladder.BackgroundMap.BindCollectionChanged((_, _) => loadSprites());
+            }
+
             backgroundDim.BindValueChanged(e => dimBox.FadeTo(e.NewValue, 300, Easing.OutQuint));
         }
 
         /// <summary>
-        /// Reload the background based on the current source and filename.
+        /// Lookup and load required resources for a background.
         /// </summary>
-        private void reloadBackgroundResources()
+        private void loadSprites()
         {
-            // Clear old resources
-            ClearInternal();
+            if (textureStore == null || videoStore == null) return;
+
+            if (!skipLadderLookup)
+            {
+                info = ladder.BackgroundMap.LastOrDefault(v => v.Key == requestedType).Value;
+            }
+
+            needDetection = info.Source == BackgroundSource.Auto;
             bool isFaulted = false;
 
-            if ((source == BackgroundSource.Image || needDetection) && textureStore != null)
+            if (needDetection)
             {
-                var image = textureStore.Get($"Backgrounds/{filename}");
+                Logger.Log($"It's not suggested to use automatically defined background type for {requestedType}. Are you using an older version of configuration file?",
+                    level: LogLevel.Important);
+            }
+
+            if (info.Source == BackgroundSource.Image || needDetection)
+            {
+                var image = textureStore.Get($"Backgrounds/{info.Name}");
+
                 if (image != null)
                 {
                     needDetection = false;
-                    InternalChild = imageSprite = new Sprite
+                    spriteContainer.Child = imageSprite = new Sprite
                     {
                         RelativeSizeAxes = Axes.Both,
                         FillMode = fillMode,
@@ -122,15 +146,24 @@ namespace osu.Game.Tournament.Components
                     };
                 }
                 else
+                {
+#if DEBUG
+                    Logger.Log($"Cannot find and load background image \"{info.Name}\" for {requestedType}.",
+                        level: LogLevel.Important);
+#endif
+
                     isFaulted = !needDetection;
+                }
             }
-            else if ((source == BackgroundSource.Video || needDetection) && videoStore != null)
+
+            if (info.Source == BackgroundSource.Video || needDetection)
             {
-                var stream = videoStore.GetStream(filename);
+                var stream = videoStore.GetStream(info.Name);
+
                 if (stream != null)
                 {
                     needDetection = false;
-                    InternalChild = video = new Video(stream, false)
+                    spriteContainer.Child = video = new Video(stream, false)
                     {
                         RelativeSizeAxes = Axes.Both,
                         FillMode = fillMode,
@@ -138,12 +171,25 @@ namespace osu.Game.Tournament.Components
                         Loop = loop,
                     };
                 }
-                else isFaulted = true;
+                else
+                {
+#if DEBUG
+                    Logger.Log($"Cannot find and load background video \"{info.Name}\" for {requestedType}.",
+                        level: LogLevel.Important);
+#endif
+
+                    isFaulted = true;
+                }
             }
 
-            if (isFaulted || source == BackgroundSource.None)
+            if (isFaulted)
             {
-                InternalChildren = new Drawable[]
+#if DEBUG
+                Logger.Log($"Unable to find available background for {requestedType}. Check your tournament directory and configuration.",
+                    level: LogLevel.Important);
+#endif
+
+                spriteContainer.Children = new Drawable[]
                 {
                     new Box
                     {
@@ -194,32 +240,6 @@ namespace osu.Game.Tournament.Components
                 // to avoid seeking completely, we only increment out local clock when in an updating state.
                 manualClock.CurrentTime += Clock.ElapsedFrameTime;
             }
-        }
-
-        /// <summary>
-        /// Use specified <see cref="BackgroundInfo"/> to lookup and display a background.
-        /// </summary>
-        /// <remarks>This constructor is for background preview only, and doesn't support ladder-based features.</remarks>
-        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
-        {
-            source = info.Source;
-            filename = info.Name;
-            this.drawFallbackGradient = drawFallbackGradient;
-            this.showError = showError;
-            this.fillMode = fillMode;
-        }
-
-        /// <summary>
-        /// Get the background with specified <paramref name="filename"/>, and detect the file type automatically.
-        /// </summary>
-        /// <remarks>This constructor is for background tests only, and doesn't support ladder-based features.</remarks>
-        public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
-        {
-            this.filename = filename;
-            this.drawFallbackGradient = drawFallbackGradient;
-            this.showError = showError;
-            this.fillMode = fillMode;
-            needDetection = true;
         }
     }
 }
