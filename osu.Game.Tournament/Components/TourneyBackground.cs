@@ -3,6 +3,7 @@
 
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -15,9 +16,13 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.Models;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
+    /// <summary>
+    /// A background sprite supporting image and video inputs.
+    /// </summary>
     public partial class TourneyBackground : CompositeDrawable
     {
         private readonly BackgroundSource source;
@@ -25,16 +30,21 @@ namespace osu.Game.Tournament.Components
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
         private readonly FillMode fillMode;
+        private readonly BindableFloat backgroundDim = new BindableFloat();
 
         private Sprite? imageSprite;
         private Video? video;
         private ManualClock? manualClock;
         private OsuTextFlowContainer errorFlow = null!;
+        private Box dimBox = null!;
 
         private bool needDetection;
 
         public bool BackgroundAvailable => video != null || imageSprite != null;
 
+        /// <summary>
+        /// Fetch background information from specified <paramref name="ladder"/> and try to display it.
+        /// </summary>
         public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder,
                                  bool drawFallbackGradient = false, bool showError = false,
                                  FillMode fillMode = FillMode.Fill)
@@ -44,11 +54,16 @@ namespace osu.Game.Tournament.Components
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
             this.fillMode = fillMode;
+            backgroundDim.BindTo(ladder.BackgroundDim);
 
             // Reload the background as soon as the background mapping is changed.
             ladder.BackgroundMap.BindCollectionChanged((_, _) => Invalidate(Invalidation.Presence));
         }
 
+        /// <summary>
+        /// Use specified <see cref="BackgroundInfo"/> to lookup and display a background.
+        /// </summary>
+        /// <remarks>This constructor is for background preview only, and doesn't support ladder-based features.</remarks>
         public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
         {
             source = info.Source;
@@ -58,6 +73,10 @@ namespace osu.Game.Tournament.Components
             this.fillMode = fillMode;
         }
 
+        /// <summary>
+        /// Get the background with specified <paramref name="filename"/>, and detect the file type automatically.
+        /// </summary>
+        /// <remarks>This constructor is for background tests only, and doesn't support ladder-based features.</remarks>
         public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
         {
             this.filename = filename;
@@ -129,6 +148,15 @@ namespace osu.Game.Tournament.Components
                 errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
                 errorFlow.AddText(" Background unavailable!");
             }
+
+            AddInternal(dimBox = new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+                Colour = Color4.Black,
+                Alpha = backgroundDim.Value,
+            });
+
+            backgroundDim.BindValueChanged(e => dimBox.FadeTo(e.NewValue, 300, Easing.OutQuint));
         }
 
         private bool loop;

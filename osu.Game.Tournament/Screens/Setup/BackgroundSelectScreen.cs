@@ -17,6 +17,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.IO;
@@ -193,6 +194,14 @@ namespace osu.Game.Tournament.Screens.Setup
                                                         Font = OsuFont.Default.With(size: 24),
                                                     },
                                                 },
+                                            },
+                                            new SettingsSlider<float>
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                LabelText = @"Background Dim",
+                                                DisplayAsPercentage = true,
+                                                Current = LadderInfo.BackgroundDim,
                                             },
                                             backgroundDropdown = new BackgroundTypeDropdown
                                             {
