@@ -382,18 +382,7 @@ namespace osu.Game.Tournament
 
         public string GetSerialisedLadder(bool includeAllParts = true)
         {
-            List<JsonConverter> converters = new List<JsonConverter>
-            {
-                new JsonPointConverter(),
-            };
-
-            if (!includeAllParts)
-            {
-                converters.AddRange(new JsonConverter[]
-                {
-                    new JsonIgnoreBackgroundMappingConverter(),
-                });
-            }
+            ladder.SkipBackgroundMapSerialization = !includeAllParts;
 
             foreach (var r in ladder.Rounds)
                 r.Matches = ladder.Matches.Where(p => p.Round.Value == r).Select(p => p.ID).ToList();
@@ -407,11 +396,9 @@ namespace osu.Game.Tournament
                 Formatting = Formatting.Indented,
                 NullValueHandling = NullValueHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
-                Converters = converters,
-                Error = (_, err) =>
+                Converters =
                 {
-                    Logger.Error(null, err.ErrorContext.Error.Message);
-                    err.ErrorContext.Handled = true;
+                    new JsonPointConverter(),
                 },
             });
         }
@@ -442,23 +429,6 @@ namespace osu.Game.Tournament
                 public override bool EnableClick => true;
                 public override bool ChangeFocusOnClick => false;
             }
-        }
-    }
-
-    /// <summary>
-    /// A dummy JSON converter that ignores background mapping information from the ladder.
-    /// </summary>
-    public class JsonIgnoreBackgroundMappingConverter : JsonConverter<BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>>
-    {
-        public override void WriteJson(JsonWriter writer, BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>? value, JsonSerializer serializer)
-        {
-        }
-
-        public override BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> ReadJson(JsonReader reader, Type objectType,
-                                                                                            BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>? existingValue,
-                                                                                            bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new ArgumentException("This converter does not support reading from JSON.");
         }
     }
 }

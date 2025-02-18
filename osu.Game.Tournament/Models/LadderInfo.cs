@@ -59,5 +59,10 @@ namespace osu.Game.Tournament.Models
             MaxValue = 1,
             Precision = 0.01f,
         };
+
+        [JsonIgnore]
+        public bool SkipBackgroundMapSerialization = false;
+
+        public bool ShouldSerializeBackgroundMap() => !SkipBackgroundMapSerialization;
     }
 }
