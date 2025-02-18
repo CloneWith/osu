@@ -24,6 +24,7 @@ namespace osu.Game.Tournament.Components
         private readonly string filename;
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
+        private readonly FillMode fillMode;
 
         private Sprite? imageSprite;
         private Video? video;
@@ -35,30 +36,34 @@ namespace osu.Game.Tournament.Components
         public bool BackgroundAvailable => video != null || imageSprite != null;
 
         public TourneyBackground(BackgroundType backgroundType, LadderInfo ladder,
-                                 bool drawFallbackGradient = false, bool showError = false)
+                                 bool drawFallbackGradient = false, bool showError = false,
+                                 FillMode fillMode = FillMode.Fill)
         {
             source = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Source;
             filename = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Name ?? string.Empty;
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
+            this.fillMode = fillMode;
 
             // Reload the background as soon as the background mapping is changed.
             ladder.BackgroundMap.BindCollectionChanged((_, _) => Invalidate(Invalidation.Presence));
         }
 
-        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false)
+        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
         {
             source = info.Source;
             filename = info.Name;
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
+            this.fillMode = fillMode;
         }
 
-        public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false)
+        public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
         {
             this.filename = filename;
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
+            this.fillMode = fillMode;
             needDetection = true;
         }
 
@@ -77,7 +82,7 @@ namespace osu.Game.Tournament.Components
                     InternalChild = imageSprite = new Sprite
                     {
                         RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fill,
+                        FillMode = fillMode,
                         Texture = image
                     };
                 }
@@ -93,7 +98,7 @@ namespace osu.Game.Tournament.Components
                     InternalChild = video = new Video(stream, false)
                     {
                         RelativeSizeAxes = Axes.Both,
-                        FillMode = FillMode.Fill,
+                        FillMode = fillMode,
                         Clock = new FramedClock(manualClock = new ManualClock()),
                         Loop = loop,
                     };

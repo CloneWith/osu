@@ -207,7 +207,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Origin = Anchor.TopCentre,
                                                 RelativeSizeAxes = Axes.Both,
                                                 Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == backgroundDropdown.Current.Value).Value,
-                                                    showError: true)
+                                                    showError: true, fillMode: FillMode.Fit)
                                                 {
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
@@ -294,7 +294,7 @@ namespace osu.Game.Tournament.Screens.Setup
             backgroundDropdown.Current.BindValueChanged(e =>
             {
                 backgroundContainer.Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value,
-                    showError: true)
+                    showError: true, fillMode: FillMode.Fit)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -369,7 +369,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     {
                         Source = validVideo ? BackgroundSource.Video : BackgroundSource.Image,
                         Name = selectedFile.NewValue.Name.Split('.')[0]
-                    }, showError: true)
+                    }, showError: true, fillMode: FillMode.Fit)
                     {
                         Loop = true,
                         RelativeSizeAxes = Axes.Both,
