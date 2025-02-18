@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -25,8 +26,8 @@ namespace osu.Game.Tournament.Components
     /// </summary>
     public partial class TourneyBackground : CompositeDrawable
     {
-        private readonly BackgroundSource source;
-        private readonly string filename;
+        private BackgroundSource source;
+        private string filename;
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
         private readonly FillMode fillMode;
@@ -39,8 +40,13 @@ namespace osu.Game.Tournament.Components
         private Box dimBox = null!;
 
         private bool needDetection;
+        private TextureStore? textureStore;
+        private TournamentVideoResourceStore? videoStore;
 
         public bool BackgroundAvailable => video != null || imageSprite != null;
+
+        private readonly LadderInfo ladder;
+        private readonly BackgroundType currentBackgroundType;
 
         /// <summary>
         /// Fetch background information from specified <paramref name="ladder"/> and try to display it.
@@ -49,52 +55,62 @@ namespace osu.Game.Tournament.Components
                                  bool drawFallbackGradient = false, bool showError = false,
                                  FillMode fillMode = FillMode.Fill)
         {
-            source = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Source;
-            filename = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Name ?? string.Empty;
+            this.ladder = ladder;
+            currentBackgroundType = backgroundType;
+            readMapping();
+
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
             this.fillMode = fillMode;
             backgroundDim.BindTo(ladder.BackgroundDim);
 
-            // Reload the background as soon as the background mapping is changed.
-            ladder.BackgroundMap.BindCollectionChanged((_, _) => Invalidate(Invalidation.Presence));
+            // Subscribe changes
+            ladder.BackgroundMap.BindCollectionChanged((_, _) =>
+            {
+                readMapping();
+                reloadBackgroundResources();
+            });
         }
 
-        /// <summary>
-        /// Use specified <see cref="BackgroundInfo"/> to lookup and display a background.
-        /// </summary>
-        /// <remarks>This constructor is for background preview only, and doesn't support ladder-based features.</remarks>
-        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
+        private void readMapping()
         {
-            source = info.Source;
-            filename = info.Name;
-            this.drawFallbackGradient = drawFallbackGradient;
-            this.showError = showError;
-            this.fillMode = fillMode;
-        }
-
-        /// <summary>
-        /// Get the background with specified <paramref name="filename"/>, and detect the file type automatically.
-        /// </summary>
-        /// <remarks>This constructor is for background tests only, and doesn't support ladder-based features.</remarks>
-        public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
-        {
-            this.filename = filename;
-            this.drawFallbackGradient = drawFallbackGradient;
-            this.showError = showError;
-            this.fillMode = fillMode;
-            needDetection = true;
+            var mapping = ladder.BackgroundMap.LastOrDefault(v => v.Key == currentBackgroundType).Value;
+            if (!EqualityComparer<BackgroundInfo>.Default.Equals(mapping, default))
+            {
+                source = mapping.Source;
+                filename = mapping.Name ?? string.Empty;
+            }
         }
 
         [BackgroundDependencyLoader]
-        private void load(TournamentVideoResourceStore storage, TextureStore textureStore)
+        private void load(TournamentVideoResourceStore storage, TextureStore texStore)
         {
+            videoStore = storage;
+            textureStore = texStore;
+            reloadBackgroundResources();
+
+            // Add dim effect
+            AddInternal(dimBox = new Box
+            {
+                RelativeSizeAxes = Axes.Both,
+                Colour = Color4.Black,
+                Alpha = backgroundDim.Value,
+            });
+            backgroundDim.BindValueChanged(e => dimBox.FadeTo(e.NewValue, 300, Easing.OutQuint));
+        }
+
+        /// <summary>
+        /// Reload the background based on the current source and filename.
+        /// </summary>
+        private void reloadBackgroundResources()
+        {
+            // Clear old resources
+            ClearInternal();
             bool isFaulted = false;
 
-            if (source == BackgroundSource.Image || needDetection)
+            if ((source == BackgroundSource.Image || needDetection) && textureStore != null)
             {
                 var image = textureStore.Get($"Backgrounds/{filename}");
-
                 if (image != null)
                 {
                     needDetection = false;
@@ -105,12 +121,12 @@ namespace osu.Game.Tournament.Components
                         Texture = image
                     };
                 }
-                else isFaulted = !needDetection;
+                else
+                    isFaulted = !needDetection;
             }
-            else if (source == BackgroundSource.Video || needDetection)
+            else if ((source == BackgroundSource.Video || needDetection) && videoStore != null)
             {
-                var stream = storage.GetStream(filename);
-
+                var stream = videoStore.GetStream(filename);
                 if (stream != null)
                 {
                     needDetection = false;
@@ -148,15 +164,6 @@ namespace osu.Game.Tournament.Components
                 errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
                 errorFlow.AddText(" Background unavailable!");
             }
-
-            AddInternal(dimBox = new Box
-            {
-                RelativeSizeAxes = Axes.Both,
-                Colour = Color4.Black,
-                Alpha = backgroundDim.Value,
-            });
-
-            backgroundDim.BindValueChanged(e => dimBox.FadeTo(e.NewValue, 300, Easing.OutQuint));
         }
 
         private bool loop;
@@ -187,6 +194,32 @@ namespace osu.Game.Tournament.Components
                 // to avoid seeking completely, we only increment out local clock when in an updating state.
                 manualClock.CurrentTime += Clock.ElapsedFrameTime;
             }
+        }
+
+        /// <summary>
+        /// Use specified <see cref="BackgroundInfo"/> to lookup and display a background.
+        /// </summary>
+        /// <remarks>This constructor is for background preview only, and doesn't support ladder-based features.</remarks>
+        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
+        {
+            source = info.Source;
+            filename = info.Name;
+            this.drawFallbackGradient = drawFallbackGradient;
+            this.showError = showError;
+            this.fillMode = fillMode;
+        }
+
+        /// <summary>
+        /// Get the background with specified <paramref name="filename"/>, and detect the file type automatically.
+        /// </summary>
+        /// <remarks>This constructor is for background tests only, and doesn't support ladder-based features.</remarks>
+        public TourneyBackground(string filename, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
+        {
+            this.filename = filename;
+            this.drawFallbackGradient = drawFallbackGradient;
+            this.showError = showError;
+            this.fillMode = fillMode;
+            needDetection = true;
         }
     }
 }
