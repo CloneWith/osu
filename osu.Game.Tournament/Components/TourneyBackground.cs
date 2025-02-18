@@ -41,6 +41,9 @@ namespace osu.Game.Tournament.Components
             filename = ladder.BackgroundMap.LastOrDefault(v => v.Key == backgroundType).Value.Name ?? string.Empty;
             this.drawFallbackGradient = drawFallbackGradient;
             this.showError = showError;
+
+            // Reload the background as soon as the background mapping is changed.
+            ladder.BackgroundMap.BindCollectionChanged((_, _) => Invalidate(Invalidation.Presence));
         }
 
         public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false)
