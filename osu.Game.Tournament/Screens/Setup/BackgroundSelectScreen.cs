@@ -384,7 +384,9 @@ namespace osu.Game.Tournament.Screens.Setup
                     backgroundContainer.Child = new TourneyBackground(availableInfo = new BackgroundInfo
                     (
                         source: validVideo ? BackgroundSource.Video : BackgroundSource.Image,
-                        name: selectedFile.NewValue.Name.Split('.')[0]
+
+                        // Display the file name with the extension.
+                        name: selectedFile.NewValue.Name
                     ), showError: true, fillMode: FillMode.Fit)
                     {
                         Loop = true,
