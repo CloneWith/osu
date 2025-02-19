@@ -40,7 +40,6 @@ namespace osu.Game.Tournament.Components
         private SpriteIcon statusIcon = null!;
         private TournamentModIcon? modIcon;
         private Container beatmapInfoContainer = null!;
-        private FillFlowContainer infoContainer = null!;
         private Box topMask = null!;
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
