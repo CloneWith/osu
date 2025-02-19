@@ -408,12 +408,14 @@ namespace osu.Game.Tournament.Screens.Setup
         private void saveSetting()
         {
             BackgroundType currentType = backgroundDropdown.Current.Value;
-            LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
+            // If the user has selected a new file, use that instead of the current mapping.
+            BackgroundInfo currentMapping = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == currentType).Value;
+            BackgroundInfo infoToSave = EqualityComparer<BackgroundInfo>.Default.Equals(availableInfo, default)
+                ? currentMapping
+                : availableInfo;
 
-            LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(
-                currentType,
-                availableInfo
-            ));
+            LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
+            LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(currentType, infoToSave));
 
             game.SaveChanges();
 
