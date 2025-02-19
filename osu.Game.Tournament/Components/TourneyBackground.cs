@@ -117,7 +117,14 @@ namespace osu.Game.Tournament.Components
                 {
                     // Only reload when relevant changes were made to the mapping list.
                     var newInfo = ladder.BackgroundMap.Last(v => v.Key == requestedType).Value;
-                    if (newInfo.Equals(info)) return;
+
+                    if (newInfo.FileInfoEquals(info))
+                    {
+                        if (newInfo.Dim != info.Dim)
+                            Dim = newInfo.Dim;
+
+                        return;
+                    }
 
                     info = newInfo;
                 }

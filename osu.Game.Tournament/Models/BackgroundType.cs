@@ -103,6 +103,12 @@ namespace osu.Game.Tournament.Models
                    && Dim == other.Dim;
         }
 
+        public bool FileInfoEquals(BackgroundInfo other)
+        {
+            return Source == other.Source
+                   && Name == other.Name;
+        }
+
         public override bool Equals(object? obj)
         {
             return obj is BackgroundInfo other && Equals(other);
