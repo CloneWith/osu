@@ -97,13 +97,15 @@ namespace osu.Game.Overlays.Chat
             get => alternatingBackground;
             set
             {
-                if (alternatingBackground == false)
+                if (alternatingBackground == value)
                     return;
 
                 alternatingBackground = value;
                 updateBackground();
             }
         }
+
+        public bool EnableBackgroundAlternating = true;
 
         public bool IsBackgroundInverted;
 
@@ -349,7 +351,7 @@ namespace osu.Game.Overlays.Chat
         private void updateBackground()
         {
             if (background != null)
-                background.Alpha = alternatingBackground ? 0.2f : 0;
+                background.Alpha = EnableBackgroundAlternating && alternatingBackground ? 0.2f : 0;
         }
     }
 }

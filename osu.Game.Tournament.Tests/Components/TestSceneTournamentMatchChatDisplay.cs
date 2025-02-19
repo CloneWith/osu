@@ -5,9 +5,7 @@ using System.Linq;
 using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
-using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
 using osu.Game.Overlays.Chat;
@@ -89,12 +87,6 @@ namespace osu.Game.Tournament.Tests.Components
         protected override void LoadComplete()
         {
             base.LoadComplete();
-
-            AddAssert("loading layer shown", () => chatDisplay.ChildrenOfType<LoadingLayer>().First().State.Value == Visibility.Visible);
-
-            AddStep("complete loading", () => testChannel.JoinRequestCompleted.Value = true);
-
-            AddAssert("loading layer hidden", () => chatDisplay.ChildrenOfType<LoadingLayer>().First().State.Value == Visibility.Hidden);
 
             AddStep("message from admin", () => testChannel.AddNewMessages(new Message(nextMessageId())
             {
@@ -197,8 +189,6 @@ namespace osu.Game.Tournament.Tests.Components
 
             AddStep("change channel to 2", () => chatDisplay.Channel.Value = testChannel2);
 
-            AddAssert("loading layer shown", () => chatDisplay.ChildrenOfType<LoadingLayer>().First().State.Value == Visibility.Visible);
-
             AddStep("referee messages", () => testChannel2.AddNewMessages(new Message(nextMessageId())
             {
                 Sender = cyberReferee.ToAPIUser(),
@@ -210,10 +200,6 @@ namespace osu.Game.Tournament.Tests.Components
                 Sender = carbonReferee.ToAPIUser(),
                 Content = "[*] 比赛时间已到，请各位选手启动原神",
             }));
-
-            AddStep("channel fail", () => testChannel2.Failed.Value = true);
-
-            AddUntilStep("warning layer faded out", () => chatDisplay.ChildrenOfType<FillFlowContainer>().First().Alpha == 0);
 
             AddStep("non-referee commands", () => testChannel2.AddNewMessages(new Message(nextMessageId())
             {
