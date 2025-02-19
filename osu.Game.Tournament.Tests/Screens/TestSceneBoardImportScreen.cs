@@ -84,16 +84,10 @@ namespace osu.Game.Tournament.Tests.Screens
             };
         }
 
-        [Test]
-        public void TestBoardDisplay()
+        [SetUpSteps]
+        public override void SetUpSteps()
         {
-            AddAssert("undefined round dialog displayed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is UndefinedRoundDialog);
-            AddStep("close dialog", () =>
-            {
-                InputManager.MoveMouseTo(importScreen.ChildrenOfType<DialogOverlay>().Last().ChildrenOfType<PopupDialogButton>().Last());
-                InputManager.Click(MouseButton.Left);
-            });
-            AddAssert("undefined round dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not UndefinedRoundDialog);
+            base.SetUpSteps();
 
             AddStep("add referee info", () => Ladder.CurrentMatch.Value!.Round.Value = testRound = new TournamentRound
             {
@@ -299,6 +293,18 @@ namespace osu.Game.Tournament.Tests.Screens
                     },
                 },
             }));
+        }
+
+        [Test]
+        public void TestBoardDisplay()
+        {
+            AddAssert("undefined round dialog displayed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is UndefinedRoundDialog);
+            AddStep("close dialog", () =>
+            {
+                InputManager.MoveMouseTo(importScreen.ChildrenOfType<DialogOverlay>().Last().ChildrenOfType<PopupDialogButton>().Last());
+                InputManager.Click(MouseButton.Left);
+            });
+            AddAssert("undefined round dialog closed", () => importScreen.ChildrenOfType<DialogOverlay>().Last().CurrentDialog is not UndefinedRoundDialog);
 
             AddStep("reload import screen", () => testGrid.Content[1] = new Drawable[]
             {

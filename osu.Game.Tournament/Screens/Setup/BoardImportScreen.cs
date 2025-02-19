@@ -9,7 +9,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Platform;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
@@ -26,7 +25,7 @@ namespace osu.Game.Tournament.Screens.Setup
     public partial class BoardImportScreen : TournamentScreen
     {
         [Resolved]
-        private TournamentGame tournamentGame { get; set; } = null!;
+        private TournamentGame? tournamentGame { get; set; }
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -43,20 +42,11 @@ namespace osu.Game.Tournament.Screens.Setup
         private readonly BindableBool useChat = new BindableBool();
 
         [BackgroundDependencyLoader(true)]
-        private void load(Storage storage, OsuColour colours)
+        private void load(OsuColour colours)
         {
             isUpdateDone = false;
             round = LadderInfo.CurrentMatch.Value?.Round.Value;
             defCommandList.Clear();
-
-            if (LadderInfo.CurrentMatch.Value == null || round == null)
-            {
-                overlay.Push(new IPCErrorDialog("Invalid round", "Something is wrong with the round configuration."));
-                return;
-            }
-
-            LadderInfo.CurrentMatch.Value.PendingMsgs.CollectionChanged += msgOnCollectionChanged;
-            useChat.BindValueChanged(_ => fetchAndUpdate());
 
             InternalChildren = new Drawable[]
             {
@@ -167,6 +157,15 @@ namespace osu.Game.Tournament.Screens.Setup
                 overlay = new DialogOverlay(),
             };
 
+            if (LadderInfo.CurrentMatch.Value == null || round == null)
+            {
+                overlay.Push(new UndefinedRoundDialog("Invalid round", "Something is wrong with the round configuration."));
+                return;
+            }
+
+            LadderInfo.CurrentMatch.Value.PendingMsgs.CollectionChanged += msgOnCollectionChanged;
+            useChat.BindValueChanged(_ => fetchAndUpdate());
+
             updateBoardDisplay();
         }
 
@@ -256,7 +255,7 @@ namespace osu.Game.Tournament.Screens.Setup
             }
             else
             {
-                tournamentGame.SaveChanges();
+                tournamentGame?.SaveChanges();
                 overlay.Push(new BoardUpdateSuccessDialog("Done!", "Your board is updated successfully. Remember to refresh your board view!"));
             }
         }
