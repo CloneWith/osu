@@ -242,16 +242,16 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 150,
-                                                Text = "Set and save",
-                                                Action = saveSetting
+                                                Text = "Save",
+                                                Action = () => saveSetting()
                                             },
                                             new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 150,
-                                                Text = "Set&Save to all",
-                                                Action = saveSettingAll
+                                                Text = "Save to all",
+                                                Action = () => saveSetting(true)
                                             },
                                             new RoundedButton
                                             {
@@ -415,7 +415,7 @@ namespace osu.Game.Tournament.Screens.Setup
             }
         }
 
-        private void saveSetting()
+        private void saveSetting(bool applyToAll = false)
         {
             BackgroundType currentType = backgroundDropdown.Current.Value;
             // If the user has selected a new file, use that instead of the current mapping.
@@ -424,34 +424,25 @@ namespace osu.Game.Tournament.Screens.Setup
                 ? currentMapping
                 : availableInfo;
 
-            LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
-            LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(currentType, infoToSave));
-
-            game.SaveChanges();
-
-            saveButton.FlashColour(Color4.White, 500);
-            saveButton.Enabled.Value = false;
-        }
-
-        private void saveSettingAll()
-        {
-            // Set the current type to the selected type.
-            BackgroundType currentType = backgroundDropdown.Current.Value;
-            BackgroundInfo currentMapping = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == currentType).Value;
-            BackgroundInfo infoToSave = EqualityComparer<BackgroundInfo>.Default.Equals(availableInfo, default)
-                                      ? currentMapping
-                                      : availableInfo;
-
-            // Update all background mappings with the selected type.
-            foreach (var bg in LadderInfo.BackgroundMap.Select(x => x.Key).Distinct().ToList())
+            if (applyToAll)
             {
-                LadderInfo.BackgroundMap.RemoveAll(v => v.Key == bg);
-                LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(bg, infoToSave));
+                // Update all background mappings with the selected type.
+                // Use enum members as reference in case of missing entries from the ladder.
+                LadderInfo.BackgroundMap.Clear();
+
+                foreach (var bg in Enum.GetValues(typeof(BackgroundType)).Cast<BackgroundType>())
+                {
+                    LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(bg, infoToSave));
+                }
+            }
+            else
+            {
+                LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
+                LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(currentType, infoToSave));
             }
 
             game.SaveChanges();
 
-            // Animation feedback.
             saveButton.FlashColour(Color4.White, 500);
             saveButton.Enabled.Value = false;
         }
