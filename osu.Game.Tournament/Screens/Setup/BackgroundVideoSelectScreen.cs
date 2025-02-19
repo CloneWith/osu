@@ -39,7 +39,6 @@ namespace osu.Game.Tournament.Screens.Setup
         private OsuTextFlowContainer currentFileText = null!;
 
         private RoundedButton saveButton = null!;
-        private RoundedButton resetButton = null!;
 
         private string initialPath = null!;
         private string videoPath = null!;
@@ -226,7 +225,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Text = "Set and save",
                                                 Action = saveSetting
                                             },
-                                            resetButton = new RoundedButton
+                                            new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,

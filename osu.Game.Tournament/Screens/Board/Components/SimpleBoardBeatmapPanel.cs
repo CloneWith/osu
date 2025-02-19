@@ -33,7 +33,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private Box flash = null!;
 
         private SpriteIcon icon = null!;
-        private SpriteIcon swapIcon = null!;
         private SpriteIcon protectIcon = null!;
         private SpriteIcon trapIcon = null!;
 
@@ -84,7 +83,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Size = new Vector2(0.4f),
                     Alpha = 0,
                 },
-                swapIcon = new SpriteIcon
+                new SpriteIcon
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
