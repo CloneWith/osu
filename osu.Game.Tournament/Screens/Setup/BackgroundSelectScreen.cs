@@ -317,6 +317,11 @@ namespace osu.Game.Tournament.Screens.Setup
 
             fileSelector.CurrentPath.BindValueChanged(pathChanged, true);
             fileSelector.CurrentFile.BindValueChanged(fileChanged, true);
+
+            LadderInfo.BackgroundDim.BindValueChanged(_ =>
+            {
+                saveButton.Enabled.Value = true;
+            });
         }
 
         private void pathChanged(ValueChangedEvent<DirectoryInfo> e)
