@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -32,7 +31,6 @@ namespace osu.Game.Tournament.Components
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
         private readonly FillMode fillMode;
-        private readonly BindableFloat backgroundDim = new BindableFloat();
 
         private Sprite? imageSprite;
         private Video? video;
@@ -50,10 +48,10 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private TournamentVideoResourceStore? videoStore { get; set; }
 
-        public bool BackgroundAvailable => video != null || imageSprite != null;
-
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
+
+        public bool BackgroundAvailable => video != null || imageSprite != null;
 
         /// <summary>
         /// Fetch background information from cached <see cref="LadderInfo"/> and try to display it.
@@ -99,16 +97,11 @@ namespace osu.Game.Tournament.Components
         {
             loadSprites();
 
-            dimBox.Alpha = ladder.BackgroundDim.Value;
-            backgroundDim.BindTo(ladder.BackgroundDim);
-
             // Subscribe changes (only when fetched from ladder)
             if (!skipLadderLookup)
             {
                 ladder.BackgroundMap.BindCollectionChanged((_, _) => loadSprites());
             }
-
-            backgroundDim.BindValueChanged(e => dimBox.FadeTo(e.NewValue, 300, Easing.OutQuint));
         }
 
         /// <summary>
@@ -134,6 +127,8 @@ namespace osu.Game.Tournament.Components
                     return;
                 }
             }
+
+            dimBox.FadeTo(info.Dim, 300, Easing.OutQuint);
 
             needDetection = info.Source == BackgroundSource.Auto;
             bool isFaulted = false;
@@ -234,6 +229,19 @@ namespace osu.Game.Tournament.Components
                 loop = value;
                 if (video != null)
                     video.Loop = value;
+            }
+        }
+
+        public float Dim
+        {
+            get => info.Dim;
+            set
+            {
+                if (info.Dim == value)
+                    return;
+
+                info.Dim = value;
+                dimBox.FadeTo(value, 300, Easing.OutQuint);
             }
         }
 

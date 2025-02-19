@@ -69,6 +69,7 @@ namespace osu.Game.Tournament.Models
     {
         public BackgroundSource Source;
         public string Name;
+        public float Dim;
 
         #region Constructors
 
@@ -78,10 +79,11 @@ namespace osu.Game.Tournament.Models
             Name = string.Empty;
         }
 
-        public BackgroundInfo(BackgroundSource source, string name)
+        public BackgroundInfo(BackgroundSource source, string name, float dim = 0)
         {
             Source = source;
             Name = name;
+            Dim = dim;
         }
 
         public BackgroundInfo(string name)
@@ -97,7 +99,8 @@ namespace osu.Game.Tournament.Models
         public bool Equals(BackgroundInfo other)
         {
             return Source == other.Source
-                   && Name == other.Name;
+                   && Name == other.Name
+                   && Dim == other.Dim;
         }
 
         public override bool Equals(object? obj)
