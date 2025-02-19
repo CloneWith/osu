@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -58,7 +59,7 @@ namespace osu.Game.Tournament.Components
         /// Fetch background information from cached <see cref="LadderInfo"/> and try to display it.
         /// </summary>
         public TourneyBackground(BackgroundType backgroundType,
-                                 bool drawFallbackGradient = false, bool showError = false,
+                                 bool drawFallbackGradient = true, bool showError = false,
                                  FillMode fillMode = FillMode.Fill)
         {
             requestedType = backgroundType;
@@ -119,7 +120,19 @@ namespace osu.Game.Tournament.Components
 
             if (!skipLadderLookup)
             {
-                info = ladder.BackgroundMap.LastOrDefault(v => v.Key == requestedType).Value;
+                try
+                {
+                    // Only reload when relevant changes were made to the mapping list.
+                    var newInfo = ladder.BackgroundMap.Last(v => v.Key == requestedType).Value;
+                    if (newInfo.Equals(info)) return;
+
+                    info = newInfo;
+                }
+                // Don't let clear changes affect the background.
+                catch (InvalidOperationException)
+                {
+                    return;
+                }
             }
 
             needDetection = info.Source == BackgroundSource.Auto;

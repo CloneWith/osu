@@ -65,7 +65,7 @@ namespace osu.Game.Tournament.Models
     }
 
     [Serializable]
-    public struct BackgroundInfo
+    public struct BackgroundInfo : IEquatable<BackgroundInfo>
     {
         public BackgroundSource Source;
         public string Name;
@@ -88,6 +88,26 @@ namespace osu.Game.Tournament.Models
         {
             Source = BackgroundSource.Video;
             Name = name;
+        }
+
+        #endregion
+
+        #region Operators
+
+        public bool Equals(BackgroundInfo other)
+        {
+            return Source == other.Source
+                   && Name == other.Name;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is BackgroundInfo other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine((int)Source, Name);
         }
 
         #endregion
