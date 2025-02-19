@@ -234,14 +234,14 @@ namespace osu.Game.Tournament.Screens.Setup
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
                                         Direction = FillDirection.Horizontal,
-                                        Spacing = new Vector2(20),
+                                        Spacing = new Vector2(15),
                                         Children = new Drawable[]
                                         {
                                             saveButton = new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
-                                                Width = 200,
+                                                Width = 150,
                                                 Text = "Set and save",
                                                 Action = saveSetting
                                             },
@@ -249,7 +249,15 @@ namespace osu.Game.Tournament.Screens.Setup
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
-                                                Width = 200,
+                                                Width = 150,
+                                                Text = "Set&Save to all",
+                                                Action = saveSettingAll
+                                            },
+                                            new RoundedButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                Width = 150,
                                                 Text = "Reset...",
                                                 Colour = Color4.Orange,
                                                 Action = () => overlay?.Push(new ResetVideoDialog
@@ -421,6 +429,29 @@ namespace osu.Game.Tournament.Screens.Setup
 
             game.SaveChanges();
 
+            saveButton.FlashColour(Color4.White, 500);
+            saveButton.Enabled.Value = false;
+        }
+
+        private void saveSettingAll()
+        {
+            // Set the current type to the selected type.
+            BackgroundType currentType = backgroundDropdown.Current.Value;
+            BackgroundInfo currentMapping = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == currentType).Value;
+            BackgroundInfo infoToSave = EqualityComparer<BackgroundInfo>.Default.Equals(availableInfo, default)
+                                      ? currentMapping
+                                      : availableInfo;
+
+            // Update all background mappings with the selected type.
+            foreach (var bg in LadderInfo.BackgroundMap.Select(x => x.Key).Distinct().ToList())
+            {
+                LadderInfo.BackgroundMap.RemoveAll(v => v.Key == bg);
+                LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(bg, infoToSave));
+            }
+
+            game.SaveChanges();
+
+            // Animation feedback.
             saveButton.FlashColour(Color4.White, 500);
             saveButton.Enabled.Value = false;
         }
