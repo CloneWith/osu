@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components.Shapes;
 using osuTK.Graphics;
 

@@ -484,7 +484,6 @@ namespace osu.Game.Online.Chat
                     case ChannelType.Multiplayer:
                         // join is implicit. happens when you join a multiplayer game.
                         // this will probably change in the future.
-                        channel.JoinRequestCompleted.Value = true;
                         joinChannel(channel, fetchInitialMessages);
                         return channel;
 
@@ -495,12 +494,10 @@ namespace osu.Game.Online.Chat
                         createRequest.Failure += e =>
                         {
                             Logger.Log($"Failed to join PM channel {channel} ({e.Message})");
-                            channel.Failed.Value = true;
                         };
                         createRequest.Success += resChannel =>
                         {
                             Logger.Log($"Joined PM channel {channel} ({resChannel.ChannelID})");
-                            channel.Failed.Value = false;
 
                             if (resChannel.ChannelID.HasValue)
                             {
@@ -521,7 +518,6 @@ namespace osu.Game.Online.Chat
                         req.Success += () =>
                         {
                             Logger.Log($"Joined public channel {channel}");
-                            channel.JoinRequestCompleted.Value = true;
                             joinChannel(channel, fetchInitialMessages);
 
                             // Required after joining public channels to mark the user as online in them.
@@ -531,7 +527,6 @@ namespace osu.Game.Online.Chat
                         req.Failure += e =>
                         {
                             Logger.Log($"Failed to join public channel {channel} ({e.Message})");
-                            channel.Failed.Value = true;
                             LeaveChannel(channel);
                         };
                         api.Queue(req);

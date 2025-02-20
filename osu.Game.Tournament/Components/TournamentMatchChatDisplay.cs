@@ -134,7 +134,8 @@ namespace osu.Game.Tournament.Components
 
                 // Automatically block duplicate messages, since we have multiple chat displays available.
                 if ((isRef || currentMatch.Value.Round.Value.TrustAll.Value)
-                    && isCommand && !currentMatch.Value.PendingMsgs.Any(p => p.Equals(message)))
+                    && isCommand
+                    && !currentMatch.Value.PendingMsgs.Any(p => p.Equals(message)))
                 {
                     currentMatch.Value.PendingMsgs.Add(message);
                 }
@@ -163,7 +164,7 @@ namespace osu.Game.Tournament.Components
                 : base(message)
             {
                 // Disable line background alternating, see https://github.com/ppy/osu/pull/29137
-                AlternatingBackground = false;
+                EnableBackgroundAlternating = false;
                 IsStrong = isCommand;
 
                 if (info.CurrentMatch.Value is not TournamentMatch match) return;

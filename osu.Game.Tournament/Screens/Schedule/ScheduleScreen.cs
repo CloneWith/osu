@@ -272,7 +272,8 @@ namespace osu.Game.Tournament.Screens.Schedule
                         Font = OsuFont.Torus,
                         Margin = new MarginPadding
                         {
-                            Horizontal = 10, Vertical = 5
+                            Horizontal = 10,
+                            Vertical = 5,
                         },
                     });
                     AddInternal(timeText = new TournamentSpriteText
@@ -283,7 +284,8 @@ namespace osu.Game.Tournament.Screens.Schedule
                         Alpha = conditional ? 0.6f : 1,
                         Margin = new MarginPadding
                         {
-                            Horizontal = 10, Vertical = 5
+                            Horizontal = 10,
+                            Vertical = 5,
                         },
                         Text = (ladder.UseUtcTime.Value
                                    ? match.Date.Value.ToUniversalTime().ToString("HH:mm UTC")

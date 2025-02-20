@@ -79,7 +79,6 @@ namespace osu.Game.Tournament.Components
                                     },
                                 }
                             },
-
                         },
                         new Drawable[]
                         {

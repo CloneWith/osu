@@ -640,7 +640,7 @@ namespace osu.Game.Tournament.Screens.Board
                 }
             }
 
-            Drawable newDisplay = pickType == ChoiceType.Swap ? new TrapInfoDisplay(trap: TrapType.Swap) : new InstructionDisplay(team: color, step: state);
+            Drawable newDisplay = pickType == ChoiceType.Swap ? new TrapInfoDisplay(type: TrapType.Swap) : new InstructionDisplay(team: color, step: state);
 
             if (oldDisplay != newDisplay && refresh)
             {

@@ -14,7 +14,6 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ShowcasePlayer : ReplayPlayer
     {
-        private readonly ShowcaseConfig config;
         private readonly Score score;
         private readonly double startTime;
         private readonly bool noHUD;
@@ -31,7 +30,6 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.score = score;
             this.startTime = startTime;
-            this.config = config;
             this.replaying.BindTo(replaying);
             this.noHUD = noHUD;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
