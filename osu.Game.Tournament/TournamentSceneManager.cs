@@ -74,8 +74,7 @@ namespace osu.Game.Tournament
 
         private FillFlowContainer buttons = null!;
 
-        // Commenting out as it is currently not being used
-        // private TournamentScreen middle = null!;
+        private TournamentScreen middle = null!;
 
         public TournamentSceneManager()
         {
