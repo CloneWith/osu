@@ -63,9 +63,6 @@ namespace osu.Game.Tournament
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
-        [Resolved]
-        private LadderInfo ladderInfo { get; set; } = null!;
-
         private Container chatContainer = new Container
         {
             Anchor = Anchor.TopLeft,
