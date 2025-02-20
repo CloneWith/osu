@@ -27,9 +27,9 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
         private readonly Bindable<bool> currentCompleted = new Bindable<bool>();
 
-        private TourneyVideo blueWinVideo = null!;
-        private TourneyVideo redWinVideo = null!;
-        private TourneyVideo mainVideo = null!;
+        private TourneyBackground blueWinBackground = null!;
+        private TourneyBackground redWinBackground = null!;
+        private TourneyBackground mainBackground = null!;
 
         private Container? symbolContainer;
 
@@ -66,19 +66,19 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
             InternalChildren = new Drawable[]
             {
-                blueWinVideo = new TourneyVideo(BackgroundVideo.BlueWin, LadderInfo)
+                blueWinBackground = new TourneyBackground(BackgroundType.BlueWin)
                 {
                     Alpha = 0,
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                redWinVideo = new TourneyVideo(BackgroundVideo.RedWin, LadderInfo)
+                redWinBackground = new TourneyBackground(BackgroundType.RedWin)
                 {
                     Alpha = 0,
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                mainVideo = new TourneyVideo(BackgroundVideo.Draw, LadderInfo)
+                mainBackground = new TourneyBackground(BackgroundType.Draw)
                 {
                     Alpha = 1,
                     RelativeSizeAxes = Axes.Both,
@@ -176,8 +176,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
         {
             var match = CurrentMatch.Value;
 
-            redWinVideo.Alpha = match?.WinnerColour == TeamColour.Red ? 1 : 0;
-            blueWinVideo.Alpha = match?.WinnerColour == TeamColour.Blue ? 1 : 0;
+            redWinBackground.Alpha = match?.WinnerColour == TeamColour.Red ? 1 : 0;
+            blueWinBackground.Alpha = match?.WinnerColour == TeamColour.Blue ? 1 : 0;
             colourMask.FadeOut();
 
             animatedBoard?.Expire();
@@ -350,15 +350,15 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 if (firstDisplay)
                 {
                     if (match.WinnerColour == TeamColour.Red)
-                        redWinVideo.Reset();
+                        redWinBackground.Reset();
                     else
-                        blueWinVideo.Reset();
+                        blueWinBackground.Reset();
                     firstDisplay = false;
                 }
 
-                redWinVideo.Alpha = match.WinnerColour == TeamColour.Red ? 1 : 0;
-                blueWinVideo.Alpha = match.WinnerColour == TeamColour.Blue ? 1 : 0;
-                mainVideo.Alpha = 1;
+                redWinBackground.Alpha = match.WinnerColour == TeamColour.Red ? 1 : 0;
+                blueWinBackground.Alpha = match.WinnerColour == TeamColour.Blue ? 1 : 0;
+                mainBackground.Alpha = 1;
 
                 transferContainer.Show();
 
@@ -442,11 +442,11 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     using (BeginDelayedSequence(5000))
                     {
                         flash.FadeOutFromOne(6000, Easing.OutQuint);
-                        mainVideo.FadeOut(1000, Easing.OutQuint);
+                        mainBackground.FadeOut(1000, Easing.OutQuint);
                         if (match.WinnerColour == TeamColour.Red)
-                            redWinVideo.FadeIn(1000, Easing.OutQuint);
+                            redWinBackground.FadeIn(1000, Easing.OutQuint);
                         else
-                            blueWinVideo.FadeIn(1000, Easing.OutQuint);
+                            blueWinBackground.FadeIn(1000, Easing.OutQuint);
                         mainContainer.FadeIn(1600, Easing.OutQuint);
                         colourMask.FadeTo(0.4f, 1500, Easing.OutQuint);
                         colourMask.FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1

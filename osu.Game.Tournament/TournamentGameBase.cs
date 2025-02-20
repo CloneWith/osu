@@ -202,9 +202,9 @@ namespace osu.Game.Tournament
                     using (Stream stream = storage.GetStream(BACKGROUND_MAPPING_FILENAME, FileAccess.Read, FileMode.Open))
                     using (var sr = new StreamReader(stream))
                     {
-                        ladder.BackgroundVideoFiles =
-                            JsonConvert.DeserializeObject<BindableList<KeyValuePair<BackgroundVideo, string>>>(await sr.ReadToEndAsync().ConfigureAwait(false), new JsonPointConverter())
-                            ?? ladder.BackgroundVideoFiles;
+                        ladder.BackgroundMap =
+                            JsonConvert.DeserializeObject<BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>>(await sr.ReadToEndAsync().ConfigureAwait(false), new JsonPointConverter())
+                            ?? ladder.BackgroundMap;
                     }
                 }
                 else
@@ -368,7 +368,7 @@ namespace osu.Game.Tournament
             using (var sw = new StreamWriter(stream))
                 sw.Write(serialisedLadder);
 
-            string serialisedBackgroundMapping = JsonConvert.SerializeObject(ladder.BackgroundVideoFiles, new JsonSerializerSettings
+            string serialisedBackgroundMapping = JsonConvert.SerializeObject(ladder.BackgroundMap, new JsonSerializerSettings
             {
                 Formatting = Formatting.Indented,
                 NullValueHandling = NullValueHandling.Ignore,
@@ -382,18 +382,7 @@ namespace osu.Game.Tournament
 
         public string GetSerialisedLadder(bool includeAllParts = true)
         {
-            List<JsonConverter> converters = new List<JsonConverter>
-            {
-                new JsonPointConverter(),
-            };
-
-            if (!includeAllParts)
-            {
-                converters.AddRange(new JsonConverter[]
-                {
-                    new JsonIgnoreBackgroundMappingConverter(),
-                });
-            }
+            ladder.SkipBackgroundMapSerialization = !includeAllParts;
 
             foreach (var r in ladder.Rounds)
                 r.Matches = ladder.Matches.Where(p => p.Round.Value == r).Select(p => p.ID).ToList();
@@ -407,7 +396,10 @@ namespace osu.Game.Tournament
                 Formatting = Formatting.Indented,
                 NullValueHandling = NullValueHandling.Ignore,
                 DefaultValueHandling = DefaultValueHandling.Ignore,
-                Converters = converters,
+                Converters =
+                {
+                    new JsonPointConverter(),
+                },
             });
         }
 
@@ -437,21 +429,6 @@ namespace osu.Game.Tournament
                 public override bool EnableClick => true;
                 public override bool ChangeFocusOnClick => false;
             }
-        }
-    }
-
-    /// <summary>
-    /// A dummy JSON converter that ignores background mapping information from the ladder.
-    /// </summary>
-    public class JsonIgnoreBackgroundMappingConverter : JsonConverter<BindableList<KeyValuePair<BackgroundVideo, string>>>
-    {
-        public override void WriteJson(JsonWriter writer, BindableList<KeyValuePair<BackgroundVideo, string>>? value, JsonSerializer serializer)
-        {
-        }
-
-        public override BindableList<KeyValuePair<BackgroundVideo, string>> ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundVideo, string>>? existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            throw new ArgumentException("This converter does not support reading from JSON.");
         }
     }
 }
