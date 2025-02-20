@@ -6,11 +6,12 @@ using osu.Game.Tournament.Screens.Setup;
 
 namespace osu.Game.Tournament.Tests.Screens
 {
-    public partial class TestSceneBackgroundVideoSelectScreen : TournamentScreenTestScene
+    public partial class TestSceneBackgroundSelectScreen : TournamentScreenTestScene
     {
         [BackgroundDependencyLoader]
         private void load()
         {
+            Dependencies.Cache(new TournamentGame());
             Add(new BackgroundSelectScreen());
         }
     }

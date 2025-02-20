@@ -65,10 +65,11 @@ namespace osu.Game.Tournament.Models
     }
 
     [Serializable]
-    public struct BackgroundInfo
+    public struct BackgroundInfo : IEquatable<BackgroundInfo>
     {
         public BackgroundSource Source;
         public string Name;
+        public float Dim;
 
         #region Constructors
 
@@ -78,16 +79,44 @@ namespace osu.Game.Tournament.Models
             Name = string.Empty;
         }
 
-        public BackgroundInfo(BackgroundSource source, string name)
+        public BackgroundInfo(BackgroundSource source, string name, float dim = 0)
         {
             Source = source;
             Name = name;
+            Dim = dim;
         }
 
         public BackgroundInfo(string name)
         {
             Source = BackgroundSource.Video;
             Name = name;
+        }
+
+        #endregion
+
+        #region Operators
+
+        public bool Equals(BackgroundInfo other)
+        {
+            return Source == other.Source
+                   && Name == other.Name
+                   && Dim == other.Dim;
+        }
+
+        public bool FileInfoEquals(BackgroundInfo other)
+        {
+            return Source == other.Source
+                   && Name == other.Name;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is BackgroundInfo other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine((int)Source, Name);
         }
 
         #endregion

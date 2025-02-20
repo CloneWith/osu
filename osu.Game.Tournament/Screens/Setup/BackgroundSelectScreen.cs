@@ -29,12 +29,11 @@ namespace osu.Game.Tournament.Screens.Setup
 {
     public partial class BackgroundSelectScreen : TournamentScreen
     {
-        private BackgroundTypeDropdown backgroundDropdown = null!;
-        private TournamentSpriteText backgroundInfo = null!;
+        private BackgroundTypeDropdown typeDropdown = null!;
+        private TournamentSpriteText infoText = null!;
 
-        private TourneyBackground backgroundPreview = null!;
-
-        private Container backgroundContainer = null!;
+        private Container previewContainer = null!;
+        private TourneyBackground preview = null!;
 
         private SpriteIcon currentFileIcon = null!;
         private OsuTextFlowContainer currentFileText = null!;
@@ -55,6 +54,13 @@ namespace osu.Game.Tournament.Screens.Setup
 
         private OsuFileSelector fileSelector = null!;
         private DialogOverlay? overlay;
+
+        private readonly BindableFloat backgroundDim = new BindableFloat
+        {
+            MinValue = 0,
+            MaxValue = 1,
+            Precision = 0.01f,
+        };
 
         [BackgroundDependencyLoader(true)]
         private void load(TournamentStorage storage)
@@ -186,7 +192,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                         Size = new Vector2(24),
                                                         Colour = Color4.White,
                                                     },
-                                                    backgroundInfo = new TournamentSpriteText
+                                                    infoText = new TournamentSpriteText
                                                     {
                                                         Anchor = Anchor.TopCentre,
                                                         Origin = Anchor.TopCentre,
@@ -201,21 +207,22 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Origin = Anchor.TopCentre,
                                                 LabelText = @"Background Dim",
                                                 DisplayAsPercentage = true,
-                                                Current = LadderInfo.BackgroundDim,
+                                                Current = backgroundDim,
                                             },
-                                            backgroundDropdown = new BackgroundTypeDropdown
+                                            typeDropdown = new BackgroundTypeDropdown
                                             {
                                                 Anchor = Anchor.TopCentre,
                                                 Origin = Anchor.TopCentre,
                                                 LabelText = "Select background for",
+                                                ShowsDefaultIndicator = false,
                                                 Margin = new MarginPadding { Top = 10 },
                                             },
-                                            backgroundContainer = new Container
+                                            previewContainer = new Container
                                             {
                                                 Anchor = Anchor.TopCentre,
                                                 Origin = Anchor.TopCentre,
                                                 RelativeSizeAxes = Axes.Both,
-                                                Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == backgroundDropdown.Current.Value).Value,
+                                                Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == typeDropdown.Current.Value).Value,
                                                     showError: true, fillMode: FillMode.Fit)
                                                 {
                                                     Anchor = Anchor.TopCentre,
@@ -234,31 +241,39 @@ namespace osu.Game.Tournament.Screens.Setup
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
                                         Direction = FillDirection.Horizontal,
-                                        Spacing = new Vector2(20),
+                                        Spacing = new Vector2(15),
                                         Children = new Drawable[]
                                         {
                                             saveButton = new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
-                                                Width = 200,
-                                                Text = "Set and save",
-                                                Action = saveSetting
+                                                Width = 150,
+                                                Text = "Save",
+                                                Action = () => saveSetting()
                                             },
                                             new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
-                                                Width = 200,
+                                                Width = 150,
+                                                Text = "Save to all",
+                                                Action = () => saveSetting(true)
+                                            },
+                                            new RoundedButton
+                                            {
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                Width = 150,
                                                 Text = "Reset...",
                                                 Colour = Color4.Orange,
                                                 Action = () => overlay?.Push(new ResetVideoDialog
                                                 (
                                                     resetOneAction: () =>
                                                     {
-                                                        string defaultVideo = BackgroundProps.PATHS.First(v => v.Key == backgroundDropdown.Current.Value).Value.Name;
-                                                        LadderInfo.BackgroundMap.RemoveAll(v => v.Key == backgroundDropdown.Current.Value);
-                                                        LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(backgroundDropdown.Current.Value, new BackgroundInfo
+                                                        string defaultVideo = BackgroundProps.PATHS.First(v => v.Key == typeDropdown.Current.Value).Value.Name;
+                                                        LadderInfo.BackgroundMap.RemoveAll(v => v.Key == typeDropdown.Current.Value);
+                                                        LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(typeDropdown.Current.Value, new BackgroundInfo
                                                         (
                                                             name: defaultVideo,
                                                             source: BackgroundSource.Video
@@ -299,24 +314,33 @@ namespace osu.Game.Tournament.Screens.Setup
                 LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
             }
 
-            backgroundInfo.Text = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == backgroundDropdown.Current.Value).Value.Name;
-            backgroundInfo.Colour = backgroundPreview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
+            infoText.Text = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == typeDropdown.Current.Value).Value.Name;
+            infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
 
-            backgroundDropdown.Current.BindValueChanged(e =>
+            typeDropdown.Current.BindValueChanged(e =>
             {
-                backgroundContainer.Child = backgroundPreview = new TourneyBackground(LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value,
+                fileSelector.CurrentFile.SetDefault();
+                previewContainer.Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value,
                     showError: true, fillMode: FillMode.Fit)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 };
 
-                backgroundInfo.Text = $"Using: {LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value.Name}";
-                backgroundInfo.Colour = backgroundPreview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
+                infoText.Text = $"Using: {LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value.Name}";
+                infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
+                backgroundDim.Value = availableInfo.Dim;
             }, true);
 
             fileSelector.CurrentPath.BindValueChanged(pathChanged, true);
             fileSelector.CurrentFile.BindValueChanged(fileChanged, true);
+
+            backgroundDim.BindValueChanged(e =>
+            {
+                saveButton.Enabled.Value = true;
+                preview.Dim = e.NewValue;
+                availableInfo.Dim = e.NewValue;
+            });
         }
 
         private void pathChanged(ValueChangedEvent<DirectoryInfo> e)
@@ -376,13 +400,17 @@ namespace osu.Game.Tournament.Screens.Setup
                     currentFileText.AddText(": Preview on the right!", t => t.Colour = Color4.SkyBlue);
                     currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
                     currentFileIcon.Colour = Color4.SkyBlue;
-                    backgroundContainer.Child = new TourneyBackground(availableInfo = new BackgroundInfo
+                    previewContainer.Child = preview = new TourneyBackground(availableInfo = new BackgroundInfo
                     (
                         source: validVideo ? BackgroundSource.Video : BackgroundSource.Image,
-                        name: selectedFile.NewValue.Name.Split('.')[0]
+
+                        // Display the file name with the extension.
+                        name: selectedFile.NewValue.Name,
+                        dim: backgroundDim.Value
                     ), showError: true, fillMode: FillMode.Fit)
                     {
                         Loop = true,
+                        Dim = backgroundDim.Value,
                         RelativeSizeAxes = Axes.Both,
                     };
                 }
@@ -400,15 +428,31 @@ namespace osu.Game.Tournament.Screens.Setup
             }
         }
 
-        private void saveSetting()
+        private void saveSetting(bool applyToAll = false)
         {
-            BackgroundType currentType = backgroundDropdown.Current.Value;
-            LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
+            BackgroundType currentType = typeDropdown.Current.Value;
+            // If the user has selected a new file, use that instead of the current mapping.
+            BackgroundInfo currentMapping = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == currentType).Value;
+            BackgroundInfo infoToSave = EqualityComparer<BackgroundInfo>.Default.Equals(availableInfo, default)
+                ? currentMapping
+                : availableInfo;
 
-            LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(
-                currentType,
-                availableInfo
-            ));
+            if (applyToAll)
+            {
+                // Update all background mappings with the selected type.
+                // Use enum members as reference in case of missing entries from the ladder.
+                LadderInfo.BackgroundMap.Clear();
+
+                foreach (var bg in Enum.GetValues(typeof(BackgroundType)).Cast<BackgroundType>())
+                {
+                    LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(bg, infoToSave));
+                }
+            }
+            else
+            {
+                LadderInfo.BackgroundMap.RemoveAll(v => v.Key == currentType);
+                LadderInfo.BackgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(currentType, infoToSave));
+            }
 
             game.SaveChanges();
 

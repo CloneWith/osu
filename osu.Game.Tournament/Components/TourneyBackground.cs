@@ -1,9 +1,9 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -31,7 +31,6 @@ namespace osu.Game.Tournament.Components
         private readonly bool drawFallbackGradient;
         private readonly bool showError;
         private readonly FillMode fillMode;
-        private readonly BindableFloat backgroundDim = new BindableFloat();
 
         private Sprite? imageSprite;
         private Video? video;
@@ -49,16 +48,16 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private TournamentVideoResourceStore? videoStore { get; set; }
 
-        public bool BackgroundAvailable => video != null || imageSprite != null;
-
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
+
+        public bool BackgroundAvailable => video != null || imageSprite != null;
 
         /// <summary>
         /// Fetch background information from cached <see cref="LadderInfo"/> and try to display it.
         /// </summary>
         public TourneyBackground(BackgroundType backgroundType,
-                                 bool drawFallbackGradient = false, bool showError = false,
+                                 bool drawFallbackGradient = true, bool showError = false,
                                  FillMode fillMode = FillMode.Fill)
         {
             requestedType = backgroundType;
@@ -98,16 +97,11 @@ namespace osu.Game.Tournament.Components
         {
             loadSprites();
 
-            dimBox.Alpha = ladder.BackgroundDim.Value;
-            backgroundDim.BindTo(ladder.BackgroundDim);
-
             // Subscribe changes (only when fetched from ladder)
             if (!skipLadderLookup)
             {
                 ladder.BackgroundMap.BindCollectionChanged((_, _) => loadSprites());
             }
-
-            backgroundDim.BindValueChanged(e => dimBox.FadeTo(e.NewValue, 300, Easing.OutQuint));
         }
 
         /// <summary>
@@ -119,8 +113,29 @@ namespace osu.Game.Tournament.Components
 
             if (!skipLadderLookup)
             {
-                info = ladder.BackgroundMap.LastOrDefault(v => v.Key == requestedType).Value;
+                try
+                {
+                    // Only reload when relevant changes were made to the mapping list.
+                    var newInfo = ladder.BackgroundMap.Last(v => v.Key == requestedType).Value;
+
+                    if (newInfo.FileInfoEquals(info))
+                    {
+                        if (newInfo.Dim != info.Dim)
+                            Dim = newInfo.Dim;
+
+                        return;
+                    }
+
+                    info = newInfo;
+                }
+                // Don't let clear changes affect the background.
+                catch (InvalidOperationException)
+                {
+                    return;
+                }
             }
+
+            dimBox.FadeTo(info.Dim, 300, Easing.OutQuint);
 
             needDetection = info.Source == BackgroundSource.Auto;
             bool isFaulted = false;
@@ -221,6 +236,19 @@ namespace osu.Game.Tournament.Components
                 loop = value;
                 if (video != null)
                     video.Loop = value;
+            }
+        }
+
+        public float Dim
+        {
+            get => info.Dim;
+            set
+            {
+                if (info.Dim == value)
+                    return;
+
+                info.Dim = value;
+                dimBox.FadeTo(value, 300, Easing.OutQuint);
             }
         }
 
