@@ -74,7 +74,8 @@ namespace osu.Game.Tournament
 
         private FillFlowContainer buttons = null!;
 
-        private TournamentScreen middle = null!;
+        // Commenting out as it is currently not being used
+        // private TournamentScreen middle = null!;
 
         public TournamentSceneManager()
         {
@@ -283,7 +284,6 @@ namespace osu.Game.Tournament
 
                     foreach (var s in buttons.OfType<ScreenButton>())
                         s.Selected = screenType == s.Type;
-
                 }, ladder.TransitionDuration.Value);
 
                 transitionVideo.OnPlaybackComplete += () =>
@@ -297,6 +297,7 @@ namespace osu.Game.Tournament
 
             var last = currentScreen;
             currentScreen = target;
+
             if (currentScreen.ChildrenOfType<TourneyVideo>().FirstOrDefault()?.VideoAvailable == true)
             {
                 video.FadeOut(200);
@@ -307,6 +308,7 @@ namespace osu.Game.Tournament
                 last?.Hide();
                 video.Show();
             }
+
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
             foreach (var s in buttons.OfType<ScreenButton>())

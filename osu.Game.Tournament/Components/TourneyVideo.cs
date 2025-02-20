@@ -118,6 +118,9 @@ namespace osu.Game.Tournament.Components
                 manualClock.CurrentTime += Clock.ElapsedFrameTime;
             }
 
+            // Pass the current time to the property to utilize the setter
+            CurrentTime = manualClock?.CurrentTime ?? 0;
+
             if (!hasTriggeredCompletion && CurrentTime >= VideoDuration)
             {
                 hasTriggeredCompletion = true;
