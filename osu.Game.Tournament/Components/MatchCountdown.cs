@@ -220,9 +220,9 @@ namespace osu.Game.Tournament.Components
                     t?.FadeColour(AccentContentColour, 1000, Easing.OutQuint);
                 }
             }
-            else if (lastHour != countdownHourPart.Text && remainingTime.Value.Hours == 0
-                     || lastMinute != countdownMinutePart.Text && remainingTime.Value.Minutes == 0
-                     || remainingTime.Value.TotalMinutes <= 30 && lastSecond != countdownSecondPart.Text && remainingTime.Value.Seconds == 0)
+            else if ((lastHour != countdownHourPart.Text && remainingTime.Value.Hours == 0)
+                     || (lastMinute != countdownMinutePart.Text && remainingTime.Value.Minutes == 0)
+                     || (remainingTime.Value.TotalMinutes <= 30 && lastSecond != countdownSecondPart.Text && remainingTime.Value.Seconds == 0))
             {
                 bottomBox.FlashColour(NormalColour, 1000, Easing.OutQuint);
                 topBox.FlashColour(AccentColour, 1000, Easing.OutQuint);

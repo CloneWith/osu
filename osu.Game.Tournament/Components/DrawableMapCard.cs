@@ -38,9 +38,7 @@ namespace osu.Game.Tournament.Components
 
         private Box colorBackground = null!;
         private SpriteIcon statusIcon = null!;
-        private TournamentModIcon? modIcon;
         private Container beatmapInfoContainer = null!;
-        private FillFlowContainer infoContainer = null!;
         private Box topMask = null!;
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
@@ -255,7 +253,7 @@ namespace osu.Game.Tournament.Components
                                 }
                             },
                         },
-                        modIcon = new TournamentModIcon(index.IsNull() ? mod : mod + index)
+                        new TournamentModIcon(index.IsNull() ? mod : mod + index)
                         {
                             Anchor = Anchor.CentreRight,
                             Origin = Anchor.CentreRight,

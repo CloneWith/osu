@@ -32,7 +32,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TourneyBackground mainBackground = null!;
 
         private Container? symbolContainer;
-        private FillFlowContainer captionContainer = null!;
 
         private TournamentSpriteText captionMainText = null!;
         private TournamentSpriteText captionMainCaption = null!;
@@ -51,13 +50,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
         private Sprite spinner = null!;
 
-        private TrianglesV2 triangles = null!;
-
         private Triangles winnerTriangles = null!;
-
-        private DrawableTeamFlag redFlag = null!;
-        private DrawableTeamFlag blueFlag = null!;
-        private DrawableTeamFlag winnerFlag = null!;
 
         private SimpleAnimatedBoard? animatedBoard;
 
@@ -97,7 +90,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     BoxColour = Color4.White,
                     Alpha = 0.4f,
                 },
-                triangles = new TrianglesV2
+                new TrianglesV2
                 {
                     RelativeSizeAxes = Axes.Both,
                     ScaleAdjust = 1.5f,
@@ -232,7 +225,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                 Size = new Vector2(70),
                                 Alpha = 0,
                             },
-                            redFlag = new DrawableTeamFlag(CurrentMatch.Value?.Team1.Value)
+                            new DrawableTeamFlag(CurrentMatch.Value?.Team1.Value)
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
@@ -245,7 +238,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                     Radius = 10,
                                 },
                             },
-                            blueFlag = new DrawableTeamFlag(CurrentMatch.Value?.Team2.Value)
+                            new DrawableTeamFlag(CurrentMatch.Value?.Team2.Value)
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
@@ -260,7 +253,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             },
                         }
                     },
-                    captionContainer = new FillFlowContainer
+                    new FillFlowContainer
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
@@ -390,7 +383,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         Colour = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.SkyBlue,
                         Alpha = 0.6f,
                     },
-                    winnerFlag = new DrawableTeamFlag(match.Winner)
+                    new DrawableTeamFlag(match.Winner)
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,

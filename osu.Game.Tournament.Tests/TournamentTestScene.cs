@@ -29,7 +29,7 @@ namespace osu.Game.Tournament.Tests
         protected MatchIPCInfo IPCInfo { get; private set; } = new MatchIPCInfo();
 
         [Cached]
-        protected OverlayColourProvider ColourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
+        protected OverlayColourProvider ColourProvider { get; private set; } = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         [Resolved]
         private RulesetStore rulesetStore { get; set; } = null!;

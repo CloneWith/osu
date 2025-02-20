@@ -2,6 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using NUnit.Framework;
+using osu.Framework.Allocation;
+using osu.Game.Overlays;
 using osu.Game.Tests.Visual;
 using osu.Game.Tournament.Components;
 using osuTK;
@@ -11,6 +13,9 @@ namespace osu.Game.Tournament.Tests.Components
 {
     public partial class TestSceneDateTextBox : OsuManualInputManagerTestScene
     {
+        [Cached]
+        private OverlayColourProvider overlayColourProvider { get; set; } = new OverlayColourProvider(OverlayColourScheme.Blue);
+
         private DateTextBox textBox = null!;
 
         [SetUp]

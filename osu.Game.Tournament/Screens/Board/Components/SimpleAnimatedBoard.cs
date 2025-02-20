@@ -8,7 +8,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Textures;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -19,7 +18,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private Container boardContainer = null!;
         private readonly List<SimpleBoardBeatmapPanel> boardMapList = new List<SimpleBoardBeatmapPanel>();
 
-        private WarningBox warning = null!;
+        private Container warningContainer = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -32,7 +31,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load()
         {
             InternalChildren = new Drawable[]
             {
@@ -41,6 +40,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     CornerRadius = 10,
+                },
+                warningContainer = new Container
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
                 },
             };
             updateDisplay();
@@ -87,7 +92,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
             if (currentMatch.Value == null)
             {
-                AddInternal(warning = new WarningBox("Cannot access current match, sorry ;w;"));
+                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 return;
             }
 
@@ -96,7 +102,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 // Use predefined Board coordinate
                 if (currentMatch.Value.Round.Value.UseBoard.Value)
                 {
-                    warning.FadeOut(duration: 200, easing: Easing.OutCubic);
+                    warningContainer.FadeOut(duration: 200, easing: Easing.OutCubic);
 
                     for (int i = 1; i <= 4; i++)
                     {
@@ -136,7 +142,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 }
                 else
                 {
-                    AddInternal(warning = new WarningBox("This round isn't set up for board view..."));
+                    warningContainer.Child = new WarningBox("This round isn't set up for board view...");
+                    warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 }
             }
         }
