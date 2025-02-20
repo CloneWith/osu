@@ -11,6 +11,7 @@ namespace osu.Game.Tournament.Tests.Screens
         [BackgroundDependencyLoader]
         private void load()
         {
+            Dependencies.Cache(new TournamentGame());
             Add(new BackgroundSelectScreen());
         }
     }
