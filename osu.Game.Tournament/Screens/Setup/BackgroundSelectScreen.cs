@@ -405,7 +405,8 @@ namespace osu.Game.Tournament.Screens.Setup
                         source: validVideo ? BackgroundSource.Video : BackgroundSource.Image,
 
                         // Display the file name with the extension.
-                        name: selectedFile.NewValue.Name
+                        name: selectedFile.NewValue.Name,
+                        dim: backgroundDim.Value
                     ), showError: true, fillMode: FillMode.Fit)
                     {
                         Loop = true,
