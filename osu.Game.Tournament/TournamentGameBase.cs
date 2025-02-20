@@ -447,6 +447,9 @@ namespace osu.Game.Tournament
     {
         public override void WriteJson(JsonWriter writer, BindableList<KeyValuePair<BackgroundVideo, string>>? value, JsonSerializer serializer)
         {
+            // Write in a way that will not be deserialized.
+            // Implement a better solution if possible
+            writer.WriteNull();
         }
 
         public override BindableList<KeyValuePair<BackgroundVideo, string>> ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundVideo, string>>? existingValue, bool hasExistingValue, JsonSerializer serializer)

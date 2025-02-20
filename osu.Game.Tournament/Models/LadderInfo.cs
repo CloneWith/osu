@@ -51,6 +51,9 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> DisplayTeamSeeds = new BindableBool();
 
+        public BindableBool EnableTransitions { get; } = new BindableBool(true);
+        public BindableDouble TransitionDuration { get; } = new BindableDouble(500) { MinValue = 100, MaxValue = 2000 };
+
         public BindableList<KeyValuePair<BackgroundVideo, string>> BackgroundVideoFiles = new BindableList<KeyValuePair<BackgroundVideo, string>>
         {
             KeyValuePair.Create(BackgroundVideo.Gameplay, "gameplay"),

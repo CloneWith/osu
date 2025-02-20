@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -19,6 +20,13 @@ namespace osu.Game.Tournament.Components
 {
     public partial class TourneyVideo : CompositeDrawable
     {
+        /// <summary>
+        /// Trigger when the video has completed playback.
+        /// </summary>
+        public event Action? OnPlaybackComplete;
+
+        private bool hasTriggeredCompletion;
+
         private readonly string filename;
         private readonly bool drawFallbackGradient;
         private Video? video;
@@ -96,6 +104,9 @@ namespace osu.Game.Tournament.Components
                 manualClock.CurrentTime = 0;
         }
 
+        public double VideoDuration { get; set; } // In seconds
+        public double CurrentTime { get; private set; }
+
         protected override void Update()
         {
             base.Update();
@@ -105,6 +116,12 @@ namespace osu.Game.Tournament.Components
                 // we want to avoid seeking as much as possible, because we care about performance, not sync.
                 // to avoid seeking completely, we only increment out local clock when in an updating state.
                 manualClock.CurrentTime += Clock.ElapsedFrameTime;
+            }
+
+            if (!hasTriggeredCompletion && CurrentTime >= VideoDuration)
+            {
+                hasTriggeredCompletion = true;
+                OnPlaybackComplete?.Invoke();
             }
         }
     }
