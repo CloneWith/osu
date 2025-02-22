@@ -435,16 +435,16 @@ namespace osu.Game.Tournament
     /// <summary>
     /// A dummy JSON converter that ignores background mapping information from the ladder.
     /// </summary>
-    public class JsonIgnoreBackgroundMappingConverter : JsonConverter<BindableList<KeyValuePair<BackgroundVideo, string>>>
+    public class JsonIgnoreBackgroundMappingConverter : JsonConverter<BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>>
     {
-        public override void WriteJson(JsonWriter writer, BindableList<KeyValuePair<BackgroundVideo, string>>? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>? value, JsonSerializer serializer)
         {
             // Write in a way that will not be deserialized.
             // Implement a better solution if possible
             writer.WriteNull();
         }
 
-        public override BindableList<KeyValuePair<BackgroundVideo, string>> ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundVideo, string>>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> ReadJson(JsonReader reader, Type objectType, BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             throw new ArgumentException("This converter does not support reading from JSON.");
         }

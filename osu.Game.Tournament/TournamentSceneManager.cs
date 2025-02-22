@@ -249,7 +249,7 @@ namespace osu.Game.Tournament
             {
                 // I know it's hardcoded, but I use this to demonstrate where the video can be used.
                 // I am thinking of integrating the video selection into BackgroundVideoSelectScreen, but now I don't have time to do it.
-                var transitionVideo = new TourneyVideo("transition.mov", true)
+                var transitionVideo = new TourneyBackground(new BackgroundInfo(BackgroundSource.Video, "transition.mov"), true)
                 {
                     Loop = false,
                     RelativeSizeAxes = Axes.Both,
@@ -264,15 +264,15 @@ namespace osu.Game.Tournament
                     var lastScreen = currentScreen;
                     currentScreen = target;
 
-                    if (currentScreen.ChildrenOfType<TourneyVideo>().FirstOrDefault()?.VideoAvailable == true)
+                    if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.VideoAvailable == true)
                     {
-                        video.FadeOut(200);
+                        background.FadeOut(200);
                         scheduledHide = Scheduler.AddDelayed(() => lastScreen?.Hide(), TournamentScreen.FADE_DELAY);
                     }
                     else
                     {
                         lastScreen?.Hide();
-                        video.Show();
+                        background.Show();
                     }
 
                     screens.ChangeChildDepth(currentScreen, depth--);
@@ -294,15 +294,15 @@ namespace osu.Game.Tournament
             var last = currentScreen;
             currentScreen = target;
 
-            if (currentScreen.ChildrenOfType<TourneyVideo>().FirstOrDefault()?.VideoAvailable == true)
+            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.VideoAvailable == true)
             {
-                video.FadeOut(200);
+                background.FadeOut(200);
                 scheduledHide = Scheduler.AddDelayed(() => last?.Hide(), TournamentScreen.FADE_DELAY);
             }
             else
             {
                 last?.Hide();
-                video.Show();
+                background?.Show();
             }
 
             screens.ChangeChildDepth(currentScreen, depth--);
