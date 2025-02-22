@@ -5,6 +5,7 @@ using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 
@@ -13,9 +14,9 @@ namespace osu.Game.Screens.TournamentShowcase
     public partial class ShowcaseAddButton : OsuAnimatedButton
     {
         private OsuTextFlowContainer textFlow = null!;
-        private readonly string label;
+        private readonly LocalisableString label;
 
-        public ShowcaseAddButton(string label, Action? action)
+        public ShowcaseAddButton(LocalisableString label, Action? action)
         {
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;

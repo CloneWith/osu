@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
@@ -46,7 +47,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 new FormNumberBox(allowDecimals: false)
                 {
                     Width = 0.3f,
-                    Caption = @"Player ID",
+                    Caption = TournamentShowcaseStrings.PlayerID,
                     Current = playerId,
                 },
                 userPanelContainer = new Container
@@ -60,7 +61,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     Width = 32,
                     Height = 32,
-                    TooltipText = @"Remove this user",
+                    TooltipText = TournamentShowcaseStrings.RemovePlayer,
                     Action = () =>
                     {
                         Expire();

@@ -26,13 +26,13 @@ using osu.Game.Database;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Online;
 using osu.Game.Online.Chat;
 using osu.Game.Online.Placeholders;
 using osu.Game.Overlays;
 using osu.Game.Overlays.BeatmapSet;
-using osu.Game.Resources.Localisation.Web;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
@@ -41,6 +41,7 @@ using osu.Game.Screens.SelectV2.Leaderboards;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
+using CommonStrings = osu.Game.Resources.Localisation.Web.CommonStrings;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
@@ -286,7 +287,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     ActionOnClick = () => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(item.ShowcaseScore)), [typeof(ShowcaseConfigScreen)])
                 }
-                : new MessagePlaceholder("No score associated with this beatmap.");
+                : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
 
             modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
 
@@ -331,7 +332,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     new Dimension(),
                                     new Dimension(GridSizeMode.Relative, 0.1f),
                                     new Dimension(GridSizeMode.AutoSize),
-                                    new Dimension(GridSizeMode.AutoSize)
+                                    new Dimension(GridSizeMode.AutoSize),
                                 },
                                 Content = new[]
                                 {
@@ -363,13 +364,13 @@ namespace osu.Game.Screens.TournamentShowcase
                                                     // workaround to ensure only the first line of text shows, emulating truncation (but without ellipsis at the end).
                                                     // TODO: remove when text/link flow can support truncation with ellipsis natively.
                                                     Height = OsuFont.DEFAULT_FONT_SIZE,
-                                                    Masking = true
+                                                    Masking = true,
                                                 },
                                                 difficultyText = new TextFlowContainer(fontParameters)
                                                 {
                                                     RelativeSizeAxes = Axes.X,
                                                     Height = OsuFont.DEFAULT_FONT_SIZE,
-                                                    Masking = true
+                                                    Masking = true,
                                                 },
                                                 new FillFlowContainer
                                                 {
@@ -419,7 +420,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                             Origin = Anchor.Centre,
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
-                                            Margin = new MarginPadding { Horizontal = 4 }
+                                            Margin = new MarginPadding { Horizontal = 4 },
                                         },
                                         buttonsFlow = new FillFlowContainer
                                         {
@@ -433,7 +434,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                             {
                                                 b.Anchor = Anchor.Centre;
                                                 b.Origin = Anchor.Centre;
-                                            }))
+                                            })),
                                         },
                                         ownerAvatar = new OwnerAvatar
                                         {
@@ -456,7 +457,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Y = 0.5f,
                                 Child = item.ShowcaseScore != null
                                     ? new LeaderboardScoreV2(item.ShowcaseScore, false)
-                                    : new MessagePlaceholder("No score associated with this beatmap.")
+                                    : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt),
                             }
                         },
                     }
@@ -472,14 +473,14 @@ namespace osu.Game.Screens.TournamentShowcase
                 Size = new Vector2(30, 30),
                 Alpha = AllowEditing ? 1 : 0,
                 Action = () => RequestEdit?.Invoke(item),
-                TooltipText = CommonStrings.ButtonsEdit
+                TooltipText = CommonStrings.ButtonsEdit,
             },
             removeButton = new PlaylistRemoveButton
             {
                 Size = new Vector2(30, 30),
                 Alpha = AllowDeletion ? 1 : 0,
                 Action = () => RequestDeletion?.Invoke(item),
-                TooltipText = "Remove from queue"
+                TooltipText = TournamentShowcaseStrings.RemoveBeatmap,
             },
         };
 
@@ -517,14 +518,14 @@ namespace osu.Game.Screens.TournamentShowcase
                 List<MenuItem> items = new List<MenuItem>();
 
                 if (beatmapOverlay != null)
-                    items.Add(new OsuMenuItem("Beatmap Details", MenuItemType.Standard, () => beatmapOverlay.FetchAndShowBeatmap(item.BeatmapId)));
+                    items.Add(new OsuMenuItem(TournamentShowcaseStrings.ShowBeatmapDetails, MenuItemType.Standard, () => beatmapOverlay.FetchAndShowBeatmap(item.BeatmapId)));
 
                 if (item.ShowcaseScore != null)
                 {
-                    items.Add(new OsuMenuItem("Remove replay score", MenuItemType.Highlighted, () =>
+                    items.Add(new OsuMenuItem(TournamentShowcaseStrings.RemoveReplayScore, MenuItemType.Highlighted, () =>
                     {
                         item.ShowcaseScore = null;
-                        recordScoreContainer.Child = new MessagePlaceholder("No score associated with this beatmap.");
+                        recordScoreContainer.Child = new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
                     }));
                 }
 

@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osuTK;
 
@@ -32,14 +33,14 @@ namespace osu.Game.Screens.TournamentShowcase
             Spacing = new Vector2(10);
             Children = new Drawable[]
             {
-                new SectionHeader(@"Staff List"),
+                new SectionHeader(TournamentShowcaseStrings.StaffListHeader),
                 showListCheckBox = new FormCheckBox
                 {
-                    Caption = @"Show staff list in the showcase",
-                    HintText = @"List all staffs at the end of the showcase.",
-                    Current = this.config.Value.ShowStaffList
+                    Caption = TournamentShowcaseStrings.ShowStaffListInShowcase,
+                    HintText = TournamentShowcaseStrings.ShowStaffListInShowcaseDescription,
+                    Current = this.config.Value.ShowStaffList,
                 },
-                new ShowcaseAddButton(@"Add staff", () =>
+                new ShowcaseAddButton(TournamentShowcaseStrings.AddStaff, () =>
                 {
                     var addedStaff = new ShowcaseStaff();
                     config.Value.Staffs.Add(addedStaff);
@@ -51,7 +52,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
                     Spacing = new Vector2(5),
-                    ChildrenEnumerable = config.Value.Staffs.Select(t => new StaffRow(t, config.Value))
+                    ChildrenEnumerable = config.Value.Staffs.Select(t => new StaffRow(t, config.Value)),
                 }
             };
         }

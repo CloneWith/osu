@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osuTK;
@@ -31,8 +32,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
 
         public new Action? Action;
 
-        public string IdleText = string.Empty;
-        public string ActiveText = string.Empty;
+        public LocalisableString IdleText = string.Empty;
+        public LocalisableString ActiveText = string.Empty;
         public IconUsage? IdleIcon;
         public IconUsage? ActiveIcon;
 

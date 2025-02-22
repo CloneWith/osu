@@ -6,6 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Localisation;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -22,7 +23,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 new Dimension(),
                 new Dimension(GridSizeMode.Relative),
-                new Dimension()
+                new Dimension(),
             };
 
             Content = new[]
@@ -40,19 +41,19 @@ namespace osu.Game.Screens.TournamentShowcase
                             new ClickTwiceButton
                             {
                                 IdleIcon = OsuIcon.Cross,
-                                IdleText = @"Exit",
-                                ActiveText = @"Click again to exit",
-                                Action = exitAction
+                                IdleText = CommonStrings.Exit,
+                                ActiveText = TournamentShowcaseStrings.ExitConfirmText,
+                                Action = exitAction,
                             },
                             new StateSwitchButton
                             {
                                 IdleIcon = OsuIcon.Debug,
-                                IdleText = @"Manual control",
-                                ActiveText = @"Auto showcase"
-                            }
-                        }
+                                IdleText = TournamentShowcaseStrings.ManualControlState,
+                                ActiveText = TournamentShowcaseStrings.AutoControlState,
+                            },
+                        },
                     },
-                }
+                },
             };
         }
     }

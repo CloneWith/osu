@@ -37,10 +37,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
             areaContainer.Clear();
 
-            if (!string.IsNullOrEmpty(Beatmap.Value.BeatmapArea.Value))
+            if (!string.IsNullOrEmpty(Beatmap.Value.DiffField.Value))
             {
                 areaContainer.AddIcon(FontAwesome.Solid.Star);
-                areaContainer.AddParagraph(Beatmap.Value.BeatmapArea.Value, formatComment);
+                areaContainer.AddParagraph(Beatmap.Value.DiffField.Value, formatComment);
             }
 
             commentContainer.Clear();

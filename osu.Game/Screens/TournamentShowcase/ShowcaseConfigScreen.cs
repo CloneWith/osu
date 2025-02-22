@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -16,6 +15,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
@@ -117,53 +117,53 @@ namespace osu.Game.Screens.TournamentShowcase
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
                                     {
-                                        new SectionHeader(@"Tournament Information"),
+                                        new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
                                         profileDropdown = new FormDropdown<string>
                                         {
-                                            Caption = @"Current Profile",
-                                            HintText = "The profile to be loaded and edited. You can find the files under the \"showcase\" directory of the data path.",
+                                            Caption = TournamentShowcaseStrings.CurrentProfile,
+                                            HintText = TournamentShowcaseStrings.CurrentProfileDescription,
                                             Items = availableProfiles
                                         },
                                         rulesetDropdown = new FormDropdown<RulesetInfo>
                                         {
-                                            Caption = "Default Ruleset",
-                                            HintText = @"The default and fallback ruleset for showcase beatmaps.",
+                                            Caption = TournamentShowcaseStrings.DefaultRuleset,
+                                            HintText = TournamentShowcaseStrings.DefaultRulesetDescription,
                                             Items = rulesets.AvailableRulesets,
                                             Current = currentProfile.Value.FallbackRuleset,
                                         },
                                         tournamentNameInput = new FormTextBox
                                         {
-                                            Caption = "Name",
-                                            PlaceholderText = "Tournament series name (e.g. osu! World Cup)",
-                                            HintText = "This would be shown as the subtitle at the intro screen.",
+                                            Caption = TournamentShowcaseStrings.TournamentName,
+                                            PlaceholderText = TournamentShowcaseStrings.TournamentNamePlaceholder,
+                                            HintText = TournamentShowcaseStrings.TournamentNameDescription,
                                             Current = currentProfile.Value.TournamentName,
                                             TabbableContentContainer = this,
                                         },
                                         roundNameInput = new FormTextBox
                                         {
-                                            Caption = "Round",
-                                            PlaceholderText = "Tournament round (e.g. Semifinals)",
-                                            HintText = @"This would be shown as the main title at the intro screen.",
+                                            Caption = TournamentShowcaseStrings.TournamentRound,
+                                            PlaceholderText = TournamentShowcaseStrings.TournamentRoundPlaceholder,
+                                            HintText = TournamentShowcaseStrings.TournamentRoundDescription,
                                             Current = currentProfile.Value.RoundName,
                                             TabbableContentContainer = this,
                                         },
                                         dateTimeInput = new FormTextBox
                                         {
-                                            Caption = "Date and Time",
+                                            Caption = TournamentShowcaseStrings.DateAndTime,
                                             PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
-                                            HintText = "This would stay the same in the showcase. So use your own preferred format!",
+                                            HintText = TournamentShowcaseStrings.DateAndTimeDescription,
                                             Current = currentProfile.Value.DateTime,
                                             TabbableContentContainer = this,
                                         },
                                         commentInput = new FormTextBox
                                         {
-                                            Caption = "Comment",
+                                            Caption = TournamentShowcaseStrings.Comment,
                                             PlaceholderText = "Welcome to osu!",
-                                            HintText = "In fact you can write anything here.\nThis would be shown below the main title at the intro screen.",
+                                            HintText = TournamentShowcaseStrings.IntroCommentDescription,
                                             Current = currentProfile.Value.Comment,
                                             TabbableContentContainer = this,
                                         },
-                                    }
+                                    },
                                 },
                                 new FillFlowContainer
                                 {
@@ -175,60 +175,52 @@ namespace osu.Game.Screens.TournamentShowcase
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
                                     {
-                                        new SectionHeader(@"Showcase Settings"),
-                                        layoutDropdown = new FormDropdown<ShowcaseLayout>
+                                        new SectionHeader(TournamentShowcaseStrings.ShowcaseSettingsHeader),
+                                        layoutDropdown = new FormEnumDropdown<ShowcaseLayout>
                                         {
-                                            Caption = @"Interface Layout",
-                                            HintText = @"The layout of the showcases screen.",
+                                            Caption = TournamentShowcaseStrings.InterfaceLayout,
+                                            HintText = TournamentShowcaseStrings.InterfaceLayoutDescription,
                                             Current = currentProfile.Value.Layout,
-                                            Items = new List<ShowcaseLayout>
-                                            {
-                                                ShowcaseLayout.Immersive,
-                                                ShowcaseLayout.SimpleControl,
-                                                ShowcaseLayout.DetailedControl
-                                            }
                                         },
                                         aspectRatioInput = new FormSliderBar<float>
                                         {
-                                            Caption = @"Aspect Ratio",
-                                            HintText = @"Defines the ratio of the showcase area. Change this when you need to record a video with specific sizes.",
+                                            Caption = TournamentShowcaseStrings.AspectRatio,
+                                            HintText = TournamentShowcaseStrings.AspectRatioDescription,
                                             Current = currentProfile.Value.AspectRatio,
                                             TransferValueOnCommit = true,
                                             TabbableContentContainer = this,
                                         },
                                         transformDurationInput = new FormSliderBar<int>
                                         {
-                                            Caption = @"Transform Duration",
-                                            HintText = @"The length of the transform animation between screens, in milliseconds.",
+                                            Caption = TournamentShowcaseStrings.TransformDuration,
+                                            HintText = TournamentShowcaseStrings.TransformDurationDescription,
                                             Current = currentProfile.Value.TransformDuration,
                                             TransferValueOnCommit = true,
                                             TabbableContentContainer = this,
                                         },
                                         startCountdownInput = new FormSliderBar<int>
                                         {
-                                            Caption = @"Start Countdown",
-                                            HintText = @"A duration before the showcase starts in immersive layout and before continuing halfway. Get prepared this time!",
+                                            Caption = TournamentShowcaseStrings.StartCountdownDuration,
+                                            HintText = TournamentShowcaseStrings.StartCountdownDurationDescription,
                                             Current = currentProfile.Value.StartCountdown,
                                             TransferValueOnCommit = true,
                                             TabbableContentContainer = this,
                                         },
                                         outroTitleInput = new FormTextBox
                                         {
-                                            Caption = @"Outro Title",
+                                            Caption = TournamentShowcaseStrings.OutroTitle,
                                             PlaceholderText = @"Thanks for watching!",
-                                            HintText = @"This would be shown as the main title at the outro screen.",
                                             Current = currentProfile.Value.OutroTitle,
                                             TabbableContentContainer = this,
                                         },
                                         outroSubtitleInput = new FormTextBox
                                         {
-                                            Caption = @"Outro Subtitle",
-                                            HintText = @"This would be shown in one line, so shouldn't be too long!",
+                                            Caption = TournamentShowcaseStrings.OutroSubtitle,
                                             PlaceholderText = @"Take care of yourself, and be well.",
                                             Current = currentProfile.Value.OutroSubtitle,
                                             TabbableContentContainer = this,
                                         },
-                                    }
+                                    },
                                 },
                                 new ShowcaseTeamEditor(currentProfile),
                                 new ShowcaseBeatmapEditor(currentProfile),
@@ -243,21 +235,20 @@ namespace osu.Game.Screens.TournamentShowcase
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
                                     {
-                                        new SectionHeader(@"Intro Beatmap"),
+                                        new SectionHeader(TournamentShowcaseStrings.IntroBeatmapHeader),
                                         useCustomIntroSwitch = new FormCheckBox
                                         {
-                                            Caption = @"Use custom intro beatmap",
-                                            HintText = @"If enabled, we will use the beatmap below as a fixed intro song for the showcase."
-                                                       + @" Otherwise the first beatmap will be used.",
-                                            Current = currentProfile.Value.UseCustomIntroBeatmap
+                                            Caption = TournamentShowcaseStrings.UseCustomIntroBeatmap,
+                                            HintText = TournamentShowcaseStrings.UseCustomIntroBeatmapDescription,
+                                            Current = currentProfile.Value.UseCustomIntroBeatmap,
                                         },
                                         introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                                         {
-                                            AllowDeletion = false
+                                            AllowDeletion = false,
                                         },
-                                    }
+                                    },
                                 },
-                            }
+                            },
                         },
                     },
                 },
@@ -278,7 +269,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             Origin = Anchor.BottomCentre,
                             RelativeSizeAxes = Axes.X,
                             Width = 0.4f,
-                            Text = @"Save",
+                            Text = TournamentShowcaseStrings.SaveAction,
                             Action = () =>
                             {
                                 if (checkConfig())
@@ -293,15 +284,15 @@ namespace osu.Game.Screens.TournamentShowcase
                             Origin = Anchor.BottomCentre,
                             RelativeSizeAxes = Axes.X,
                             Width = 0.4f,
-                            Text = @"Start Showcase",
+                            Text = TournamentShowcaseStrings.StartShowcase,
                             Action = () =>
                             {
                                 if (checkConfig())
                                     this.Push(new ShowcaseScreen(currentProfile.Value));
                             },
-                        }
-                    }
-                }
+                        },
+                    },
+                },
             };
 
             currentProfile.BindValueChanged(_ => updateForm());
@@ -358,8 +349,8 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog
                 {
-                    HeaderText = @"Beatmap list empty",
-                    BodyText = @"Consider adding one here."
+                    HeaderText = TournamentShowcaseStrings.EmptyBeatmapListDialogTitle,
+                    BodyText = TournamentShowcaseStrings.EmptyBeatmapListDialogText,
                 });
 
                 return false;
@@ -369,8 +360,8 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog
                 {
-                    HeaderText = @"Custom null intro map?",
-                    BodyText = @"Specify a custom intro beatmap, or turn off the switch to use the first beatmap in the queue."
+                    HeaderText = TournamentShowcaseStrings.NullIntroMapDialogTitle,
+                    BodyText = TournamentShowcaseStrings.NullIntroMapDialogText,
                 });
 
                 return false;
@@ -414,7 +405,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     confirmDialog.PerformOkAction();
                 else
                 {
-                    dialogOverlay.Push(new ConfirmDialog("Are you sure to exit this screen?", () =>
+                    dialogOverlay.Push(new ConfirmDialog(TournamentShowcaseStrings.ExitScreenDialogTitle, () =>
                     {
                         exitConfirmed = true;
                         if (this.IsCurrentScreen())

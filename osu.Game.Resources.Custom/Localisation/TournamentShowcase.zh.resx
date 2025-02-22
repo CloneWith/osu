@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true"/>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="tournament_info_header" xml:space="preserve">
+        <value>赛事信息</value>
+    </data>
+    <data name="showcase_settings_header" xml:space="preserve">
+        <value>展示设置</value>
+    </data>
+    <data name="team_list_header" xml:space="preserve">
+        <value>队伍列表</value>
+    </data>
+    <data name="staff_list_header" xml:space="preserve">
+        <value>工作人员列表</value>
+    </data>
+    <data name="beatmap_queue_header" xml:space="preserve">
+        <value>谱面队列</value>
+    </data>
+    <data name="intro_beatmap_header" xml:space="preserve">
+        <value>开场谱面</value>
+    </data>
+    <data name="current_profile" xml:space="preserve">
+        <value>当前配置文件</value>
+    </data>
+    <data name="default_ruleset" xml:space="preserve">
+        <value>默认游戏模式</value>
+    </data>
+    <data name="tournament_name" xml:space="preserve">
+        <value>赛事名</value>
+    </data>
+    <data name="tournament_round" xml:space="preserve">
+        <value>轮次名</value>
+    </data>
+    <data name="date_and_time" xml:space="preserve">
+        <value>日期与时间</value>
+    </data>
+    <data name="comment" xml:space="preserve">
+        <value>注释</value>
+    </data>
+    <data name="showcase_button_text" xml:space="preserve">
+        <value>赛事展示</value>
+    </data>
+    <data name="current_profile_description" xml:space="preserve">
+        <value>要加载与编辑的配置文件。可以在数据目录的 "showcase" 文件夹下找到这些文件。</value>
+    </data>
+    <data name="default_ruleset_description" xml:space="preserve">
+        <value>展示谱面默认使用与备用的游戏模式。</value>
+    </data>
+    <data name="tournament_name_placeholder" xml:space="preserve">
+        <value>系列赛事的名称（如“osu! World Cup”）</value>
+    </data>
+    <data name="tournament_name_description" xml:space="preserve">
+        <value>将在入场屏幕中作为标题显示。</value>
+    </data>
+    <data name="tournament_round_placeholder" xml:space="preserve">
+        <value>赛事轮次名称（如“半决赛”）</value>
+    </data>
+    <data name="tournament_round_description" xml:space="preserve">
+        <value>将在入场屏幕中作为副标题显示。</value>
+    </data>
+    <data name="date_and_time_description" xml:space="preserve">
+        <value>此字段将按原样显示，请随意填写。</value>
+    </data>
+    <data name="intro_comment_description" xml:space="preserve">
+        <value>这里写什么都可以。\n会显示在入场屏幕的标题下方。</value>
+    </data>
+    <data name="interface_layout" xml:space="preserve">
+        <value>界面布局</value>
+    </data>
+    <data name="interface_layout_description" xml:space="preserve">
+        <value>展示屏幕的界面布局。</value>
+    </data>
+    <data name="aspect_ratio" xml:space="preserve">
+        <value>宽高比</value>
+    </data>
+    <data name="aspect_ratio_description" xml:space="preserve">
+        <value>决定展示区的显示比例。需要特定画面比例的视频时可以进行调节。</value>
+    </data>
+    <data name="transform_duration" xml:space="preserve">
+        <value>转场过渡时长</value>
+    </data>
+    <data name="transform_duration_description" xml:space="preserve">
+        <value>屏幕间转场动画的时长，以毫秒为单位。</value>
+    </data>
+    <data name="start_countdown_duration" xml:space="preserve">
+        <value>开始前倒计时</value>
+    </data>
+    <data name="start_countdown_duration_description" xml:space="preserve">
+        <value>沉浸模式开始前、中途暂停后继续前的倒计时时长。准备就绪了再开始吧！</value>
+    </data>
+    <data name="outro_title" xml:space="preserve">
+        <value>结尾标题</value>
+    </data>
+    <data name="outro_subtitle" xml:space="preserve">
+        <value>结尾副标题</value>
+    </data>
+    <data name="show_teams_in_showcase" xml:space="preserve">
+        <value>显示队伍列表</value>
+    </data>
+    <data name="add_team" xml:space="preserve">
+        <value>添加队伍</value>
+    </data>
+    <data name="remove_team" xml:space="preserve">
+        <value>移除队伍</value>
+    </data>
+    <data name="team_name" xml:space="preserve">
+        <value>队名</value>
+    </data>
+    <data name="team_acronym" xml:space="preserve">
+        <value>简称</value>
+    </data>
+    <data name="team_flag" xml:space="preserve">
+        <value>队旗</value>
+    </data>
+    <data name="team_flag_description" xml:space="preserve">
+        <value>不带扩展名的队旗图像文件名。</value>
+    </data>
+    <data name="team_seed" xml:space="preserve">
+        <value>选种值</value>
+    </data>
+    <data name="player_id" xml:space="preserve">
+        <value>玩家用户 ID</value>
+    </data>
+    <data name="add_player" xml:space="preserve">
+        <value>添加玩家</value>
+    </data>
+    <data name="remove_player" xml:space="preserve">
+        <value>移除玩家</value>
+    </data>
+    <data name="show_beatmap_list_in_showcase" xml:space="preserve">
+        <value>显示谱面列表</value>
+    </data>
+    <data name="show_beatmap_list_in_showcase_description" xml:space="preserve">
+        <value>在展示开始时列出所有谱面。</value>
+    </data>
+    <data name="add_beatmap" xml:space="preserve">
+        <value>添加谱面</value>
+    </data>
+    <data name="remove_beatmap" xml:space="preserve">
+        <value>移除谱面</value>
+    </data>
+    <data name="tournament_original" xml:space="preserve">
+        <value>赛事定制图</value>
+    </data>
+    <data name="tournament_original_description" xml:space="preserve">
+        <value>谱面内容是专门为本赛事制作的。将为这类图显示特别的图标。</value>
+    </data>
+    <data name="beatmap_chooser_id" xml:space="preserve">
+        <value>选图者用户 ID</value>
+    </data>
+    <data name="beatmap_chooser_id_description" xml:space="preserve">
+        <value>选择或建议用这张谱面的用户。</value>
+    </data>
+    <data name="beatmap_mod_type" xml:space="preserve">
+        <value>谱面类别</value>
+    </data>
+    <data name="beatmap_mod_type_description" xml:space="preserve">
+        <value>谱面的分类名，用于显示对应图标。</value>
+    </data>
+    <data name="beatmap_mod_index" xml:space="preserve">
+        <value>分类序号</value>
+    </data>
+    <data name="beatmap_mod_index_description" xml:space="preserve">
+        <value>这张谱面在同分类谱面中的位次。</value>
+    </data>
+    <data name="difficulty_field" xml:space="preserve">
+        <value>谱面考点</value>
+    </data>
+    <data name="difficulty_field_description" xml:space="preserve">
+        <value>这张谱面着重涉及的能力点。</value>
+    </data>
+    <data name="beatmap_comment_description" xml:space="preserve">
+        <value>展示对应谱面时要显示点什么就写在这里吧。</value>
+    </data>
+    <data name="show_beatmap_details" xml:space="preserve">
+        <value>谱面详情</value>
+    </data>
+    <data name="remove_replay_score" xml:space="preserve">
+        <value>移除回放分数</value>
+    </data>
+    <data name="no_score_association_prompt" xml:space="preserve">
+        <value>暂未为此谱面分配分数。</value>
+    </data>
+    <data name="show_staff_list_in_showcase" xml:space="preserve">
+        <value>显示工作人员列表</value>
+    </data>
+    <data name="show_staff_list_in_showcase_description" xml:space="preserve">
+        <value>在展示结束前列出所有工作人员。</value>
+    </data>
+    <data name="add_staff" xml:space="preserve">
+        <value>添加工作人员</value>
+    </data>
+    <data name="remove_staff" xml:space="preserve">
+        <value>移除工作人员</value>
+    </data>
+    <data name="staff_id" xml:space="preserve">
+        <value>工作人员用户 ID</value>
+    </data>
+    <data name="staff_role" xml:space="preserve">
+        <value>工作人员角色</value>
+    </data>
+    <data name="staff_role_description" xml:space="preserve">
+        <value>这会显示在工作人员卡片中。</value>
+    </data>
+    <data name="use_custom_intro_beatmap" xml:space="preserve">
+        <value>使用自定义入场图</value>
+    </data>
+    <data name="use_custom_intro_beatmap_description" xml:space="preserve">
+        <value>当启用时，在展示开头会使用以下谱面，反之则使用列表中的第一张谱面。</value>
+    </data>
+    <data name="save_action" xml:space="preserve">
+        <value>保存</value>
+    </data>
+    <data name="start_showcase" xml:space="preserve">
+        <value>启动！</value>
+    </data>
+    <data name="exit_screen_dialog_title" xml:space="preserve">
+        <value>确定要退出吗？</value>
+    </data>
+    <data name="error_dialog_title" xml:space="preserve">
+        <value>诶...？</value>
+    </data>
+    <data name="profile_error_dialog_text" xml:space="preserve">
+        <value>先填上赛事名、轮次和游戏模式啊喂！</value>
+    </data>
+    <data name="empty_beatmap_list_dialog_title" xml:space="preserve">
+        <value>谱面列表为空</value>
+    </data>
+    <data name="empty_beatmap_list_dialog_text" xml:space="preserve">
+        <value>加几张图再试试吧。</value>
+    </data>
+    <data name="null_intro_map_dialog_title" xml:space="preserve">
+        <value>自定义入场图咧？</value>
+    </data>
+    <data name="null_intro_map_dialog_text" xml:space="preserve">
+        <value>选一张自定义入场图，或者关掉对应选项，使用队列中的第一张图。</value>
+    </data>
+    <data name="manual_control_state" xml:space="preserve">
+        <value>手动控制</value>
+    </data>
+    <data name="auto_control_state" xml:space="preserve">
+        <value>自动控制</value>
+    </data>
+    <data name="exit_confirm_text" xml:space="preserve">
+        <value>再次点击以退出</value>
+    </data>
+    <data name="map_pool_header" xml:space="preserve">
+        <value>图池</value>
+    </data>
+</root>

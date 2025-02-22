@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
@@ -50,7 +51,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         new Dimension(GridSizeMode.Absolute, 3),
                         new Dimension(),
                         new Dimension(GridSizeMode.Absolute, 3),
-                        new Dimension(GridSizeMode.Relative, 0.1f)
+                        new Dimension(GridSizeMode.Relative, 0.1f),
                     },
                     Content = new[]
                     {
@@ -58,37 +59,37 @@ namespace osu.Game.Screens.TournamentShowcase
                         {
                             new FormNumberBox(allowDecimals: false)
                             {
-                                Caption = @"Staff ID",
+                                Caption = TournamentShowcaseStrings.StaffID,
                                 Current = playerId,
                             },
                             new Container(),
                             new FormTextBox
                             {
-                                Caption = @"Staff Role",
-                                HintText = @"This would be shown on the staff list screen, in the staff card.",
+                                Caption = TournamentShowcaseStrings.StaffRole,
+                                HintText = TournamentShowcaseStrings.StaffRoleDescription,
                                 Current = role,
                             },
                             new Container(),
                             new GrayButton(FontAwesome.Solid.TimesCircle, new Vector2(24))
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                TooltipText = @"Remove staff",
+                                TooltipText = TournamentShowcaseStrings.RemoveStaff,
                                 Action = () =>
                                 {
                                     Expire();
                                     config.Staffs.Remove(user);
                                 },
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 userPanelContainer = new Container
                 {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Width = 1f,
-                    Child = new UserListPanel(user.ToAPIUser(), height: 50, cornerRadius: 5)
-                }
+                    Child = new UserListPanel(user.ToAPIUser(), height: 50, cornerRadius: 5),
+                },
             };
         }
 
