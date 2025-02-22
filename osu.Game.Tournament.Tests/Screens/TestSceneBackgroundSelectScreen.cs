@@ -2,16 +2,17 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
-using osu.Game.Tournament.Screens.Board;
+using osu.Game.Tournament.Screens.Setup;
 
 namespace osu.Game.Tournament.Tests.Screens
 {
-    public partial class TestSceneExScreen : TournamentScreenTestScene
+    public partial class TestSceneBackgroundSelectScreen : TournamentScreenTestScene
     {
         [BackgroundDependencyLoader]
         private void load()
         {
-            Add(new ExtraBoardScreen());
+            Dependencies.Cache(new TournamentGame());
+            Add(new BackgroundSelectScreen());
         }
     }
 }

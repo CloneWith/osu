@@ -41,7 +41,7 @@ namespace osu.Game.Tournament
     public partial class TournamentSceneManager : CompositeDrawable
     {
         private Container screens = null!;
-        private TourneyVideo video = null!;
+        private TourneyBackground background = null!;
         private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
 
         private IAnimation? currentAnimation;
@@ -107,7 +107,6 @@ namespace osu.Game.Tournament
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Width = STREAM_AREA_WIDTH,
-                    //Masking = true,
                     Children = new Drawable[]
                     {
                         new Box
@@ -117,7 +116,7 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.Both,
                             Width = 10,
                         },
-                        video = new TourneyVideo("main", true)
+                        background = new TourneyBackground(BackgroundType.Main, drawFallbackGradient: true)
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,
@@ -141,7 +140,6 @@ namespace osu.Game.Tournament
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
                                 middle = new BoardScreen(),
-                                new ExtraBoardScreen()
                             }
                         },
                         chatContainer = new Container
@@ -193,7 +191,6 @@ namespace osu.Game.Tournament
                                     new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
                                     new Separator(),
                                     new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(ExtraBoardScreen), Key.E) { Text = "EX Stage", RequestSelection = SetScreen },
                                     new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
                                     new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
                                     new Separator(),
