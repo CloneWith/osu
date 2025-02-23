@@ -9,15 +9,19 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Configuration;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input;
 using osu.Framework.IO.Stores;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Game.Database;
+using osu.Game.Extensions;
 using osu.Game.Graphics;
+using osu.Game.Localisation;
 using osu.Game.Online;
 using osu.Game.Online.API.Requests;
 using osu.Game.Tournament.IO;
@@ -40,9 +44,14 @@ namespace osu.Game.Tournament
         private FileBasedIPC ipc = null!;
         private BeatmapLookupCache beatmapCache = null!;
 
+        private Bindable<string> frameworkLocale = null!;
+        private IBindable<LocalisationParameters> localisationParameters = null!;
+
         protected Task BracketLoadTask => bracketLoadTaskCompletionSource.Task;
 
         private readonly TaskCompletionSource<bool> bracketLoadTaskCompletionSource = new TaskCompletionSource<bool>();
+
+        private void updateLanguage() => CurrentLanguage.Value = LanguageExtensions.GetLanguageFor(frameworkLocale.Value, localisationParameters.Value);
 
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
@@ -60,7 +69,7 @@ namespace osu.Game.Tournament
         private TournamentSpriteText initialisationText = null!;
 
         [BackgroundDependencyLoader]
-        private void load(Storage baseStorage)
+        private void load(Storage baseStorage, FrameworkConfigManager frameworkConfig)
         {
             Add(initialisationText = new TournamentSpriteText
             {
@@ -81,6 +90,14 @@ namespace osu.Game.Tournament
             dependencies.CacheAs(new StableInfo(storage));
 
             beatmapCache = dependencies.Get<BeatmapLookupCache>();
+
+            frameworkLocale = frameworkConfig.GetBindable<string>(FrameworkSetting.Locale);
+            frameworkLocale.BindValueChanged(_ => updateLanguage());
+
+            localisationParameters = Localisation.CurrentParameters.GetBoundCopy();
+            localisationParameters.BindValueChanged(_ => updateLanguage(), true);
+
+            CurrentLanguage.BindValueChanged(val => frameworkLocale.Value = val.NewValue.ToCultureCode());
         }
 
         protected override void LoadComplete()
@@ -91,6 +108,35 @@ namespace osu.Game.Tournament
             GlobalCursorDisplay.MenuCursor.Alpha = 0;
 
             base.LoadComplete();
+
+            #region Localisation Initialization
+
+            // These code is directly taken from OsuGame.
+            var languages = Enum.GetValues<Language>();
+
+            var mappings = languages.Select(language =>
+            {
+#if DEBUG
+                if (language == Language.debug)
+                    return new LocaleMapping("debug", new DebugLocalisationStore());
+#endif
+
+                string cultureCode = language.ToCultureCode();
+
+                try
+                {
+                    return new LocaleMapping(new ResourceManagerLocalisationStore(cultureCode));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, $"Could not load localisations for language \"{cultureCode}\"");
+                    return null;
+                }
+            }).Where(m => m != null);
+
+            Localisation.AddLocaleMappings(mappings!);
+
+            #endregion
 
             Task.Run(readBracket);
         }
