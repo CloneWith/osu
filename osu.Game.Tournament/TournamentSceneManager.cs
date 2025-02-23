@@ -247,7 +247,6 @@ namespace osu.Game.Tournament
 
             if (ladder.EnableTransitions.Value)
             {
-                // I know it's hardcoded, but I use this to demonstrate where the video can be used.
                 // I am thinking of integrating the video selection into BackgroundVideoSelectScreen, but now I don't have time to do it.
                 var transitionVideo = new TourneyBackground(new BackgroundInfo(BackgroundSource.Video, "transition.mov"), true)
                 {
@@ -280,6 +279,8 @@ namespace osu.Game.Tournament
 
                     foreach (var s in buttons.OfType<ScreenButton>())
                         s.Selected = screenType == s.Type;
+
+                    animateChatContainer(currentScreen);
                 }, ladder.TransitionDuration.Value);
 
                 transitionVideo.OnPlaybackComplete += () =>
@@ -307,6 +308,9 @@ namespace osu.Game.Tournament
 
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
+
+            animateChatContainer(currentScreen);
+
             foreach (var s in buttons.OfType<ScreenButton>())
                 s.Selected = screenType == s.Type;
         }
@@ -446,5 +450,40 @@ namespace osu.Game.Tournament
             chatContainer.ResizeTo(size, duration, easing);
 
         public void ReloadChat() => chat.ReloadChannel();
+
+        private void animateChatContainer(Drawable screen)
+        {
+            var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
+            switch (screen)
+            {
+                case MapPoolScreen _:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144), 500, Easing.OutQuint);
+                    chat.ChangeRadius(0);
+                    break;
+
+                case GameplayScreen _:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
+                    chat.ChangeRadius(0);
+                    break;
+
+                case BoardScreen _:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
+                    chat.ChangeRadius(10);
+                    break;
+
+                default:
+                    chatContainer.FadeOut(TournamentScreen.FADE_DELAY);
+                    break;
+            }
+        }
     }
 }
