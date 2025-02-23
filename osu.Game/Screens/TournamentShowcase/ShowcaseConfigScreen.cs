@@ -340,7 +340,6 @@ namespace osu.Game.Screens.TournamentShowcase
             };
 
             #endregion
-
         }
 
         protected override void LoadComplete()
