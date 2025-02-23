@@ -276,6 +276,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
+                                    ScrollbarOverlapsContent = false,
                                     Child = innerFlow = new FillFlowContainer
                                     {
                                         RelativeSizeAxes = Axes.X,
@@ -335,7 +336,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                 },
                             },
                         },
-                    }
+                    },
                 },
             };
 
