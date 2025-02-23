@@ -50,20 +50,14 @@ namespace osu.Game.Screens.TournamentShowcase
             Precision = 0.1f
         };
 
-        public BindableList<ShowcaseTeam> Teams = new BindableList<ShowcaseTeam>();
-        public BindableList<ShowcaseStaff> Staffs = new BindableList<ShowcaseStaff>();
         public BindableList<ShowcaseBeatmap> Beatmaps = new BindableList<ShowcaseBeatmap>();
 
         public Bindable<ShowcaseLayout> Layout = new Bindable<ShowcaseLayout>();
 
         public BindableBool UseCustomIntroBeatmap = new BindableBool();
-
         public Bindable<ShowcaseBeatmap> IntroBeatmap = new Bindable<ShowcaseBeatmap>();
-        public Bindable<TimeSpan> IntroTimestamp = new Bindable<TimeSpan>();
 
         public BindableBool ShowMapPool = new BindableBool(true);
-        public BindableBool ShowTeamList = new BindableBool();
-        public BindableBool ShowStaffList = new BindableBool(true);
         public BindableBool SplitMapPoolByMods = new BindableBool(true);
 
         public Bindable<string> OutroTitle = new Bindable<string>();

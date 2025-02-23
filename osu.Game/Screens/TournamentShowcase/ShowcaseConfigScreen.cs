@@ -47,9 +47,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private FillFlowContainer innerFlow = null!;
         private FillFlowContainer tournamentInfoSection = null!;
         private FillFlowContainer settingsSection = null!;
-        private ShowcaseTeamEditor teamSection = null!;
         private ShowcaseBeatmapEditor beatmapSection = null!;
-        private ShowcaseStaffEditor staffSection = null!;
 
         private FormDropdown<string> profileDropdown = null!;
 
@@ -203,9 +201,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     },
                 },
             };
-            teamSection = new ShowcaseTeamEditor(currentProfile);
             beatmapSection = new ShowcaseBeatmapEditor(currentProfile);
-            staffSection = new ShowcaseStaffEditor(currentProfile);
             introEditor = new FillFlowContainer
             {
                 RelativeSizeAxes = Axes.X,
@@ -451,11 +447,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     settingsSection,
                     introEditor,
                 },
-                ShowcaseConfigTab.TeamsAndStaffs => new Drawable[]
-                {
-                    teamSection,
-                    staffSection,
-                },
                 ShowcaseConfigTab.Beatmaps => new Drawable[]
                 {
                     beatmapSection,
@@ -492,7 +483,6 @@ namespace osu.Game.Screens.TournamentShowcase
     public enum ShowcaseConfigTab
     {
         General,
-        TeamsAndStaffs,
         Beatmaps,
     }
 }
