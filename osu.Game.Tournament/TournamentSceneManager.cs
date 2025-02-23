@@ -107,6 +107,7 @@ namespace osu.Game.Tournament
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Width = STREAM_AREA_WIDTH,
+                    Name = "StreamContainer",
                     Children = new Drawable[]
                     {
                         new Box
@@ -247,16 +248,16 @@ namespace osu.Game.Tournament
 
             if (ladder.EnableTransitions.Value)
             {
-                // I am thinking of integrating the video selection into BackgroundVideoSelectScreen, but now I don't have time to do it.
-                var transitionVideo = new TourneyBackground(new BackgroundInfo(BackgroundSource.Video, "transition.mov"), true)
+                var transitionInfo = ladder.BackgroundMap.FirstOrDefault(v => v.Key == BackgroundType.Transition).Value;
+                var transitionVideo = new TourneyBackground(transitionInfo, true)
                 {
                     Loop = false,
                     RelativeSizeAxes = Axes.Both,
                     Alpha = 0,
                 };
 
-                AddInternal(transitionVideo);
-                transitionVideo.FadeIn(200, Easing.OutQuint);
+                var streamContainer = this.ChildrenOfType<Container>().First(c => c.Name == "StreamContainer");
+                streamContainer.Add(transitionVideo);
 
                 Scheduler.AddDelayed(() =>
                 {
