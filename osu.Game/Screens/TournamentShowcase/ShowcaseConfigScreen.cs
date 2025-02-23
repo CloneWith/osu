@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -36,12 +37,19 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
 
-        [Resolved(canBeNull: true)]
+        [Resolved]
         private IDialogOverlay? dialogOverlay { get; set; }
 
         private const float sizing_duration = 200;
 
+        #region Drawable variables
+
         private FillFlowContainer innerFlow = null!;
+        private FillFlowContainer tournamentInfoSection = null!;
+        private FillFlowContainer settingsSection = null!;
+        private ShowcaseTeamEditor teamSection = null!;
+        private ShowcaseBeatmapEditor beatmapSection = null!;
+        private ShowcaseStaffEditor staffSection = null!;
 
         private FormDropdown<string> profileDropdown = null!;
 
@@ -60,7 +68,10 @@ namespace osu.Game.Screens.TournamentShowcase
         private FillFlowContainer introEditor = null!;
         private BeatmapRow introBeatmapRow = null!;
 
+        #endregion
+
         private readonly Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
+        private readonly Bindable<ShowcaseConfigTab> currentTab = new Bindable<ShowcaseConfigTab>();
 
         public ShowcaseConfigScreen()
         {
@@ -82,220 +93,262 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Debug.Assert(currentProfile.Value != null);
 
+            #region Sections
+
+            tournamentInfoSection = new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = sizing_duration,
+                Spacing = new Vector2(10),
+                Direction = FillDirection.Vertical,
+                Children = new Drawable[]
+                {
+                    new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
+                    profileDropdown = new FormDropdown<string>
+                    {
+                        Caption = TournamentShowcaseStrings.CurrentProfile, HintText = TournamentShowcaseStrings.CurrentProfileDescription, Items = availableProfiles,
+                    },
+                    rulesetDropdown = new FormDropdown<RulesetInfo>
+                    {
+                        Caption = TournamentShowcaseStrings.DefaultRuleset,
+                        HintText = TournamentShowcaseStrings.DefaultRulesetDescription,
+                        Items = rulesets.AvailableRulesets,
+                        Current = currentProfile.Value.FallbackRuleset,
+                    },
+                    tournamentNameInput = new FormTextBox
+                    {
+                        Caption = TournamentShowcaseStrings.TournamentName,
+                        PlaceholderText = TournamentShowcaseStrings.TournamentNamePlaceholder,
+                        HintText = TournamentShowcaseStrings.TournamentNameDescription,
+                        Current = currentProfile.Value.TournamentName,
+                        TabbableContentContainer = this,
+                    },
+                    roundNameInput = new FormTextBox
+                    {
+                        Caption = TournamentShowcaseStrings.TournamentRound,
+                        PlaceholderText = TournamentShowcaseStrings.TournamentRoundPlaceholder,
+                        HintText = TournamentShowcaseStrings.TournamentRoundDescription,
+                        Current = currentProfile.Value.RoundName,
+                        TabbableContentContainer = this,
+                    },
+                    dateTimeInput = new FormTextBox
+                    {
+                        Caption = TournamentShowcaseStrings.DateAndTime,
+                        PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
+                        HintText = TournamentShowcaseStrings.DateAndTimeDescription,
+                        Current = currentProfile.Value.DateTime,
+                        TabbableContentContainer = this,
+                    },
+                    commentInput = new FormTextBox
+                    {
+                        Caption = TournamentShowcaseStrings.Comment,
+                        PlaceholderText = "Welcome to osu!",
+                        HintText = TournamentShowcaseStrings.IntroCommentDescription,
+                        Current = currentProfile.Value.Comment,
+                        TabbableContentContainer = this,
+                    },
+                },
+            };
+            settingsSection = new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = sizing_duration,
+                Spacing = new Vector2(10),
+                Direction = FillDirection.Vertical,
+                Children = new Drawable[]
+                {
+                    new SectionHeader(TournamentShowcaseStrings.ShowcaseSettingsHeader),
+                    layoutDropdown = new FormEnumDropdown<ShowcaseLayout>
+                    {
+                        Caption = TournamentShowcaseStrings.InterfaceLayout, HintText = TournamentShowcaseStrings.InterfaceLayoutDescription, Current = currentProfile.Value.Layout,
+                    },
+                    aspectRatioInput = new FormSliderBar<float>
+                    {
+                        Caption = TournamentShowcaseStrings.AspectRatio,
+                        HintText = TournamentShowcaseStrings.AspectRatioDescription,
+                        Current = currentProfile.Value.AspectRatio,
+                        TransferValueOnCommit = true,
+                        TabbableContentContainer = this,
+                    },
+                    transformDurationInput = new FormSliderBar<int>
+                    {
+                        Caption = TournamentShowcaseStrings.TransformDuration,
+                        HintText = TournamentShowcaseStrings.TransformDurationDescription,
+                        Current = currentProfile.Value.TransformDuration,
+                        TransferValueOnCommit = true,
+                        TabbableContentContainer = this,
+                    },
+                    startCountdownInput = new FormSliderBar<int>
+                    {
+                        Caption = TournamentShowcaseStrings.StartCountdownDuration,
+                        HintText = TournamentShowcaseStrings.StartCountdownDurationDescription,
+                        Current = currentProfile.Value.StartCountdown,
+                        TransferValueOnCommit = true,
+                        TabbableContentContainer = this,
+                    },
+                    outroTitleInput = new FormTextBox
+                    {
+                        Caption = TournamentShowcaseStrings.OutroTitle, PlaceholderText = @"Thanks for watching!", Current = currentProfile.Value.OutroTitle, TabbableContentContainer = this,
+                    },
+                    outroSubtitleInput = new FormTextBox
+                    {
+                        Caption = TournamentShowcaseStrings.OutroSubtitle,
+                        PlaceholderText = @"Take care of yourself, and be well.",
+                        Current = currentProfile.Value.OutroSubtitle,
+                        TabbableContentContainer = this,
+                    },
+                },
+            };
+            teamSection = new ShowcaseTeamEditor(currentProfile);
+            beatmapSection = new ShowcaseBeatmapEditor(currentProfile);
+            staffSection = new ShowcaseStaffEditor(currentProfile);
+            introEditor = new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = sizing_duration,
+                Spacing = new Vector2(10),
+                Direction = FillDirection.Vertical,
+                Children = new Drawable[]
+                {
+                    new SectionHeader(TournamentShowcaseStrings.IntroBeatmapHeader),
+                    useCustomIntroSwitch = new FormCheckBox
+                    {
+                        Caption = TournamentShowcaseStrings.UseCustomIntroBeatmap,
+                        HintText = TournamentShowcaseStrings.UseCustomIntroBeatmapDescription,
+                        Current = currentProfile.Value.UseCustomIntroBeatmap,
+                    },
+                    introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                    {
+                        AllowDeletion = false,
+                    },
+                },
+            };
+
+            #endregion
+
+            #region Basic Layout
+
             InternalChildren = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black.Opacity(0.6f)
+                    Colour = Color4.Black.Opacity(0.6f),
                 },
-                new OsuContextMenuContainer
+                new GridContainer
                 {
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.Both,
-                    Child = new OsuScrollContainer
+                    Width = 0.8f,
+                    RowDimensions = new[]
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Width = 0.75f,
-                        Height = 0.8f,
-                        Child = innerFlow = new FillFlowContainer
+                        new Dimension(GridSizeMode.Relative, 0.1f),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Relative, 0.1f),
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
                         {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            Spacing = new Vector2(10),
-                            Direction = FillDirection.Full,
-                            Children = new Drawable[]
+                            new OsuTabControl<ShowcaseConfigTab>
                             {
-                                new FillFlowContainer
+                                Name = @"Top Tab Control",
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.Both,
+                                Current = { BindTarget = currentTab },
+                            },
+                        },
+                        new Drawable[]
+                        {
+                            new OsuContextMenuContainer
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Child = new OsuScrollContainer
                                 {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    AutoSizeEasing = Easing.OutQuint,
-                                    AutoSizeDuration = sizing_duration,
-                                    Spacing = new Vector2(10),
-                                    Direction = FillDirection.Vertical,
-                                    Children = new Drawable[]
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Child = innerFlow = new FillFlowContainer
                                     {
-                                        new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
-                                        profileDropdown = new FormDropdown<string>
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Spacing = new Vector2(10),
+                                        Direction = FillDirection.Full,
+                                        Children = new Drawable[]
                                         {
-                                            Caption = TournamentShowcaseStrings.CurrentProfile,
-                                            HintText = TournamentShowcaseStrings.CurrentProfileDescription,
-                                            Items = availableProfiles
-                                        },
-                                        rulesetDropdown = new FormDropdown<RulesetInfo>
-                                        {
-                                            Caption = TournamentShowcaseStrings.DefaultRuleset,
-                                            HintText = TournamentShowcaseStrings.DefaultRulesetDescription,
-                                            Items = rulesets.AvailableRulesets,
-                                            Current = currentProfile.Value.FallbackRuleset,
-                                        },
-                                        tournamentNameInput = new FormTextBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.TournamentName,
-                                            PlaceholderText = TournamentShowcaseStrings.TournamentNamePlaceholder,
-                                            HintText = TournamentShowcaseStrings.TournamentNameDescription,
-                                            Current = currentProfile.Value.TournamentName,
-                                            TabbableContentContainer = this,
-                                        },
-                                        roundNameInput = new FormTextBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.TournamentRound,
-                                            PlaceholderText = TournamentShowcaseStrings.TournamentRoundPlaceholder,
-                                            HintText = TournamentShowcaseStrings.TournamentRoundDescription,
-                                            Current = currentProfile.Value.RoundName,
-                                            TabbableContentContainer = this,
-                                        },
-                                        dateTimeInput = new FormTextBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.DateAndTime,
-                                            PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
-                                            HintText = TournamentShowcaseStrings.DateAndTimeDescription,
-                                            Current = currentProfile.Value.DateTime,
-                                            TabbableContentContainer = this,
-                                        },
-                                        commentInput = new FormTextBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.Comment,
-                                            PlaceholderText = "Welcome to osu!",
-                                            HintText = TournamentShowcaseStrings.IntroCommentDescription,
-                                            Current = currentProfile.Value.Comment,
-                                            TabbableContentContainer = this,
-                                        },
-                                    },
-                                },
-                                new FillFlowContainer
-                                {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    AutoSizeEasing = Easing.OutQuint,
-                                    AutoSizeDuration = sizing_duration,
-                                    Spacing = new Vector2(10),
-                                    Direction = FillDirection.Vertical,
-                                    Children = new Drawable[]
-                                    {
-                                        new SectionHeader(TournamentShowcaseStrings.ShowcaseSettingsHeader),
-                                        layoutDropdown = new FormEnumDropdown<ShowcaseLayout>
-                                        {
-                                            Caption = TournamentShowcaseStrings.InterfaceLayout,
-                                            HintText = TournamentShowcaseStrings.InterfaceLayoutDescription,
-                                            Current = currentProfile.Value.Layout,
-                                        },
-                                        aspectRatioInput = new FormSliderBar<float>
-                                        {
-                                            Caption = TournamentShowcaseStrings.AspectRatio,
-                                            HintText = TournamentShowcaseStrings.AspectRatioDescription,
-                                            Current = currentProfile.Value.AspectRatio,
-                                            TransferValueOnCommit = true,
-                                            TabbableContentContainer = this,
-                                        },
-                                        transformDurationInput = new FormSliderBar<int>
-                                        {
-                                            Caption = TournamentShowcaseStrings.TransformDuration,
-                                            HintText = TournamentShowcaseStrings.TransformDurationDescription,
-                                            Current = currentProfile.Value.TransformDuration,
-                                            TransferValueOnCommit = true,
-                                            TabbableContentContainer = this,
-                                        },
-                                        startCountdownInput = new FormSliderBar<int>
-                                        {
-                                            Caption = TournamentShowcaseStrings.StartCountdownDuration,
-                                            HintText = TournamentShowcaseStrings.StartCountdownDurationDescription,
-                                            Current = currentProfile.Value.StartCountdown,
-                                            TransferValueOnCommit = true,
-                                            TabbableContentContainer = this,
-                                        },
-                                        outroTitleInput = new FormTextBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.OutroTitle,
-                                            PlaceholderText = @"Thanks for watching!",
-                                            Current = currentProfile.Value.OutroTitle,
-                                            TabbableContentContainer = this,
-                                        },
-                                        outroSubtitleInput = new FormTextBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.OutroSubtitle,
-                                            PlaceholderText = @"Take care of yourself, and be well.",
-                                            Current = currentProfile.Value.OutroSubtitle,
-                                            TabbableContentContainer = this,
-                                        },
-                                    },
-                                },
-                                new ShowcaseTeamEditor(currentProfile),
-                                new ShowcaseBeatmapEditor(currentProfile),
-                                new ShowcaseStaffEditor(currentProfile),
-                                introEditor = new FillFlowContainer
-                                {
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    AutoSizeEasing = Easing.OutQuint,
-                                    AutoSizeDuration = sizing_duration,
-                                    Spacing = new Vector2(10),
-                                    Direction = FillDirection.Vertical,
-                                    Children = new Drawable[]
-                                    {
-                                        new SectionHeader(TournamentShowcaseStrings.IntroBeatmapHeader),
-                                        useCustomIntroSwitch = new FormCheckBox
-                                        {
-                                            Caption = TournamentShowcaseStrings.UseCustomIntroBeatmap,
-                                            HintText = TournamentShowcaseStrings.UseCustomIntroBeatmapDescription,
-                                            Current = currentProfile.Value.UseCustomIntroBeatmap,
-                                        },
-                                        introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
-                                        {
-                                            AllowDeletion = false,
+                                            tournamentInfoSection,
+                                            settingsSection,
+                                            introEditor,
                                         },
                                     },
                                 },
                             },
                         },
-                    },
-                },
-                new FillFlowContainer
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
-                    Direction = FillDirection.Horizontal,
-                    RelativeSizeAxes = Axes.X,
-                    Width = 0.6f,
-                    Y = -30,
-                    Spacing = new Vector2(10),
-                    Children = new Drawable[]
-                    {
-                        new RoundedButton
+                        new Drawable[]
                         {
-                            Anchor = Anchor.BottomCentre,
-                            Origin = Anchor.BottomCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Width = 0.4f,
-                            Text = TournamentShowcaseStrings.SaveAction,
-                            Action = () =>
+                            new FillFlowContainer
                             {
-                                if (checkConfig())
-                                    storage.SaveChanges(currentProfile.Value);
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomCentre,
+                                Direction = FillDirection.Horizontal,
+                                RelativeSizeAxes = Axes.X,
+                                Width = 0.6f,
+                                Spacing = new Vector2(10),
+                                Children = new Drawable[]
+                                {
+                                    new RoundedButton
+                                    {
+                                        Anchor = Anchor.BottomCentre,
+                                        Origin = Anchor.BottomCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        Width = 0.4f,
+                                        Text = TournamentShowcaseStrings.SaveAction,
+                                        Action = () =>
+                                        {
+                                            if (checkConfig())
+                                                storage.SaveChanges(currentProfile.Value);
 
-                                refreshProfileList();
+                                            refreshProfileList();
+                                        },
+                                    },
+                                    new RoundedButton
+                                    {
+                                        Anchor = Anchor.BottomCentre,
+                                        Origin = Anchor.BottomCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                        Width = 0.4f,
+                                        Text = TournamentShowcaseStrings.StartShowcase,
+                                        Action = () =>
+                                        {
+                                            if (checkConfig())
+                                                this.Push(new ShowcaseScreen(currentProfile.Value));
+                                        },
+                                    },
+                                },
                             },
                         },
-                        new RoundedButton
-                        {
-                            Anchor = Anchor.BottomCentre,
-                            Origin = Anchor.BottomCentre,
-                            RelativeSizeAxes = Axes.X,
-                            Width = 0.4f,
-                            Text = TournamentShowcaseStrings.StartShowcase,
-                            Action = () =>
-                            {
-                                if (checkConfig())
-                                    this.Push(new ShowcaseScreen(currentProfile.Value));
-                            },
-                        },
-                    },
+                    }
                 },
             };
 
+            #endregion
+
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
             currentProfile.BindValueChanged(_ => updateForm());
+            currentTab.BindValueChanged(currentTabChanged);
             profileDropdown.Current.BindValueChanged(e =>
             {
                 var newProfile = storage.GetConfig(e.NewValue);
@@ -309,15 +362,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
             });
 
-            foreach (var f in innerFlow.Children)
-            {
-                f.Width = 0.49f;
-            }
-        }
-
-        protected override void LoadComplete()
-        {
-            base.LoadComplete();
             this.FadeInFromZero(500, Easing.OutQuint);
         }
 
@@ -395,6 +439,31 @@ namespace osu.Game.Screens.TournamentShowcase
             });
         }
 
+        private void currentTabChanged(ValueChangedEvent<ShowcaseConfigTab> e)
+        {
+            innerFlow.Clear(false);
+
+            innerFlow.AddRange(currentTab.Value switch
+            {
+                ShowcaseConfigTab.General => new Drawable[]
+                {
+                    tournamentInfoSection,
+                    settingsSection,
+                    introEditor,
+                },
+                ShowcaseConfigTab.TeamsAndStaffs => new Drawable[]
+                {
+                    teamSection,
+                    staffSection,
+                },
+                ShowcaseConfigTab.Beatmaps => new Drawable[]
+                {
+                    beatmapSection,
+                },
+                _ => throw new ArgumentOutOfRangeException(),
+            });
+        }
+
         private bool exitConfirmed;
 
         public override bool OnExiting(ScreenExitEvent e)
@@ -418,5 +487,12 @@ namespace osu.Game.Screens.TournamentShowcase
 
             return base.OnExiting(e);
         }
+    }
+
+    public enum ShowcaseConfigTab
+    {
+        General,
+        TeamsAndStaffs,
+        Beatmaps,
     }
 }
