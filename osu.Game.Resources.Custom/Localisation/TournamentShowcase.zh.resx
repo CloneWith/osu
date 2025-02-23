@@ -131,7 +131,7 @@
         <value>不带扩展名的队旗图像文件名。</value>
     </data>
     <data name="team_seed" xml:space="preserve">
-        <value>选种值</value>
+        <value>Seed</value>
     </data>
     <data name="player_id" xml:space="preserve">
         <value>玩家用户 ID</value>
