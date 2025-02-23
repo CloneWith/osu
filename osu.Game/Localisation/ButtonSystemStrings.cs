@@ -60,11 +60,6 @@ namespace osu.Game.Localisation
         public static LocalisableString DailyChallenge => new TranslatableString(getKey(@"daily_challenge"), @"daily challenge");
 
         /// <summary>
-        /// "showcase"
-        /// </summary>
-        public static LocalisableString TournamentShowcase => new TranslatableString(getKey(@"tournament_showcase"), @"showcase");
-
-        /// <summary>
         /// "A few important words from your dev team!"
         /// </summary>
         public static LocalisableString MobileDisclaimerHeader => new TranslatableString(getKey(@"mobile_disclaimer_header"), @"A few important words from your dev team!");

@@ -6,6 +6,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
@@ -13,7 +14,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
     {
         public BindableBool Current = new BindableBool();
 
-        public string Text
+        public LocalisableString Text
         {
             get => Current.Value ? ActiveText : IdleText;
             set => IdleText = ActiveText = value;

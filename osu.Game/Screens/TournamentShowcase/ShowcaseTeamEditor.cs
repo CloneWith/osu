@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets;
@@ -34,13 +35,13 @@ namespace osu.Game.Screens.TournamentShowcase
             Spacing = new Vector2(10);
             Children = new Drawable[]
             {
-                new SectionHeader(@"Team List"),
+                new SectionHeader(TournamentShowcaseStrings.TeamListHeader),
                 showListCheckBox = new FormCheckBox
                 {
-                    Caption = @"Show Team List in the Showcase",
+                    Caption = TournamentShowcaseStrings.ShowTeamsInShowcase,
                     Current = this.config.Value.ShowTeamList
                 },
-                new ShowcaseAddButton(@"Add team", () =>
+                new ShowcaseAddButton(TournamentShowcaseStrings.AddTeam, () =>
                 {
                     var addedTeam = new ShowcaseTeam();
                     config.Value.Teams.Add(addedTeam);
@@ -92,26 +93,26 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 new FormTextBox
                 {
-                    Caption = @"Name",
+                    Caption = TournamentShowcaseStrings.TeamName,
                     Width = 1f,
                     Current = Team.FullName
                 },
                 new FormTextBox
                 {
-                    Caption = @"Acronym",
+                    Caption = TournamentShowcaseStrings.TeamAcronym,
                     Width = 0.29f,
                     Current = Team.Acronym
                 },
                 new FormTextBox
                 {
-                    Caption = @"Flag",
-                    HintText = @"The name of the flag image file, without extension.",
+                    Caption = TournamentShowcaseStrings.TeamFlag,
+                    HintText = TournamentShowcaseStrings.TeamFlagDescription,
                     Width = 0.29f,
                     Current = Team.FlagName
                 },
                 new FormTextBox
                 {
-                    Caption = @"Seed",
+                    Caption = TournamentShowcaseStrings.TeamSeed,
                     Width = 0.29f,
                     Current = Team.Seed
                 },
@@ -120,7 +121,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     Width = 0.1f,
                     Icon = FontAwesome.Solid.TimesCircle,
-                    TooltipText = @"Delete this team",
+                    TooltipText = TournamentShowcaseStrings.RemoveTeam,
                     Action = () =>
                     {
                         Expire();
@@ -130,7 +131,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 playerEditor,
                 new SettingsButton
                 {
-                    Text = @"Add player",
+                    Text = TournamentShowcaseStrings.AddPlayer,
                     Action = () => playerEditor.CreateNew()
                 },
             };

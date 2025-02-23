@@ -11,6 +11,7 @@ using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
@@ -40,14 +41,14 @@ namespace osu.Game.Screens.TournamentShowcase
             Spacing = new Vector2(10);
             Children = new Drawable[]
             {
-                new SectionHeader(@"Beatmap Queue"),
+                new SectionHeader(TournamentShowcaseStrings.BeatmapQueueHeader),
                 showListCheckBox = new FormCheckBox
                 {
-                    Caption = @"Show Beatmap List in the Showcase",
-                    HintText = @"List out all beatmaps at the beginning of the showcase.",
+                    Caption = TournamentShowcaseStrings.ShowBeatmapListInShowcase,
+                    HintText = TournamentShowcaseStrings.ShowBeatmapListInShowcaseDescription,
                     Current = this.config.Value.ShowMapPool
                 },
-                new ShowcaseAddButton(@"Add beatmap", () =>
+                new ShowcaseAddButton(TournamentShowcaseStrings.AddBeatmap, () =>
                 {
                     var addedBeatmap = new ShowcaseBeatmap();
                     config.Value.Beatmaps.Add(addedBeatmap);
@@ -133,45 +134,45 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 new FormCheckBox
                 {
-                    Caption = @"Tournament Original",
-                    HintText = @"This means the content of the beatmap is exclusively created for this tournament. Shows an indicator when turned on.",
+                    Caption = TournamentShowcaseStrings.TournamentOriginal,
+                    HintText = TournamentShowcaseStrings.TournamentOriginalDescription,
                     Width = 0.49f,
-                    Current = Beatmap.IsOriginal
+                    Current = Beatmap.IsOriginal,
                 },
                 new FormNumberBox
                 {
-                    Caption = @"Beatmap Chooser ID",
-                    HintText = @"The user who chose or suggested this beatmap.",
+                    Caption = TournamentShowcaseStrings.BeatmapChooserID,
+                    HintText = TournamentShowcaseStrings.BeatmapChooserIDDescription,
                     Width = 0.49f,
-                    Current = selectorId
+                    Current = selectorId,
                 },
                 new FormTextBox
                 {
-                    Caption = @"Beatmap Type",
-                    HintText = @"Will be used to show a correct icon for the beatmap.",
+                    Caption = TournamentShowcaseStrings.BeatmapModType,
+                    HintText = TournamentShowcaseStrings.BeatmapModTypeDescription,
                     Width = 0.49f,
                     Current = Beatmap.ModString,
                 },
                 new FormTextBox
                 {
-                    Caption = @"Mod Index",
-                    HintText = @"The index of the beatmap in this type of mod.",
+                    Caption = TournamentShowcaseStrings.BeatmapModIndex,
+                    HintText = TournamentShowcaseStrings.BeatmapModIndexDescription,
                     Width = 0.49f,
                     Current = Beatmap.ModIndex,
                 },
                 new FormTextBox
                 {
-                    Caption = @"Difficulty Area",
-                    HintText = @"The major area this beatmap lays difficulty on.",
+                    Caption = TournamentShowcaseStrings.DifficultyField,
+                    HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
                     Width = 1f,
-                    Current = Beatmap.BeatmapArea
+                    Current = Beatmap.DiffField,
                 },
                 new FormTextBox
                 {
-                    Caption = @"Comment",
-                    HintText = @"Have something else to show on the showcase screen?",
+                    Caption = TournamentShowcaseStrings.Comment,
+                    HintText = TournamentShowcaseStrings.BeatmapCommentDescription,
                     Width = 1f,
-                    Current = Beatmap.BeatmapComment
+                    Current = Beatmap.BeatmapComment,
                 },
                 drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
                 {
@@ -188,8 +189,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         config.Beatmaps.Remove(Beatmap);
                         Expire();
-                    }
-                }
+                    },
+                },
             };
 
             selectorId.BindValueChanged(id =>

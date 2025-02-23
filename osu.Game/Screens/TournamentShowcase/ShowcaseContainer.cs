@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Localisation;
 using osu.Game.Overlays.Mods;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Menu;
@@ -219,7 +220,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         RelativePositionAxes = Axes.Both,
                         Y = -0.3f,
                         Font = OsuFont.TorusAlternate.With(size: 30, weight: FontWeight.SemiBold),
-                        Text = @"Map Pool",
+                        Text = TournamentShowcaseStrings.MapPoolHeader,
                     },
                     mapPoolSubText = new OsuSpriteText
                     {

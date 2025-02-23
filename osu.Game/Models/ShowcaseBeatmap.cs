@@ -28,7 +28,7 @@ namespace osu.Game.Models
 
         public Bindable<ShowcaseUser> Selector = new Bindable<ShowcaseUser>();
         public BindableBool IsOriginal = new BindableBool();
-        public Bindable<string> BeatmapArea = new Bindable<string>();
+        public Bindable<string> DiffField = new Bindable<string>();
         public Bindable<string> BeatmapComment = new Bindable<string>();
 
         [JsonIgnore]
