@@ -25,16 +25,6 @@ namespace osu.Game.Localisation
         public static LocalisableString ShowcaseSettingsHeader => new TranslatableString(getKey(@"showcase_settings_header"), @"Showcase Settings");
 
         /// <summary>
-        /// "Team List"
-        /// </summary>
-        public static LocalisableString TeamListHeader => new TranslatableString(getKey(@"team_list_header"), @"Team List");
-
-        /// <summary>
-        /// "Staff List"
-        /// </summary>
-        public static LocalisableString StaffListHeader => new TranslatableString(getKey(@"staff_list_header"), @"Staff List");
-
-        /// <summary>
         /// "Beatmap Queue"
         /// </summary>
         public static LocalisableString BeatmapQueueHeader => new TranslatableString(getKey(@"beatmap_queue_header"), @"Beatmap Queue");
@@ -160,61 +150,6 @@ namespace osu.Game.Localisation
         public static LocalisableString OutroSubtitle => new TranslatableString(getKey(@"outro_subtitle"), @"Outro Subtitle");
 
         /// <summary>
-        /// "Show Team List in Showcase"
-        /// </summary>
-        public static LocalisableString ShowTeamsInShowcase => new TranslatableString(getKey(@"show_teams_in_showcase"), @"Show Team List in Showcase");
-
-        /// <summary>
-        /// "Add Team"
-        /// </summary>
-        public static LocalisableString AddTeam => new TranslatableString(getKey(@"add_team"), @"Add Team");
-
-        /// <summary>
-        /// "Remove this team"
-        /// </summary>
-        public static LocalisableString RemoveTeam => new TranslatableString(getKey(@"remove_team"), @"Remove this team");
-
-        /// <summary>
-        /// "Name"
-        /// </summary>
-        public static LocalisableString TeamName => new TranslatableString(getKey(@"team_name"), @"Name");
-
-        /// <summary>
-        /// "Acronym"
-        /// </summary>
-        public static LocalisableString TeamAcronym => new TranslatableString(getKey(@"team_acronym"), @"Acronym");
-
-        /// <summary>
-        /// "Flag"
-        /// </summary>
-        public static LocalisableString TeamFlag => new TranslatableString(getKey(@"team_flag"), @"Flag");
-
-        /// <summary>
-        /// "The name of the flag image file, without extension."
-        /// </summary>
-        public static LocalisableString TeamFlagDescription => new TranslatableString(getKey(@"team_flag_description"), @"The name of the flag image file, without extension.");
-
-        /// <summary>
-        /// "Seed"
-        /// </summary>
-        public static LocalisableString TeamSeed => new TranslatableString(getKey(@"team_seed"), @"Seed");
-
-        /// <summary>
-        /// "Player ID"
-        /// </summary>
-        public static LocalisableString PlayerID => new TranslatableString(getKey(@"player_id"), @"Player ID");
-
-        /// <summary>
-        /// "Add Player"
-        /// </summary>
-        public static LocalisableString AddPlayer => new TranslatableString(getKey(@"add_player"), @"Add Player");
-
-        /// <summary>
-        /// "Remove this player"
-        /// </summary>
-        public static LocalisableString RemovePlayer => new TranslatableString(getKey(@"remove_player"), @"Remove this player");
-
-        /// <summary>
         /// "Show Beatmap List in the Showcase"
         /// </summary>
         public static LocalisableString ShowBeatmapListInShowcase => new TranslatableString(getKey(@"show_beatmap_list_in_showcase"), @"Show Beatmap List in the Showcase");
@@ -303,41 +238,6 @@ namespace osu.Game.Localisation
         /// "No score associated with this beatmap."
         /// </summary>
         public static LocalisableString NoScoreAssociationPrompt => new TranslatableString(getKey(@"no_score_association_prompt"), @"No score associated with this beatmap.");
-
-        /// <summary>
-        /// "Show Staff List in Showcase"
-        /// </summary>
-        public static LocalisableString ShowStaffListInShowcase => new TranslatableString(getKey(@"show_staff_list_in_showcase"), @"Show Staff List in Showcase");
-
-        /// <summary>
-        /// "List all staffs at the end of the showcase."
-        /// </summary>
-        public static LocalisableString ShowStaffListInShowcaseDescription => new TranslatableString(getKey(@"show_staff_list_in_showcase_description"), @"List all staffs at the end of the showcase.");
-
-        /// <summary>
-        /// "Add Staff"
-        /// </summary>
-        public static LocalisableString AddStaff => new TranslatableString(getKey(@"add_staff"), @"Add Staff");
-
-        /// <summary>
-        /// "Remove this staff"
-        /// </summary>
-        public static LocalisableString RemoveStaff => new TranslatableString(getKey(@"remove_staff"), @"Remove this staff");
-
-        /// <summary>
-        /// "Staff ID"
-        /// </summary>
-        public static LocalisableString StaffID => new TranslatableString(getKey(@"staff_id"), @"Staff ID");
-
-        /// <summary>
-        /// "Staff Role"
-        /// </summary>
-        public static LocalisableString StaffRole => new TranslatableString(getKey(@"staff_role"), @"Staff Role");
-
-        /// <summary>
-        /// "This would be shown on the staff list screen, in the staff card."
-        /// </summary>
-        public static LocalisableString StaffRoleDescription => new TranslatableString(getKey(@"staff_role_description"), @"This would be shown on the staff list screen, in the staff card.");
 
         /// <summary>
         /// "Use custom intro beatmap"
