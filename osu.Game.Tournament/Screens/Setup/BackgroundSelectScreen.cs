@@ -366,6 +366,44 @@ namespace osu.Game.Tournament.Screens.Setup
 
             string lowerFileName = selectedFile.NewValue.Name.ToLowerInvariant();
 
+            // Restrict file type to .webm for Transition only.
+            if (typeDropdown.Current.Value == BackgroundType.Transition)
+            {
+                bool validWebm = lowerFileName.EndsWith(".webm", StringComparison.Ordinal);
+                if (!validWebm)
+                {
+                    saveButton.Enabled.Value = false;
+                    currentFileText.Clear();
+                    currentFileText.AddText($"{selectedFile.NewValue.Name}", t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
+                    currentFileText.AddText(": Only .webm allowed for Transitions.", t => t.Colour = Color4.Orange);
+                    currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
+                    currentFileIcon.Colour = Color4.Orange;
+                    return;
+                }
+                else
+                {
+                    saveButton.Enabled.Value = true;
+                    currentFileText.Clear();
+                    currentFileText.AddText($"{selectedFile.NewValue.Name}", t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
+                    currentFileText.AddText(": Preview on the right!", t => t.Colour = Color4.SkyBlue);
+                    currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
+                    currentFileIcon.Colour = Color4.SkyBlue;
+                    previewContainer.Child = preview = new TourneyBackground(availableInfo = new BackgroundInfo
+                    (
+                        source: BackgroundSource.Video,
+                        name: selectedFile.NewValue.Name,
+                        dim: backgroundDim.Value
+                    ), showError: true, fillMode: FillMode.Fit)
+                    {
+                        Loop = true,
+                        Dim = backgroundDim.Value,
+                        RelativeSizeAxes = Axes.Both,
+                    };
+
+                    return;
+                }
+            }
+
             bool validVideo = lowerFileName.EndsWith(".mp4", StringComparison.Ordinal)
                               || lowerFileName.EndsWith(".avi", StringComparison.Ordinal)
                               || lowerFileName.EndsWith(".m4v", StringComparison.Ordinal);
