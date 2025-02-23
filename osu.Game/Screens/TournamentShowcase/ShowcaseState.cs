@@ -10,16 +10,14 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         Initialization,
         Intro,
-        TeamPlayer,
         MapPool,
         BeatmapShow,
         BeatmapTransition,
-        StaffList,
         Ending,
 
         /// <summary>
         /// The showcase has come to a conclusion.
         /// </summary>
-        Ended
+        Ended,
     }
 }
