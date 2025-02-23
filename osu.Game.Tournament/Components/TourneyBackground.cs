@@ -26,6 +26,13 @@ namespace osu.Game.Tournament.Components
     /// </summary>
     public partial class TourneyBackground : CompositeDrawable
     {
+        // <summary>
+        // Trigger when the video has completed playback.
+        // </summary>
+        public event Action? OnPlaybackComplete;
+
+        private bool hasTriggeredCompletion;
+
         private readonly BackgroundType requestedType;
         private BackgroundInfo info;
         private readonly bool drawFallbackGradient;
@@ -37,6 +44,9 @@ namespace osu.Game.Tournament.Components
         private ManualClock? manualClock;
         private readonly Container spriteContainer;
         private OsuTextFlowContainer errorFlow = null!;
+
+        public bool VideoAvailable => video != null;
+
         private readonly Box dimBox;
 
         private readonly bool skipLadderLookup;
@@ -258,6 +268,10 @@ namespace osu.Game.Tournament.Components
                 manualClock.CurrentTime = 0;
         }
 
+        public double VideoDuration { get; set; }
+
+        public double CurrentTime { get; private set; }
+
         protected override void Update()
         {
             base.Update();
@@ -267,6 +281,16 @@ namespace osu.Game.Tournament.Components
                 // we want to avoid seeking as much as possible, because we care about performance, not sync.
                 // to avoid seeking completely, we only increment out local clock when in an updating state.
                 manualClock.CurrentTime += Clock.ElapsedFrameTime;
+            }
+
+            // Pass the current time to the property to utilize the setter.
+
+            CurrentTime = manualClock?.CurrentTime ?? 0;
+
+            if (!hasTriggeredCompletion && CurrentTime >= VideoDuration)
+            {
+                hasTriggeredCompletion = true;
+                OnPlaybackComplete?.Invoke();
             }
         }
     }

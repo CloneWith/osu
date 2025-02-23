@@ -51,6 +51,9 @@ namespace osu.Game.Tournament.Models
 
         [Description("Board Screen")]
         Board,
+
+        [Description("Transition")]
+        Transition,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -139,6 +142,7 @@ namespace osu.Game.Tournament.Models
             KeyValuePair.Create(BackgroundType.BlueWin, new BackgroundInfo("teamwin-blue")),
             KeyValuePair.Create(BackgroundType.Draw, new BackgroundInfo("mappool")),
             KeyValuePair.Create(BackgroundType.Board, new BackgroundInfo("mappool")),
+            KeyValuePair.Create(BackgroundType.Transition, new BackgroundInfo("transition")),
         };
     }
 }

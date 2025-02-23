@@ -14,6 +14,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
@@ -155,6 +156,18 @@ namespace osu.Game.Tournament.Screens.Setup
                     Label = "Display team seeds",
                     Description = "Team seeds will display alongside each team at the top in gameplay/map pool screens.",
                     Current = LadderInfo.DisplayTeamSeeds,
+                },
+                new SectionHeader(@"Transitions"),
+                new LabelledSwitchButton
+                {
+                    Label = "Enable transitions",
+                    Description = "Play a transition video between screens. (Require videos with alpha channel)。",
+                    Current = LadderInfo.EnableTransitions,
+                },
+                new SettingsSlider<double>
+                {
+                    LabelText = "Transition time (ms)",
+                    Current = LadderInfo.TransitionDuration,
                 },
                 new SectionHeader(@"Automation"),
                 new LabelledSwitchButton

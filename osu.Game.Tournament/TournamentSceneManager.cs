@@ -107,6 +107,7 @@ namespace osu.Game.Tournament
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Width = STREAM_AREA_WIDTH,
+                    Name = "StreamContainer",
                     Children = new Drawable[]
                     {
                         new Box
@@ -218,6 +219,9 @@ namespace osu.Game.Tournament
 
         private Drawable? temporaryScreen;
 
+        [Resolved]
+        private LadderInfo ladder { get; set; } = null!;
+
         public void SetScreen(Drawable screen)
         {
             currentScreen?.Hide();
@@ -232,66 +236,81 @@ namespace osu.Game.Tournament
 
             var target = screens.FirstOrDefault(s => s.GetType() == screenType);
 
-            if (target == null || currentScreen == target) return;
+            if (target == null || currentScreen == target)
+                return;
 
-            if (scheduledHide?.Completed == false)
+            if (scheduledHide != null && !scheduledHide.Completed)
             {
                 scheduledHide.RunTask();
-                scheduledHide.Cancel(); // see https://github.com/ppy/osu-framework/issues/2967
+                scheduledHide.Cancel(); // https://github.com/ppy/osu-framework/issues/2967
                 scheduledHide = null;
             }
 
-            var lastScreen = currentScreen;
+            if (ladder.EnableTransitions.Value)
+            {
+                var transitionInfo = ladder.BackgroundMap.FirstOrDefault(v => v.Key == BackgroundType.Transition).Value;
+                var transitionVideo = new TourneyBackground(transitionInfo, true)
+                {
+                    Loop = false,
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = 0,
+                };
+
+                var streamContainer = this.ChildrenOfType<Container>().First(c => c.Name == "StreamContainer");
+                streamContainer.Add(transitionVideo);
+
+                Scheduler.AddDelayed(() =>
+                {
+                    var lastScreen = currentScreen;
+                    currentScreen = target;
+
+                    if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.VideoAvailable == true)
+                    {
+                        background.FadeOut(200);
+                        scheduledHide = Scheduler.AddDelayed(() => lastScreen?.Hide(), TournamentScreen.FADE_DELAY);
+                    }
+                    else
+                    {
+                        lastScreen?.Hide();
+                        background.Show();
+                    }
+
+                    screens.ChangeChildDepth(currentScreen, depth--);
+                    currentScreen.Show();
+
+                    foreach (var s in buttons.OfType<ScreenButton>())
+                        s.Selected = screenType == s.Type;
+
+                    animateChatContainer(currentScreen);
+                }, ladder.TransitionDuration.Value);
+
+                transitionVideo.OnPlaybackComplete += () =>
+                {
+                    transitionVideo.FadeOut(200, Easing.OutQuint);
+                    Scheduler.AddDelayed(() => transitionVideo.Expire(), 250);
+                };
+
+                return;
+            }
+
+            var last = currentScreen;
             currentScreen = target;
 
-            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.BackgroundAvailable == true)
+            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.VideoAvailable == true)
             {
                 background.FadeOut(200);
-
-                // delay the hide to avoid a double-fade transition.
-                scheduledHide = Scheduler.AddDelayed(() => lastScreen?.Hide(), TournamentScreen.FADE_DELAY);
+                scheduledHide = Scheduler.AddDelayed(() => last?.Hide(), TournamentScreen.FADE_DELAY);
             }
             else
             {
-                lastScreen?.Hide();
-                background.Show();
+                last?.Hide();
+                background?.Show();
             }
 
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
 
-            var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
-
-            switch (currentScreen)
-            {
-                case MapPoolScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
-                    chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144), 500, Easing.OutQuint);
-                    chat.ChangeRadius(0);
-                    break;
-
-                case GameplayScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
-                    chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
-                    chat.ChangeRadius(0);
-                    break;
-
-                case BoardScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
-                    chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
-                    chat.ChangeRadius(10);
-                    break;
-
-                default:
-                    chatContainer.FadeOut(TournamentScreen.FADE_DELAY);
-                    break;
-            }
+            animateChatContainer(currentScreen);
 
             foreach (var s in buttons.OfType<ScreenButton>())
                 s.Selected = screenType == s.Type;
@@ -432,5 +451,40 @@ namespace osu.Game.Tournament
             chatContainer.ResizeTo(size, duration, easing);
 
         public void ReloadChat() => chat.ReloadChannel();
+
+        private void animateChatContainer(Drawable screen)
+        {
+            var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
+            switch (screen)
+            {
+                case MapPoolScreen _:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144), 500, Easing.OutQuint);
+                    chat.ChangeRadius(0);
+                    break;
+
+                case GameplayScreen _:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
+                    chat.ChangeRadius(0);
+                    break;
+
+                case BoardScreen _:
+                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
+                    chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
+                    chat.ChangeRadius(10);
+                    break;
+
+                default:
+                    chatContainer.FadeOut(TournamentScreen.FADE_DELAY);
+                    break;
+            }
+        }
     }
 }
