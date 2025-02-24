@@ -40,7 +40,7 @@
         <value>保存更改</value>
     </data>
     <data name="add_new" xml:space="preserve">
-        <value>新增条目</value>
+        <value>添加条目</value>
     </data>
     <data name="clear" xml:space="preserve">
         <value>清除所有</value>
@@ -50,5 +50,26 @@
     </data>
     <data name="reset" xml:space="preserve">
         <value>重置</value>
+    </data>
+    <data name="remove" xml:space="preserve">
+        <value>移除</value>
+    </data>
+    <data name="user_id" xml:space="preserve">
+        <value>用户 ID</value>
+    </data>
+    <data name="beatmap_id" xml:space="preserve">
+        <value>谱面 ID</value>
+    </data>
+    <data name="seed" xml:space="preserve">
+        <value>Seed</value>
+    </data>
+    <data name="score" xml:space="preserve">
+        <value>分数</value>
+    </data>
+    <data name="beatmap_mod" xml:space="preserve">
+        <value>谱面类型</value>
+    </data>
+    <data name="add_beatmap" xml:space="preserve">
+        <value>添加谱面</value>
     </data>
 </root>

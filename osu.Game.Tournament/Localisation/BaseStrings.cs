@@ -69,6 +69,41 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString Reset => new TranslatableString(getKey(@"reset"), @"Reset");
 
+        /// <summary>
+        /// "Remove"
+        /// </summary>
+        public static LocalisableString Remove => new TranslatableString(getKey(@"remove"), @"Remove");
+
+        /// <summary>
+        /// "User ID"
+        /// </summary>
+        public static LocalisableString UserID => new TranslatableString(getKey(@"user_id"), @"User ID");
+
+        /// <summary>
+        /// "Beatmap ID"
+        /// </summary>
+        public static LocalisableString BeatmapID => new TranslatableString(getKey(@"beatmap_id"), @"Beatmap ID");
+
+        /// <summary>
+        /// "Seed"
+        /// </summary>
+        public static LocalisableString Seed => new TranslatableString(getKey(@"seed"), @"Seed");
+
+        /// <summary>
+        /// "Score"
+        /// </summary>
+        public static LocalisableString Score => new TranslatableString(getKey(@"score"), @"Score");
+
+        /// <summary>
+        /// "Seeding Mod"
+        /// </summary>
+        public static LocalisableString BeatmapMod => new TranslatableString(getKey(@"beatmap_mod"), @"Mod");
+
+        /// <summary>
+        /// "Add beatmap"
+        /// </summary>
+        public static LocalisableString AddBeatmap => new TranslatableString(getKey(@"add_beatmap"), @"Add beatmap");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
