@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+    
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="background_settings_title" xml:space="preserve">
+        <value>背景设置</value>
+    </data>
+    <data name="unknown" xml:space="preserve">
+        <value>未知</value>
+    </data>
+    <data name="background_dim" xml:space="preserve">
+        <value>背景暗化</value>
+    </data>
+    <data name="select_background_for" xml:space="preserve">
+        <value>选择背景</value>
+    </data>
+    <data name="save_all" xml:space="preserve">
+        <value>保存到全部</value>
+    </data>
+    <data name="reset_background_title" xml:space="preserve">
+        <value>重置背景设置？</value>
+    </data>
+    <data name="reset_background_text" xml:space="preserve">
+        <value>确定要重置回默认值吗？此操作不可逆。</value>
+    </data>
+    <data name="dialog_reset_one" xml:space="preserve">
+        <value>是的，只重置当前背景。</value>
+    </data>
+    <data name="dialog_reset_all" xml:space="preserve">
+        <value>是的，重置所有背景。</value>
+    </data>
+    <data name="dialog_cancel" xml:space="preserve">
+        <value>还是留着现在的吧...</value>
+    </data>
+    <data name="prompt_select_file" xml:space="preserve">
+        <value>请选择文件！</value>
+    </data>
+    <data name="prompt_file_using" xml:space="preserve">
+        <value>使用：</value>
+    </data>
+    <data name="prompt_file_invalid" xml:space="preserve">
+        <value>文件类型无效。</value>
+    </data>
+    <data name="prompt_file_preview" xml:space="preserve">
+        <value>在右侧预览！</value>
+    </data>
+    <data name="file_type_video" xml:space="preserve">
+        <value>视频</value>
+    </data>
+    <data name="file_type_image" xml:space="preserve">
+        <value>图像</value>
+    </data>
+    <data name="prompt_file_path" xml:space="preserve">
+        <value>必须在"{1}"目录选择{0}。</value>
+    </data>
+</root>

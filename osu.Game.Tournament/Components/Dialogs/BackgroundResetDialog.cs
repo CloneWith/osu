@@ -4,31 +4,32 @@
 using System;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Overlays.Dialog;
+using osu.Game.Tournament.Localisation.Screens;
 
 namespace osu.Game.Tournament.Components.Dialogs
 {
-    public partial class ResetVideoDialog : PopupDialog
+    public partial class BackgroundResetDialog : PopupDialog
     {
-        public ResetVideoDialog(Action resetOneAction, Action resetAllAction)
+        public BackgroundResetDialog(Action resetOneAction, Action resetAllAction)
         {
-            HeaderText = @"Reset video settings?";
-            BodyText = @"Are you sure to reset these to default? This cannot be undone.";
+            HeaderText = BackgroundSelectStrings.ResetBackgroundTitle;
+            BodyText = BackgroundSelectStrings.ResetBackgroundText;
             Icon = FontAwesome.Solid.Undo;
             Buttons = new PopupDialogButton[]
             {
                 new PopupDialogDangerousButton
                 {
-                    Text = @"Yes, but just reset the selected one.",
-                    Action = resetOneAction
+                    Text = BackgroundSelectStrings.DialogResetOne,
+                    Action = resetOneAction,
                 },
                 new PopupDialogDangerousButton
                 {
-                    Text = @"Yes, reset all of them.",
-                    Action = resetAllAction
+                    Text = BackgroundSelectStrings.DialogResetAll,
+                    Action = resetAllAction,
                 },
                 new PopupDialogCancelButton
                 {
-                    Text = @"I'd rather stay the same.",
+                    Text = BackgroundSelectStrings.DialogCancel,
                 },
             };
         }
