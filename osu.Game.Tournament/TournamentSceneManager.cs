@@ -34,6 +34,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components.Animations;
+using osu.Game.Tournament.Localisation;
 
 namespace osu.Game.Tournament
 {
@@ -178,26 +179,26 @@ namespace osu.Game.Tournament
                                 Padding = new MarginPadding(5),
                                 Children = new Drawable[]
                                 {
-                                    new ScreenButton(typeof(SetupScreen)) { Text = "Setup", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
                                     new Separator(),
-                                    new ScreenButton(typeof(TeamEditorScreen)) { Text = "Team Editor", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(RoundEditorScreen)) { Text = "Rounds Editor", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(LadderEditorScreen)) { Text = "Bracket Editor", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(RoundEditorScreen)) { Text = ScreenStrings.RoundsEditor, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(LadderEditorScreen)) { Text = ScreenStrings.BracketEditor, RequestSelection = SetScreen },
                                     new Separator(),
-                                    new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = "Schedule", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(LadderScreen), Key.R) { Text = "Bracket", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = ScreenStrings.Schedule, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(LadderScreen), Key.R) { Text = ScreenStrings.Bracket, RequestSelection = SetScreen },
                                     new Separator(),
-                                    new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = "Team Intro", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = ScreenStrings.TeamIntro, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(SeedingScreen), Key.D) { Text = ScreenStrings.Seeding, RequestSelection = SetScreen },
                                     new Separator(),
-                                    new ScreenButton(typeof(BoardScreen), Key.B) { Text = "Board", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(GameplayScreen), Key.G) { Text = ScreenStrings.Gameplay, RequestSelection = SetScreen },
                                     new Separator(),
-                                    new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = "Win", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = ScreenStrings.Win, RequestSelection = SetScreen },
                                     new Separator(),
-                                    new ScreenButton(typeof(DrawingsScreen)) { Text = "Drawings", RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(ShowcaseScreen)) { Text = "Showcase", RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
                                 }
                             }
                         },

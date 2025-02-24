@@ -12,6 +12,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osuTK;
@@ -146,7 +147,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Refresh",
+                            Text = BaseStrings.Refresh,
                             Action = update
                         },
                     },

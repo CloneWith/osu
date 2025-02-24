@@ -19,6 +19,7 @@ using osu.Game.Overlays;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
@@ -379,7 +380,7 @@ namespace osu.Game.Tournament.Screens.Board
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Refresh",
+                            Text = BaseStrings.Refresh,
                             BackgroundColour = Color4.Orange,
                             Action = updateDisplay
                         },

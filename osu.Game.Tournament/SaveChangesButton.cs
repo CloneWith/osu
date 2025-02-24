@@ -9,6 +9,7 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.Multiplayer;
+using osu.Game.Tournament.Localisation;
 
 namespace osu.Game.Tournament
 {
@@ -24,7 +25,7 @@ namespace osu.Game.Tournament
         {
             RelativeSizeAxes = Axes.X;
             Height = 48;
-            Text = "Save Changes";
+            Text = BaseStrings.SaveChanges;
             Action = saveChanges;
             Enabled.Value = false;
         }
