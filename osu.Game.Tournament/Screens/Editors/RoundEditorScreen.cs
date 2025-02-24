@@ -114,12 +114,6 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.48f,
                                 Current = Model.UseBoard,
                             },
-                            new FormCheckBox
-                            {
-                                Caption = "Trust All Special Commands",
-                                Width = 0.48f,
-                                Current = Model.TrustAll,
-                            },
                             new DangerousSettingsButton
                             {
                                 Width = 0.2f,

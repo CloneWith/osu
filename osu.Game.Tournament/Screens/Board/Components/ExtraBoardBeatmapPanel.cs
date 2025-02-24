@@ -1,7 +1,6 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -51,7 +50,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
             currentMatch.BindTo(ladder.CurrentMatch);
 
             var displayTitle = Beatmap?.GetDisplayTitleRomanisable(false, false)
-                                      .ToString().ExtractSongTitleFromMetadata().Trim().TruncateWithEllipsis(39) ?? (LocalisableString)@"unknown";
+                                      .ToString().ExtractSongTitleFromMetadata().Trim().TruncateWithEllipsis(39)
+                               ?? (LocalisableString)@"unknown";
 
             string displayDifficulty = Beatmap?.DifficultyName.TruncateWithEllipsis(25) ?? "unknown";
 
@@ -123,16 +123,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            if (match.OldValue != null)
-                match.OldValue.ExtraPicks.CollectionChanged -= picksBansOnCollectionChanged;
-            if (match.NewValue != null)
-                match.NewValue.ExtraPicks.CollectionChanged += picksBansOnCollectionChanged;
-
             Scheduler.AddOnce(updateState);
         }
-
-        private void picksBansOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-            => Scheduler.AddOnce(updateState);
 
         private BeatmapChoice? choice;
 
@@ -143,7 +135,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 return;
             }
 
-            var newChoice = currentMatch.Value.ExtraPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
+            var newChoice = currentMatch.Value.PicksBans.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
             bool shouldFlash = newChoice != choice;
 

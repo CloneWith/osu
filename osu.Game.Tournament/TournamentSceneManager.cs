@@ -397,7 +397,7 @@ namespace osu.Game.Tournament
 
         public void ShowChat(int duration) => chatContainer.FadeIn(duration, Easing.OutQuint);
 
-        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral, TrapInfo? trap = null) => queueAnimation(new TournamentIntro(map, colour, trap)
+        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral) => queueAnimation(new TournamentIntro(map, colour)
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,

@@ -159,18 +159,6 @@ namespace osu.Game.Tournament.Screens.Setup
                 new SectionHeader(@"Automation"),
                 new LabelledSwitchButton
                 {
-                    Label = "Use referee commands",
-                    Description = "Referees can use pre-defined commands to control the tournament client in the multiplayer room.",
-                    Current = LadderInfo.UseRefereeCommands,
-                },
-                new LabelledSwitchButton
-                {
-                    Label = "Need referee response for critical steps",
-                    Description = "The tournament client will wait for referee\'s correct command to progress.",
-                    Current = LadderInfo.NeedRefereeResponse,
-                },
-                new LabelledSwitchButton
-                {
                     Label = "Auto advance screens",
                     Description = "Screens will progress automatically from gameplay -> results -> map pool",
                     Current = LadderInfo.AutoProgressScreens,

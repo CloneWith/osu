@@ -21,12 +21,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private readonly Container iconHolder;
         private readonly Container descHolder;
 
-        public InstructionDisplay(TeamColour team = TeamColour.Neutral, Steps step = Steps.Default)
+        public InstructionDisplay(TeamColour team = TeamColour.Neutral, RoundStep roundStep = RoundStep.Default)
         {
             thisStep = new InstructionInfo
             (
                 team: team,
-                step: step
+                roundStep: roundStep
             );
             Anchor = Anchor.CentreLeft;
             Origin = Anchor.CentreLeft;
@@ -95,7 +95,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
             Texture welcomeTexture = textures.Get("Icons/welcome-img");
             Texture mainDescTexture = textures.Get("Icons/main-descimg");
 
-            if (thisStep.Step == Steps.Default && welcomeTexture != null)
+            if (thisStep.RoundStep == RoundStep.Default && welcomeTexture != null)
             {
                 iconHolder.Child = new Sprite
                 {
@@ -121,7 +121,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 };
             }
 
-            if (thisStep.Step == Steps.Default && mainDescTexture != null)
+            if (thisStep.RoundStep == RoundStep.Default && mainDescTexture != null)
             {
                 descHolder.Child = new Sprite
                 {

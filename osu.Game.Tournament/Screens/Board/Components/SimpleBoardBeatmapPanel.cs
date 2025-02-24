@@ -33,8 +33,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private Box flash = null!;
 
         private SpriteIcon icon = null!;
-        private SpriteIcon protectIcon = null!;
-        private SpriteIcon trapIcon = null!;
 
         // Real X and Y positions on the board, distinct from RoundBeatmap.BoardX and BoardY.
         public int RealX;
@@ -81,36 +79,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.White,
                     Size = new Vector2(0.4f),
-                    Alpha = 0,
-                },
-                new SpriteIcon
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Yellow,
-                    Size = new Vector2(0.4f),
-                    Icon = FontAwesome.Solid.ExchangeAlt,
-                    Alpha = 0,
-                },
-                protectIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Icon = FontAwesome.Solid.Lock,
-                    Colour = Color4.White,
-                    Size = new Vector2(24),
-                    Position = new Vector2(5, -5),
-                    Alpha = 0,
-                },
-                trapIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.BottomRight,
-                    Origin = Anchor.BottomRight,
-                    Icon = FontAwesome.Solid.ExclamationCircle,
-                    Colour = Color4.White,
-                    Size = new Vector2(24),
-                    Position = new Vector2(-5, -5),
                     Alpha = 0,
                 },
                 flash = new Box
@@ -161,39 +129,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
             using (BeginDelayedSequence(initDelay))
             {
                 var relatedBanPickChoices = currentMatch.Value.PicksBans.Where(p => p.BeatmapID == Beatmap.OnlineID);
-                var relatedTrapChoices = currentMatch.Value.Traps.Where(p => p.BeatmapID == Beatmap.OnlineID);
-                var relatedProtectChoices = currentMatch.Value.Protects.Where(p => p.BeatmapID == Beatmap.OnlineID);
-                bool isBothTrapped = relatedTrapChoices.Any(p => p.Team == TeamColour.Red) && relatedTrapChoices.Any(p => p.Team == TeamColour.Blue);
-
-                for (int i = 0; i < relatedProtectChoices.Count(); i++)
-                {
-                    var protect = relatedProtectChoices.ElementAt(i);
-
-                    using (BeginDelayedSequence(i * 250))
-                    {
-                        backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                        protectIcon.FadeIn(duration: 150, easing: Easing.InCubic);
-                        protectIcon.Colour = protect.Team == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky;
-                    }
-                }
-
-                for (int i = 0; i < relatedTrapChoices.Count(); i++)
-                {
-                    var trap = relatedTrapChoices.ElementAt(i);
-
-                    using (BeginDelayedSequence((i + relatedProtectChoices.Count()) * 250))
-                    {
-                        backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
-                        trapIcon.FadeIn(duration: 150, easing: Easing.InCubic);
-                        trapIcon.Colour = isBothTrapped ? Color4.White : (trap.Team == TeamColour.Red ? new OsuColour().TeamColourRed : new OsuColour().Sky);
-                    }
-                }
 
                 for (int i = 0; i < relatedBanPickChoices.Count(); i++)
                 {
                     var choice = relatedBanPickChoices.ElementAt(i);
 
-                    using (BeginDelayedSequence((i + relatedProtectChoices.Count() + relatedTrapChoices.Count()) * 250))
+                    using (BeginDelayedSequence(i * 250))
                     {
                         Flash();
 
