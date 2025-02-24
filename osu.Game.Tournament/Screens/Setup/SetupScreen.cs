@@ -84,6 +84,10 @@ namespace osu.Game.Tournament.Screens.Setup
             fillFlow.Children = new Drawable[]
             {
                 new SectionHeader(@"General"),
+                new LanguageSwitcher
+                {
+                    Label = "Language",
+                },
                 new ActionableInfo
                 {
                     Label = "Current IPC source",
