@@ -95,6 +95,21 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString Score => new TranslatableString(getKey(@"score"), @"Score");
 
         /// <summary>
+        /// "Round"
+        /// </summary>
+        public static LocalisableString Round => new TranslatableString(getKey(@"round"), @"Round");
+
+        /// <summary>
+        /// "Team Red"
+        /// </summary>
+        public static LocalisableString TeamRed => new TranslatableString(getKey(@"team_red"), @"Team Red");
+
+        /// <summary>
+        /// "Team Blue"
+        /// </summary>
+        public static LocalisableString TeamBlue => new TranslatableString(getKey(@"team_blue"), @"Team Blue");
+
+        /// <summary>
         /// "Seeding Mod"
         /// </summary>
         public static LocalisableString BeatmapMod => new TranslatableString(getKey(@"beatmap_mod"), @"Mod");

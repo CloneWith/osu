@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+    
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
         <xsd:element name="root" msdata:IsDataSet="true">
@@ -18,16 +18,25 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="no_drawing_data_warning" xml:space="preserve">
-        <value>找不到 drawings.txt 文件。请创建一个，然后重启客户端。</value>
+    <data name="empty_bracket_prompt" xml:space="preserve">
+        <value>使用右键点击，放置并连接比赛</value>
     </data>
-    <data name="file_format_link_text" xml:space="preserve">
-        <value>点击获取文件格式详情</value>
+    <data name="create_new_match" xml:space="preserve">
+        <value>新建比赛</value>
     </data>
-    <data name="begin_random" xml:space="preserve">
-        <value>启动随机</value>
+    <data name="reset_teams" xml:space="preserve">
+        <value>重置队伍</value>
     </data>
-    <data name="stop_random" xml:space="preserve">
-        <value>停止随机</value>
+    <data name="losers_bracket" xml:space="preserve">
+        <value>败者组对阵</value>
+    </data>
+    <data name="set_as_current" xml:space="preserve">
+        <value>设为当前回合</value>
+    </data>
+    <data name="join_with" xml:space="preserve">
+        <value>连接...</value>
+    </data>
+    <data name="join_with_loser" xml:space="preserve">
+        <value>连接...（败者）</value>
     </data>
 </root>

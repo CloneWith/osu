@@ -72,4 +72,13 @@
     <data name="add_beatmap" xml:space="preserve">
         <value>添加谱面</value>
     </data>
+    <data name="round" xml:space="preserve">
+        <value>回合</value>
+    </data>
+    <data name="team_red" xml:space="preserve">
+        <value>红队</value>
+    </data>
+    <data name="team_blue" xml:space="preserve">
+        <value>蓝队</value>
+    </data>
 </root>
