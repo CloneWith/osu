@@ -75,7 +75,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
                                 Text = thisStep.Name,
-                                Font = OsuFont.GetFont(typeface: Typeface.HarmonyOSSans, size: 42, weight: FontWeight.Bold),
+                                Font = OsuFont.Torus.With(size: 42, weight: FontWeight.Bold),
                             },
                             descHolder = new Container
                             {
@@ -139,7 +139,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
                     Text = thisStep.Description,
-                    Font = OsuFont.GetFont(typeface: Typeface.HarmonyOSSans, size: 30, weight: FontWeight.Regular),
+                    Font = OsuFont.Torus.With(size: 30, weight: FontWeight.Regular),
                 };
             }
         }
