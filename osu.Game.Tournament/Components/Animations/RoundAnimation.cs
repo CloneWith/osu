@@ -180,7 +180,7 @@ namespace osu.Game.Tournament.Components.Animations
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = colour == TeamColour.Red ? "红队获胜!" : colour == TeamColour.Blue ? "蓝队获胜!" : "最后一搏: EX!",
-                                Font = OsuFont.HarmonyOSSans.With(weight: FontWeight.Bold, size: 55),
+                                Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 55),
                                 Colour = Color4.White,
                                 Alpha = 0,
                             },

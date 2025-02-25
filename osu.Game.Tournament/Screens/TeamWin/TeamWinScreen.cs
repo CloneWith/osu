@@ -109,7 +109,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Text = "胜负已定...",
                             X = -250,
                             Y = 250 - 25,
-                            Font = OsuFont.HarmonyOSSans.With(size: 64, weight: FontWeight.Bold),
+                            Font = OsuFont.Torus.With(size: 64, weight: FontWeight.Bold),
                             Alpha = 0,
                         },
                         winSubText = new TournamentSpriteText
@@ -119,7 +119,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Text = "...最后的获胜队是...",
                             X = 250,
                             Y = 250 + 25,
-                            Font = OsuFont.HarmonyOSSans.With(size: 64, weight: FontWeight.Bold),
+                            Font = OsuFont.Torus.With(size: 64, weight: FontWeight.Bold),
                             Alpha = 0,
                         }
                     },
@@ -272,7 +272,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "胜负未决",
-                                Font = OsuFont.HarmonyOSSans.With(size: 70, weight: FontWeight.Bold),
+                                Font = OsuFont.Torus.With(size: 70, weight: FontWeight.Bold),
                                 Alpha = 0,
                             },
                             captionMainCaption = new TournamentSpriteText
@@ -288,7 +288,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = "请坐和放宽",
-                                Font = OsuFont.HarmonyOSSans.With(size: 60, weight: FontWeight.Regular),
+                                Font = OsuFont.Torus.With(size: 60, weight: FontWeight.Regular),
                                 Alpha = 0,
                             },
                             captionSubCaption = new TournamentSpriteText
