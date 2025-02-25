@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+    
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="round_info_header" xml:space="preserve">
+        <value>回合信息</value>
+    </data>
+    <data name="round_name" xml:space="preserve">
+        <value>名称</value>
+    </data>
+    <data name="round_description" xml:space="preserve">
+        <value>描述</value>
+    </data>
+    <data name="start_time" xml:space="preserve">
+        <value>开始时间</value>
+    </data>
+    <data name="num_of_bans" xml:space="preserve">
+        <value>禁图数目</value>
+    </data>
+    <data name="best_of" xml:space="preserve">
+        <value>所需胜数</value>
+    </data>
+    <data name="board_mode" xml:space="preserve">
+        <value>棋盘模式</value>
+    </data>
+    <data name="delete_round" xml:space="preserve">
+        <value>删除回合</value>
+    </data>
+    <data name="add_referee" xml:space="preserve">
+        <value>添加裁判</value>
+    </data>
+    <data name="referee_list" xml:space="preserve">
+        <value>裁判列表</value>
+    </data>
+    <data name="delete_referee" xml:space="preserve">
+        <value>删除裁判</value>
+    </data>
+    <data name="round_beatmaps_header" xml:space="preserve">
+        <value>回合谱面</value>
+    </data>
+    <data name="mod_index" xml:space="preserve">
+        <value>类别序数</value>
+    </data>
+</root>
