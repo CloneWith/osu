@@ -450,6 +450,33 @@ namespace osu.Game.Tournament
             });
         }
 
+        protected override void InitialiseFonts()
+        {
+            AddFont(Resources, @"Fonts/osuFont");
+
+            AddFont(Resources, @"Fonts/Torus/Torus-Regular");
+            AddFont(Resources, @"Fonts/Torus/Torus-Light");
+            AddFont(Resources, @"Fonts/Torus/Torus-SemiBold");
+            AddFont(Resources, @"Fonts/Torus/Torus-Bold");
+
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Regular");
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Light");
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-SemiBold");
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Bold");
+
+            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Regular");
+            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Medium");
+            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Bold");
+
+            AddFont(Resources, @"Fonts/Noto/Noto-Basic");
+            AddFont(Resources, @"Fonts/Noto/Noto-Hangul");
+            AddFont(Resources, @"Fonts/Noto/Noto-CJK-Basic");
+            AddFont(Resources, @"Fonts/Noto/Noto-CJK-Compatibility");
+            AddFont(Resources, @"Fonts/Noto/Noto-Thai");
+
+            Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
+        }
+
         protected override UserInputManager CreateUserInputManager() => new TournamentInputManager();
 
         private partial class TournamentInputManager : UserInputManager

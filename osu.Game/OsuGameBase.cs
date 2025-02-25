@@ -478,6 +478,11 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Inter/Inter-Bold");
             AddFont(Resources, @"Fonts/Inter/Inter-BoldItalic");
 
+            // Use HarmonyOS Sans as primary font for CJK characters
+            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Regular");
+            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Medium");
+            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Bold");
+
             AddFont(Resources, @"Fonts/Noto/Noto-Basic");
             AddFont(Resources, @"Fonts/Noto/Noto-Hangul");
             AddFont(Resources, @"Fonts/Noto/Noto-CJK-Basic");
@@ -487,10 +492,6 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Venera/Venera-Light");
             AddFont(Resources, @"Fonts/Venera/Venera-Bold");
             AddFont(Resources, @"Fonts/Venera/Venera-Black");
-
-            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Regular");
-            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Medium");
-            AddFont(Resources, @"Fonts/HarmonyOSSans/HarmonyOSSans-Bold");
 
             Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
         }

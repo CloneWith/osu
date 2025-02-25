@@ -125,6 +125,8 @@ namespace osu.Game.Graphics
         [Description("Torus (alternate)")]
         TorusAlternate,
         Inter,
+
+        [Description("HarmonyOS Sans")]
         HarmonyOSSans,
     }
 
