@@ -15,6 +15,8 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Editors.Components;
 using osu.Game.Tournament.Screens.Drawings.Components;
@@ -36,7 +38,7 @@ namespace osu.Game.Tournament.Screens.Editors
             ControlPanel.Add(new DangerousSettingsButton
             {
                 RelativeSizeAxes = Axes.X,
-                Text = "Add all countries",
+                Text = TeamEditorStrings.AddAllCountries,
                 Action = () => dialogOverlay?.Push(new AddAllDialog(() =>
                 {
                     Expire();
@@ -119,35 +121,35 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new SectionHeader(@"Team Information"),
+                            new SectionHeader(TeamEditorStrings.TeamInfoHeader),
                             new FormTextBox
                             {
-                                Caption = "Name",
+                                Caption = TeamEditorStrings.TeamName,
                                 Width = 0.2f,
-                                Current = Model.FullName
+                                Current = Model.FullName,
                             },
                             new FormTextBox
                             {
-                                Caption = "Acronym",
+                                Caption = TeamEditorStrings.TeamAcronym,
                                 Width = 0.2f,
-                                Current = Model.Acronym
+                                Current = Model.Acronym,
                             },
                             new FormTextBox
                             {
-                                Caption = "Flag",
+                                Caption = TeamEditorStrings.TeamFlag,
                                 Width = 0.2f,
-                                Current = Model.FlagName
+                                Current = Model.FlagName,
                             },
                             new FormTextBox
                             {
-                                Caption = "Seed",
+                                Caption = TeamEditorStrings.TeamSeed,
                                 Width = 0.2f,
-                                Current = Model.Seed
+                                Current = Model.Seed,
                             },
                             new DangerousSettingsButton
                             {
                                 Width = 0.2f,
-                                Text = "Delete Team",
+                                Text = TeamEditorStrings.DeleteTeam,
                                 Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
                                 {
                                     Expire();
@@ -156,7 +158,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             },
                             new FormSliderBar<int>
                             {
-                                Caption = "Last Year Placement",
+                                Caption = TeamEditorStrings.LastYearPlacement,
                                 Width = 0.33f,
                                 Current = Model.LastYearPlacing,
                                 TransferValueOnCommit = true,
@@ -166,18 +168,18 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Width = 0.2f,
                                 Margin = new MarginPadding { Left = 10 },
-                                Text = "Edit seeding results",
+                                Text = TeamEditorStrings.EditSeedingResults,
                                 Action = () =>
                                 {
                                     sceneManager?.SetScreen(new SeedingEditorScreen(team, parent));
-                                }
+                                },
                             },
                             playerEditor,
                             new SettingsButton
                             {
-                                Text = "Add player",
+                                Text = TeamEditorStrings.AddPlayer,
                                 Margin = new MarginPadding { Top = 10, Bottom = 10 },
-                                Action = () => playerEditor.CreateNew()
+                                Action = () => playerEditor.CreateNew(),
                             },
                         }
                     },
@@ -203,7 +205,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         Direction = FillDirection.Full,
                         Padding = new MarginPadding(5),
                         Spacing = new Vector2(5),
-                        Child = new SectionHeader(@"Player List")
+                        Child = new SectionHeader(TeamEditorStrings.PlayerListHeader),
                     };
 
                     flow.AddRange(team.Players.Select(p => new PlayerRow(team, p)));
@@ -260,7 +262,7 @@ namespace osu.Game.Tournament.Screens.Editors
                                 {
                                     new SettingsNumberBox
                                     {
-                                        LabelText = "User ID",
+                                        LabelText = BaseStrings.UserID,
                                         Width = 0.25f,
                                         Current = playerId,
                                     },
@@ -277,7 +279,7 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.None,
                                 Width = 150,
-                                Text = "Remove",
+                                Text = BaseStrings.Remove,
                                 Action = () => dialogOverlay?.Push(new DeletePlayerDialog(user, () =>
                                 {
                                     Expire();

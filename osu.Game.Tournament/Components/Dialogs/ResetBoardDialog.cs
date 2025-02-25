@@ -9,22 +9,17 @@ namespace osu.Game.Tournament.Components.Dialogs
 {
     public partial class ResetBoardDialog : PopupDialog
     {
-        public ResetBoardDialog(Action revertAction, Action resetAction)
+        public ResetBoardDialog(Action resetAction)
         {
-            HeaderText = @"Warning: Revert";
-            BodyText = @"This would reset the board to the initial state, including swaps and chats. Are you sure?";
+            HeaderText = @"Warning: Reset";
+            BodyText = @"This would reset the board to the initial state. Are you sure?";
             Icon = FontAwesome.Solid.Undo;
             Buttons = new PopupDialogButton[]
             {
                 new PopupDialogDangerousButton
                 {
-                    Text = @"Yes, revert to the initial state.",
-                    Action = revertAction
-                },
-                new PopupDialogDangerousButton
-                {
-                    Text = @"Yes, but keep the swaps.",
-                    Action = resetAction
+                    Text = @"Yes, reset to the initial state.",
+                    Action = resetAction,
                 },
                 new PopupDialogCancelButton
                 {

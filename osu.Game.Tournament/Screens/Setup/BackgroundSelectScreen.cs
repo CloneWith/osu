@@ -11,6 +11,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
@@ -21,6 +22,8 @@ using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.IO;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -109,8 +112,8 @@ namespace osu.Game.Tournament.Screens.Setup
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        Text = "Background Settings",
-                                        Font = OsuFont.Default.With(size: 32, weight: FontWeight.SemiBold)
+                                        Text = BackgroundSelectStrings.BackgroundSettingsTitle,
+                                        Font = OsuFont.Default.With(size: 32, weight: FontWeight.SemiBold),
                                     },
                                 },
                                 new Drawable[]
@@ -118,7 +121,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                     fileSelector = new OsuFileSelector(initialPath)
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                    }
+                                    },
                                 },
                                 new Drawable[]
                                 {
@@ -143,12 +146,12 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Origin = Anchor.Centre,
                                                 AutoSizeAxes = Axes.Both,
                                                 AutoSizeEasing = Easing.OutQuint,
-                                                AutoSizeDuration = 100
+                                                AutoSizeDuration = 100,
                                             },
-                                        }
-                                    }
+                                        },
+                                    },
                                 },
-                            }
+                            },
                         },
                         new GridContainer
                         {
@@ -196,7 +199,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                     {
                                                         Anchor = Anchor.TopCentre,
                                                         Origin = Anchor.TopCentre,
-                                                        Text = "Unknown",
+                                                        Text = BackgroundSelectStrings.Unknown,
                                                         Font = OsuFont.Default.With(size: 24),
                                                     },
                                                 },
@@ -205,7 +208,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                             {
                                                 Anchor = Anchor.TopCentre,
                                                 Origin = Anchor.TopCentre,
-                                                LabelText = @"Background Dim",
+                                                LabelText = BackgroundSelectStrings.BackgroundDim,
                                                 DisplayAsPercentage = true,
                                                 Current = backgroundDim,
                                             },
@@ -213,7 +216,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                             {
                                                 Anchor = Anchor.TopCentre,
                                                 Origin = Anchor.TopCentre,
-                                                LabelText = "Select background for",
+                                                LabelText = BackgroundSelectStrings.SelectBackgroundFor,
                                                 ShowsDefaultIndicator = false,
                                                 Margin = new MarginPadding { Top = 10 },
                                             },
@@ -231,8 +234,8 @@ namespace osu.Game.Tournament.Screens.Setup
                                                     RelativeSizeAxes = Axes.Both,
                                                 },
                                             },
-                                        }
-                                    }
+                                        },
+                                    },
                                 },
                                 new Drawable[]
                                 {
@@ -249,25 +252,25 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 150,
-                                                Text = "Save",
-                                                Action = () => saveSetting()
+                                                Text = BaseStrings.SaveChanges,
+                                                Action = () => saveSetting(),
                                             },
                                             new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 150,
-                                                Text = "Save to all",
-                                                Action = () => saveSetting(true)
+                                                Text = BackgroundSelectStrings.SaveAll,
+                                                Action = () => saveSetting(true),
                                             },
                                             new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 150,
-                                                Text = "Reset...",
+                                                Text = BaseStrings.Reset,
                                                 Colour = Color4.Orange,
-                                                Action = () => overlay?.Push(new ResetVideoDialog
+                                                Action = () => overlay?.Push(new BackgroundResetDialog
                                                 (
                                                     resetOneAction: () =>
                                                     {
@@ -288,11 +291,11 @@ namespace osu.Game.Tournament.Screens.Setup
                                                     }
                                                 )),
                                             },
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
                 new BackButton
@@ -305,7 +308,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 overlay = new DialogOverlay(),
             };
 
-            currentFileText.AddText(@"Select a file!", t => t.Font = OsuFont.Default.With(size: 16));
+            currentFileText.AddText(BackgroundSelectStrings.PromptSelectFile, t => t.Font = OsuFont.Default.With(size: 16));
 
             saveButton.Enabled.Value = false;
 
@@ -327,7 +330,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     RelativeSizeAxes = Axes.Both,
                 };
 
-                infoText.Text = $"Using: {LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value.Name}";
+                infoText.Text = LocalisableString.Interpolate($"{BackgroundSelectStrings.PromptFileUsing}{LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == e.NewValue).Value.Name}");
                 infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
                 backgroundDim.Value = availableInfo.Dim;
             }, true);
@@ -359,7 +362,7 @@ namespace osu.Game.Tournament.Screens.Setup
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (selectedFile.NewValue == null)
             {
-                currentFileText.Text = "Select a file!";
+                currentFileText.Text = BackgroundSelectStrings.PromptSelectFile;
                 currentFileIcon.Icon = FontAwesome.Solid.Edit;
                 return;
             }
@@ -381,7 +384,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 currentFileText.Clear();
                 currentFileText.AddText($"{selectedFile.NewValue.Name}",
                     t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
-                currentFileText.AddText(@": Invalid file type.", t => t.Colour = Color4.Orange);
+                currentFileText.AddText(LocalisableString.Interpolate($": {BackgroundSelectStrings.PromptFileInvalid}"), t => t.Colour = Color4.Orange);
                 currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                 currentFileIcon.Colour = Color4.Orange;
             }
@@ -397,7 +400,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     currentFileText.Clear();
                     currentFileText.AddText($"{selectedFile.NewValue.Name}",
                         t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
-                    currentFileText.AddText(": Preview on the right!", t => t.Colour = Color4.SkyBlue);
+                    currentFileText.AddText(LocalisableString.Interpolate($": {BackgroundSelectStrings.PromptFilePreview}"), t => t.Colour = Color4.SkyBlue);
                     currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
                     currentFileIcon.Colour = Color4.SkyBlue;
                     previewContainer.Child = preview = new TourneyBackground(availableInfo = new BackgroundInfo
@@ -416,11 +419,13 @@ namespace osu.Game.Tournament.Screens.Setup
                 }
                 else
                 {
-                    (string, string) prompt = validVideo ? ("Videos", "Videos") : ("Images", "Backgrounds");
+                    (LocalisableString, string) prompt = validVideo
+                        ? (BackgroundSelectStrings.FileTypeVideo, "Videos")
+                        : (BackgroundSelectStrings.FileTypeImage, "Backgrounds");
 
                     saveButton.Enabled.Value = false;
                     currentFileText.Clear();
-                    currentFileText.AddText($"{prompt.Item1} must be selected from current \"{prompt.Item2}\" directory.",
+                    currentFileText.AddText(BackgroundSelectStrings.PromptFilePath(prompt.Item1, prompt.Item2),
                         t => t.Colour = Color4.Orange);
                     currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
                     currentFileIcon.Colour = Color4.Orange;

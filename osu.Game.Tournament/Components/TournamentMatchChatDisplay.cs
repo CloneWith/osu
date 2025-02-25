@@ -122,26 +122,9 @@ namespace osu.Game.Tournament.Components
                 return null;
 
             var currentMatch = ladderInfo.CurrentMatch;
-            bool isCommand = false;
-            bool isRef = false;
+            bool isRef = currentMatch.Value?.Round.Value?.Referees.Any(p => p.OnlineID == message.SenderId) ?? false;
 
-            // Try to recognize and verify bot commands
-            if (currentMatch.Value?.Round.Value != null)
-            {
-                isCommand = message.Content.StartsWith("[*]", StringComparison.Ordinal);
-
-                isRef = currentMatch.Value.Round.Value.Referees.Any(p => p.OnlineID == message.SenderId);
-
-                // Automatically block duplicate messages, since we have multiple chat displays available.
-                if ((isRef || currentMatch.Value.Round.Value.TrustAll.Value)
-                    && isCommand
-                    && !currentMatch.Value.PendingMsgs.Any(p => p.Equals(message)))
-                {
-                    currentMatch.Value.PendingMsgs.Add(message);
-                }
-            }
-
-            return new MatchMessage(message, ladderInfo, isCommand)
+            return new MatchMessage(message, ladderInfo)
             {
                 IsBackgroundInverted = isRef,
             };
@@ -160,12 +143,11 @@ namespace osu.Game.Tournament.Components
 
         protected partial class MatchMessage : StandAloneMessage
         {
-            public MatchMessage(Message message, LadderInfo info, bool isCommand)
+            public MatchMessage(Message message, LadderInfo info)
                 : base(message)
             {
                 // Disable line background alternating, see https://github.com/ppy/osu/pull/29137
                 EnableBackgroundAlternating = false;
-                IsStrong = isCommand;
 
                 if (info.CurrentMatch.Value is not TournamentMatch match) return;
 

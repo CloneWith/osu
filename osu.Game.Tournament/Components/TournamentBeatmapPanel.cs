@@ -195,14 +195,6 @@ namespace osu.Game.Tournament.Components
                         this.FadeTo(newAlpha: 0.5f, duration: 150, easing: Easing.InCubic);
                         break;
 
-                    case ChoiceType.Protect:
-                        icon.Icon = FontAwesome.Solid.Lock;
-                        icon.Alpha = 0.9f;
-                        Alpha = 1;
-                        backgroundAddition.Colour = new OsuColour().Cyan;
-                        backgroundAddition.FadeTo(newAlpha: 0.5f, duration: 150, easing: Easing.InCubic);
-                        break;
-
                     case ChoiceType.RedWin:
                         Alpha = 1;
                         backgroundAddition.Colour = new OsuColour().Red;
@@ -213,12 +205,6 @@ namespace osu.Game.Tournament.Components
                         Alpha = 1;
                         backgroundAddition.Colour = new OsuColour().Blue;
                         backgroundAddition.FadeTo(newAlpha: 0.6f, duration: 150, easing: Easing.InCubic);
-                        break;
-
-                    case ChoiceType.Trap:
-                        Alpha = 1;
-                        backgroundAddition.Colour = new OsuColour().PurpleLight;
-                        backgroundAddition.FadeTo(newAlpha: 0.4f, duration: 150, easing: Easing.InCubic);
                         break;
                 }
             }

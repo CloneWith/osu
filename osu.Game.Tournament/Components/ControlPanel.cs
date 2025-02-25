@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Tournament.Localisation;
 using osuTK;
 using osuTK.Graphics;
 
@@ -74,7 +75,7 @@ namespace osu.Game.Tournament.Components
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        Text = "Control Panel",
+                                        Text = BaseStrings.ControlPanel,
                                         Font = OsuFont.GetFont(weight: FontWeight.Bold, size: 24),
                                     },
                                 }

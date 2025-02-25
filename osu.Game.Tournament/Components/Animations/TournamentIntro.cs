@@ -26,7 +26,6 @@ namespace osu.Game.Tournament.Components.Animations
         private readonly string mod;
         private readonly TeamColour colour;
         private readonly ColourInfo themeColour;
-        private readonly TrapInfo? mapTrap;
         private readonly ColourInfo modColour;
 
         private Container introContent = null!;
@@ -34,7 +33,6 @@ namespace osu.Game.Tournament.Components.Animations
         private Container secondDisplay = null!;
         private Container beatmapBackground = null!;
         private FillFlowContainer authorDisplay = null!;
-        private Container trapDisplay = null!;
         private Box flash = null!;
         private EmptyBox dummyBackground = null!;
         private OsuSpriteText modText = null!;
@@ -48,13 +46,12 @@ namespace osu.Game.Tournament.Components.Animations
         public event Action? OnAnimationComplete;
         public AnimationStatus Status { get; private set; } = AnimationStatus.Loading;
 
-        public TournamentIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral, TrapInfo? trap = null)
+        public TournamentIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral)
         {
             this.map = map;
             this.colour = colour;
             colourProvider = new OverlayColourProvider(colour == TeamColour.Red ? OverlayColourScheme.Pink : colour == TeamColour.Blue ? OverlayColourScheme.Blue : OverlayColourScheme.Plum);
             themeColour = colour == TeamColour.Red ? new OsuColour().Pink1 : colour == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
-            mapTrap = trap;
             mod = map.Mods + map.ModIndex;
 
             switch (map.Mods)
@@ -77,10 +74,6 @@ namespace osu.Game.Tournament.Components.Animations
 
                 case "HD":
                     modColour = Color4Extensions.FromHex("#fdc300");
-                    break;
-
-                case "EX":
-                    modColour = Color4Extensions.FromHex("#ffa500");
                     break;
 
                 case "TB":
@@ -319,83 +312,6 @@ namespace osu.Game.Tournament.Components.Animations
                     }
                 }
             };
-
-            if (mapTrap != null)
-            {
-                AddInternal(trapDisplay = new Container
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Width = horizontal_info_size,
-                    AutoSizeAxes = Axes.Y,
-                    CornerRadius = 10f,
-                    Masking = true,
-                    Shear = new Vector2(OsuGame.SHEAR, 0f),
-                    Alpha = 0,
-                    Children = new Drawable[]
-                    {
-                        new Box
-                        {
-                            Colour = colourProvider.Background3,
-                            RelativeSizeAxes = Axes.Both,
-                        },
-                        new TruncatingSpriteText
-                        {
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
-                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                            MaxWidth = horizontal_info_size,
-                            Text = "Also triggered the trap:",
-                            Padding = new MarginPadding { Horizontal = 5f },
-                            Font = OsuFont.GetFont(typeface: Typeface.TorusAlternate, size: 26, weight: FontWeight.SemiBold),
-                        },
-                        new SpriteIcon
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            X = 20,
-                            Y = 15,
-                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                            Icon = mapTrap.Icon.Icon,
-                            Colour = mapTrap.Icon.Colour,
-                            Size = new Vector2(32),
-                        },
-                        new FillFlowContainer
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            AutoSizeAxes = Axes.Y,
-                            X = 55,
-                            Width = 0.9f,
-                            Y = 15,
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Direction = FillDirection.Vertical,
-                            Padding = new MarginPadding(5f),
-                            Children = new Drawable[]
-                            {
-                                new TruncatingSpriteText
-                                {
-                                    Text = mapTrap.Name,
-                                    Font = OsuFont.GetFont(typeface: Typeface.HarmonyOSSans, size: 30, weight: FontWeight.Bold),
-                                    MaxWidth = horizontal_info_size,
-                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                },
-                                new TruncatingSpriteText
-                                {
-                                    Text = mapTrap.Description,
-                                    Font = OsuFont.GetFont(typeface: Typeface.HarmonyOSSans, size: 20, weight: FontWeight.Regular),
-                                    MaxWidth = horizontal_info_size,
-                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                },
-                            }
-                        },
-                    }
-                });
-            }
         }
 
         protected override void LoadComplete()
@@ -475,17 +391,6 @@ namespace osu.Game.Tournament.Components.Animations
 
                         using (BeginDelayedSequence(400))
                             flash.FadeOutFromOne(5000, Easing.OutQuint);
-                    }
-
-                    if (mapTrap != null)
-                    {
-                        using (BeginDelayedSequence(1000))
-                        {
-                            trapDisplay.FadeInFromZero(800, Easing.InQuad);
-                            trapDisplay.MoveToOffset(new Vector2(0, 175), 600, Easing.OutQuint);
-                            beatmapContent.MoveToOffset(new Vector2(0, -75), 600, Easing.OutQuint);
-                            trapDisplay.Delay(100).ScaleTo(1.3f, 1500, Easing.OutQuint);
-                        }
                     }
                 }
 

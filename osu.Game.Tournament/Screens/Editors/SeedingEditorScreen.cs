@@ -16,6 +16,8 @@ using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -67,27 +69,27 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new SectionHeader(@"Seeding Entry"),
+                            new SectionHeader(TeamEditorStrings.SeedingEntryHeader),
                             new FormTextBox
                             {
-                                Caption = "Mod",
+                                Caption = BaseStrings.BeatmapMod,
                                 Width = 0.33f,
-                                Current = Model.Mod
+                                Current = Model.Mod,
                             },
                             new FormSliderBar<int>
                             {
-                                Caption = "Seed",
+                                Caption = BaseStrings.Seed,
                                 Width = 0.33f,
-                                Current = Model.Seed
+                                Current = Model.Seed,
                             },
                             new SettingsButton
                             {
                                 Width = 0.2f,
                                 Margin = new MarginPadding(10),
-                                Text = "Add beatmap",
-                                Action = () => beatmapEditor.CreateNew()
+                                Text = BaseStrings.AddBeatmap,
+                                Action = () => beatmapEditor.CreateNew(),
                             },
-                            beatmapEditor
+                            beatmapEditor,
                         }
                     },
                     new IconButton
@@ -98,12 +100,13 @@ namespace osu.Game.Tournament.Screens.Editors
                         Icon = FontAwesome.Solid.TimesCircle,
                         IconScale = new Vector2(1.75f),
                         Size = new Vector2(60),
+                        TooltipText = BaseStrings.Remove,
                         Action = () =>
                         {
                             Expire();
                             team.SeedingResults.Remove(Model);
                         },
-                    }
+                    },
                 };
 
                 RelativeSizeAxes = Axes.X;
@@ -129,7 +132,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
-                        Child = new SectionHeader(@"Seeding Beatmaps")
+                        Child = new SectionHeader(TeamEditorStrings.SeedingBeatmapsHeader),
                     };
 
                     flow.AddRange(round.Beatmaps.Select(p => new SeedingBeatmapRow(round, p)));
@@ -192,7 +195,7 @@ namespace osu.Game.Tournament.Screens.Editors
                                     {
                                         Anchor = Anchor.CentreLeft,
                                         Origin = Anchor.CentreLeft,
-                                        LabelText = "Beatmap ID",
+                                        LabelText = BaseStrings.BeatmapID,
                                         Width = shared_relative_width,
                                         Current = beatmapId,
                                     },
@@ -200,15 +203,15 @@ namespace osu.Game.Tournament.Screens.Editors
                                     {
                                         Anchor = Anchor.CentreLeft,
                                         Origin = Anchor.CentreLeft,
-                                        LabelText = "Seed",
+                                        LabelText = BaseStrings.Seed,
                                         Width = shared_relative_width,
-                                        Current = beatmap.Seed
+                                        Current = beatmap.Seed,
                                     },
                                     new SettingsTextBox
                                     {
                                         Anchor = Anchor.CentreLeft,
                                         Origin = Anchor.CentreLeft,
-                                        LabelText = "Score",
+                                        LabelText = BaseStrings.Score,
                                         Width = shared_relative_width,
                                         Current = score,
                                     },

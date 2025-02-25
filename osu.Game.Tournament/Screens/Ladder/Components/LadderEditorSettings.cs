@@ -13,6 +13,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Events;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -46,11 +48,11 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                 Spacing = new Vector2(5),
                 Children = new Drawable[]
                 {
-                    team1Dropdown = new SettingsTeamDropdown(ladderInfo.Teams) { LabelText = "Team 1" },
-                    team2Dropdown = new SettingsTeamDropdown(ladderInfo.Teams) { LabelText = "Team 2" },
-                    roundDropdown = new SettingsRoundDropdown(ladderInfo.Rounds) { LabelText = "Round" },
-                    losersCheckbox = new SettingsCheckbox { LabelText = "Losers Bracket" },
-                    dateTimeBox = new DateTextBox { Caption = "Match Time" },
+                    team1Dropdown = new SettingsTeamDropdown(ladderInfo.Teams) { LabelText = BaseStrings.TeamRed },
+                    team2Dropdown = new SettingsTeamDropdown(ladderInfo.Teams) { LabelText = BaseStrings.TeamBlue },
+                    roundDropdown = new SettingsRoundDropdown(ladderInfo.Rounds) { LabelText = BaseStrings.Round },
+                    losersCheckbox = new SettingsCheckbox { LabelText = BracketEditorStrings.LosersBracket },
+                    dateTimeBox = new DateTextBox { Caption = RoundEditorStrings.StartTime },
                 },
             };
 

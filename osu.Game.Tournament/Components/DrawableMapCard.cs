@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -274,16 +273,8 @@ namespace osu.Game.Tournament.Components
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            if (match.OldValue != null)
-                match.OldValue.ExtraPicks.CollectionChanged -= picksBansOnCollectionChanged;
-            if (match.NewValue != null)
-                match.NewValue.ExtraPicks.CollectionChanged += picksBansOnCollectionChanged;
-
             Scheduler.AddOnce(updateState);
         }
-
-        private void picksBansOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-            => Scheduler.AddOnce(updateState);
 
         private BeatmapChoice? choice;
 
@@ -294,7 +285,7 @@ namespace osu.Game.Tournament.Components
                 return;
             }
 
-            var newChoice = currentMatch.Value.ExtraPicks.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
+            var newChoice = currentMatch.Value.PicksBans.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
             string choiceText = newChoice?.Team == TeamColour.Red ? "Red" :
                 newChoice?.Team == TeamColour.Blue ? "Blue" : "Map";
@@ -325,13 +316,6 @@ namespace osu.Game.Tournament.Components
                             statusIcon.Icon = FontAwesome.Solid.Ban;
 
                             runAnimation(Color4.Gray);
-                            break;
-
-                        case ChoiceType.Protect:
-                            instructText.Text = $"{choiceText} protected!";
-                            statusIcon.Icon = FontAwesome.Solid.Lock;
-
-                            runAnimation(newChoice.Team == TeamColour.Red ? new OsuColour().Red : new OsuColour().Sky);
                             break;
 
                         case ChoiceType.RedWin:

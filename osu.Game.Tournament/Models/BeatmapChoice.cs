@@ -56,14 +56,7 @@ namespace osu.Game.Tournament.Models
         Neutral,
         Pick,
         Ban,
-        Protect,
         RedWin,
         BlueWin,
-        Trap,
-
-        /// <summary>
-        /// A special type, Swap trap specific.
-        /// </summary>
-        Swap
     }
 }
