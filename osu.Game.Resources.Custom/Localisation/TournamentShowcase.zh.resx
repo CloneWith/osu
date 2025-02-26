@@ -22,12 +22,6 @@
     <data name="showcase_settings_header" xml:space="preserve">
         <value>展示设置</value>
     </data>
-    <data name="team_list_header" xml:space="preserve">
-        <value>队伍列表</value>
-    </data>
-    <data name="staff_list_header" xml:space="preserve">
-        <value>工作人员列表</value>
-    </data>
     <data name="beatmap_queue_header" xml:space="preserve">
         <value>谱面队列</value>
     </data>
@@ -56,7 +50,7 @@
         <value>赛事展示</value>
     </data>
     <data name="current_profile_description" xml:space="preserve">
-        <value>要加载与编辑的配置文件。可以在数据目录的 "showcase" 文件夹下找到这些文件。</value>
+        <value>要加载与编辑的配置文件。&#xA;可以在数据目录的 "showcase" 文件夹下找到这些文件。</value>
     </data>
     <data name="default_ruleset_description" xml:space="preserve">
         <value>展示谱面默认使用与备用的游戏模式。</value>
@@ -77,7 +71,7 @@
         <value>此字段将按原样显示，请随意填写。</value>
     </data>
     <data name="intro_comment_description" xml:space="preserve">
-        <value>这里写什么都可以。\n会显示在入场屏幕的标题下方。</value>
+        <value>这里写什么都可以。&#xA;会显示在入场屏幕的标题下方。</value>
     </data>
     <data name="interface_layout" xml:space="preserve">
         <value>界面布局</value>
@@ -89,7 +83,7 @@
         <value>宽高比</value>
     </data>
     <data name="aspect_ratio_description" xml:space="preserve">
-        <value>决定展示区的显示比例。需要特定画面比例的视频时可以进行调节。</value>
+        <value>决定展示区的显示比例。&#xA;需要特定画面比例的视频时可以进行调节。</value>
     </data>
     <data name="transform_duration" xml:space="preserve">
         <value>转场过渡时长</value>
@@ -101,46 +95,13 @@
         <value>开始前倒计时</value>
     </data>
     <data name="start_countdown_duration_description" xml:space="preserve">
-        <value>沉浸模式开始前、中途暂停后继续前的倒计时时长。准备就绪了再开始吧！</value>
+        <value>沉浸模式开始前、中途暂停后继续前的倒计时时长。&#xA;准备就绪了再开始吧！</value>
     </data>
     <data name="outro_title" xml:space="preserve">
         <value>结尾标题</value>
     </data>
     <data name="outro_subtitle" xml:space="preserve">
         <value>结尾副标题</value>
-    </data>
-    <data name="show_teams_in_showcase" xml:space="preserve">
-        <value>显示队伍列表</value>
-    </data>
-    <data name="add_team" xml:space="preserve">
-        <value>添加队伍</value>
-    </data>
-    <data name="remove_team" xml:space="preserve">
-        <value>移除队伍</value>
-    </data>
-    <data name="team_name" xml:space="preserve">
-        <value>队名</value>
-    </data>
-    <data name="team_acronym" xml:space="preserve">
-        <value>简称</value>
-    </data>
-    <data name="team_flag" xml:space="preserve">
-        <value>队旗</value>
-    </data>
-    <data name="team_flag_description" xml:space="preserve">
-        <value>不带扩展名的队旗图像文件名。</value>
-    </data>
-    <data name="team_seed" xml:space="preserve">
-        <value>Seed</value>
-    </data>
-    <data name="player_id" xml:space="preserve">
-        <value>玩家用户 ID</value>
-    </data>
-    <data name="add_player" xml:space="preserve">
-        <value>添加玩家</value>
-    </data>
-    <data name="remove_player" xml:space="preserve">
-        <value>移除玩家</value>
     </data>
     <data name="show_beatmap_list_in_showcase" xml:space="preserve">
         <value>显示谱面列表</value>
@@ -158,7 +119,7 @@
         <value>赛事定制图</value>
     </data>
     <data name="tournament_original_description" xml:space="preserve">
-        <value>谱面内容是专门为本赛事制作的。将为这类图显示特别的图标。</value>
+        <value>谱面内容是专门为本赛事制作的。&#xA;将为这类图显示特别的图标。</value>
     </data>
     <data name="beatmap_chooser_id" xml:space="preserve">
         <value>选图者用户 ID</value>
@@ -195,27 +156,6 @@
     </data>
     <data name="no_score_association_prompt" xml:space="preserve">
         <value>暂未为此谱面分配分数。</value>
-    </data>
-    <data name="show_staff_list_in_showcase" xml:space="preserve">
-        <value>显示工作人员列表</value>
-    </data>
-    <data name="show_staff_list_in_showcase_description" xml:space="preserve">
-        <value>在展示结束前列出所有工作人员。</value>
-    </data>
-    <data name="add_staff" xml:space="preserve">
-        <value>添加工作人员</value>
-    </data>
-    <data name="remove_staff" xml:space="preserve">
-        <value>移除工作人员</value>
-    </data>
-    <data name="staff_id" xml:space="preserve">
-        <value>工作人员用户 ID</value>
-    </data>
-    <data name="staff_role" xml:space="preserve">
-        <value>工作人员角色</value>
-    </data>
-    <data name="staff_role_description" xml:space="preserve">
-        <value>这会显示在工作人员卡片中。</value>
     </data>
     <data name="use_custom_intro_beatmap" xml:space="preserve">
         <value>使用自定义入场图</value>
