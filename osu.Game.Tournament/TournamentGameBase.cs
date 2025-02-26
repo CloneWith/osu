@@ -9,19 +9,24 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Configuration;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input;
 using osu.Framework.IO.Stores;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Game.Database;
+using osu.Game.Extensions;
 using osu.Game.Graphics;
+using osu.Game.Localisation;
 using osu.Game.Online;
 using osu.Game.Online.API.Requests;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.IPC;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Users;
 using osuTK.Input;
@@ -40,9 +45,14 @@ namespace osu.Game.Tournament
         private FileBasedIPC ipc = null!;
         private BeatmapLookupCache beatmapCache = null!;
 
+        private Bindable<string> frameworkLocale = null!;
+        private IBindable<LocalisationParameters> localisationParameters = null!;
+
         protected Task BracketLoadTask => bracketLoadTaskCompletionSource.Task;
 
         private readonly TaskCompletionSource<bool> bracketLoadTaskCompletionSource = new TaskCompletionSource<bool>();
+
+        private void updateLanguage() => CurrentLanguage.Value = LanguageExtensions.GetLanguageFor(frameworkLocale.Value, localisationParameters.Value);
 
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent)
         {
@@ -60,7 +70,7 @@ namespace osu.Game.Tournament
         private TournamentSpriteText initialisationText = null!;
 
         [BackgroundDependencyLoader]
-        private void load(Storage baseStorage)
+        private void load(Storage baseStorage, FrameworkConfigManager frameworkConfig)
         {
             Add(initialisationText = new TournamentSpriteText
             {
@@ -81,6 +91,14 @@ namespace osu.Game.Tournament
             dependencies.CacheAs(new StableInfo(storage));
 
             beatmapCache = dependencies.Get<BeatmapLookupCache>();
+
+            frameworkLocale = frameworkConfig.GetBindable<string>(FrameworkSetting.Locale);
+            frameworkLocale.BindValueChanged(_ => updateLanguage());
+
+            localisationParameters = Localisation.CurrentParameters.GetBoundCopy();
+            localisationParameters.BindValueChanged(_ => updateLanguage(), true);
+
+            CurrentLanguage.BindValueChanged(val => frameworkLocale.Value = val.NewValue.ToCultureCode());
         }
 
         protected override void LoadComplete()
@@ -91,6 +109,35 @@ namespace osu.Game.Tournament
             GlobalCursorDisplay.MenuCursor.Alpha = 0;
 
             base.LoadComplete();
+
+            #region Localisation Initialization
+
+            // These code is directly taken from OsuGame.
+            var languages = Enum.GetValues<Language>();
+
+            var mappings = languages.Select(language =>
+            {
+#if DEBUG
+                if (language == Language.debug)
+                    return new LocaleMapping("debug", new DebugLocalisationStore());
+#endif
+
+                string cultureCode = language.ToCultureCode();
+
+                try
+                {
+                    return new LocaleMapping(new ResourceManagerLocalisationStore(cultureCode));
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, $"Could not load localisations for language \"{cultureCode}\"");
+                    return null;
+                }
+            }).Where(m => m != null);
+
+            Localisation.AddLocaleMappings(mappings!);
+
+            #endregion
 
             Task.Run(readBracket);
         }
@@ -249,7 +296,7 @@ namespace osu.Game.Tournament
             {
                 var p = playersRequiringPopulation[i];
                 PopulatePlayer(p, immediate: true);
-                updateLoadProgressMessage($"Populating user stats ({i} / {playersRequiringPopulation.Count})");
+                updateLoadProgressMessage(BaseStrings.PopulatingUserStats(i, playersRequiringPopulation.Count));
             }
 
             return true;
@@ -275,7 +322,7 @@ namespace osu.Game.Tournament
                 if (populated != null)
                     b.Beatmap = new TournamentBeatmap(populated);
 
-                updateLoadProgressMessage($"Populating round beatmaps ({i} / {beatmapsRequiringPopulation.Count})");
+                updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps(i, beatmapsRequiringPopulation.Count));
             }
 
             return true;
@@ -302,13 +349,13 @@ namespace osu.Game.Tournament
                 if (populated != null)
                     b.Beatmap = new TournamentBeatmap(populated);
 
-                updateLoadProgressMessage($"Populating seeding beatmaps ({i} / {beatmapsRequiringPopulation.Count})");
+                updateLoadProgressMessage(BaseStrings.PopulatingSeedingBeatmaps(i, beatmapsRequiringPopulation.Count));
             }
 
             return true;
         }
 
-        private void updateLoadProgressMessage(string s) => Schedule(() => initialisationText.Text = s);
+        private void updateLoadProgressMessage(LocalisableString s) => Schedule(() => initialisationText.Text = s);
 
         public void PopulatePlayer(TournamentUser user, Action? success = null, Action? failure = null, bool immediate = false)
         {
@@ -401,6 +448,33 @@ namespace osu.Game.Tournament
                     new JsonPointConverter(),
                 },
             });
+        }
+
+        protected override void InitialiseFonts()
+        {
+            AddFont(Resources, @"Fonts/osuFont");
+
+            AddFont(Resources, @"Fonts/Torus/Torus-Regular");
+            AddFont(Resources, @"Fonts/Torus/Torus-Light");
+            AddFont(Resources, @"Fonts/Torus/Torus-SemiBold");
+            AddFont(Resources, @"Fonts/Torus/Torus-Bold");
+
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Regular");
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Light");
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-SemiBold");
+            AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Bold");
+
+            AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Regular");
+            AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-SemiBold");
+            AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Bold");
+
+            AddFont(Resources, @"Fonts/Noto/Noto-Basic");
+            AddFont(Resources, @"Fonts/Noto/Noto-Hangul");
+            AddFont(Resources, @"Fonts/Noto/Noto-CJK-Basic");
+            AddFont(Resources, @"Fonts/Noto/Noto-CJK-Compatibility");
+            AddFont(Resources, @"Fonts/Noto/Noto-Thai");
+
+            Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
         }
 
         protected override UserInputManager CreateUserInputManager() => new TournamentInputManager();

@@ -16,6 +16,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osuTK.Graphics;
 
@@ -84,7 +85,7 @@ namespace osu.Game.Tournament
                     loadingSpinner.Expire();
 
                     Logger.Error(t.Exception, "Couldn't load bracket with error");
-                    Add(new WarningBox($"Your {BRACKET_FILENAME} file could not be parsed. Please check runtime.log for more details."));
+                    Add(new WarningBox(BaseStrings.BracketErrorWarning(BRACKET_FILENAME)));
 
                     return;
                 }
@@ -96,7 +97,7 @@ namespace osu.Game.Tournament
                         Depth = float.MinValue,
                         AlwaysPresent = true,
                     },
-                    heightWarning = new WarningBox($"Please reduce the aspect ratio.\nThe minimum window width is {TournamentSceneManager.REQUIRED_WIDTH}.")
+                    heightWarning = new WarningBox(BaseStrings.AspectRatioWarning(TournamentSceneManager.REQUIRED_WIDTH))
                     {
                         Anchor = Anchor.BottomCentre,
                         Origin = Anchor.BottomCentre,

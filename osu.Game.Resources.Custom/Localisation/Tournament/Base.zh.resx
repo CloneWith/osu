@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="populating_user_stats" xml:space="preserve">
+        <value>正在处理用户数据 ({0} / {1})</value>
+    </data>
+    <data name="populating_round_beatmaps" xml:space="preserve">
+        <value>正在处理比赛谱面 ({0} / {1})</value>
+    </data>
+    <data name="populating_seeding_beatmaps" xml:space="preserve">
+        <value>正在处理选种谱面 ({0} / {1})</value>
+    </data>
+    <data name="bracket_error_warning" xml:space="preserve">
+        <value>无法解析 {0} 文件。请查看 runtime.log 获取详情。</value>
+    </data>
+    <data name="aspect_ratio_warning" xml:space="preserve">
+        <value>请调整窗口宽高比，宽度至少应为 {0}。</value>
+    </data>
+    <data name="control_panel" xml:space="preserve">
+        <value>控制面板</value>
+    </data>
+    <data name="save_changes" xml:space="preserve">
+        <value>保存更改</value>
+    </data>
+    <data name="add_new" xml:space="preserve">
+        <value>添加条目</value>
+    </data>
+    <data name="clear" xml:space="preserve">
+        <value>清除所有</value>
+    </data>
+    <data name="refresh" xml:space="preserve">
+        <value>刷新</value>
+    </data>
+    <data name="reset" xml:space="preserve">
+        <value>重置</value>
+    </data>
+    <data name="remove" xml:space="preserve">
+        <value>移除</value>
+    </data>
+    <data name="user_id" xml:space="preserve">
+        <value>用户 ID</value>
+    </data>
+    <data name="beatmap_id" xml:space="preserve">
+        <value>谱面 ID</value>
+    </data>
+    <data name="seed" xml:space="preserve">
+        <value>Seed</value>
+    </data>
+    <data name="score" xml:space="preserve">
+        <value>分数</value>
+    </data>
+    <data name="beatmap_mod" xml:space="preserve">
+        <value>谱面类型</value>
+    </data>
+    <data name="add_beatmap" xml:space="preserve">
+        <value>添加谱面</value>
+    </data>
+    <data name="round" xml:space="preserve">
+        <value>回合</value>
+    </data>
+    <data name="team_red" xml:space="preserve">
+        <value>红队</value>
+    </data>
+    <data name="team_blue" xml:space="preserve">
+        <value>蓝队</value>
+    </data>
+    <data name="no_match_warning" xml:space="preserve">
+        <value>请先从对阵图选择比赛</value>
+    </data>
+    <data name="match_unavailable_warning" xml:space="preserve">
+        <value>抱歉，无法访问当前比赛 ;w;</value>
+    </data>
+    <data name="board_mode_unset_warning" xml:space="preserve">
+        <value>此回合未设置为支持棋盘。</value>
+    </data>
+</root>

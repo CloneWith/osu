@@ -109,8 +109,6 @@ namespace osu.Game.Overlays.Chat
 
         public bool IsBackgroundInverted;
 
-        public bool IsStrong;
-
         private bool isMention;
 
         /// <summary>
@@ -264,11 +262,11 @@ namespace osu.Game.Overlays.Chat
         private void styleMessageContent(SpriteText text)
         {
             text.Shadow = false;
-            text.Font = text.Font.With(size: font_size, italics: Message.IsAction, weight: isMention || IsStrong ? FontWeight.SemiBold : FontWeight.Medium);
+            text.Font = text.Font.With(size: font_size, italics: Message.IsAction, weight: isMention ? FontWeight.SemiBold : FontWeight.Medium);
 
             Color4 messageColour = colourProvider?.Content1 ?? Colour4.White;
 
-            if (isMention || IsStrong)
+            if (isMention)
                 messageColour = colourProvider?.Highlight1 ?? Color4.Orange;
             else if (Message.IsAction && !string.IsNullOrEmpty(message.Sender.Colour))
                 messageColour = Color4Extensions.FromHex(message.Sender.Colour);

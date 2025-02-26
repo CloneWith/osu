@@ -22,9 +22,7 @@ namespace osu.Game.Tournament.Models
         public TeamColour Team;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public Steps Step;
-
-        public int BeatmapID;
+        public RoundStep RoundStep;
 
         private SpriteIcon icon = new SpriteIcon
         {
@@ -38,67 +36,53 @@ namespace osu.Game.Tournament.Models
         /// A constructor to set up an instance of <see cref="InstructionInfo"/>.
         /// </summary>
         /// <param name="team">The current team.</param>
-        /// <param name="step">The current step.</param>
-        public InstructionInfo(TeamColour team = TeamColour.Neutral, Steps step = Steps.Default)
+        /// <param name="roundStep">The current step.</param>
+        public InstructionInfo(TeamColour team = TeamColour.Neutral, RoundStep roundStep = RoundStep.Default)
         {
-            Step = step;
+            RoundStep = roundStep;
 
             bool notDraw = team == TeamColour.Red || team == TeamColour.Blue;
 
             teamPrompt = team == TeamColour.Red ? @"红队" : (team == TeamColour.Blue ? @"蓝队" : string.Empty);
 
-            switch (Step)
+            switch (RoundStep)
             {
-                case Steps.Protect:
-                    Name = @$"标记保图·{teamPrompt}";
-                    Description = @"被保护的图无法被禁与设置陷阱。";
-                    icon.Icon = FontAwesome.Solid.Lock;
-                    icon.Colour = new OsuColour().Cyan;
-                    break;
-
-                case Steps.Ban:
+                case RoundStep.Ban:
                     Name = @$"标记禁图·{teamPrompt}";
                     Description = @"被禁止的图无法被选与设置陷阱。";
                     icon.Icon = FontAwesome.Solid.Ban;
                     icon.Colour = Color4.Orange;
                     break;
 
-                case Steps.Trap:
-                    Name = @"设置陷阱";
-                    Description = @"请队长*私信*告知裁判，切勿外泄。";
-                    icon.Icon = FontAwesome.Solid.ExclamationCircle;
-                    icon.Colour = new OsuColour().Pink1;
-                    break;
-
-                case Steps.Pick:
+                case RoundStep.Pick:
                     Name = @$"标记选图·{teamPrompt}";
                     Description = @"选择该轮要游玩的图。";
                     icon.Icon = FontAwesome.Solid.Check;
                     icon.Colour = new OsuColour().Green;
                     break;
 
-                case Steps.Win:
+                case RoundStep.Win:
                     Name = @$"胜方染色·{teamPrompt}";
                     Description = @"此图所在格将染成获胜队颜色。";
                     icon.Icon = FontAwesome.Solid.Trophy;
                     icon.Colour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
                     break;
 
-                case Steps.Ex:
+                case RoundStep.TieBreaker:
                     Name = @"即将进入 EX 模式";
                     Description = @"当前棋盘不足以任一方取胜，需要重新染色。";
                     icon.Icon = FontAwesome.Solid.Bolt;
                     icon.Colour = Color4.Orange;
                     break;
 
-                case Steps.FinalWin:
+                case RoundStep.FinalWin:
                     Name = notDraw ? @$"{teamPrompt}获胜！" : team == TeamColour.Neutral ? @"EX: 决胜局" : @"Do you want smoke?";
                     Description = notDraw ? @$"恭喜{teamPrompt}获得最终胜利！" : team == TeamColour.Neutral ? @"我只是个笨蛋，也没有你聪明。" : @"来看看礼堂顶针？";
                     icon.Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
                     icon.Colour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
                     break;
 
-                case Steps.Halt:
+                case RoundStep.Halt:
                     Name = @"请稍候...";
                     Description = @"等待裁判响应...";
                     icon.Icon = FontAwesome.Solid.ExclamationCircle;
@@ -120,62 +104,46 @@ namespace osu.Game.Tournament.Models
         public ColourInfo IconColor => icon.Colour;
 
         /// <summary>
-        /// Get the original trap type based on a string.
-        /// The string should exactly match the name of the trap.
+        /// Get the original step type based on a string.
+        /// The string should exactly match the name of the step.
         /// </summary>
         /// <param name="typeString">A <see cref="LocalisableString"/>, the string to handle</param>
-        /// <returns>A <see cref="TrapType"/>, representing the trap type</returns>
-        public Steps GetReversedType(LocalisableString typeString)
+        /// <returns>A <see cref="RoundStep"/>, representing the current step</returns>
+        public RoundStep GetReversedType(LocalisableString typeString)
         {
             switch (typeString.ToString())
             {
-                case @"标记保图":
-                    return Steps.Protect;
-
                 case @"标记禁图":
-                    return Steps.Ban;
-
-                case @"设置陷阱":
-                    return Steps.Trap;
+                    return RoundStep.Ban;
 
                 case @"标记选图":
-                    return Steps.Pick;
+                    return RoundStep.Pick;
 
                 case @"胜方染色":
-                    return Steps.Win;
+                    return RoundStep.Win;
 
-                case @"即将进入 EX 模式":
-                    return Steps.Ex;
+                case @"最后一战":
+                    return RoundStep.TieBreaker;
 
                 case @"请稍候...":
-                    return Steps.Halt;
+                    return RoundStep.Halt;
 
                 default:
-                    return Steps.Default;
+                    return RoundStep.Default;
             }
         }
     }
 
     /// <summary>
-    /// Lists out all available trap types.
+    /// Lists out all possible stages / steps in a tournament round.
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum Steps
+    public enum RoundStep
     {
         /// <summary>
-        /// Mark maps unable to be set a trap on and banned.
-        /// </summary>
-        Protect,
-
-        /// <summary>
-        /// Mark maps unable to be chosen and set a trap on.
+        /// Mark maps unable to be chosen.
         /// </summary>
         Ban,
-
-        /// <summary>
-        /// Add traps.
-        /// </summary>
-        Trap,
 
         /// <summary>
         /// Pick maps.
@@ -188,9 +156,9 @@ namespace osu.Game.Tournament.Models
         Win,
 
         /// <summary>
-        /// The EX stage.
+        /// The final stage.
         /// </summary>
-        Ex,
+        TieBreaker,
 
         /// <summary>
         /// The winner is decided.

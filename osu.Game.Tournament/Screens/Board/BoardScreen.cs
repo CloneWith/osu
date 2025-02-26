@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -14,16 +13,15 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
-using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
 using osu.Game.Tournament.Screens.Gameplay.Components;
-using osu.Game.Tournament.Screens.Setup;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
@@ -45,11 +43,6 @@ namespace osu.Game.Tournament.Screens.Board
         private TeamColour pickTeam;
         private ChoiceType pickType;
 
-        private bool havePendingSwap;
-        private bool refEx;
-        private bool refWin;
-        private TeamColour refWinner = TeamColour.None;
-
         private TeamColour teamWinner = TeamColour.None;
 
         private OsuButton buttonRedBan = null!;
@@ -57,26 +50,18 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonRedPick = null!;
         private OsuButton buttonBluePick = null!;
 
-        private OsuButton buttonRedProtect = null!;
-        private OsuButton buttonBlueProtect = null!;
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
-        private OsuButton buttonRedTrap = null!;
-        private OsuButton buttonBlueTrap = null!;
-
-        private OsuButton buttonTrapSwap = null!;
 
         private OsuButton buttonIndicator = null!;
 
-        private bool useEx;
-        private bool hasTrap;
+        private bool isInTieBreaker;
 
-        private TrapTypeDropdown trapTypeDropdown = null!;
         private Container informationDisplayContainer = null!;
 
         private DrawableTeamPlayerList team1List = null!;
         private DrawableTeamPlayerList team2List = null!;
-        private EmptyBox danmakuBox = null!;
+        private EmptyBox extCommentBox = null!;
 
         private DialogOverlay dialogOverlay = null!;
 
@@ -89,12 +74,6 @@ namespace osu.Game.Tournament.Screens.Board
         {
             currentMatch.BindValueChanged(matchChanged);
             currentMatch.BindTo(LadderInfo.CurrentMatch);
-
-            LadderInfo.UseRefereeCommands.BindValueChanged(refereeChanged);
-            LadderInfo.NeedRefereeResponse.BindValueChanged(refereeNeedChanged);
-
-            // Bind the ValueChanged event of the "Await response" switch
-            LadderInfo.NeedRefereeResponse.BindValueChanged(onAwaitResponseChanged);
 
             InternalChildren = new Drawable[]
             {
@@ -159,9 +138,9 @@ namespace osu.Game.Tournament.Screens.Board
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
                         },
-                        // A single Box for livestream danmakus.
+                        // A single Box for livestream comments.
                         // Wrapped in a container for round corners.
-                        danmakuBox = new EmptyBox(cornerRadius: 10)
+                        extCommentBox = new EmptyBox(cornerRadius: 10)
                         {
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
@@ -214,47 +193,6 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     Children = new Drawable[]
                     {
-                        new TournamentSpriteText
-                        {
-                            Text = "Current Mode"
-                        },
-                        new LabelledSwitchButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Label = "Auto Control",
-                            Current = LadderInfo.UseRefereeCommands,
-                        },
-                        new LabelledSwitchButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Label = "Await Response",
-                            Current = LadderInfo.NeedRefereeResponse,
-                        },
-                        new GridContainer
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Height = 40,
-                            Content = new[]
-                            {
-                                new Drawable[]
-                                {
-                                    buttonRedProtect = new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Red Protect",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Protect)
-                                    },
-                                    buttonBlueProtect = new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Blue Protect",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Protect)
-                                    },
-                                }
-                            },
-                        },
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.X,
@@ -331,47 +269,10 @@ namespace osu.Game.Tournament.Screens.Board
                             },
                         },
                         new ControlPanel.Spacer(),
-                        trapTypeDropdown = new TrapTypeDropdown
-                        {
-                            Caption = "Trap type"
-                        },
-                        new GridContainer
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Height = 40,
-                            Content = new[]
-                            {
-                                new Drawable[]
-                                {
-                                    buttonRedTrap = new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Red Trap",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Trap)
-                                    },
-                                    buttonBlueTrap = new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Blue Trap",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Trap)
-                                    },
-                                }
-                            },
-                        },
-                        buttonTrapSwap = new TourneyButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Text = "Free Swap",
-                            BackgroundColour = Color4.Indigo,
-                            Action = () => setMode(TeamColour.Neutral, ChoiceType.Swap)
-                        },
-                        new ControlPanel.Spacer(),
                         buttonIndicator = new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "EX Indicator",
+                            Text = "TB Indicator",
                             BackgroundColour = Color4.Purple,
                             Colour = Color4.Gray,
                             Action = () => setMode(TeamColour.Neutral, ChoiceType.Neutral)
@@ -379,60 +280,20 @@ namespace osu.Game.Tournament.Screens.Board
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Refresh",
+                            Text = BaseStrings.Refresh,
                             BackgroundColour = Color4.Orange,
                             Action = updateDisplay
                         },
-                        new GridContainer
+                        new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Height = 40,
-                            Content = new[]
+                            Text = BaseStrings.Reset,
+                            BackgroundColour = Color4.DeepPink,
+                            Action = () =>
                             {
-                                new Drawable[]
-                                {
-                                    new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Sync",
-                                        BackgroundColour = Color4.Orange,
-                                        Action = () =>
-                                        {
-                                            if (CurrentMatch.Value?.Round.Value?.UseBoard.Value != true)
-                                            {
-                                                dialogOverlay.Push(new IPCErrorDialog("Unsupported", "This round isn't set for board layout. Check this in round editor."));
-                                            }
-                                            else
-                                            {
-                                                sceneManager?.SetScreen(new BoardImportScreen());
-                                                sceneManager?.MoveChatTo(new Vector2(175, 150), 500, Easing.OutQuint);
-                                                sceneManager?.ResizeChatTo(new Vector2(350, 450), 500, Easing.OutQuint);
-                                            }
-                                        },
-                                    },
-                                    new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Revert",
-                                        BackgroundColour = Color4.DeepPink,
-                                        Action = () =>
-                                        {
-                                            dialogOverlay.Push(new ResetBoardDialog(
-                                                revertAction: () =>
-                                                {
-                                                    // This will manba all elements on this view out of the screen. Don't use this!
-                                                    // Expire();
-                                                    reset();
-                                                    revertSwaps();
-                                                    // TODO: Add other helpful actions if possible
-                                                },
-                                                resetAction: reset
-                                            ));
-                                        },
-                                    },
-                                },
+                                dialogOverlay.Push(new ResetBoardDialog(reset));
                             },
-                        }
+                        },
                     },
                 },
                 dialogOverlay = new DialogOverlay(),
@@ -441,15 +302,8 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            if (match.OldValue != null)
-            {
-                match.OldValue.PendingMsgs.CollectionChanged -= msgOnCollectionChanged;
-            }
-
             if (match.NewValue != null)
             {
-                match.NewValue.PendingMsgs.CollectionChanged += msgOnCollectionChanged;
-
                 if (!IsLoaded)
                     return;
 
@@ -458,92 +312,9 @@ namespace osu.Game.Tournament.Screens.Board
                 if (match.NewValue.Team2.Value != null)
                 {
                     team2List.ReloadWithTeam(match.NewValue.Team2.Value);
-                    danmakuBox.ResizeHeightTo(Height = side_list_height - team2List.GetHeight() - 5, 500, Easing.OutCubic);
+                    extCommentBox.ResizeHeightTo(Height = side_list_height - team2List.GetHeight() - 5, 500, Easing.OutCubic);
                 }
             }
-
-            Scheduler.AddOnce(parseCommands);
-        }
-
-        private void onAwaitResponseChanged(ValueChangedEvent<bool> e)
-        {
-            if (e.NewValue)
-            {
-                LadderInfo.UseRefereeCommands.Value = true;
-            }
-        }
-
-        private void msgOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-            => Scheduler.AddOnce(parseCommands);
-
-        private void refereeChanged(ValueChangedEvent<bool> enableEvent)
-        {
-            parseCommands();
-        }
-
-        private void parseCommands()
-        {
-            if (CurrentMatch.Value == null)
-                return;
-
-            var msg = CurrentMatch.Value.PendingMsgs;
-
-            foreach (var item in msg)
-            {
-                BotCommand command = BotCommand.ParseFromText(item.Content);
-
-                switch (command.Command)
-                {
-                    case Commands.Panic:
-                        informationDisplayContainer.Child = new InstructionDisplay(step: Steps.Halt);
-                        informationDisplayContainer.FadeInFromZero(duration: 200, easing: Easing.OutCubic);
-                        break;
-
-                    case Commands.EnterEx:
-                        refEx = true;
-                        updateBottomDisplay(bottomOnly: false);
-                        break;
-
-                    case Commands.SetWin:
-                        refWin = true;
-                        refWinner = command.Team;
-                        updateBottomDisplay(bottomOnly: false);
-                        break;
-
-                    case Commands.MarkWin:
-                        pickTeam = command.Team;
-                        pickType = command.Team == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
-                        addForBeatmap(command.MapMod);
-                        updateBottomDisplay(bottomOnly: false);
-                        break;
-
-                    case Commands.Ban:
-                        pickTeam = command.Team;
-                        pickType = ChoiceType.Ban;
-                        addForBeatmap(command.MapMod);
-                        updateBottomDisplay();
-                        break;
-
-                    case Commands.Protect:
-                        pickTeam = command.Team;
-                        pickType = ChoiceType.Protect;
-                        addForBeatmap(command.MapMod);
-                        updateBottomDisplay();
-                        break;
-
-                    case Commands.Pick:
-                        pickTeam = command.Team;
-                        pickType = ChoiceType.Pick;
-                        addForBeatmap(command.MapMod);
-
-                        var map = CurrentMatch.Value.Round.Value?.Beatmaps.FirstOrDefault(b => b.Mods + b.ModIndex == command.MapMod);
-                        if (map?.Beatmap != null && CurrentMatch.Value.Traps.All(p => p.BeatmapID != map.Beatmap.OnlineID))
-                            updateBottomDisplay();
-                        break;
-                }
-            }
-
-            msg.Clear();
         }
 
         private void setMode(TeamColour colour, ChoiceType choiceType)
@@ -555,22 +326,12 @@ namespace osu.Game.Tournament.Screens.Board
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Ban);
             buttonRedPick.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Pick);
             buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Pick);
-            buttonRedProtect.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Protect);
-            buttonBlueProtect.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Protect);
             buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.RedWin);
             buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.BlueWin);
-            buttonRedTrap.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Trap);
-            buttonBlueTrap.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Trap);
-            buttonTrapSwap.Colour = setColour(pickType == ChoiceType.Swap);
-
-            buttonTrapSwap.Text = CurrentMatch.Value?.PendingSwaps.Any() ?? false ? @"Free Swap (Target)" : @"Free Swap";
 
             static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
             updateBottomDisplay();
         }
-
-        private void refereeNeedChanged(ValueChangedEvent<bool>? _ = null)
-            => updateBottomDisplay(bottomOnly: false);
 
         private void updateBottomDisplay(ValueChangedEvent<bool>? _ = null, bool bottomOnly = true, bool refresh = true)
         {
@@ -578,69 +339,37 @@ namespace osu.Game.Tournament.Screens.Board
 
             Drawable oldDisplay = informationDisplayContainer.Child;
 
-            havePendingSwap = CurrentMatch.Value.PendingSwaps.Any();
-
             var color = pickTeam;
-            Steps state = Steps.Default;
+            RoundStep state = RoundStep.Default;
 
-            if (DetectEx() && !havePendingSwap)
+            if (DetectTieBreaker())
             {
-                if (LadderInfo.UseRefereeCommands.Value && LadderInfo.NeedRefereeResponse.Value)
-                {
-                    state = refEx ? Steps.Ex : Steps.Halt;
-                }
-                else
-                {
-                    state = Steps.Ex;
-                }
+                state = RoundStep.TieBreaker;
             }
-            else if (DetectWin() && !havePendingSwap)
+            else if (DetectWin())
             {
-                if (LadderInfo.UseRefereeCommands.Value && LadderInfo.NeedRefereeResponse.Value)
-                {
-                    state = refWin && teamWinner == refWinner && teamWinner != TeamColour.None ? Steps.FinalWin : Steps.Halt;
-                    color = refWin && teamWinner == refWinner ? teamWinner : pickTeam;
-
-                    // Special cases for a draw
-                    if (teamWinner == TeamColour.Neutral && refEx)
-                    {
-                        state = Steps.FinalWin;
-                        color = teamWinner;
-                    }
-                }
-                else
-                {
-                    state = Steps.FinalWin;
-                    color = teamWinner;
-                }
+                state = RoundStep.FinalWin;
+                color = teamWinner;
             }
             else
             {
                 switch (pickType)
                 {
-                    case ChoiceType.Protect:
-                        state = Steps.Protect;
-                        break;
-
                     case ChoiceType.Pick:
-                        state = Steps.Pick;
-                        break;
-
-                    case ChoiceType.Trap:
-                        state = Steps.Trap;
+                        state = RoundStep.Pick;
                         break;
 
                     case ChoiceType.Ban:
-                        state = Steps.Ban;
+                        state = RoundStep.Ban;
                         break;
 
                     case ChoiceType.RedWin or ChoiceType.BlueWin:
-                        state = Steps.Win;
+                        state = RoundStep.Win;
                         break;
                 }
             }
 
-            Drawable newDisplay = pickType == ChoiceType.Swap ? new TrapInfoDisplay(type: TrapType.Swap) : new InstructionDisplay(team: color, step: state);
+            Drawable newDisplay = new InstructionDisplay(team: color, roundStep: state);
 
             if (oldDisplay != newDisplay && refresh)
             {
@@ -648,7 +377,7 @@ namespace osu.Game.Tournament.Screens.Board
                 informationDisplayContainer.FadeInFromZero(duration: 200, easing: Easing.InCubic);
                 CurrentMatch.Value.Round.Value?.IsFinalStage.BindTo(new BindableBool(color == TeamColour.Neutral));
 
-                if (state == Steps.FinalWin && !bottomOnly)
+                if (state == RoundStep.FinalWin && !bottomOnly)
                 {
                     sceneManager?.ShowWinAnimation(teamWinner == TeamColour.Red ? CurrentMatch.Value.Team1.Value
                         : teamWinner == TeamColour.Blue ? CurrentMatch.Value.Team2.Value
@@ -660,41 +389,6 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Round.Value?.IsFinalStage.BindTo(new BindableBool());
             }
         }
-
-        /*
-        private void setNextMode()
-        {
-            if (CurrentMatch.Value?.Round.Value == null)
-                return;
-
-            int totalBansRequired = CurrentMatch.Value.Round.Value.BanCount.Value * 2;
-
-            TeamColour lastPickColour = CurrentMatch.Value.PicksBans.LastOrDefault()?.Team ?? TeamColour.Red;
-
-            TeamColour nextColour;
-
-            bool hasAllBans = CurrentMatch.Value.PicksBans.Count(p => p.Type == ChoiceType.Ban) >= totalBansRequired;
-
-            if (!hasAllBans)
-            {
-                // Ban phase: switch teams every second ban.
-                nextColour = CurrentMatch.Value.PicksBans.Count % 2 == 1
-                    ? getOppositeTeamColour(lastPickColour)
-                    : lastPickColour;
-            }
-            else
-            {
-                // Pick phase : switch teams every pick, except for the first pick which generally goes to the team that placed the last ban.
-                nextColour = pickType == ChoiceType.Pick
-                    ? getOppositeTeamColour(lastPickColour)
-                    : lastPickColour;
-            }
-
-            setMode(nextColour, hasAllBans ? ChoiceType.Pick : ChoiceType.Ban);
-
-            TeamColour getOppositeTeamColour(TeamColour colour) => colour == TeamColour.Red ? TeamColour.Blue : TeamColour.Red;
-        }
-        */
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {
@@ -721,32 +415,16 @@ namespace osu.Game.Tournament.Screens.Board
                     if (existing != null)
                     {
                         CurrentMatch.Value?.PicksBans.Remove(existing);
-                        // Why?
-                        // hasTrap = false;
-                        // setNextMode();
-                    }
-                    else
-                    {
-                        var existingProtect = CurrentMatch.Value?.Protects.LastOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
-                        var existingTrap = CurrentMatch.Value?.Traps.LastOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
-                        var existingPendingSwap = CurrentMatch.Value?.PendingSwaps.LastOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
-                        if (existingProtect != null) CurrentMatch.Value?.Protects.Remove(existingProtect);
-                        if (existingTrap != null) CurrentMatch.Value?.Traps.Remove(existingTrap);
-                        if (existingPendingSwap != null) CurrentMatch.Value?.PendingSwaps.Remove(existingPendingSwap);
                     }
                 }
 
-                // Automatically detect EX & win conditions
+                // Automatically detect special conditions
                 if (CurrentMatch.Value != null)
                 {
-                    buttonIndicator.Colour = DetectWin() ? Color4.Orange : (DetectEx() ? Color4.White : Color4.Gray);
-                    havePendingSwap = CurrentMatch.Value.PendingSwaps.Any();
+                    buttonIndicator.Colour = DetectWin() ? Color4.Orange : (DetectTieBreaker() ? Color4.White : Color4.Gray);
 
-                    if (!hasTrap)
-                    {
-                        // Restore to the last state
-                        updateBottomDisplay(bottomOnly: e.Button != MouseButton.Left);
-                    }
+                    // Restore to the last state
+                    updateBottomDisplay(bottomOnly: e.Button != MouseButton.Left);
                 }
 
                 return true;
@@ -770,16 +448,12 @@ namespace osu.Game.Tournament.Screens.Board
                 Type = pickType,
                 BeatmapID = beatmapId,
             });
-            // setNextMode(); // Uncomment if you still want to automatically set the next mode
         }
 
         private void reset()
         {
             // Clear map marking lists
             CurrentMatch.Value?.PicksBans.Clear();
-            CurrentMatch.Value?.Protects.Clear();
-            CurrentMatch.Value?.Traps.Clear();
-            CurrentMatch.Value?.PendingSwaps.Clear();
             CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
             if (CurrentMatch.Value != null)
@@ -793,42 +467,16 @@ namespace osu.Game.Tournament.Screens.Board
             informationDisplayContainer.Child = new InstructionDisplay();
 
             // Reset button group
-            buttonBlueProtect.Colour = Color4.White;
             buttonBlueBan.Colour = Color4.White;
             buttonBluePick.Colour = Color4.White;
             buttonBlueWin.Colour = Color4.White;
-            buttonBlueTrap.Colour = Color4.White;
-            buttonRedProtect.Colour = Color4.White;
             buttonRedBan.Colour = Color4.White;
             buttonRedPick.Colour = Color4.White;
             buttonRedWin.Colour = Color4.White;
-            buttonRedTrap.Colour = Color4.White;
-            buttonTrapSwap.Colour = Color4.White;
             buttonIndicator.Colour = Color4.Gray;
 
             pickTeam = TeamColour.None;
             pickType = ChoiceType.Neutral;
-            // setNextMode();
-        }
-
-        private void revertSwaps()
-        {
-            if (CurrentMatch.Value == null)
-                return;
-
-            var swaps = CurrentMatch.Value.SwapRecords;
-
-            if (swaps.Count == 0)
-                return;
-
-            // Revert in Reversed order 0.0
-            foreach (var rec in swaps.Reverse())
-            {
-                // TODO: Use a queue for swap animations
-                if (rec.Key.Beatmap != null && rec.Value.Beatmap != null)
-                    SwapMap(rec.Key.Beatmap.OnlineID, rec.Value.Beatmap.OnlineID);
-                swaps.Remove(rec);
-            }
         }
 
         private bool isPickWin => pickType == ChoiceType.RedWin || pickType == ChoiceType.BlueWin;
@@ -843,8 +491,6 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void addForBeatmap(int beatmapId)
         {
-            bool hasReversed = false;
-
             bool isPickBan = pickType == ChoiceType.Pick || pickType == ChoiceType.Ban || isPickWin;
 
             if (pickType == ChoiceType.Neutral || pickTeam == TeamColour.None || pickTeam == TeamColour.None)
@@ -858,58 +504,9 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             if (!isPickWin && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
-                                                                    && (p.Type == ChoiceType.Ban || p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)
-                                                                    && pickType != ChoiceType.Swap))
+                                                                    && (p.Type == ChoiceType.Ban || p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)))
                 // don't attempt to add if already banned / won, and it's not a win type.
                 return;
-
-            if (pickType == ChoiceType.Ban && CurrentMatch.Value.Protects.Any(p => p.BeatmapID == beatmapId))
-                // don't attempt to ban a protected map
-                return;
-
-            // Perform a Swap with the latest not-triggered Swap
-            if (pickType == ChoiceType.Swap)
-            {
-                // Already have one: perform a Swap
-                var source = CurrentMatch.Value.PendingSwaps.FirstOrDefault();
-
-                if (source != null)
-                {
-                    CurrentMatch.Value.PendingSwaps.Add(new BeatmapChoice(beatmapId));
-
-                    // Add the current pair to the record list.
-                    // I've forgotten that for a long time...
-                    // Cool, I give up; Fuck everything xwx
-                    CurrentMatch.Value.SwapRecords.Add(
-                        new KeyValuePair<RoundBeatmap, RoundBeatmap>(
-                            CurrentMatch.Value.Round.Value.Beatmaps.First(b => b.Beatmap!.OnlineID == source.BeatmapID),
-                            CurrentMatch.Value.Round.Value.Beatmaps.First(b => b.Beatmap!.OnlineID == beatmapId)
-                        )
-                    );
-
-                    SwapMap(source.BeatmapID, beatmapId);
-                }
-                else
-                {
-                    // Add as a pending Swap operation
-                    CurrentMatch.Value.PendingSwaps.Add(new BeatmapChoice(beatmapId));
-                }
-            }
-
-            // Trap action specific
-            if (pickType == ChoiceType.Trap)
-            {
-                CurrentMatch.Value.Traps.Add(new TrapInfo
-                (
-                    colour: pickTeam,
-                    type: trapTypeDropdown.Current.Value,
-                    mapID: beatmapId
-                ));
-            }
-
-            var introTrap = CurrentMatch.Value.Traps.LastOrDefault(p => p.BeatmapID == beatmapId && p.Team != pickTeam);
-
-            var matchTrap = CurrentMatch.Value.Traps.Where(p => p.BeatmapID == beatmapId);
 
             // Remove the latest win state for Reverse Trap
             if (pickType == ChoiceType.Pick && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
@@ -919,83 +516,15 @@ namespace osu.Game.Tournament.Screens.Board
                 if (latestWin != null) CurrentMatch.Value.PicksBans.Remove(latestWin);
             }
 
-            // Show the trap description
-            if (matchTrap.Any())
-            {
-                if (pickType == ChoiceType.Pick)
-                {
-                    bool trapActive = true;
-                    var triggeredTrap = matchTrap.FirstOrDefault(t => t.Team != pickTeam);
-
-                    if (triggeredTrap == null)
-                    {
-                        triggeredTrap = matchTrap.First();
-                        trapActive = false;
-                    }
-                    else
-                    {
-                        hasTrap = true;
-                    }
-
-                    informationDisplayContainer.Child = triggeredTrap.Team != pickTeam
-                        ? new TrapInfoDisplay(triggeredTrap)
-                        : new TrapInfoDisplay(TrapType.Unused, triggeredTrap.Team, triggeredTrap.BeatmapID);
-                    CurrentMatch.Value.Traps.Remove(triggeredTrap);
-
-                    if (triggeredTrap.Mode == TrapType.Reverse && trapActive)
-                    {
-                        // Add Win status first
-                        hasReversed = true;
-                        CurrentMatch.Value.PicksBans.Add(new BeatmapChoice
-                        {
-                            BeatmapID = beatmapId,
-                            Team = triggeredTrap.Team == TeamColour.Red ? TeamColour.Red : TeamColour.Blue,
-                            Type = triggeredTrap.Team == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin,
-                        });
-                        updateBottomDisplay(bottomOnly: false, refresh: false);
-                    }
-                }
-                else
-                {
-                    hasTrap = false;
-                }
-            }
-            else
-            {
-                hasTrap = false;
-            }
-
             if (pickType == ChoiceType.Pick)
             {
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
                 if (introMap != null)
-                    sceneManager?.ShowMapIntro(introMap, pickTeam, introTrap);
+                    sceneManager?.ShowMapIntro(introMap, pickTeam);
             }
 
-            // Trap action specific
-            if (pickType == ChoiceType.Trap)
-            {
-                CurrentMatch.Value.Traps.Add(new TrapInfo
-                (
-                    colour: pickTeam,
-                    type: trapTypeDropdown.Current.Value,
-                    mapID: beatmapId
-                ));
-            }
-
-            // Not to add a same map reference of the same type twice!
-            if (pickType == ChoiceType.Protect && CurrentMatch.Value.Protects.All(p => p.BeatmapID != beatmapId))
-            {
-                CurrentMatch.Value.Protects.Add(new BeatmapChoice
-                {
-                    Team = pickTeam,
-                    Type = pickType,
-                    BeatmapID = beatmapId,
-                });
-            }
-
-            if (isPickBan && !hasReversed && !CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId && p.Type == pickType))
+            if (isPickBan && !CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId && p.Type == pickType))
             {
                 CurrentMatch.Value.PicksBans.Add(new BeatmapChoice
                 {
@@ -1029,59 +558,6 @@ namespace osu.Game.Tournament.Screens.Board
             updateDisplay();
         }
 
-        protected void SwapMap(int sourceMapID, int targetMapID)
-        {
-            var sourceDrawable = boardMapList.FirstOrDefault(p => p.Beatmap?.OnlineID == sourceMapID);
-            var targetDrawable = boardMapList.FirstOrDefault(p => p.Beatmap?.OnlineID == targetMapID);
-
-            // Already detected null here, no need to do again
-            if (sourceDrawable != null && targetDrawable != null)
-            {
-                if (CurrentMatch.Value?.Round.Value?.UseBoard.Value == false) return;
-
-                int middleX = sourceDrawable.RealX;
-                int middleY = sourceDrawable.RealY;
-
-                float angle = GetAngle(sourceDrawable.RealX, targetDrawable.RealX,
-                    sourceDrawable.RealY, targetDrawable.RealY);
-
-                // Swap the coordinate position of two blocks.
-                sourceDrawable.RealX = targetDrawable.RealX;
-                sourceDrawable.RealY = targetDrawable.RealY;
-
-                targetDrawable.RealX = middleX;
-                targetDrawable.RealY = middleY;
-
-                // Visual presentation.
-                sourceDrawable.Flash();
-                targetDrawable.Flash();
-
-                sourceDrawable.RotateSwapIconTo(angle);
-                targetDrawable.RotateSwapIconTo(angle);
-
-                sourceDrawable.Delay(500).Then().MoveTo(getBlockPosition(sourceDrawable.RealX, sourceDrawable.RealY),
-                    500, Easing.OutCubic);
-                targetDrawable.Delay(500).Then().MoveTo(getBlockPosition(targetDrawable.RealX, targetDrawable.RealY),
-                    500, Easing.OutCubic);
-
-                // Restore swap icon direction for later use.
-                sourceDrawable.RotateSwapIconTo(0, 1500);
-                targetDrawable.RotateSwapIconTo(0, 1500);
-
-                // Win and EX stage detection.
-                DetectWin();
-                DetectEx();
-
-                // Clean up pending swap table.
-                CurrentMatch.Value?.PendingSwaps.Clear();
-            }
-            else
-            {
-                // Rare, but may happen
-                throw new InvalidOperationException("Cannot get the corresponding maps.");
-            }
-        }
-
         /// <summary>
         /// Calculate the corresponding angle from two board blocks.
         /// </summary>
@@ -1106,7 +582,6 @@ namespace osu.Game.Tournament.Screens.Board
             // Don't detect if not defining board coordinates
             if (CurrentMatch.Value?.Round.Value?.Beatmaps == null) return false;
             if (!CurrentMatch.Value.Round.Value.UseBoard.Value) return false;
-            if (CurrentMatch.Value.PendingSwaps.Any()) return false;
 
             List<TeamColour> winColours =
             [
@@ -1238,19 +713,19 @@ namespace osu.Game.Tournament.Screens.Board
         /// Detects if the board satisfies the conditions to enter the EX stage.
         /// </summary>
         /// <returns>true if satisfies, otherwise false.</returns>
-        public bool DetectEx()
+        public bool DetectTieBreaker()
         {
             if (CurrentMatch.Value?.Round.Value?.Beatmaps == null) return false;
             if (!CurrentMatch.Value.Round.Value.UseBoard.Value) return false;
-            if (CurrentMatch.Value.PendingSwaps.Any()) return false;
 
             // Manba out
+            // TODO: Rewrite based on new rules
             bool isRowAvailable = canWin(1, 1, 1, 4) || canWin(2, 1, 2, 4) || canWin(3, 1, 3, 4) || canWin(4, 1, 4, 4);
             bool isColumnAvailable = canWin(1, 1, 4, 1) || canWin(1, 2, 4, 2) || canWin(1, 3, 4, 3) || canWin(1, 4, 4, 4);
             bool isDiagonalAvailable = canWin(1, 1, 4, 4) || canWin(1, 4, 4, 1);
 
-            useEx = !isDiagonalAvailable && !isRowAvailable && !isColumnAvailable;
-            return useEx;
+            isInTieBreaker = !isDiagonalAvailable && !isRowAvailable && !isColumnAvailable;
+            return isInTieBreaker;
         }
 
         /// <summary>
@@ -1278,9 +753,7 @@ namespace osu.Game.Tournament.Screens.Board
             {
                 // Get the coloured map
                 var pickedMap = CurrentMatch.Value.PicksBans.FirstOrDefault(p =>
-                    (p.BeatmapID == b.Beatmap?.OnlineID &&
-                     (p.Type == ChoiceType.RedWin
-                      || p.Type == ChoiceType.BlueWin)));
+                    (p.BeatmapID == b.Beatmap?.OnlineID && (p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)));
 
                 // Have banned maps: Cannot win
                 if (CurrentMatch.Value.PicksBans.Any(p => (p.BeatmapID == b.Beatmap?.OnlineID && p.Type == ChoiceType.Ban))) return false;
@@ -1309,8 +782,8 @@ namespace osu.Game.Tournament.Screens.Board
         /// <returns>A <see cref="RoundBeatmap"/>, pointing to the corresponding beatmap.</returns>
         private RoundBeatmap? getBoardMap(int x, int y)
         {
-            BoardBeatmapPanel? dMap = boardMapList.FirstOrDefault(p => p.RealX == x && p.RealY == y && p.Mod != "EX");
-            return CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(p => p.Beatmap?.OnlineID == dMap?.Beatmap?.OnlineID && p.Mods != "EX");
+            BoardBeatmapPanel? dMap = boardMapList.FirstOrDefault(p => p.RealX == x && p.RealY == y && p.Mod != "TB");
+            return CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(p => p.Beatmap?.OnlineID == dMap?.Beatmap?.OnlineID && p.Mods != "TB");
         }
 
         private Vector2 getBlockPosition(int x, int y)
@@ -1326,7 +799,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value == null)
             {
-                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.Child = new WarningBox(BaseStrings.MatchUnavailableWarning);
                 warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 return;
             }
@@ -1342,11 +815,10 @@ namespace osu.Game.Tournament.Screens.Board
                     {
                         for (int j = 1; j <= 4; j++)
                         {
-                            var nextMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(p => (p.Mods != "EX" && p.BoardX == j && p.BoardY == i));
+                            var nextMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(p => p.Mods != "TB" && p.BoardX == j && p.BoardY == i);
 
                             if (nextMap != null)
                             {
-                                var hasSwappedMap = CurrentMatch.Value.PendingSwaps.FirstOrDefault(p => p.BeatmapID == nextMap.Beatmap?.OnlineID);
                                 Vector2 position = getBlockPosition(j, i);
                                 var mapDrawable = new BoardBeatmapPanel(nextMap.Beatmap, nextMap.Mods, nextMap.ModIndex, j, i)
                                 {
@@ -1357,7 +829,6 @@ namespace osu.Game.Tournament.Screens.Board
                                 };
                                 boardContainer.Add(mapDrawable);
                                 boardMapList.Add(mapDrawable);
-                                if (hasSwappedMap != null) CurrentMatch.Value.PendingSwaps.Remove(hasSwappedMap);
                             }
                             else
                             {
@@ -1365,19 +836,10 @@ namespace osu.Game.Tournament.Screens.Board
                             }
                         }
                     }
-
-                    if (CurrentMatch.Value.SwapRecords.Count > 0)
-                    {
-                        foreach (var i in CurrentMatch.Value.SwapRecords)
-                        {
-                            if (i.Key.Beatmap != null && i.Value.Beatmap != null)
-                                SwapMap(i.Key.Beatmap.OnlineID, i.Value.Beatmap.OnlineID);
-                        }
-                    }
                 }
                 else
                 {
-                    warningContainer.Child = new WarningBox("This round isn't set up for board view...");
+                    warningContainer.Child = new WarningBox(BaseStrings.BoardModeUnsetWarning);
                     warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 }
             }

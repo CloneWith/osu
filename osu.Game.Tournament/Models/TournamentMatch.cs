@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
-using osu.Game.Online.Chat;
 using osu.Game.Tournament.Screens.Ladder.Components;
 
 namespace osu.Game.Tournament.Models
@@ -50,19 +49,6 @@ namespace osu.Game.Tournament.Models
         public readonly Bindable<bool> Losers = new Bindable<bool>();
 
         public readonly ObservableCollection<BeatmapChoice> PicksBans = new ObservableCollection<BeatmapChoice>();
-
-        public readonly ObservableCollection<BeatmapChoice> Protects = new ObservableCollection<BeatmapChoice>();
-
-        public readonly ObservableCollection<TrapInfo> Traps = new ObservableCollection<TrapInfo>();
-
-        public readonly ObservableCollection<BeatmapChoice> PendingSwaps = new ObservableCollection<BeatmapChoice>();
-
-        public readonly ObservableCollection<BeatmapChoice> ExtraPicks = new ObservableCollection<BeatmapChoice>();
-
-        public readonly BindableList<KeyValuePair<RoundBeatmap, RoundBeatmap>> SwapRecords = new BindableList<KeyValuePair<RoundBeatmap, RoundBeatmap>>();
-
-        [JsonIgnore]
-        public readonly ObservableCollection<Message> PendingMsgs = new ObservableCollection<Message>();
 
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();
@@ -139,10 +125,6 @@ namespace osu.Game.Tournament.Models
             Team2.Value = null;
             Completed.Value = false;
             PicksBans.Clear();
-            Protects.Clear();
-            Traps.Clear();
-            PendingSwaps.Clear();
-            PendingMsgs.Clear();
         }
     }
 }

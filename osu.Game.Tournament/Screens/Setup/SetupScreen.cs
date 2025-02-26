@@ -12,11 +12,13 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Online.API;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -83,21 +85,24 @@ namespace osu.Game.Tournament.Screens.Setup
             var fileBasedIpc = ipc as FileBasedIPC;
             fillFlow.Children = new Drawable[]
             {
-                new SectionHeader(@"General"),
-                new ActionableInfo
+                new SectionHeader(SetupStrings.GeneralHeader),
+                new LanguageSwitcher
                 {
-                    Label = "Current IPC source",
-                    ButtonText = "Change source",
-                    Action = () => sceneManager?.SetScreen(new StablePathSelectScreen()),
-                    Value = fileBasedIpc?.IPCStorage?.GetFullPath(string.Empty) ?? "Not found",
-                    Failing = fileBasedIpc?.IPCStorage == null,
-                    Description =
-                        "The osu!stable installation which is currently being used as a data source. If a source is not found, make sure you have created an empty ipc.txt in your stable cutting-edge installation."
+                    Label = GeneralSettingsStrings.LanguageHeader,
                 },
                 new ActionableInfo
                 {
-                    Label = "Current user",
-                    ButtonText = "Show profile",
+                    Label = SetupStrings.CurrentIPCSource,
+                    ButtonText = SetupStrings.Change,
+                    Action = () => sceneManager?.SetScreen(new StablePathSelectScreen()),
+                    Value = fileBasedIpc?.IPCStorage?.GetFullPath(string.Empty) ?? SetupStrings.NotFound,
+                    Failing = fileBasedIpc?.IPCStorage == null,
+                    Description = SetupStrings.IPCSourceDescription,
+                },
+                new ActionableInfo
+                {
+                    Label = SetupStrings.CurrentUser,
+                    ButtonText = SetupStrings.ShowProfile,
                     Action = () =>
                     {
                         if (loginOverlay == null)
@@ -113,66 +118,54 @@ namespace osu.Game.Tournament.Screens.Setup
                     },
                     Value = api.LocalUser.Value.Username,
                     Failing = api.IsLoggedIn != true,
-                    Description = "In order to access the API and display metadata, signing in is required."
+                    Description = SetupStrings.CurrentUserDescription,
                 },
                 new TournamentSwitcher
                 {
-                    Label = "Current tournament",
-                    Description = "Changes the background videos and bracket to match the selected tournament. This requires a restart to apply changes.",
+                    Label = SetupStrings.CurrentTournament,
+                    Description = SetupStrings.CurrentTournamentDescription,
                 },
                 resolution = new ResolutionSelector
                 {
-                    Label = "Stream area resolution",
-                    ButtonText = "Set height",
+                    Label = SetupStrings.Resolution,
+                    ButtonText = SetupStrings.SetResolution,
                     Action = height =>
                     {
                         windowSize.Value = new Size((int)(height * aspect_ratio / TournamentSceneManager.STREAM_AREA_WIDTH * TournamentSceneManager.REQUIRED_WIDTH), height);
-                    }
+                    },
                 },
                 new LabelledSwitchButton
                 {
-                    Label = "Show time in UTC",
-                    Description = "Show Coordinated Universal Time instead of local time for schedules.",
+                    Label = SetupStrings.ShowGlobalTime,
+                    Description = SetupStrings.ShowGlobalTimeDescription,
                     Current = LadderInfo.UseUtcTime,
                 },
-                new SectionHeader(@"Tournament Specific"),
+                new SectionHeader(SetupStrings.TournamentSpecificHeader),
                 new LabelledDropdown<RulesetInfo?>
                 {
-                    Label = "Ruleset",
-                    Description = "Decides what stats are displayed and which ranks are retrieved for players. This requires a restart to reload data for an existing bracket.",
+                    Label = SetupStrings.Ruleset,
+                    Description = SetupStrings.RulesetDescription,
                     Items = rulesets.AvailableRulesets,
                     Current = LadderInfo.Ruleset,
                 },
                 new ActionableInfo
                 {
-                    Label = "Background settings",
-                    ButtonText = "Change...",
-                    Description = "Set paths and behaviour of background display.",
+                    Label = SetupStrings.BackgroundSettings,
+                    ButtonText = SetupStrings.Change,
+                    Description = SetupStrings.BackgroundSettingsDescription,
                     Action = () => sceneManager?.SetScreen(new BackgroundSelectScreen()),
                 },
                 new LabelledSwitchButton
                 {
-                    Label = "Display team seeds",
-                    Description = "Team seeds will display alongside each team at the top in gameplay/map pool screens.",
+                    Label = SetupStrings.DisplaySeeds,
+                    Description = SetupStrings.DisplaySeedsDescription,
                     Current = LadderInfo.DisplayTeamSeeds,
                 },
-                new SectionHeader(@"Automation"),
+                new SectionHeader(SetupStrings.AutomationHeader),
                 new LabelledSwitchButton
                 {
-                    Label = "Use referee commands",
-                    Description = "Referees can use pre-defined commands to control the tournament client in the multiplayer room.",
-                    Current = LadderInfo.UseRefereeCommands,
-                },
-                new LabelledSwitchButton
-                {
-                    Label = "Need referee response for critical steps",
-                    Description = "The tournament client will wait for referee\'s correct command to progress.",
-                    Current = LadderInfo.NeedRefereeResponse,
-                },
-                new LabelledSwitchButton
-                {
-                    Label = "Auto advance screens",
-                    Description = "Screens will progress automatically from gameplay -> results -> map pool",
+                    Label = SetupStrings.AutoAdvance,
+                    Description = SetupStrings.AutoAdvanceDescription,
                     Current = LadderInfo.AutoProgressScreens,
                 }
             };
