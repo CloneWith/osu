@@ -12,6 +12,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Ladder.Components;
 using osuTK;
@@ -50,18 +51,18 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                         showFirstTeamButton = new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Show first team",
+                            Text = SeedingScreenStrings.ShowFirstTeam,
                             Action = () => currentTeam.Value = CurrentMatch.Value?.Team1.Value,
                         },
                         showSecondTeamButton = new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Show second team",
+                            Text = SeedingScreenStrings.ShowSecondTeam,
                             Action = () => currentTeam.Value = CurrentMatch.Value?.Team2.Value,
                         },
                         new SettingsTeamDropdown(LadderInfo.Teams)
                         {
-                            LabelText = "Show specific team",
+                            LabelText = SeedingScreenStrings.ShowSpecificTeam,
                             Current = currentTeam,
                             ShowsDefaultIndicator = false,
                         }
