@@ -81,4 +81,13 @@
     <data name="team_blue" xml:space="preserve">
         <value>蓝队</value>
     </data>
+    <data name="no_match_warning" xml:space="preserve">
+        <value>请先从对阵图选择比赛</value>
+    </data>
+    <data name="match_unavailable_warning" xml:space="preserve">
+        <value>抱歉，无法访问当前比赛 ;w;</value>
+    </data>
+    <data name="board_mode_unset_warning" xml:space="preserve">
+        <value>此回合未设置为支持棋盘。</value>
+    </data>
 </root>

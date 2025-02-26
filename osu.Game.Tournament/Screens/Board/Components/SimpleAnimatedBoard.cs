@@ -7,6 +7,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Screens.Board.Components
@@ -56,7 +57,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
             if (currentMatch.Value == null)
             {
-                warningContainer.Child = new WarningBox("Cannot access current match, sorry ;w;");
+                warningContainer.Child = new WarningBox(BaseStrings.MatchUnavailableWarning);
                 warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 return;
             }
@@ -97,7 +98,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 }
                 else
                 {
-                    warningContainer.Child = new WarningBox("This round isn't set up for board view...");
+                    warningContainer.Child = new WarningBox(BaseStrings.BoardModeUnsetWarning);
                     warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
                 }
             }

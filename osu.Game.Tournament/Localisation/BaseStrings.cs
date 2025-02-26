@@ -34,6 +34,24 @@ namespace osu.Game.Tournament.Localisation
             @"Your {0} file could not be parsed. Please check runtime.log for more details.", bracketName);
 
         /// <summary>
+        /// "Choose a match first from the brackets screen"
+        /// </summary>
+        public static LocalisableString NoMatchWarning => new TranslatableString(getKey(@"no_match_warning"),
+            @"Choose a match first from the brackets screen");
+
+        /// <summary>
+        /// "Cannot access current match, sorry ;w;"
+        /// </summary>
+        public static LocalisableString MatchUnavailableWarning => new TranslatableString(getKey(@"match_unavailable_warning"),
+            @"Cannot access current match, sorry ;w;");
+
+        /// <summary>
+        /// "This round isn't set up for board view..."
+        /// </summary>
+        public static LocalisableString BoardModeUnsetWarning => new TranslatableString(getKey(@"board_mode_unset_warning"),
+            @"This round isn't set up for board view...");
+
+        /// <summary>
         /// "Please adjust the aspect ratio. The minimum window width is {0}."
         /// </summary>
         public static LocalisableString AspectRatioWarning(int requiredWidth) => new TranslatableString(getKey(@"aspect_ratio_warning"),
