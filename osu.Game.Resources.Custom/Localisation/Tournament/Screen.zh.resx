@@ -43,7 +43,7 @@
         <value>选种信息</value>
     </data>
     <data name="map_pool" xml:space="preserve">
-        <value>经典图池</value>
+        <value>图池</value>
     </data>
     <data name="gameplay" xml:space="preserve">
         <value>游玩展示</value>
@@ -52,7 +52,7 @@
         <value>获胜展示</value>
     </data>
     <data name="drawings" xml:space="preserve">
-        <value>组队抽选</value>
+        <value>组队抽签</value>
     </data>
     <data name="showcase" xml:space="preserve">
         <value>图池展示</value>
