@@ -293,8 +293,8 @@ namespace osu.Game.Screens.TournamentShowcase
                         {
                             new FillFlowContainer
                             {
-                                Anchor = Anchor.BottomCentre,
-                                Origin = Anchor.BottomCentre,
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
                                 Direction = FillDirection.Horizontal,
                                 RelativeSizeAxes = Axes.X,
                                 Width = 0.6f,
@@ -303,8 +303,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                 {
                                     new RoundedButton
                                     {
-                                        Anchor = Anchor.BottomCentre,
-                                        Origin = Anchor.BottomCentre,
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
                                         RelativeSizeAxes = Axes.X,
                                         Width = 0.4f,
                                         Text = TournamentShowcaseStrings.SaveAction,
@@ -318,8 +318,8 @@ namespace osu.Game.Screens.TournamentShowcase
                                     },
                                     new RoundedButton
                                     {
-                                        Anchor = Anchor.BottomCentre,
-                                        Origin = Anchor.BottomCentre,
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
                                         RelativeSizeAxes = Axes.X,
                                         Width = 0.4f,
                                         Text = TournamentShowcaseStrings.StartShowcase,
