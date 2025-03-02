@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -44,7 +43,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         #region Drawable variables
 
-        private FillFlowContainer innerFlow = null!;
         private FillFlowContainer tournamentInfoSection = null!;
         private FillFlowContainer settingsSection = null!;
         private ShowcaseBeatmapEditor beatmapSection = null!;
@@ -273,7 +271,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
                                     ScrollbarOverlapsContent = false,
-                                    Child = innerFlow = new FillFlowContainer
+                                    Child = new FillFlowContainer
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         AutoSizeAxes = Axes.Y,
@@ -281,9 +279,33 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Direction = FillDirection.Full,
                                         Children = new Drawable[]
                                         {
-                                            tournamentInfoSection,
-                                            settingsSection,
+                                            new GridContainer
+                                            {
+                                                RelativeSizeAxes = Axes.X,
+                                                AutoSizeAxes = Axes.Y,
+                                                RowDimensions = new[]
+                                                {
+                                                    new Dimension(GridSizeMode.AutoSize),
+                                                },
+                                                ColumnDimensions = new[]
+                                                {
+                                                    new Dimension(),
+                                                    // Add a 10px gap between two columns
+                                                    new Dimension(GridSizeMode.Absolute, 10),
+                                                    new Dimension(),
+                                                },
+                                                Content = new[]
+                                                {
+                                                    new[]
+                                                    {
+                                                        tournamentInfoSection,
+                                                        Empty(),
+                                                        settingsSection,
+                                                    },
+                                                },
+                                            },
                                             introEditor,
+                                            beatmapSection,
                                         },
                                     },
                                 },
@@ -359,6 +381,8 @@ namespace osu.Game.Screens.TournamentShowcase
             });
 
             this.FadeInFromZero(500, Easing.OutQuint);
+
+            currentTab.TriggerChange();
         }
 
         private void refreshProfileList()
@@ -437,22 +461,18 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void currentTabChanged(ValueChangedEvent<ShowcaseConfigTab> e)
         {
-            innerFlow.Clear(false);
+            // <comment>
+            // The old implementation mechanism will destroy and rebuild the component tree on each switch
+            // Causes a lot of unnecessary overhead and more importantly it does not work well with GridContainers
+            // they tried to reuse the components and it violates osu!framework's component ownership
+            // So I decided to use the Alpha property to control the visibility of the components :)
+            // </comment>
+            bool generalVisible = currentTab.Value == ShowcaseConfigTab.General;
+            tournamentInfoSection.Alpha = generalVisible ? 1 : 0;
+            settingsSection.Alpha = generalVisible ? 1 : 0;
+            introEditor.Alpha = generalVisible ? 1 : 0;
 
-            innerFlow.AddRange(currentTab.Value switch
-            {
-                ShowcaseConfigTab.General => new Drawable[]
-                {
-                    tournamentInfoSection,
-                    settingsSection,
-                    introEditor,
-                },
-                ShowcaseConfigTab.Beatmaps => new Drawable[]
-                {
-                    beatmapSection,
-                },
-                _ => throw new ArgumentOutOfRangeException(),
-            });
+            beatmapSection.Alpha = currentTab.Value == ShowcaseConfigTab.Beatmaps ? 1 : 0;
         }
 
         private bool exitConfirmed;
