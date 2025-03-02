@@ -43,7 +43,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         #region Drawable variables
 
-        private FillFlowContainer innerFlow = null!;
         private FillFlowContainer tournamentInfoSection = null!;
         private FillFlowContainer settingsSection = null!;
         private ShowcaseBeatmapEditor beatmapSection = null!;
@@ -272,7 +271,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     Origin = Anchor.Centre,
                                     RelativeSizeAxes = Axes.Both,
                                     ScrollbarOverlapsContent = false,
-                                    Child = innerFlow = new FillFlowContainer
+                                    Child = new FillFlowContainer
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         AutoSizeAxes = Axes.Y,
