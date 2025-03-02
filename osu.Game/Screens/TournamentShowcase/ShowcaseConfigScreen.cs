@@ -292,13 +292,13 @@ namespace osu.Game.Screens.TournamentShowcase
                                                 {
                                                     new Dimension(GridSizeMode.Relative, 0.49f),
                                                     new Dimension(GridSizeMode.Relative, 0.49f),
-                                                    // I've tried to use these ↑ Dimensions to make the two sections have the same width, but it doesn't work...
+                                                    // These ↑ Dimensions ensure columns are in the same width
                                                 },
                                                 Content = new[]
                                                 {
                                                     new Drawable[]
                                                     {
-                                                        // ...so I have to use these ↓ Containers to make the two sections have the same width. bro is literally a McGyver
+                                                        // and these containers ensure there's a gap between the columns. Providing a better visual experience.
                                                         new Container
                                                         {
                                                             RelativeSizeAxes = Axes.X,
