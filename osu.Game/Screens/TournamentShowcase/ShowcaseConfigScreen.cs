@@ -394,7 +394,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             this.FadeInFromZero(500, Easing.OutQuint);
 
-            currentTabChanged(new ValueChangedEvent<ShowcaseConfigTab>(ShowcaseConfigTab.General, ShowcaseConfigTab.General));
+            currentTab.TriggerChange();
         }
 
         private void refreshProfileList()
