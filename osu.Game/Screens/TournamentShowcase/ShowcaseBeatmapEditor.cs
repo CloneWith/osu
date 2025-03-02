@@ -175,46 +175,72 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Children = new Drawable[]
             {
-                new FormCheckBox
+                new GridContainer
                 {
-                    Caption = TournamentShowcaseStrings.TournamentOriginal,
-                    HintText = TournamentShowcaseStrings.TournamentOriginalDescription,
-                    Width = 0.49f,
-                    Current = Beatmap.IsOriginal,
-                },
-                new FormNumberBox
-                {
-                    Caption = TournamentShowcaseStrings.BeatmapChooserID,
-                    HintText = TournamentShowcaseStrings.BeatmapChooserIDDescription,
-                    Width = 0.49f,
-                    Current = selectorId,
-                },
-                new FormTextBox
-                {
-                    Caption = TournamentShowcaseStrings.BeatmapModType,
-                    HintText = TournamentShowcaseStrings.BeatmapModTypeDescription,
-                    Width = 0.49f,
-                    Current = Beatmap.ModString,
-                },
-                new FormTextBox
-                {
-                    Caption = TournamentShowcaseStrings.BeatmapModIndex,
-                    HintText = TournamentShowcaseStrings.BeatmapModIndexDescription,
-                    Width = 0.49f,
-                    Current = Beatmap.ModIndex,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.AutoSize),
+                    },
+                    ColumnDimensions = new[]
+                    {
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 10),
+                        new Dimension(),
+                    },
+                    Content = new[]
+                    {
+                        new[]
+                        {
+                            new FormCheckBox
+                            {
+                                Caption = TournamentShowcaseStrings.TournamentOriginal,
+                                HintText = TournamentShowcaseStrings.TournamentOriginalDescription,
+                                Current = Beatmap.IsOriginal,
+                            },
+                            Empty(),
+                            new FormNumberBox
+                            {
+                                Caption = TournamentShowcaseStrings.BeatmapChooserID,
+                                HintText = TournamentShowcaseStrings.BeatmapChooserIDDescription,
+                                Current = selectorId,
+                            },
+                        },
+                        new[]
+                        {
+                            Empty(),
+                        },
+                        new[]
+                        {
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.BeatmapModType,
+                                HintText = TournamentShowcaseStrings.BeatmapModTypeDescription,
+                                Current = Beatmap.ModString,
+                            },
+                            Empty(),
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.BeatmapModIndex,
+                                HintText = TournamentShowcaseStrings.BeatmapModIndexDescription,
+                                Current = Beatmap.ModIndex,
+                            },
+                        },
+                    },
                 },
                 new FormTextBox
                 {
                     Caption = TournamentShowcaseStrings.DifficultyField,
                     HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
-                    Width = 1f,
                     Current = Beatmap.DiffField,
                 },
                 new FormTextBox
                 {
                     Caption = TournamentShowcaseStrings.Comment,
                     HintText = TournamentShowcaseStrings.BeatmapCommentDescription,
-                    Width = 1f,
                     Current = Beatmap.BeatmapComment,
                 },
                 drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
