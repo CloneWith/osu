@@ -289,29 +289,18 @@ namespace osu.Game.Screens.TournamentShowcase
                                                 },
                                                 ColumnDimensions = new[]
                                                 {
-                                                    new Dimension(GridSizeMode.Relative, 0.49f),
-                                                    new Dimension(GridSizeMode.Relative, 0.49f),
-                                                    // These ↑ Dimensions ensure columns are in the same width
+                                                    new Dimension(),
+                                                    // Add a 10px gap between two columns
+                                                    new Dimension(GridSizeMode.Absolute, 10),
+                                                    new Dimension(),
                                                 },
                                                 Content = new[]
                                                 {
-                                                    new Drawable[]
+                                                    new[]
                                                     {
-                                                        // and these containers ensure there's a gap between the columns. Providing a better visual experience.
-                                                        new Container
-                                                        {
-                                                            RelativeSizeAxes = Axes.X,
-                                                            AutoSizeAxes = Axes.Y,
-                                                            Padding = new MarginPadding { Right = 5 },
-                                                            Child = tournamentInfoSection
-                                                        },
-                                                        new Container
-                                                        {
-                                                            RelativeSizeAxes = Axes.X,
-                                                            AutoSizeAxes = Axes.Y,
-                                                            Padding = new MarginPadding { Left = 5 },
-                                                            Child = settingsSection
-                                                        },
+                                                        tournamentInfoSection,
+                                                        Empty(),
+                                                        settingsSection,
                                                     },
                                                 },
                                             },
