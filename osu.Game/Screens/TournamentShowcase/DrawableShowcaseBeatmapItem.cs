@@ -78,7 +78,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private readonly DelayedLoadUnloadWrapper onScreenLoader = new DelayedLoadUnloadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
+        private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
         private readonly ShowcaseConfig config;
         private ShowcaseBeatmap item;

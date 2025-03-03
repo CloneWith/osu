@@ -172,16 +172,7 @@ namespace osu.Game.Screens.TournamentShowcase
             logo?.Delay(6000).FadeOut(3000, Easing.OutQuint);
 
             introContainer.Delay(6000).FadeOut(1000, Easing.OutQuint);
-            Scheduler.AddDelayed(showTeamPlayer, 3000 + 6000);
-        }
-
-        /// <summary>
-        /// Show the round team list.
-        /// </summary>
-        private void showTeamPlayer()
-        {
-            state.Value = ShowcaseState.TeamPlayer;
-            Scheduler.AddDelayed(showMapPool, config.ShowTeamList.Value ? 5000 : 0);
+            Scheduler.AddDelayed(showMapPool, 3000 + 6000);
         }
 
         /// <summary>

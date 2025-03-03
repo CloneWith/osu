@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -26,19 +27,40 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         private readonly Bindable<ShowcaseConfig> config = new Bindable<ShowcaseConfig>();
 
-        private readonly FillFlowContainer? beatmapContainer;
-
         public ShowcaseBeatmapEditor(Bindable<ShowcaseConfig> config)
         {
             FormCheckBox showListCheckBox;
             this.config.BindTo(config);
+            int leftNum = (int)Math.Ceiling(config.Value.Beatmaps.Count / 2f);
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
             AutoSizeEasing = Easing.OutQuint;
             AutoSizeDuration = 200;
-            Direction = FillDirection.Vertical;
-            Spacing = new Vector2(10);
+            Direction = FillDirection.Full;
+            Spacing = new Vector2(5);
+
+            var leftFlow = new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = 200,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(5),
+                ChildrenEnumerable = config.Value.Beatmaps.Take(leftNum).Select(t => new BeatmapRow(t, config.Value)),
+            };
+            var rightFlow = new FillFlowContainer
+            {
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = 200,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(5),
+                ChildrenEnumerable = config.Value.Beatmaps.Skip(leftNum).Select(t => new BeatmapRow(t, config.Value)),
+            };
+
             Children = new Drawable[]
             {
                 new SectionHeader(TournamentShowcaseStrings.BeatmapQueueHeader),
@@ -52,24 +74,45 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     var addedBeatmap = new ShowcaseBeatmap();
                     config.Value.Beatmaps.Add(addedBeatmap);
-                    beatmapContainer?.Add(new BeatmapRow(addedBeatmap, config.Value));
+
+                    if (leftFlow.Children.Count > rightFlow.Children.Count)
+                    {
+                        rightFlow.Add(new BeatmapRow(addedBeatmap, config.Value));
+                    }
+                    else
+                    {
+                        leftFlow.Add(new BeatmapRow(addedBeatmap, config.Value));
+                    }
                 }),
-                beatmapContainer = new FillFlowContainer
+                new GridContainer
                 {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    AutoSizeEasing = Easing.OutQuint,
-                    AutoSizeDuration = 200,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(10),
-                    ChildrenEnumerable = config.Value.Beatmaps.Select(t => new BeatmapRow(t, config.Value))
-                }
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize),
+                    },
+                    ColumnDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.Relative, 0.5f),
+                        new Dimension(GridSizeMode.Relative, 0.5f),
+                    },
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            leftFlow,
+                            rightFlow,
+                        },
+                    },
+                },
             };
 
             config.BindValueChanged(conf =>
             {
                 showListCheckBox.Current = conf.NewValue.ShowMapPool;
-                beatmapContainer.ChildrenEnumerable = conf.NewValue.Beatmaps.Select(t => new BeatmapRow(t, config.Value));
+                leftFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Take(leftNum).Select(t => new BeatmapRow(t, config.Value));
+                rightFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Skip(leftNum).Select(t => new BeatmapRow(t, config.Value));
             });
         }
     }
@@ -132,46 +175,72 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Children = new Drawable[]
             {
-                new FormCheckBox
+                new GridContainer
                 {
-                    Caption = TournamentShowcaseStrings.TournamentOriginal,
-                    HintText = TournamentShowcaseStrings.TournamentOriginalDescription,
-                    Width = 0.49f,
-                    Current = Beatmap.IsOriginal,
-                },
-                new FormNumberBox
-                {
-                    Caption = TournamentShowcaseStrings.BeatmapChooserID,
-                    HintText = TournamentShowcaseStrings.BeatmapChooserIDDescription,
-                    Width = 0.49f,
-                    Current = selectorId,
-                },
-                new FormTextBox
-                {
-                    Caption = TournamentShowcaseStrings.BeatmapModType,
-                    HintText = TournamentShowcaseStrings.BeatmapModTypeDescription,
-                    Width = 0.49f,
-                    Current = Beatmap.ModString,
-                },
-                new FormTextBox
-                {
-                    Caption = TournamentShowcaseStrings.BeatmapModIndex,
-                    HintText = TournamentShowcaseStrings.BeatmapModIndexDescription,
-                    Width = 0.49f,
-                    Current = Beatmap.ModIndex,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    RowDimensions = new[]
+                    {
+                        new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.AutoSize),
+                    },
+                    ColumnDimensions = new[]
+                    {
+                        new Dimension(),
+                        new Dimension(GridSizeMode.Absolute, 10),
+                        new Dimension(),
+                    },
+                    Content = new[]
+                    {
+                        new[]
+                        {
+                            new FormCheckBox
+                            {
+                                Caption = TournamentShowcaseStrings.TournamentOriginal,
+                                HintText = TournamentShowcaseStrings.TournamentOriginalDescription,
+                                Current = Beatmap.IsOriginal,
+                            },
+                            Empty(),
+                            new FormNumberBox
+                            {
+                                Caption = TournamentShowcaseStrings.BeatmapChooserID,
+                                HintText = TournamentShowcaseStrings.BeatmapChooserIDDescription,
+                                Current = selectorId,
+                            },
+                        },
+                        new[]
+                        {
+                            Empty(),
+                        },
+                        new[]
+                        {
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.BeatmapModType,
+                                HintText = TournamentShowcaseStrings.BeatmapModTypeDescription,
+                                Current = Beatmap.ModString,
+                            },
+                            Empty(),
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.BeatmapModIndex,
+                                HintText = TournamentShowcaseStrings.BeatmapModIndexDescription,
+                                Current = Beatmap.ModIndex,
+                            },
+                        },
+                    },
                 },
                 new FormTextBox
                 {
                     Caption = TournamentShowcaseStrings.DifficultyField,
                     HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
-                    Width = 1f,
                     Current = Beatmap.DiffField,
                 },
                 new FormTextBox
                 {
                     Caption = TournamentShowcaseStrings.Comment,
                     HintText = TournamentShowcaseStrings.BeatmapCommentDescription,
-                    Width = 1f,
                     Current = Beatmap.BeatmapComment,
                 },
                 drawableItem = new DrawableShowcaseBeatmapItem(Beatmap, config)
