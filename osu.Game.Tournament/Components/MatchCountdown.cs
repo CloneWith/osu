@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Extensions;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osuTK;
@@ -42,6 +43,7 @@ namespace osu.Game.Tournament.Components
         private readonly Box bottomBox;
         private readonly Box topBox;
         private readonly FillFlowContainer contentFlow;
+        private readonly TrianglesV2 triangles;
 
         // Elements specifically used for cases with target time unset.
         private readonly SpriteIcon indicatorIcon;
@@ -102,6 +104,14 @@ namespace osu.Game.Tournament.Components
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Colour = NormalColour,
+                        },
+                        triangles = new TrianglesV2
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Alpha = 0.3f,
+                            Colour = AccentColour,
                         },
                         contentFlow = new FillFlowContainer
                         {
@@ -214,6 +224,7 @@ namespace osu.Game.Tournament.Components
             {
                 bottomBox.FadeColour(NormalColour, 1000, Easing.OutQuint);
                 topBox.FadeColour(AccentColour, 1000, Easing.OutQuint);
+                triangles.FadeColour(AccentContentColour, 1000, Easing.OutQuint);
 
                 foreach (var t in timerFlow)
                 {
@@ -226,6 +237,7 @@ namespace osu.Game.Tournament.Components
             {
                 bottomBox.FlashColour(NormalColour, 1000, Easing.OutQuint);
                 topBox.FlashColour(AccentColour, 1000, Easing.OutQuint);
+                triangles.FlashColour(AccentContentColour, 1000, Easing.OutQuint);
 
                 foreach (var t in timerFlow)
                 {
@@ -293,6 +305,7 @@ namespace osu.Game.Tournament.Components
 
                 bottomBox.FadeColour(AccentColour, 300, Easing.OutQuint);
                 topBox.FadeColour(NormalColour, 300, Easing.OutQuint);
+                triangles.FadeColour(AccentColour, 1000, Easing.OutQuint);
             });
 
             Scheduler.AddDelayed(() =>
@@ -377,6 +390,7 @@ namespace osu.Game.Tournament.Components
                 {
                     bottomBox.FadeColour(AccentColour, 1000, Easing.OutQuint);
                     topBox.FadeColour(NormalColour, 1000, Easing.OutQuint);
+                    triangles.FadeColour(AccentColour, 1000, Easing.OutQuint);
 
                     foreach (var t in timerFlow)
                     {
