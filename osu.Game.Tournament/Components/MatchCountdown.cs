@@ -261,11 +261,8 @@ namespace osu.Game.Tournament.Components
         {
             base.LoadComplete();
 
-            if (!Target.Value.HasValue || countdownEnded(Target.Value.Value) || countdownLongProgress(Target.Value.Value))
-                fillPlaceholderContent();
-            else fillTimerContent();
-
             Target.BindValueChanged(targetTimeChanged);
+            Target.TriggerChange();
         }
 
         protected override void Update()
@@ -289,23 +286,25 @@ namespace osu.Game.Tournament.Components
         {
             if (target.NewValue == null || countdownEnded(target.NewValue.Value) || countdownLongProgress(target.NewValue.Value))
                 fillPlaceholderContent();
-            else fillTimerContent();
+            else fillTimerContent((target.NewValue.Value - DateTimeOffset.Now).TotalMinutes <= 1);
         }
 
         /// <summary>
         /// Fade out the main content flow and ensure everything is in place.
         /// </summary>
         /// <remarks>Note that this method takes 450ms to complete. You may need to add a delay manually.</remarks>
-        private void reset()
+        private void reset(bool fastMode = false)
         {
+            int transformTime = fastMode ? 150 : 300;
+
             Scheduler.Add(() =>
             {
                 contentFlow.FadeOut(150, Easing.OutQuint)
-                           .Delay(300).FadeIn();
+                           .Delay(transformTime).FadeIn();
 
-                bottomBox.FadeColour(AccentColour, 300, Easing.OutQuint);
-                topBox.FadeColour(NormalColour, 300, Easing.OutQuint);
-                triangles.FadeColour(AccentColour, 1000, Easing.OutQuint);
+                bottomBox.FadeColour(AccentColour, transformTime, Easing.OutQuint);
+                topBox.FadeColour(NormalColour, transformTime, Easing.OutQuint);
+                triangles.FadeColour(AccentColour, transformTime, Easing.OutQuint);
             });
 
             Scheduler.AddDelayed(() =>
@@ -328,7 +327,7 @@ namespace osu.Game.Tournament.Components
                     updateTimerTextParts(true);
                 else
                     waitingText.Text = getWaitingString();
-            }, 300);
+            }, transformTime);
         }
 
         private void showHourglassIcon()
@@ -364,25 +363,30 @@ namespace osu.Game.Tournament.Components
                        .Loop(500, 5);
         }
 
-        private void fillTimerContent()
+        private void fillTimerContent(bool fastMode = false)
         {
             if (!OnGoing || !Target.Value.HasValue)
             {
-                reset();
+                reset(fastMode);
 
-                Scheduler.AddDelayed(showHourglassIcon, 500);
+                // When time is not enough, don't play hourglass animation
+                if (!fastMode)
+                    Scheduler.AddDelayed(showHourglassIcon, 500);
 
                 Scheduler.AddDelayed(() =>
                 {
                     // Add the placeholder text after a little delay to make it look better
                     contentFlow.Add(timerFlow);
-                    timerFlow.Delay(200).FadeIn(300, Easing.OutQuint);
+                    timerFlow.Delay(fastMode ? 0 : 200).FadeIn(300, Easing.OutQuint);
 
-                    using (BeginDelayedSequence(300))
+                    if (!fastMode)
                     {
-                        indicatorIcon.FadeOut(300, Easing.OutQuint);
+                        using (BeginDelayedSequence(300))
+                        {
+                            indicatorIcon.FadeOut(300, Easing.OutQuint);
+                        }
                     }
-                }, 1000);
+                }, fastMode ? 200 : 1000);
             }
             else
             {
