@@ -7,7 +7,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Sprites;
@@ -339,28 +338,47 @@ namespace osu.Game.Tournament.Components
 
         private void fillDoneContent()
         {
-            contentFlow.Clear(false);
-            indicatorIcon.ClearTransforms();
-            indicatorIcon.RotateTo(0);
-            indicatorIcon.Icon = FontAwesome.Solid.Bell;
-            indicatorIcon.Colour = AccentContentColour;
-            waitingText.Text = ended_string;
-            waitingText.Colour = AccentContentColour;
-
-            indicatorIcon.Show();
-            waitingText.Show();
-
-            contentFlow.AddRange(new Drawable[]
+            if (countdownMSecondPart != null)
             {
-                indicatorIcon,
-                waitingText,
-            });
+                countdownMSecondPart.Text = ".000";
+            }
 
-            contentFlow.ScaleTo(1.5f, 500, Easing.OutQuint);
-            this.Shake(shakeMagnitude: 4f);
-            contentFlow.FadeColour(AccentColour, 500, Easing.OutQuint)
-                       .Then().FadeColour(AccentContentColour, 1000, Easing.OutQuint)
-                       .Loop(500, 5);
+            contentFlow.FadeOut().Delay(500).FadeIn().Delay(500).Loop(0, 3);
+            contentFlow.Delay(2000).ScaleTo(1.2f, 1000, Easing.InQuint);
+
+            Scheduler.AddDelayed(() =>
+            {
+                contentFlow.Clear(false);
+                indicatorIcon.ClearTransforms();
+                indicatorIcon.RotateTo(0);
+                indicatorIcon.Icon = FontAwesome.Solid.Bell;
+                indicatorIcon.Colour = AccentContentColour;
+                waitingText.Text = ended_string;
+                waitingText.Colour = AccentContentColour;
+
+                contentFlow.FadeInFromZero(500, Easing.InOutQuint);
+                contentFlow.ScaleTo(1.45f, 1500, Easing.OutQuint)
+                           .Then().ScaleTo(1, 10000, Easing.InOutQuint);
+
+                indicatorIcon.Show();
+                waitingText.Show();
+
+                contentFlow.AddRange(new Drawable[]
+                {
+                    indicatorIcon,
+                    waitingText,
+                });
+
+                for (int i = 1; i <= 3; i++)
+                {
+                    using (BeginDelayedSequence(4500 * (i - 1)))
+                    {
+                        indicatorIcon.RotateTo(-15, 50, Easing.OutQuint).Then()
+                                     .RotateTo(15, 50, Easing.OutQuint).Loop(0, 20);
+                        indicatorIcon.Delay(2000).RotateTo(0, 1000, Easing.OutQuint);
+                    }
+                }
+            }, 3000);
         }
 
         private void fillTimerContent(bool fastMode = false)
