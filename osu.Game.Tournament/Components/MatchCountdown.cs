@@ -59,6 +59,7 @@ namespace osu.Game.Tournament.Components
         private string lastSecond = string.Empty;
 
         private TimeSpan? remainingTime;
+        private bool placeholderLoaded;
 
         public MatchCountdown()
         {
@@ -432,7 +433,7 @@ namespace osu.Game.Tournament.Components
         private void fillPlaceholderContent()
         {
             // No need to fade the whole content when countdown state is unchanged
-            if (OnGoing || !Target.Value.HasValue)
+            if (OnGoing || !Target.Value.HasValue || !placeholderLoaded)
             {
                 reset();
 
@@ -446,6 +447,7 @@ namespace osu.Game.Tournament.Components
                 {
                     // Add the placeholder text after a little delay to make it look better
                     contentFlow.Add(waitingText);
+                    waitingText.Text = getWaitingString();
                     waitingText.Delay(200).FadeIn(500, Easing.OutQuint);
 
                     using (BeginDelayedSequence(1000))
@@ -455,6 +457,8 @@ namespace osu.Game.Tournament.Components
                                      .Loop(3000);
                     }
                 }, 1000);
+
+                placeholderLoaded = true;
             }
             else
             {
