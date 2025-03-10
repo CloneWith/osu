@@ -5,45 +5,79 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Components;
+using osuTK;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Countdown
 {
     public partial class CountdownScreen : TournamentScreen
     {
-        public Bindable<CountdownState> CurrentState = new Bindable<CountdownState>();
-        public readonly BindableBool AutoProgress = new BindableBool();
+        private readonly BindableBool autoProgress = new BindableBool();
+        private readonly BindableBool showSchedule = new BindableBool();
+        private readonly BindableBool showUpcoming = new BindableBool();
 
         private MatchCountdown countdown = null!;
-
-        public enum CountdownState
-        {
-            CountdownOnly,
-            WithSchedule,
-            WithUpcoming,
-        }
+        private ReverseChildIDFillFlowContainer<Drawable> upcomingContainer = null!;
 
         [BackgroundDependencyLoader]
         private void load()
         {
+            var upcomingMatch = LadderInfo.CurrentMatch.Value;
+
             InternalChildren = new Drawable[]
             {
-                new Container
+                countdown = new MatchCountdown
                 {
-                    Name = @"Main Content",
-                    RelativeSizeAxes = Axes.Both,
+                    Name = @"Countdown",
+                    RelativePositionAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
+                    Y = -0.75f,
+                },
+                upcomingContainer = new ReverseChildIDFillFlowContainer<Drawable>
+                {
+                    Name = @"Upcoming container",
+                    AutoSizeAxes = Axes.Both,
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(0, -5),
+                    X = 20,
+                    Y = 100,
                     Children = new Drawable[]
                     {
-                        countdown = new MatchCountdown
+                        new CustomRoundedBox
                         {
-                            Name = @"Countdown",
-                            RelativePositionAxes = Axes.Both,
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
+                            BackgroundColour = Color4.White,
+                            // TODO: Implementation in CustomRoundedBox
+                            // BorderColour = FumoColours.SeaBlue.Regular,
+                            // BorderThickness = 3,
+                            Child = new TournamentSpriteText
+                            {
+                                Text = "Upcoming Match",
+                                Colour = Color4.Black,
+                                Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                Shadow = false,
+                            },
+                        },
+                        new CustomRoundedBox
+                        {
+                            BackgroundColour = FumoColours.SeaBlue.Regular,
+                            Child = new DrawableRoundLine(upcomingMatch)
+                            {
+                                AutoSizeAxes = Axes.Both,
+                                Padding = new MarginPadding
+                                {
+                                    Horizontal = 10,
+                                    Vertical = 3,
+                                },
+                            },
                         },
                     },
                 },
@@ -52,26 +86,18 @@ namespace osu.Game.Tournament.Screens.Countdown
                     new LabelledSwitchButton
                     {
                         Label = "Auto progress",
-                        Current = AutoProgress,
+                        Current = autoProgress,
                     },
                     new SectionHeader("Screen Layout"),
-                    new TourneyButton
+                    new LabelledSwitchButton
                     {
-                        RelativeSizeAxes = Axes.X,
-                        Text = "Countdown only",
-                        Action = () => CurrentState.Value = CountdownState.CountdownOnly,
+                        Label = "Show schedule",
+                        Current = showSchedule,
                     },
-                    new TourneyButton
+                    new LabelledSwitchButton
                     {
-                        RelativeSizeAxes = Axes.X,
-                        Text = "Schedule",
-                        Action = () => CurrentState.Value = CountdownState.WithSchedule,
-                    },
-                    new TourneyButton
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        Text = "Upcoming match",
-                        Action = () => CurrentState.Value = CountdownState.WithUpcoming,
+                        Label = "Show upcoming",
+                        Current = showUpcoming,
                     },
                 },
             };
@@ -81,12 +107,8 @@ namespace osu.Game.Tournament.Screens.Countdown
         {
             base.LoadComplete();
 
-            CurrentState.BindValueChanged(stateChanged);
-        }
-
-        private void stateChanged(ValueChangedEvent<CountdownState> state)
-        {
-            // TODO: Expand this function
+            showUpcoming.BindValueChanged(v =>
+                upcomingContainer.MoveToY(v.NewValue ? -20 : 100, 500, Easing.InOutQuint));
         }
 
         public override void FirstSelected(bool enforced = false)
@@ -94,6 +116,7 @@ namespace osu.Game.Tournament.Screens.Countdown
             base.FirstSelected(enforced);
 
             countdown.Target.Value = LadderInfo.CurrentMatch.Value?.Date.Value;
+            countdown.Delay(700).MoveToY(0, 1000, Easing.OutQuint);
         }
     }
 }

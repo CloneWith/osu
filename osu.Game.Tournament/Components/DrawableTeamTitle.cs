@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Game.Tournament.Models;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
@@ -15,9 +16,18 @@ namespace osu.Game.Tournament.Components
         [UsedImplicitly]
         private Bindable<string>? acronym;
 
-        public DrawableTeamTitle(TournamentTeam? team)
+        public DrawableTeamTitle(TournamentTeam? team, bool noBackground = false, TeamColour colour = TeamColour.Neutral)
         {
             this.team = team;
+            Background.Alpha = noBackground ? 0 : 1;
+
+            Text.Text = "???";
+            Text.Colour = colour switch
+            {
+                TeamColour.Red => TournamentGame.COLOUR_RED,
+                TeamColour.Blue => TournamentGame.COLOUR_BLUE,
+                _ => noBackground ? Color4.White : Color4.Black,
+            };
         }
 
         [BackgroundDependencyLoader]
@@ -25,7 +35,7 @@ namespace osu.Game.Tournament.Components
         {
             if (team == null) return;
 
-            (acronym = team.Acronym.GetBoundCopy()).BindValueChanged(_ => Text.Text = team?.FullName.Value ?? string.Empty, true);
+            (acronym = team.Acronym.GetBoundCopy()).BindValueChanged(_ => Text.Text = team?.FullName.Value ?? "???", true);
         }
     }
 }
