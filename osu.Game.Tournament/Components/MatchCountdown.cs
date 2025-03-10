@@ -7,10 +7,13 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Tournament.Localisation.Screens;
+using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
 
@@ -32,12 +35,6 @@ namespace osu.Game.Tournament.Components
         public static Color4 AccentColour = FumoColours.SeaBlue.Regular;
         public static Color4 NormalContentColour = Color4.Black;
         public static Color4 AccentContentColour = Color4.White;
-
-        private const string long_waiting_string = @"还要等很久呢...";
-        private const string empty_time_string = @"在等着什么呢 >.<";
-        private const string ended_string = @"开赛啦 开赛啦！";
-        private const string just_ended_string = @"前就开始了";
-        private const string long_ended_string = @"早就开始啦 >.<";
 
         private readonly Box bottomBox;
         private readonly Box topBox;
@@ -174,15 +171,15 @@ namespace osu.Game.Tournament.Components
         private bool countdownJustEnded(DateTimeOffset timeOffset) =>
             countdownEnded(timeOffset) && DateTimeOffset.Now - timeOffset.ToLocalTime() <= TimeSpan.FromMinutes(3);
 
-        private string getWaitingString() => Target.Value.HasValue
+        private LocalisableString getWaitingString() => Target.Value.HasValue
             ? !countdownEnded(Target.Value.Value)
                 ? countdownLongProgress(Target.Value.Value)
-                    ? long_waiting_string
+                    ? CountdownStrings.LongWaitingPrompt
                     : (Target.Value.Value - DateTimeOffset.Now).ToString()
                 : countdownJustEnded(Target.Value.Value)
-                    ? @$"{(Target.Value.Value - DateTimeOffset.Now).ToHumanizedString()}{just_ended_string}"
-                    : long_ended_string
-            : empty_time_string;
+                    ? CountdownStrings.JustEndedPrompt(HumanizerUtils.Humanize(Target.Value.Value - DateTimeOffset.Now))
+                    : CountdownStrings.LongEndedPrompt
+            : CountdownStrings.EmptyTimePrompt;
 
         private void updateTimerTextParts(bool init = false)
         {
@@ -354,7 +351,7 @@ namespace osu.Game.Tournament.Components
                 indicatorIcon.RotateTo(0);
                 indicatorIcon.Icon = FontAwesome.Solid.Bell;
                 indicatorIcon.Colour = AccentContentColour;
-                waitingText.Text = ended_string;
+                waitingText.Text = CountdownStrings.EndedPrompt;
                 waitingText.Colour = AccentContentColour;
 
                 contentFlow.FadeInFromZero(500, Easing.InOutQuint);

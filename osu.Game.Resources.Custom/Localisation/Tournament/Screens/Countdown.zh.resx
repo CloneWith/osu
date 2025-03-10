@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="upcoming_header" xml:space="preserve">
+        <value>即将进行</value>
+    </data>
+    <data name="recent_header" xml:space="preserve">
+        <value>最近比赛</value>
+    </data>
+    <data name="layout_setting_header" xml:space="preserve">
+        <value>界面布局</value>
+    </data>
+    <data name="show_schedule" xml:space="preserve">
+        <value>显示赛程</value>
+    </data>
+    <data name="show_upcoming" xml:space="preserve">
+        <value>显示本场比赛</value>
+    </data>
+    <data name="long_waiting_prompt" xml:space="preserve">
+        <value>还要等很久呢...</value>
+    </data>
+    <data name="empty_time_prompt" xml:space="preserve">
+        <value>在等着什么呢 &gt;.&lt;</value>
+    </data>
+    <data name="ended_prompt" xml:space="preserve">
+        <value>开赛啦 开赛啦！</value>
+    </data>
+    <data name="just_ended_prompt" xml:space="preserve">
+        <value>{}前就开始了</value>
+    </data>
+    <data name="long_ended_prompt" xml:space="preserve">
+        <value>早就开始啦 &gt;.&lt;</value>
+    </data>
+</root>

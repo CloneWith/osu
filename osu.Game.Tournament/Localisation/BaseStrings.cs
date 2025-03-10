@@ -137,6 +137,11 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString AddBeatmap => new TranslatableString(getKey(@"add_beatmap"), @"Add beatmap");
 
+        /// <summary>
+        /// "Unknown Round"
+        /// </summary>
+        public static LocalisableString UnknownRound => new TranslatableString(getKey(@"unknown_round"), @"Unknown Round");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

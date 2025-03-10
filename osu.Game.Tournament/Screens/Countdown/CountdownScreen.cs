@@ -15,6 +15,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -26,7 +27,6 @@ namespace osu.Game.Tournament.Screens.Countdown
         private readonly BindableList<TournamentMatch> allMatches = new BindableList<TournamentMatch>();
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
-        private readonly BindableBool autoProgress = new BindableBool();
         private readonly BindableBool showSchedule = new BindableBool();
         private readonly BindableBool showUpcoming = new BindableBool();
 
@@ -71,7 +71,7 @@ namespace osu.Game.Tournament.Screens.Countdown
                             // BorderThickness = 3,
                             Child = new TournamentSpriteText
                             {
-                                Text = "Upcoming Match",
+                                Text = CountdownStrings.UpcomingHeader,
                                 Colour = Color4.Black,
                                 Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
                                 Shadow = false,
@@ -109,7 +109,7 @@ namespace osu.Game.Tournament.Screens.Countdown
                             BackgroundColour = Color4.White,
                             Child = new TournamentSpriteText
                             {
-                                Text = "Schedule",
+                                Text = CountdownStrings.RecentHeader,
                                 Colour = Color4.Black,
                                 Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
                                 Shadow = false,
@@ -141,20 +141,15 @@ namespace osu.Game.Tournament.Screens.Countdown
                 },
                 new ControlPanel
                 {
+                    new SectionHeader(CountdownStrings.LayoutSettingHeader),
                     new LabelledSwitchButton
                     {
-                        Label = "Auto progress",
-                        Current = autoProgress,
-                    },
-                    new SectionHeader("Screen Layout"),
-                    new LabelledSwitchButton
-                    {
-                        Label = "Show schedule",
+                        Label = CountdownStrings.ShowSchedule,
                         Current = showSchedule,
                     },
                     new LabelledSwitchButton
                     {
-                        Label = "Show upcoming",
+                        Label = CountdownStrings.ShowUpcoming,
                         Current = showUpcoming,
                     },
                 },

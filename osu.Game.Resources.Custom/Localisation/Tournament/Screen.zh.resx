@@ -60,4 +60,7 @@
     <data name="board" xml:space="preserve">
         <value>棋盘</value>
     </data>
+    <data name="countdown" xml:space="preserve">
+        <value>倒计时</value>
+    </data>
 </root>

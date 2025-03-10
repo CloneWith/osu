@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Components
@@ -67,7 +68,7 @@ namespace osu.Game.Tournament.Components
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Text = match?.Round.Value?.Name.Value ?? "Unknown Round",
+                        Text = match?.Round.Value?.Name.Value ?? BaseStrings.UnknownRound,
                         Shadow = false,
                         Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
                     },
