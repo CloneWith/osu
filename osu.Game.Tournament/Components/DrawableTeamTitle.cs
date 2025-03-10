@@ -16,9 +16,13 @@ namespace osu.Game.Tournament.Components
         [UsedImplicitly]
         private Bindable<string>? acronym;
 
-        public DrawableTeamTitle(TournamentTeam? team, bool noBackground = false, TeamColour colour = TeamColour.Neutral)
+        private readonly bool truncate;
+
+        public DrawableTeamTitle(TournamentTeam? team, bool noBackground = false,
+                                 TeamColour colour = TeamColour.Neutral, bool truncate = false)
         {
             this.team = team;
+            this.truncate = truncate;
             Background.Alpha = noBackground ? 0 : 1;
 
             Text.Text = "???";
@@ -35,7 +39,12 @@ namespace osu.Game.Tournament.Components
         {
             if (team == null) return;
 
-            (acronym = team.Acronym.GetBoundCopy()).BindValueChanged(_ => Text.Text = team?.FullName.Value ?? "???", true);
+            (acronym = team.Acronym.GetBoundCopy()).BindValueChanged(_ =>
+            {
+                Text.Text = team?.FullName.Value ?? "???";
+                if (truncate)
+                    Text.Text = Text.Text.ToString().TruncateWithEllipsis(10);
+            }, true);
         }
     }
 }

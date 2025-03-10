@@ -11,49 +11,44 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamLine : FillFlowContainer
     {
-        public DrawableTeamLine(TournamentTeam? team, TeamColour colour)
+        public DrawableTeamLine(TournamentTeam? team, TeamColour colour,
+                                bool monochromeTitle = false, bool autoSizeX = true)
         {
-            AutoSizeAxes = Axes.Both;
+            var anchor = colour == TeamColour.Red ? Anchor.CentreRight : Anchor.CentreLeft;
 
-            InternalChild = new FillFlowContainer
+            Anchor = anchor;
+            Origin = anchor;
+            RelativeSizeAxes = autoSizeX ? Axes.None : Axes.X;
+            AutoSizeAxes = autoSizeX ? Axes.Both : Axes.Y;
+            Direction = FillDirection.Horizontal;
+            Spacing = new Vector2(6, 0);
+            Children = new Drawable[]
             {
-                AutoSizeAxes = Axes.Both,
-                Direction = FillDirection.Horizontal,
-                Spacing = new Vector2(6, 0),
-                Children = colour == TeamColour.Red
-                    ? new Drawable[]
-                    {
-                        new FumoTeamTitleDisplay(team),
-                        new FumoSeedDisplay(team, TeamColour.Red),
-                        new FumoTeamFlagDisplay(team),
-                    }
-                    : new Drawable[]
-                    {
-                        new FumoTeamFlagDisplay(team),
-                        new FumoSeedDisplay(team, TeamColour.Blue),
-                        new FumoTeamTitleDisplay(team),
-                    },
+                new FumoTeamFlagDisplay(team, anchor),
+                new FumoSeedDisplay(team, colour, anchor),
+                new FumoTeamTitleDisplay(team, monochromeTitle ? TeamColour.Neutral : colour, anchor, !autoSizeX),
             };
         }
 
         public partial class FumoTeamFlagDisplay : DrawableTeamFlag
         {
-            public FumoTeamFlagDisplay(TournamentTeam? team)
+            public FumoTeamFlagDisplay(TournamentTeam? team, Anchor anchor = Anchor.Centre)
                 : base(team)
             {
-                Anchor = Anchor.Centre;
-                Origin = Anchor.Centre;
+                Anchor = anchor;
+                Origin = anchor;
                 Scale = new Vector2(0.75f);
             }
         }
 
         public partial class FumoTeamTitleDisplay : DrawableTeamTitle
         {
-            public FumoTeamTitleDisplay(TournamentTeam? team, TeamColour colour = TeamColour.Neutral)
-                : base(team, true, colour)
+            public FumoTeamTitleDisplay(TournamentTeam? team, TeamColour colour = TeamColour.Neutral,
+                                        Anchor anchor = Anchor.Centre, bool truncate = false)
+                : base(team, true, colour, truncate)
             {
-                Anchor = Anchor.Centre;
-                Origin = Anchor.Centre;
+                Anchor = anchor;
+                Origin = anchor;
                 Text.Padding = new MarginPadding();
                 Text.Shadow = false;
                 Text.Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold);
@@ -62,11 +57,12 @@ namespace osu.Game.Tournament.Components
 
         public partial class FumoSeedDisplay : DrawableTeamSeed
         {
-            public FumoSeedDisplay(TournamentTeam? team, TeamColour colour = TeamColour.Neutral)
+            public FumoSeedDisplay(TournamentTeam? team, TeamColour colour = TeamColour.Neutral,
+                                   Anchor anchor = Anchor.Centre)
                 : base(team, false, colour)
             {
-                Anchor = Anchor.Centre;
-                Origin = Anchor.Centre;
+                Anchor = anchor;
+                Origin = anchor;
                 AutoSizeAxes = Axes.Both;
                 Masking = true;
                 CornerRadius = 5;

@@ -25,7 +25,7 @@ namespace osu.Game.Tournament.Components
         private readonly DrawableDate dateTimeText;
         private readonly TruncatingSpriteText roundText;
 
-        public DrawableRoundLine(TournamentMatch? match)
+        public DrawableRoundLine(TournamentMatch? match, bool fixedWidth = false, bool monochromeTitle = false)
         {
             Match = match;
 
@@ -34,14 +34,23 @@ namespace osu.Game.Tournament.Components
                 new Dimension(GridSizeMode.AutoSize),
             };
 
-            ColumnDimensions = new[]
-            {
-                new Dimension(GridSizeMode.Absolute, 100),
-                new Dimension(GridSizeMode.Absolute, 100),
-                new Dimension(GridSizeMode.AutoSize),
-                new Dimension(GridSizeMode.AutoSize),
-                new Dimension(GridSizeMode.AutoSize),
-            };
+            ColumnDimensions = fixedWidth
+                ? new[]
+                {
+                    new Dimension(GridSizeMode.Relative, 0.15f),
+                    new Dimension(GridSizeMode.Relative, 0.15f),
+                    new Dimension(),
+                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(),
+                }
+                : new[]
+                {
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(GridSizeMode.Absolute, 100),
+                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(GridSizeMode.AutoSize),
+                    new Dimension(GridSizeMode.AutoSize),
+                };
 
             Content = new[]
             {
@@ -62,7 +71,7 @@ namespace osu.Game.Tournament.Components
                         Shadow = false,
                         Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
                     },
-                    new DrawableTeamLine(match?.Team1.Value, TeamColour.Red),
+                    new DrawableTeamLine(match?.Team1.Value, TeamColour.Red, monochromeTitle, !fixedWidth),
                     new TournamentSpriteText
                     {
                         Anchor = Anchor.Centre,
@@ -70,9 +79,12 @@ namespace osu.Game.Tournament.Components
                         Text = @"vs",
                         Shadow = false,
                         Font = OsuFont.Torus.With(size: 28, weight: FontWeight.SemiBold),
-                        Padding = new MarginPadding { Horizontal = 20 },
+                        Padding = new MarginPadding
+                        {
+                            Horizontal = 20
+                        },
                     },
-                    new DrawableTeamLine(match?.Team2.Value, TeamColour.Blue),
+                    new DrawableTeamLine(match?.Team2.Value, TeamColour.Blue, monochromeTitle, !fixedWidth),
                 },
             };
         }
