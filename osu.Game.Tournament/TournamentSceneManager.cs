@@ -35,13 +35,14 @@ using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components.Animations;
 using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Screens.Countdown;
 
 namespace osu.Game.Tournament
 {
     [Cached]
     public partial class TournamentSceneManager : CompositeDrawable
     {
-        private Container screens = null!;
+        private Container<TournamentScreen> screens = null!;
         private TourneyBackground background = null!;
         private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
 
@@ -122,10 +123,10 @@ namespace osu.Game.Tournament
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,
                         },
-                        screens = new Container
+                        screens = new Container<TournamentScreen>
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Children = new Drawable[]
+                            Children = new[]
                             {
                                 new SetupScreen(),
                                 new ScheduleScreen(),
@@ -133,6 +134,7 @@ namespace osu.Game.Tournament
                                 new LadderEditorScreen(),
                                 new TeamEditorScreen(),
                                 new RoundEditorScreen(),
+                                new CountdownScreen(),
                                 new ShowcaseScreen(),
                                 new MapPoolScreen(),
                                 new TeamIntroScreen(),
@@ -190,6 +192,7 @@ namespace osu.Game.Tournament
                                     new Separator(),
                                     new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = ScreenStrings.TeamIntro, RequestSelection = SetScreen },
                                     new ScreenButton(typeof(SeedingScreen), Key.D) { Text = ScreenStrings.Seeding, RequestSelection = SetScreen },
+                                    new ScreenButton(typeof(CountdownScreen), Key.C) { Text = ScreenStrings.Countdown, RequestSelection = SetScreen },
                                     new Separator(),
                                     new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
                                     new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
@@ -214,17 +217,18 @@ namespace osu.Game.Tournament
 
         private float depth;
 
-        private Drawable? currentScreen;
+        private TournamentScreen? currentScreen;
         private ScheduledDelegate? scheduledHide;
 
-        private Drawable? temporaryScreen;
+        private TournamentScreen? temporaryScreen;
 
-        public void SetScreen(Drawable screen)
+        public void SetScreen(TournamentScreen screen)
         {
             currentScreen?.Hide();
             currentScreen = null;
 
             screens.Add(temporaryScreen = screen);
+            temporaryScreen.FirstSelected();
         }
 
         public void SetScreen(Type screenType)
@@ -260,6 +264,7 @@ namespace osu.Game.Tournament
 
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
+            currentScreen.FirstSelected();
 
             var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
 

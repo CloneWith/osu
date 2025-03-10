@@ -50,6 +50,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString Seeding => new TranslatableString(getKey(@"seeding"), @"Seeding");
 
         /// <summary>
+        /// "Countdown"
+        /// </summary>
+        public static LocalisableString Countdown => new TranslatableString(getKey(@"countdown"), @"Countdown");
+
+        /// <summary>
         /// "Board"
         /// </summary>
         public static LocalisableString Board => new TranslatableString(getKey(@"board"), @"Board");

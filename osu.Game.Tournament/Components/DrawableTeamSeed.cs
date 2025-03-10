@@ -15,21 +15,23 @@ namespace osu.Game.Tournament.Components
         private IBindable<string> seed = null!;
         private Bindable<bool> displaySeed = null!;
 
-        public DrawableTeamSeed(TournamentTeam? team)
+        public DrawableTeamSeed(TournamentTeam? team, bool noBackground = true, TeamColour colour = TeamColour.Neutral)
         {
             this.team = team;
+            Background.Alpha = noBackground ? 0 : 1;
+
+            Text.Text = "#?";
+            Text.Font = Text.Font.With(size: 36);
+            Text.Colour = colour switch
+            {
+                TeamColour.Red => TournamentGame.COLOUR_RED,
+                TeamColour.Blue => TournamentGame.COLOUR_BLUE,
+                _ => noBackground ? Color4.White : Color4.Black,
+            };
         }
 
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            Text.Font = Text.Font.With(size: 36);
-            Text.Colour = Color4.White;
-            Background.Alpha = 0;
-        }
 
         protected override void LoadComplete()
         {

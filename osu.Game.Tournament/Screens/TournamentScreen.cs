@@ -12,6 +12,8 @@ namespace osu.Game.Tournament.Screens
     {
         public const double FADE_DELAY = 200;
 
+        public bool HadBeenSelected { get; protected set; }
+
         [Resolved]
         public LadderInfo LadderInfo { get; private set; } = null!;
 
@@ -21,6 +23,17 @@ namespace osu.Game.Tournament.Screens
 
             FillMode = FillMode.Fit;
             FillAspectRatio = 16 / 9f;
+        }
+
+        /// <summary>
+        /// Called when the screen is selected the first time in this session.
+        /// </summary>
+        /// <param name="enforced">Enforce this function to be executed even the screen had been selected before.</param>
+        public virtual void FirstSelected(bool enforced = false)
+        {
+            if (HadBeenSelected && !enforced) return;
+
+            HadBeenSelected = true;
         }
 
         public override void Hide() => this.FadeOut(FADE_DELAY);

@@ -90,4 +90,7 @@
     <data name="board_mode_unset_warning" xml:space="preserve">
         <value>此回合未设置为支持棋盘。</value>
     </data>
+    <data name="unknown_round" xml:space="preserve">
+        <value>未知回合</value>
+    </data>
 </root>

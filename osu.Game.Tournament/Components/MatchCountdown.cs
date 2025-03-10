@@ -7,10 +7,13 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Game.Extensions;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Tournament.Localisation.Screens;
+using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
 
@@ -33,15 +36,10 @@ namespace osu.Game.Tournament.Components
         public static Color4 NormalContentColour = Color4.Black;
         public static Color4 AccentContentColour = Color4.White;
 
-        private const string long_waiting_string = @"还要等很久呢...";
-        private const string empty_time_string = @"在等着什么呢 >.<";
-        private const string ended_string = @"开赛啦 开赛啦！";
-        private const string just_ended_string = @"前就开始了";
-        private const string long_ended_string = @"早就开始啦 >.<";
-
         private readonly Box bottomBox;
         private readonly Box topBox;
         private readonly FillFlowContainer contentFlow;
+        private readonly TrianglesV2 triangles;
 
         // Elements specifically used for cases with target time unset.
         private readonly SpriteIcon indicatorIcon;
@@ -58,6 +56,7 @@ namespace osu.Game.Tournament.Components
         private string lastSecond = string.Empty;
 
         private TimeSpan? remainingTime;
+        private bool placeholderLoaded;
 
         public MatchCountdown()
         {
@@ -102,6 +101,14 @@ namespace osu.Game.Tournament.Components
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
                             Colour = NormalColour,
+                        },
+                        triangles = new TrianglesV2
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Alpha = 0.3f,
+                            Colour = AccentColour,
                         },
                         contentFlow = new FillFlowContainer
                         {
@@ -164,15 +171,15 @@ namespace osu.Game.Tournament.Components
         private bool countdownJustEnded(DateTimeOffset timeOffset) =>
             countdownEnded(timeOffset) && DateTimeOffset.Now - timeOffset.ToLocalTime() <= TimeSpan.FromMinutes(3);
 
-        private string getWaitingString() => Target.Value.HasValue
+        private LocalisableString getWaitingString() => Target.Value.HasValue
             ? !countdownEnded(Target.Value.Value)
                 ? countdownLongProgress(Target.Value.Value)
-                    ? long_waiting_string
+                    ? CountdownStrings.LongWaitingPrompt
                     : (Target.Value.Value - DateTimeOffset.Now).ToString()
                 : countdownJustEnded(Target.Value.Value)
-                    ? @$"{(Target.Value.Value - DateTimeOffset.Now).ToHumanizedString()}{just_ended_string}"
-                    : long_ended_string
-            : empty_time_string;
+                    ? CountdownStrings.JustEndedPrompt(HumanizerUtils.Humanize(Target.Value.Value - DateTimeOffset.Now))
+                    : CountdownStrings.LongEndedPrompt
+            : CountdownStrings.EmptyTimePrompt;
 
         private void updateTimerTextParts(bool init = false)
         {
@@ -214,6 +221,7 @@ namespace osu.Game.Tournament.Components
             {
                 bottomBox.FadeColour(NormalColour, 1000, Easing.OutQuint);
                 topBox.FadeColour(AccentColour, 1000, Easing.OutQuint);
+                triangles.FadeColour(AccentContentColour, 1000, Easing.OutQuint);
 
                 foreach (var t in timerFlow)
                 {
@@ -226,6 +234,7 @@ namespace osu.Game.Tournament.Components
             {
                 bottomBox.FlashColour(NormalColour, 1000, Easing.OutQuint);
                 topBox.FlashColour(AccentColour, 1000, Easing.OutQuint);
+                triangles.FlashColour(AccentContentColour, 1000, Easing.OutQuint);
 
                 foreach (var t in timerFlow)
                 {
@@ -249,11 +258,8 @@ namespace osu.Game.Tournament.Components
         {
             base.LoadComplete();
 
-            if (!Target.Value.HasValue || countdownEnded(Target.Value.Value) || countdownLongProgress(Target.Value.Value))
-                fillPlaceholderContent();
-            else fillTimerContent();
-
             Target.BindValueChanged(targetTimeChanged);
+            Target.TriggerChange();
         }
 
         protected override void Update()
@@ -277,22 +283,25 @@ namespace osu.Game.Tournament.Components
         {
             if (target.NewValue == null || countdownEnded(target.NewValue.Value) || countdownLongProgress(target.NewValue.Value))
                 fillPlaceholderContent();
-            else fillTimerContent();
+            else fillTimerContent((target.NewValue.Value - DateTimeOffset.Now).TotalMinutes <= 1);
         }
 
         /// <summary>
         /// Fade out the main content flow and ensure everything is in place.
         /// </summary>
         /// <remarks>Note that this method takes 450ms to complete. You may need to add a delay manually.</remarks>
-        private void reset()
+        private void reset(bool fastMode = false)
         {
+            int transformTime = fastMode ? 150 : 300;
+
             Scheduler.Add(() =>
             {
                 contentFlow.FadeOut(150, Easing.OutQuint)
-                           .Delay(300).FadeIn();
+                           .Delay(transformTime).FadeIn();
 
-                bottomBox.FadeColour(AccentColour, 300, Easing.OutQuint);
-                topBox.FadeColour(NormalColour, 300, Easing.OutQuint);
+                bottomBox.FadeColour(AccentColour, transformTime, Easing.OutQuint);
+                topBox.FadeColour(NormalColour, transformTime, Easing.OutQuint);
+                triangles.FadeColour(AccentColour, transformTime, Easing.OutQuint);
             });
 
             Scheduler.AddDelayed(() =>
@@ -315,7 +324,7 @@ namespace osu.Game.Tournament.Components
                     updateTimerTextParts(true);
                 else
                     waitingText.Text = getWaitingString();
-            }, 300);
+            }, transformTime);
         }
 
         private void showHourglassIcon()
@@ -327,49 +336,73 @@ namespace osu.Game.Tournament.Components
 
         private void fillDoneContent()
         {
-            contentFlow.Clear(false);
-            indicatorIcon.ClearTransforms();
-            indicatorIcon.RotateTo(0);
-            indicatorIcon.Icon = FontAwesome.Solid.Bell;
-            indicatorIcon.Colour = AccentContentColour;
-            waitingText.Text = ended_string;
-            waitingText.Colour = AccentContentColour;
-
-            indicatorIcon.Show();
-            waitingText.Show();
-
-            contentFlow.AddRange(new Drawable[]
+            if (countdownMSecondPart != null)
             {
-                indicatorIcon,
-                waitingText,
-            });
+                countdownMSecondPart.Text = ".000";
+            }
 
-            contentFlow.ScaleTo(1.5f, 500, Easing.OutQuint);
-            this.Shake(shakeMagnitude: 4f);
-            contentFlow.FadeColour(AccentColour, 500, Easing.OutQuint)
-                       .Then().FadeColour(AccentContentColour, 1000, Easing.OutQuint)
-                       .Loop(500, 5);
+            contentFlow.FadeOut().Delay(500).FadeIn().Delay(500).Loop(0, 3);
+            contentFlow.Delay(2000).ScaleTo(1.2f, 1000, Easing.InQuint);
+
+            Scheduler.AddDelayed(() =>
+            {
+                contentFlow.Clear(false);
+                indicatorIcon.ClearTransforms();
+                indicatorIcon.RotateTo(0);
+                indicatorIcon.Icon = FontAwesome.Solid.Bell;
+                indicatorIcon.Colour = AccentContentColour;
+                waitingText.Text = CountdownStrings.EndedPrompt;
+                waitingText.Colour = AccentContentColour;
+
+                contentFlow.FadeInFromZero(500, Easing.InOutQuint);
+                contentFlow.ScaleTo(1.45f, 1500, Easing.OutQuint)
+                           .Then().ScaleTo(1, 10000, Easing.InOutQuint);
+
+                indicatorIcon.Show();
+                waitingText.Show();
+
+                contentFlow.AddRange(new Drawable[]
+                {
+                    indicatorIcon,
+                    waitingText,
+                });
+
+                for (int i = 1; i <= 3; i++)
+                {
+                    using (BeginDelayedSequence(4500 * (i - 1)))
+                    {
+                        indicatorIcon.RotateTo(-15, 50, Easing.OutQuint).Then()
+                                     .RotateTo(15, 50, Easing.OutQuint).Loop(0, 20);
+                        indicatorIcon.Delay(2000).RotateTo(0, 1000, Easing.OutQuint);
+                    }
+                }
+            }, 3000);
         }
 
-        private void fillTimerContent()
+        private void fillTimerContent(bool fastMode = false)
         {
             if (!OnGoing || !Target.Value.HasValue)
             {
-                reset();
+                reset(fastMode);
 
-                Scheduler.AddDelayed(showHourglassIcon, 500);
+                // When time is not enough, don't play hourglass animation
+                if (!fastMode)
+                    Scheduler.AddDelayed(showHourglassIcon, 500);
 
                 Scheduler.AddDelayed(() =>
                 {
                     // Add the placeholder text after a little delay to make it look better
                     contentFlow.Add(timerFlow);
-                    timerFlow.Delay(200).FadeIn(300, Easing.OutQuint);
+                    timerFlow.Delay(fastMode ? 0 : 200).FadeIn(300, Easing.OutQuint);
 
-                    using (BeginDelayedSequence(300))
+                    if (!fastMode)
                     {
-                        indicatorIcon.FadeOut(300, Easing.OutQuint);
+                        using (BeginDelayedSequence(300))
+                        {
+                            indicatorIcon.FadeOut(300, Easing.OutQuint);
+                        }
                     }
-                }, 1000);
+                }, fastMode ? 200 : 1000);
             }
             else
             {
@@ -377,6 +410,7 @@ namespace osu.Game.Tournament.Components
                 {
                     bottomBox.FadeColour(AccentColour, 1000, Easing.OutQuint);
                     topBox.FadeColour(NormalColour, 1000, Easing.OutQuint);
+                    triangles.FadeColour(AccentColour, 1000, Easing.OutQuint);
 
                     foreach (var t in timerFlow)
                     {
@@ -396,7 +430,7 @@ namespace osu.Game.Tournament.Components
         private void fillPlaceholderContent()
         {
             // No need to fade the whole content when countdown state is unchanged
-            if (OnGoing || !Target.Value.HasValue)
+            if (OnGoing || !Target.Value.HasValue || !placeholderLoaded)
             {
                 reset();
 
@@ -410,6 +444,7 @@ namespace osu.Game.Tournament.Components
                 {
                     // Add the placeholder text after a little delay to make it look better
                     contentFlow.Add(waitingText);
+                    waitingText.Text = getWaitingString();
                     waitingText.Delay(200).FadeIn(500, Easing.OutQuint);
 
                     using (BeginDelayedSequence(1000))
@@ -419,6 +454,8 @@ namespace osu.Game.Tournament.Components
                                      .Loop(3000);
                     }
                 }, 1000);
+
+                placeholderLoaded = true;
             }
             else
             {
