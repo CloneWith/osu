@@ -9,6 +9,8 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
@@ -30,25 +32,48 @@ namespace osu.Game.Tournament.Screens.Countdown
         private readonly BindableBool showSchedule = new BindableBool();
         private readonly BindableBool showUpcoming = new BindableBool();
 
+        private Container countdownContainer = null!;
+        private Sprite kanbanSprite = null!;
         private MatchCountdown countdown = null!;
         private ReverseChildIDFillFlowContainer<Drawable> upcomingContainer = null!;
         private ReverseChildIDFillFlowContainer<Drawable> recentContainer = null!;
         private FillFlowContainer scheduleFlow = null!;
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(TextureStore textures)
         {
             var upcomingMatch = LadderInfo.CurrentMatch.Value;
 
             InternalChildren = new Drawable[]
             {
-                countdown = new MatchCountdown
+                countdownContainer = new Container
                 {
-                    Name = @"Countdown",
+                    Name = @"Countdown container",
                     RelativePositionAxes = Axes.Both,
+                    AutoSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Y = -0.75f,
+                    Children = new Drawable[]
+                    {
+                        kanbanSprite = new Sprite
+                        {
+                            Name = @"Kanban sprite",
+                            RelativeSizeAxes = Axes.Both,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Alpha = 0,
+                            Width = 0.5f,
+                            Texture = textures.Get(@"Icons/kanban"),
+                            FillMode = FillMode.Fit,
+                        },
+                        countdown = new MatchCountdown
+                        {
+                            Name = @"Countdown",
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                        },
+                    },
                 },
                 upcomingContainer = new ReverseChildIDFillFlowContainer<Drawable>
                 {
@@ -185,7 +210,7 @@ namespace osu.Game.Tournament.Screens.Countdown
 
             showSchedule.BindValueChanged(v =>
             {
-                countdown.MoveToX(v.NewValue ? -0.3f : 0, 1000, Easing.InOutQuint);
+                countdownContainer.MoveToX(v.NewValue ? -0.3f : 0, 1000, Easing.InOutQuint);
                 recentContainer.FadeTo(v.NewValue ? 1 : 0, 1000, Easing.InOutQuint);
                 recentContainer.MoveToX(v.NewValue ? -30 : 900, 1000, Easing.InOutQuint);
             });
@@ -202,7 +227,13 @@ namespace osu.Game.Tournament.Screens.Countdown
             base.FirstSelected(enforced);
 
             countdown.Target.Value = LadderInfo.CurrentMatch.Value?.Date.Value;
-            countdown.Delay(700).MoveToY(0, 1000, Easing.OutQuint);
+            countdownContainer.Delay(700).MoveToY(0, 1000, Easing.OutQuint);
+
+            using (BeginDelayedSequence(3000))
+            {
+                kanbanSprite.FadeIn(500, Easing.OutQuint);
+                kanbanSprite.MoveToY(-130, 1000, Easing.OutQuint);
+            }
         }
     }
 }
