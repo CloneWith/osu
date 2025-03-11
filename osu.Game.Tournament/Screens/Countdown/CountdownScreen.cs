@@ -232,6 +232,7 @@ namespace osu.Game.Tournament.Screens.Countdown
             using (BeginDelayedSequence(3000))
             {
                 kanbanSprite.FadeIn(500, Easing.OutQuint);
+                kanbanSprite.ScaleTo(0.8f).Then().ScaleTo(1f, 1200, Easing.OutQuint);
                 kanbanSprite.MoveToY(-130, 1000, Easing.OutQuint);
             }
         }
