@@ -40,6 +40,7 @@ namespace osu.Game.Tournament.Components
         private readonly Box topBox;
         private readonly FillFlowContainer contentFlow;
         private readonly TrianglesV2 triangles;
+        private readonly Container iconContainer;
 
         // Elements specifically used for cases with target time unset.
         private readonly SpriteIcon indicatorIcon;
@@ -125,14 +126,24 @@ namespace osu.Game.Tournament.Components
                 },
             };
 
-            indicatorIcon = new SpriteIcon
+            // Previously the text will move when Icon is spinning.
+            // Now we use a container to hold the icon and make it spin (
+            iconContainer = new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Icon = FontAwesome.Solid.HourglassHalf,
-                Size = new Vector2(32),
-                Colour = NormalContentColour,
+                AutoSizeAxes = Axes.None,
+                Size = new Vector2(40),
+                Child = indicatorIcon = new SpriteIcon
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Icon = FontAwesome.Solid.HourglassHalf,
+                    Size = new Vector2(32),
+                    Colour = NormalContentColour,
+                }
             };
+
 
             waitingText = new OsuSpriteText
             {
@@ -309,7 +320,7 @@ namespace osu.Game.Tournament.Components
                 contentFlow.Clear(false);
                 contentFlow.ScaleTo(1);
 
-                indicatorIcon.FadeOut();
+                iconContainer.FadeOut();
                 waitingText.FadeOut();
                 timerFlow.FadeOut();
                 indicatorIcon.ClearTransforms();
@@ -329,9 +340,9 @@ namespace osu.Game.Tournament.Components
 
         private void showHourglassIcon()
         {
-            contentFlow.Add(indicatorIcon);
-            indicatorIcon.ScaleTo(2.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
-            indicatorIcon.Delay(100).FadeIn(300, Easing.OutQuint);
+            contentFlow.Add(iconContainer);
+            iconContainer.ScaleTo(2.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
+            iconContainer.Delay(100).FadeIn(300, Easing.OutQuint);
         }
 
         private void fillDoneContent()
@@ -399,7 +410,7 @@ namespace osu.Game.Tournament.Components
                     {
                         using (BeginDelayedSequence(300))
                         {
-                            indicatorIcon.FadeOut(300, Easing.OutQuint);
+                            iconContainer.FadeOut(300, Easing.OutQuint);
                         }
                     }
                 }, fastMode ? 200 : 1000);
