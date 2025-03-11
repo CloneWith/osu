@@ -43,7 +43,7 @@
         <value>开赛啦 开赛啦！</value>
     </data>
     <data name="just_ended_prompt" xml:space="preserve">
-        <value>{}前就开始了</value>
+        <value>{0}前就开始了</value>
     </data>
     <data name="long_ended_prompt" xml:space="preserve">
         <value>早就开始啦 &gt;.&lt;</value>
