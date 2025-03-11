@@ -425,13 +425,13 @@ namespace osu.Game.Tournament.Components
                 {
                     // Add the placeholder text after a little delay to make it look better
                     contentFlow.Add(timerFlow);
-                    timerFlow.Delay(fastMode ? 0 : 200).FadeIn(300, Easing.OutQuint);
+                    timerFlow.Delay(fastMode ? 0 : 500).FadeIn(300, Easing.OutQuint);
 
                     if (!fastMode)
                     {
-                        using (BeginDelayedSequence(300))
+                        using (BeginDelayedSequence(250))
                         {
-                            iconContainer.FadeOut(300, Easing.OutQuint);
+                            iconContainer.FadeOut(300, Easing.InQuint);
                         }
                     }
                 }, fastMode ? 200 : 1000);
