@@ -321,6 +321,12 @@ namespace osu.Game.Tournament.Components
                 contentFlow.ScaleTo(1);
 
                 iconContainer.FadeOut();
+
+                // Reset the icon container so Hourglass icon can be shown correctly again
+                iconContainer.ClearTransforms();
+                iconContainer.Position = Vector2.Zero;
+                iconContainer.Scale = Vector2.One;
+
                 waitingText.FadeOut();
                 timerFlow.FadeOut();
                 indicatorIcon.ClearTransforms();
@@ -340,9 +346,25 @@ namespace osu.Game.Tournament.Components
 
         private void showHourglassIcon()
         {
+            contentFlow.Direction = FillDirection.Horizontal;
+            contentFlow.Anchor = Anchor.Centre;
+            contentFlow.Origin = Anchor.Centre;
+
+            contentFlow.Clear();
+
             contentFlow.Add(iconContainer);
-            iconContainer.ScaleTo(2.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
-            iconContainer.Delay(100).FadeIn(300, Easing.OutQuint);
+
+            iconContainer.Alpha = 0;
+            iconContainer.Scale = new Vector2(2.5f);
+
+            iconContainer.Anchor = Anchor.Centre;
+            iconContainer.Origin = Anchor.Centre;
+
+            iconContainer.FadeIn(100, Easing.OutQuint);
+
+            iconContainer.ScaleTo(0.9f, 350, Easing.OutQuint)
+                         .Then(-90)
+                         .ScaleTo(1f, 400, Easing.OutCubic);
         }
 
         private void fillDoneContent()
@@ -454,16 +476,13 @@ namespace osu.Game.Tournament.Components
                 Scheduler.AddDelayed(() =>
                 {
                     // Add the placeholder text after a little delay to make it look better
+                    contentFlow.Direction = FillDirection.Horizontal;
+                    contentFlow.Spacing = new Vector2(10);
+
                     contentFlow.Add(waitingText);
                     waitingText.Text = getWaitingString();
                     waitingText.Delay(200).FadeIn(500, Easing.OutQuint);
 
-                    using (BeginDelayedSequence(1000))
-                    {
-                        indicatorIcon.RotateTo(0)
-                                     .Then().RotateTo(360 * 5, 3000, Easing.InOutQuint)
-                                     .Loop(3000);
-                    }
                 }, 1000);
 
                 placeholderLoaded = true;
