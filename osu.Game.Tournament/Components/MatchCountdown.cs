@@ -144,7 +144,6 @@ namespace osu.Game.Tournament.Components
                 }
             };
 
-
             waitingText = new OsuSpriteText
             {
                 Anchor = Anchor.Centre,
@@ -391,12 +390,12 @@ namespace osu.Game.Tournament.Components
                 contentFlow.ScaleTo(1.45f, 1500, Easing.OutQuint)
                            .Then().ScaleTo(1, 10000, Easing.InOutQuint);
 
-                indicatorIcon.Show();
+                iconContainer.Show();
                 waitingText.Show();
 
                 contentFlow.AddRange(new Drawable[]
                 {
-                    indicatorIcon,
+                    iconContainer,
                     waitingText,
                 });
 
@@ -482,7 +481,6 @@ namespace osu.Game.Tournament.Components
                     contentFlow.Add(waitingText);
                     waitingText.Text = getWaitingString();
                     waitingText.Delay(200).FadeIn(500, Easing.OutQuint);
-
                 }, 1000);
 
                 placeholderLoaded = true;
