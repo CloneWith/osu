@@ -481,6 +481,13 @@ namespace osu.Game.Tournament.Components
                     contentFlow.Add(waitingText);
                     waitingText.Text = getWaitingString();
                     waitingText.Delay(200).FadeIn(500, Easing.OutQuint);
+
+                    using (BeginDelayedSequence(1000))
+                    {
+                        indicatorIcon.RotateTo(0)
+                                     .Then().RotateTo(360 * 5, 3000, Easing.InOutQuint)
+                                     .Loop(3000);
+                    }
                 }, 1000);
 
                 placeholderLoaded = true;
