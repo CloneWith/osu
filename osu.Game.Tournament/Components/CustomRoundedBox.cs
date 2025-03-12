@@ -18,7 +18,7 @@ namespace osu.Game.Tournament.Components
     /// </remarks>
     public partial class CustomRoundedBox : Container
     {
-        private CustomRoundedBoxBase background = null!;
+        private readonly CustomRoundedBoxBase background = new CustomRoundedBoxBase();
 
         public Color4 BackgroundColour
         {
@@ -43,13 +43,12 @@ namespace osu.Game.Tournament.Components
             // Set a margin for children to maintain a basically sane layout.
             Child.Margin = new MarginPadding { Horizontal = 10, Vertical = 2 };
 
-            AddInternal(background = new CustomRoundedBoxBase
-            {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                BackgroundColour = Color4.Gray,
-                Depth = float.MaxValue
-            });
+            background.Anchor = Anchor.CentreLeft;
+            background.Origin = Anchor.CentreLeft;
+            background.Colour = BackgroundColour;
+            background.Depth = float.MaxValue;
+
+            AddInternal(background);
         }
     }
 }
