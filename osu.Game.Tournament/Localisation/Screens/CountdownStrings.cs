@@ -55,9 +55,9 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString JustEndedPrompt(LocalisableString time) => new TranslatableString(getKey(@"just_ended_prompt"), @"Started {0}", time);
 
         /// <summary>
-        /// "Already started long ago..."
+        /// "Started long ago..."
         /// </summary>
-        public static LocalisableString LongEndedPrompt => new TranslatableString(getKey(@"long_ended_prompt"), @"Already started long ago...");
+        public static LocalisableString LongEndedPrompt => new TranslatableString(getKey(@"long_ended_prompt"), @"Started long ago...");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
