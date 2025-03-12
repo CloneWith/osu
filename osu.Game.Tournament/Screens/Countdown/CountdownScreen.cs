@@ -234,14 +234,14 @@ namespace osu.Game.Tournament.Screens.Countdown
             {
                 kanbanSprite.FadeIn(300, Easing.OutQuint);
                 kanbanSprite.MoveToY(-110, 8500, Easing.InOutCubic)
-                           .Then()
-                           .MoveToY(-130, 8500, Easing.InOutCubic)
-                           .Loop();
+                            .Then()
+                            .MoveToY(-130, 8500, Easing.InOutCubic)
+                            .Loop();
 
                 kanbanSprite.RotateTo(-0.8f, 7200, Easing.InOutSine)
-                           .Then()
-                           .RotateTo(0.8f, 7200, Easing.InOutSine)
-                           .Loop();
+                            .Then()
+                            .RotateTo(0.8f, 7200, Easing.InOutSine)
+                            .Loop();
             }
         }
     }
