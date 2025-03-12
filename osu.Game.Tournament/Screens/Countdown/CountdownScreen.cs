@@ -70,7 +70,7 @@ namespace osu.Game.Tournament.Screens.Countdown
                             Origin = Anchor.Centre,
                             Alpha = 0,
                             Width = 0.5f,
-                            Y = -180,
+                            Y = -110,
                             Texture = textures.Get(@"Icons/kanban"),
                             FillMode = FillMode.Fit,
                         },
@@ -230,11 +230,18 @@ namespace osu.Game.Tournament.Screens.Countdown
             countdown.Target.Value = LadderInfo.CurrentMatch.Value?.Date.Value;
             countdownContainer.Delay(700).MoveToY(0, 1000, Easing.OutQuint);
 
-            using (BeginDelayedSequence(2000))
+            using (BeginDelayedSequence(100))
             {
-                kanbanSprite.FadeIn(500, Easing.OutQuint);
-                kanbanSprite.MoveToY(-100, 7500, Easing.InOutCubic)
-                            .Then().MoveToY(-180, 7500, Easing.InOutCubic).Loop();
+                kanbanSprite.FadeIn(300, Easing.OutQuint);
+                kanbanSprite.MoveToY(-110, 8500, Easing.InOutCubic)
+                           .Then()
+                           .MoveToY(-130, 8500, Easing.InOutCubic)
+                           .Loop();
+
+                kanbanSprite.RotateTo(-0.8f, 7200, Easing.InOutSine)
+                           .Then()
+                           .RotateTo(0.8f, 7200, Easing.InOutSine)
+                           .Loop();
             }
         }
     }
