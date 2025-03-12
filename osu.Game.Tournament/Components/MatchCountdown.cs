@@ -59,6 +59,9 @@ namespace osu.Game.Tournament.Components
         private TimeSpan? remainingTime;
         private bool placeholderLoaded;
 
+        // If the complete animation is triggered since last countdown reset.
+        private bool endTriggered;
+
         public MatchCountdown()
         {
             Width = 360;
@@ -302,6 +305,7 @@ namespace osu.Game.Tournament.Components
         /// <remarks>Note that this method takes 450ms to complete. You may need to add a delay manually.</remarks>
         private void reset(bool fastMode = false)
         {
+            endTriggered = false;
             int transformTime = fastMode ? 150 : 300;
 
             Scheduler.Add(() =>
@@ -336,7 +340,7 @@ namespace osu.Game.Tournament.Components
                 waitingText.ClearTransforms();
                 timerFlow.ClearTransforms();
 
-                if (Target.Value.HasValue && !countdownJustEnded(Target.Value.Value) && !countdownLongProgress(Target.Value.Value))
+                if (Target.Value.HasValue && !countdownEnded(Target.Value.Value) && !countdownLongProgress(Target.Value.Value))
                     updateTimerTextParts(true);
                 else
                     waitingText.Text = getWaitingString();
@@ -368,6 +372,8 @@ namespace osu.Game.Tournament.Components
 
         private void fillDoneContent()
         {
+            endTriggered = true;
+
             if (countdownMSecondPart != null)
             {
                 countdownMSecondPart.Text = ".000";
@@ -462,7 +468,7 @@ namespace osu.Game.Tournament.Components
         private void fillPlaceholderContent()
         {
             // No need to fade the whole content when countdown state is unchanged
-            if (OnGoing || !Target.Value.HasValue || !placeholderLoaded)
+            if (OnGoing || !Target.Value.HasValue || !placeholderLoaded || endTriggered)
             {
                 reset();
 
