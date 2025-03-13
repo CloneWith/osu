@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Localisation;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
@@ -301,6 +302,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(0, 5),
                         Child = new SectionHeader(RoundEditorStrings.RoundBeatmapsHeader),
                     };
 
@@ -329,11 +331,9 @@ namespace osu.Game.Tournament.Screens.Editors
                     private readonly Bindable<int?> beatmapId = new Bindable<int?>();
 
                     private readonly Bindable<string> modIndex = new Bindable<string>(string.Empty);
-
                     private readonly Bindable<string> mods = new Bindable<string>(string.Empty);
 
-                    private readonly Bindable<int?> boardX = new Bindable<int?>();
-                    private readonly Bindable<int?> boardY = new Bindable<int?>();
+                    private readonly Bindable<string> difficultyField = new Bindable<string>(string.Empty);
 
                     private readonly Container drawableContainer;
 
@@ -341,7 +341,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     {
                         Model = beatmap;
 
-                        Margin = new MarginPadding(10);
+                        Margin = new MarginPadding { Horizontal = 10 };
 
                         RelativeSizeAxes = Axes.X;
                         AutoSizeAxes = Axes.Y;
@@ -359,7 +359,6 @@ namespace osu.Game.Tournament.Screens.Editors
                             new FillFlowContainer
                             {
                                 Margin = new MarginPadding(5),
-                                Padding = new MarginPadding { Right = 10 },
                                 Spacing = new Vector2(5),
                                 Direction = FillDirection.Horizontal,
                                 RelativeSizeAxes = Axes.X,
@@ -385,19 +384,12 @@ namespace osu.Game.Tournament.Screens.Editors
                                         Width = 0.1f,
                                         Current = modIndex,
                                     },
-                                    new SettingsNumberBox
+                                    new SettingsTextBox
                                     {
-                                        LabelText = "Row",
+                                        LabelText = TournamentShowcaseStrings.DifficultyField,
                                         RelativeSizeAxes = Axes.None,
-                                        Width = 100,
-                                        Current = boardY,
-                                    },
-                                    new SettingsNumberBox
-                                    {
-                                        LabelText = "Column",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 100,
-                                        Current = boardX,
+                                        Width = 250,
+                                        Current = difficultyField,
                                     },
                                     drawableContainer = new Container
                                     {
@@ -460,13 +452,10 @@ namespace osu.Game.Tournament.Screens.Editors
                         mods.BindValueChanged(modString => Model.Mods = modString.NewValue);
 
                         modIndex.Default = modIndex.Value = Model.ModIndex;
-                        modIndex.BindValueChanged(newIndex => Model.ModIndex = newIndex.NewValue);
+                        modIndex.BindValueChanged(index => Model.ModIndex = index.NewValue);
 
-                        boardX.Default = boardX.Value = Model.BoardX;
-                        boardX.BindValueChanged(newX => { Model.BoardX = newX.NewValue ?? 0; });
-
-                        boardY.Default = boardY.Value = Model.BoardY;
-                        boardY.BindValueChanged(newY => { Model.BoardY = newY.NewValue ?? 0; });
+                        difficultyField.Default = difficultyField.Value = Model.DifficultyField;
+                        difficultyField.BindValueChanged(field => Model.DifficultyField = field.NewValue);
                     }
 
                     private void updatePanel() => Schedule(() =>
