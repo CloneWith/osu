@@ -10,10 +10,20 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
+    /// <summary>
+    /// A button with two explicit states.
+    /// </summary>
     public partial class StateSwitchButton : FumoButton
     {
+        /// <summary>
+        /// The current state of the button. True if active, otherwise false.
+        /// </summary>
         public BindableBool Current = new BindableBool();
 
+        /// <summary>
+        /// The currently shown text of the button.
+        /// </summary>
+        /// <remarks>Setting this value would update texts of both states, thus not suggested.</remarks>
         public LocalisableString Text
         {
             get => Current.Value ? ActiveText : IdleText;
