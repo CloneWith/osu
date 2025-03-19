@@ -312,11 +312,6 @@ namespace osu.Game.Tournament.Screens.Setup
 
             saveButton.Enabled.Value = false;
 
-            if (!LadderInfo.BackgroundMap.Any())
-            {
-                LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
-            }
-
             infoText.Text = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == typeDropdown.Current.Value).Value.Name;
             infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
 
