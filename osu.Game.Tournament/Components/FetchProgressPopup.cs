@@ -151,15 +151,14 @@ namespace osu.Game.Tournament.Components
                                     Name = @"Progress text grid",
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
+                                    AutoSizeAxes = Axes.Both,
                                     RowDimensions = new[]
                                     {
                                         new Dimension(GridSizeMode.AutoSize),
                                     },
                                     ColumnDimensions = new[]
                                     {
-                                        new Dimension(),
+                                        new Dimension(GridSizeMode.Absolute, 250),
                                         new Dimension(GridSizeMode.AutoSize),
                                     },
                                     Content = new[]
@@ -231,7 +230,7 @@ namespace osu.Game.Tournament.Components
             cancelButton.Action = () => invokeAndExpire();
 
             if (closeOnComplete)
-                this.Delay(2000).FadeOut(500, Easing.OutQuint).Then().Expire();
+                this.Delay(1000).FadeOut(500, Easing.OutQuint).Then().Expire();
         }
 
         private void invokeAndExpire(Action? action = null)

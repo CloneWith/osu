@@ -24,6 +24,7 @@ using osu.Game.Graphics;
 using osu.Game.Localisation;
 using osu.Game.Online;
 using osu.Game.Online.API.Requests;
+using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Localisation;
@@ -67,16 +68,16 @@ namespace osu.Game.Tournament
             return new ProductionEndpointConfiguration();
         }
 
-        private TournamentSpriteText initialisationText = null!;
+        private FetchProgressPopup progressPopup = null!;
 
         [BackgroundDependencyLoader]
         private void load(Storage baseStorage, FrameworkConfigManager frameworkConfig)
         {
-            Add(initialisationText = new TournamentSpriteText
+            Add(progressPopup = new FetchProgressPopup(closeOnComplete: true)
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                Font = OsuFont.Torus.With(size: 32),
+                Alpha = 0,
             });
 
             Resources.AddStore(new DllResourceStore(typeof(TournamentGameBase).Assembly));
@@ -214,9 +215,9 @@ namespace osu.Game.Tournament
                     }
                 }
 
-                addedInfo |= addPlayers();
-                addedInfo |= await addRoundBeatmaps().ConfigureAwait(false);
-                addedInfo |= await addSeedingBeatmaps().ConfigureAwait(false);
+                addedInfo |= AddPlayers();
+                addedInfo |= await AddRoundBeatmaps().ConfigureAwait(false);
+                addedInfo |= await AddSeedingBeatmaps().ConfigureAwait(false);
 
                 if (addedInfo)
                     saveChanges();
@@ -274,14 +275,14 @@ namespace osu.Game.Tournament
 
                 bracketLoadTaskCompletionSource.SetResult(true);
 
-                initialisationText.Expire();
+                progressPopup.SetTaskCompleted();
             });
         }
 
         /// <summary>
         /// Add missing player info based on user IDs.
         /// </summary>
-        private bool addPlayers()
+        public bool AddPlayers()
         {
             var playersRequiringPopulation = ladder.Teams
                                                    .SelectMany(t => t.Players)
@@ -296,7 +297,8 @@ namespace osu.Game.Tournament
             {
                 var p = playersRequiringPopulation[i];
                 PopulatePlayer(p, immediate: true);
-                updateLoadProgressMessage(BaseStrings.PopulatingUserStats(i, playersRequiringPopulation.Count));
+                updateLoadProgressMessage(BaseStrings.PopulatingUserStats(i, playersRequiringPopulation.Count),
+                    p.OnlineID.ToString(), i, playersRequiringPopulation.Count);
             }
 
             return true;
@@ -305,11 +307,17 @@ namespace osu.Game.Tournament
         /// <summary>
         /// Add missing beatmap info based on beatmap IDs
         /// </summary>
-        private async Task<bool> addRoundBeatmaps()
+        public async Task<bool> AddRoundBeatmaps(bool fullFetch = false)
         {
             var beatmapsRequiringPopulation = ladder.Rounds
-                                                    .SelectMany(r => r.Beatmaps)
-                                                    .Where(b => (b.Beatmap == null || b.Beatmap?.OnlineID == 0) && b.ID > 0).ToList();
+                                                    .SelectMany(r => r.Beatmaps).ToList();
+
+            if (!fullFetch)
+            {
+                beatmapsRequiringPopulation = beatmapsRequiringPopulation
+                                              .Where(b => (b.Beatmap == null || b.Beatmap?.OnlineID == 0) && b.ID > 0)
+                                              .ToList();
+            }
 
             if (beatmapsRequiringPopulation.Count == 0)
                 return false;
@@ -322,7 +330,8 @@ namespace osu.Game.Tournament
                 if (populated != null)
                     b.Beatmap = new TournamentBeatmap(populated);
 
-                updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps(i, beatmapsRequiringPopulation.Count));
+                updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps(i, beatmapsRequiringPopulation.Count),
+                    b.ID.ToString(), i, beatmapsRequiringPopulation.Count);
             }
 
             return true;
@@ -331,12 +340,19 @@ namespace osu.Game.Tournament
         /// <summary>
         /// Add missing beatmap info based on beatmap IDs
         /// </summary>
-        private async Task<bool> addSeedingBeatmaps()
+        public async Task<bool> AddSeedingBeatmaps(bool fullFetch = false)
         {
             var beatmapsRequiringPopulation = ladder.Teams
                                                     .SelectMany(r => r.SeedingResults)
                                                     .SelectMany(r => r.Beatmaps)
-                                                    .Where(b => (b.Beatmap == null || b.Beatmap.OnlineID == 0) && b.ID > 0).ToList();
+                                                    .ToList();
+
+            if (!fullFetch)
+            {
+                beatmapsRequiringPopulation = beatmapsRequiringPopulation
+                                              .Where(b => (b.Beatmap == null || b.Beatmap.OnlineID == 0) && b.ID > 0)
+                                              .ToList();
+            }
 
             if (beatmapsRequiringPopulation.Count == 0)
                 return false;
@@ -349,13 +365,31 @@ namespace osu.Game.Tournament
                 if (populated != null)
                     b.Beatmap = new TournamentBeatmap(populated);
 
-                updateLoadProgressMessage(BaseStrings.PopulatingSeedingBeatmaps(i, beatmapsRequiringPopulation.Count));
+                updateLoadProgressMessage(BaseStrings.PopulatingSeedingBeatmaps(i, beatmapsRequiringPopulation.Count),
+                    b.ID.ToString(), i, beatmapsRequiringPopulation.Count);
             }
 
             return true;
         }
 
-        private void updateLoadProgressMessage(LocalisableString s) => Schedule(() => initialisationText.Text = s);
+        private void updateLoadProgressMessage(LocalisableString s, LocalisableString itemInfo, int current = 1, int total = 1) => Schedule(() =>
+        {
+            if (!progressPopup.IsAlive)
+            {
+                Add(progressPopup = new FetchProgressPopup(closeOnComplete: true)
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Alpha = 0,
+                });
+            }
+
+            progressPopup.FadeIn(300, Easing.OutQuint);
+            progressPopup.PromptString = s;
+            progressPopup.StatusString = itemInfo;
+            progressPopup.CurrentCount = current;
+            progressPopup.TotalCount = total;
+        });
 
         public void PopulatePlayer(TournamentUser user, Action? success = null, Action? failure = null, bool immediate = false)
         {
