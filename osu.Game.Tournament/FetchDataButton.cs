@@ -5,6 +5,7 @@ using System;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Localisation;
 
 namespace osu.Game.Tournament
@@ -17,6 +18,7 @@ namespace osu.Game.Tournament
         {
             RelativeSizeAxes = Axes.X;
             Height = 48;
+            BackgroundColour = FumoColours.DeepPurple.Regular;
             Text = BaseStrings.FetchData;
             this.fetchAction = fetchAction;
         }
