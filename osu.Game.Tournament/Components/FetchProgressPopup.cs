@@ -14,6 +14,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Tournament.Localisation;
 using osuTK;
 using osuTK.Graphics;
 
@@ -135,7 +136,7 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Text = "Fetching...",
+                                    Text = BaseStrings.FetchingHeader,
                                     Font = OsuFont.Torus.With(size: 32, weight: FontWeight.SemiBold),
                                 },
                                 promptText = new TournamentSpriteText
@@ -143,7 +144,7 @@ namespace osu.Game.Tournament.Components
                                     Name = @"Prompt text",
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Text = "Fetching data from server, please wait...",
+                                    Text = BaseStrings.FetchingDescription,
                                     Font = OsuFont.Torus.With(size: 20),
                                 },
                                 new GridContainer
@@ -171,7 +172,7 @@ namespace osu.Game.Tournament.Components
                                                 Origin = Anchor.CentreLeft,
                                                 RelativeSizeAxes = Axes.X,
                                                 Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
-                                                Text = @"Please wait...",
+                                                Text = BaseStrings.PleaseWait,
                                             },
                                             countText = new TournamentSpriteText
                                             {
@@ -220,7 +221,7 @@ namespace osu.Game.Tournament.Components
         public void SetTaskCompleted(bool faulted = false)
         {
             progressBar.CurrentTime = progressBar.EndTime = 1;
-            statusText.Text = faulted ? @"This task has failed." : @"Task completed!";
+            statusText.Text = faulted ? BaseStrings.TaskFailed : BaseStrings.TaskCompleted;
             statusText.FlashColour(faulted ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Light, 1000, Easing.OutSine);
             countText.FlashColour(faulted ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Light, 1000, Easing.OutSine);
 

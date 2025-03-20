@@ -301,8 +301,8 @@ namespace osu.Game.Tournament
             {
                 var p = playersRequiringPopulation[i];
                 PopulatePlayer(p, immediate: true);
-                updateLoadProgressMessage(BaseStrings.PopulatingUserStats(i, playersRequiringPopulation.Count),
-                    p.OnlineID.ToString(), i + 1, playersRequiringPopulation.Count);
+                updateLoadProgressMessage(BaseStrings.PopulatingUserStats,
+                    LocalisableString.Interpolate($"{BaseStrings.UserID} -> {p.OnlineID}"), i + 1, playersRequiringPopulation.Count);
             }
 
             Scheduler.Add(() => progressPopup.SetTaskCompleted());
@@ -335,8 +335,8 @@ namespace osu.Game.Tournament
                 if (populated != null)
                     b.Beatmap = new TournamentBeatmap(populated);
 
-                updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps(i, beatmapsRequiringPopulation.Count),
-                    b.ID.ToString(), i + 1, beatmapsRequiringPopulation.Count);
+                updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps,
+                    LocalisableString.Interpolate($"{BaseStrings.BeatmapID} -> {b.ID}"), i + 1, beatmapsRequiringPopulation.Count);
             }
 
             Scheduler.Add(() => progressPopup.SetTaskCompleted());
@@ -371,8 +371,8 @@ namespace osu.Game.Tournament
                 if (populated != null)
                     b.Beatmap = new TournamentBeatmap(populated);
 
-                updateLoadProgressMessage(BaseStrings.PopulatingSeedingBeatmaps(i, beatmapsRequiringPopulation.Count),
-                    b.ID.ToString(), i + 1, beatmapsRequiringPopulation.Count);
+                updateLoadProgressMessage(BaseStrings.PopulatingSeedingBeatmaps,
+                    LocalisableString.Interpolate($"{BaseStrings.BeatmapID} -> {b.ID}"), i + 1, beatmapsRequiringPopulation.Count);
             }
 
             Scheduler.Add(() => progressPopup.SetTaskCompleted());
