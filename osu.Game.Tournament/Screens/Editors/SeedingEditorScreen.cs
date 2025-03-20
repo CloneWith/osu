@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -29,12 +30,18 @@ namespace osu.Game.Tournament.Screens.Editors
 
         protected override BindableList<SeedingResult> Storage => team.SeedingResults;
 
+        [Resolved]
+        private TournamentGameBase? tournamentGame { get; set; }
+
         private const float shared_relative_width = 0.15f;
 
         public SeedingEditorScreen(TournamentTeam team, TournamentScreen parentScreen)
             : base(parentScreen)
         {
             this.team = team;
+
+            FetchAction = fetchAll => Task.Run(() => tournamentGame?.AddSeedingBeatmaps(fetchAll))
+                                          .ContinueWith(_ => Scheduler.Add(RefreshFlow));
         }
 
         public partial class SeedingResultRow : CompositeDrawable, IModelBacked<SeedingResult>

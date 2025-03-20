@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -27,7 +28,16 @@ namespace osu.Game.Tournament.Screens.Editors
 {
     public partial class RoundEditorScreen : TournamentEditorScreen<RoundEditorScreen.RoundRow, TournamentRound>
     {
+        [Resolved]
+        private TournamentGameBase? tournamentGame { get; set; }
+
         protected override BindableList<TournamentRound> Storage => LadderInfo.Rounds;
+
+        public RoundEditorScreen()
+        {
+            FetchAction = fetchAll => Task.Run(() => tournamentGame?.AddRoundBeatmaps(fetchAll))
+                                          .ContinueWith(_ => Scheduler.Add(RefreshFlow));
+        }
 
         public partial class RoundRow : CompositeDrawable, IModelBacked<TournamentRound>
         {

@@ -282,13 +282,17 @@ namespace osu.Game.Tournament
         /// <summary>
         /// Add missing player info based on user IDs.
         /// </summary>
-        public bool AddPlayers()
+        public bool AddPlayers(bool fetchAll = false)
         {
             var playersRequiringPopulation = ladder.Teams
-                                                   .SelectMany(t => t.Players)
-                                                   .Where(p => string.IsNullOrEmpty(p.Username)
-                                                               || p.CountryCode == CountryCode.Unknown
-                                                               || p.Rank == null).ToList();
+                                                   .SelectMany(t => t.Players).ToList();
+
+            if (!fetchAll)
+            {
+                playersRequiringPopulation = playersRequiringPopulation.Where(p => string.IsNullOrEmpty(p.Username)
+                                                                                   || p.CountryCode == CountryCode.Unknown
+                                                                                   || p.Rank == null).ToList();
+            }
 
             if (playersRequiringPopulation.Count == 0)
                 return false;
@@ -298,9 +302,10 @@ namespace osu.Game.Tournament
                 var p = playersRequiringPopulation[i];
                 PopulatePlayer(p, immediate: true);
                 updateLoadProgressMessage(BaseStrings.PopulatingUserStats(i, playersRequiringPopulation.Count),
-                    p.OnlineID.ToString(), i, playersRequiringPopulation.Count);
+                    p.OnlineID.ToString(), i + 1, playersRequiringPopulation.Count);
             }
 
+            Scheduler.Add(() => progressPopup.SetTaskCompleted());
             return true;
         }
 
@@ -331,9 +336,10 @@ namespace osu.Game.Tournament
                     b.Beatmap = new TournamentBeatmap(populated);
 
                 updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps(i, beatmapsRequiringPopulation.Count),
-                    b.ID.ToString(), i, beatmapsRequiringPopulation.Count);
+                    b.ID.ToString(), i + 1, beatmapsRequiringPopulation.Count);
             }
 
+            Scheduler.Add(() => progressPopup.SetTaskCompleted());
             return true;
         }
 
@@ -366,9 +372,10 @@ namespace osu.Game.Tournament
                     b.Beatmap = new TournamentBeatmap(populated);
 
                 updateLoadProgressMessage(BaseStrings.PopulatingSeedingBeatmaps(i, beatmapsRequiringPopulation.Count),
-                    b.ID.ToString(), i, beatmapsRequiringPopulation.Count);
+                    b.ID.ToString(), i + 1, beatmapsRequiringPopulation.Count);
             }
 
+            Scheduler.Add(() => progressPopup.SetTaskCompleted());
             return true;
         }
 
