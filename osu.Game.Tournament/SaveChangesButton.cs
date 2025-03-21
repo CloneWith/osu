@@ -54,6 +54,12 @@ namespace osu.Game.Tournament
             scheduleNextCheck();
         }
 
+        /// <summary>
+        /// Enable the save button regardless of the state of the ladder.
+        /// </summary>
+        /// <remarks>When something is changed but cannot be detected, we can use this method.</remarks>
+        public static void TriggerEnableSaving() => ladderUnchanged = false;
+
         public bool OnPressed(KeyBindingPressEvent<PlatformAction> e)
         {
             if (e.Action == PlatformAction.Save && !e.Repeat)
