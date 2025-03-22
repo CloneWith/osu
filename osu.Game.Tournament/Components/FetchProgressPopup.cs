@@ -72,7 +72,6 @@ namespace osu.Game.Tournament.Components
         }
 
         private readonly bool closeOnComplete;
-        private readonly Action? cancelAction;
 
         private ProgressBar progressBar = null!;
 
@@ -88,7 +87,6 @@ namespace osu.Game.Tournament.Components
         /// <param name="closeOnComplete">whether to close the popup automatically after the task is completed</param>
         public FetchProgressPopup(Action? cancelAction = null, bool closeOnComplete = false)
         {
-            this.cancelAction = cancelAction;
             this.closeOnComplete = closeOnComplete;
         }
 
