@@ -254,6 +254,14 @@ namespace osu.Game.Tournament
                         ladder.BackgroundMap =
                             JsonConvert.DeserializeObject<BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>>(await sr.ReadToEndAsync().ConfigureAwait(false), new JsonPointConverter())
                             ?? ladder.BackgroundMap;
+
+                        if (!ladder.BackgroundMap.Any())
+                        {
+                            ladder.BackgroundMap.AddRange(BackgroundProps.PATHS);
+
+                            // This change won't be detected by the button, and we should trigger it manually.
+                            SaveChangesButton.TriggerEnableSaving();
+                        }
                     }
                 }
                 else
