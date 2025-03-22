@@ -7,7 +7,6 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
@@ -80,7 +79,6 @@ namespace osu.Game.Tournament.Components
         private TournamentSpriteText promptText = null!;
         private TruncatingSpriteText statusText = null!;
         private TournamentSpriteText countText = null!;
-        private ClickTwiceButton cancelButton = null!;
 
         private int currentCount;
         private int totalCount;
@@ -194,23 +192,11 @@ namespace osu.Game.Tournament.Components
                                     CornerRadius = 3,
                                     FillColour = colours.Sky,
                                 },
-                                cancelButton = new ClickTwiceButton
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    IdleIcon = FontAwesome.Regular.StopCircle,
-                                    ActiveIcon = FontAwesome.Solid.Stop,
-                                    IdleText = @"Cancel",
-                                    ActiveText = @"Click again to cancel",
-                                    Action = () => invokeAndExpire(cancelAction),
-                                },
                             },
                         },
                     },
                 },
             };
-
-            cancelButton.Enabled.Value = cancelAction != null;
         }
 
         /// <summary>
@@ -225,20 +211,8 @@ namespace osu.Game.Tournament.Components
             statusText.FlashColour(faulted ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Light, 1000, Easing.OutSine);
             countText.FlashColour(faulted ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Light, 1000, Easing.OutSine);
 
-            cancelButton.Enabled.Value = true;
-            cancelButton.Text = @"Close";
-            cancelButton.IdleIcon = cancelButton.ActiveIcon = FontAwesome.Solid.Times;
-            cancelButton.Action = () => invokeAndExpire();
-
             if (closeOnComplete)
                 this.Delay(1000).FadeOut(500, Easing.OutQuint);
-        }
-
-        private void invokeAndExpire(Action? action = null)
-        {
-            action?.Invoke();
-            cancelButton.Enabled.Value = false;
-            this.FadeOut(500, Easing.OutQuint).Then().Expire();
         }
 
         protected override bool OnHover(HoverEvent e) => true;
