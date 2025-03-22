@@ -119,8 +119,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativePositionAxes = Axes.Both,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    AutoSizeEasing = Easing.OutQuint,
-                    AutoSizeDuration = 100,
                     Width = 0.88f,
                     X = 0.14f,
                     Y = 0.9f
