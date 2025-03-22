@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
@@ -37,6 +38,8 @@ namespace osu.Game.Tournament.Screens.Editors
 
         protected ControlPanel ControlPanel = null!;
 
+        protected Action<bool>? FetchAction;
+
         private readonly TournamentScreen? parentScreen;
 
         private BackButton backButton = null!;
@@ -70,7 +73,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         Padding = new MarginPadding(20),
                     },
                 },
-                ControlPanel = new ControlPanel(true)
+                ControlPanel = new ControlPanel(true, FetchAction)
                 {
                     Children = new Drawable[]
                     {
@@ -124,6 +127,14 @@ namespace osu.Game.Tournament.Screens.Editors
                         break;
                 }
             };
+
+            foreach (var model in Storage)
+                flow.Add(CreateDrawable(model));
+        }
+
+        protected void RefreshFlow()
+        {
+            flow.Clear();
 
             foreach (var model in Storage)
                 flow.Add(CreateDrawable(model));

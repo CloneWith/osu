@@ -145,8 +145,6 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 AutoSizeAxes = Axes.Both,
-                                                AutoSizeEasing = Easing.OutQuint,
-                                                AutoSizeDuration = 100,
                                             },
                                         },
                                     },

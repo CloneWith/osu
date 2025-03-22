@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -31,7 +30,6 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             FormCheckBox showListCheckBox;
             this.config.BindTo(config);
-            int leftNum = (int)Math.Ceiling(config.Value.Beatmaps.Count / 2f);
 
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -48,7 +46,8 @@ namespace osu.Game.Screens.TournamentShowcase
                 AutoSizeDuration = 200,
                 Direction = FillDirection.Vertical,
                 Spacing = new Vector2(5),
-                ChildrenEnumerable = config.Value.Beatmaps.Take(leftNum).Select(t => new BeatmapRow(t, config.Value)),
+                ChildrenEnumerable = config.Value.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 0)
+                                           .Select(t => new BeatmapRow(t, config.Value)),
             };
             var rightFlow = new FillFlowContainer
             {
@@ -58,7 +57,8 @@ namespace osu.Game.Screens.TournamentShowcase
                 AutoSizeDuration = 200,
                 Direction = FillDirection.Vertical,
                 Spacing = new Vector2(5),
-                ChildrenEnumerable = config.Value.Beatmaps.Skip(leftNum).Select(t => new BeatmapRow(t, config.Value)),
+                ChildrenEnumerable = config.Value.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 1)
+                                           .Select(t => new BeatmapRow(t, config.Value)),
             };
 
             Children = new Drawable[]
@@ -111,8 +111,10 @@ namespace osu.Game.Screens.TournamentShowcase
             config.BindValueChanged(conf =>
             {
                 showListCheckBox.Current = conf.NewValue.ShowMapPool;
-                leftFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Take(leftNum).Select(t => new BeatmapRow(t, config.Value));
-                rightFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Skip(leftNum).Select(t => new BeatmapRow(t, config.Value));
+                leftFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 0)
+                                                  .Select(t => new BeatmapRow(t, config.Value));
+                rightFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 1)
+                                                   .Select(t => new BeatmapRow(t, config.Value));
             });
         }
     }

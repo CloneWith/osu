@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions;
@@ -30,7 +31,16 @@ namespace osu.Game.Tournament.Screens.Editors
         protected override BindableList<TournamentTeam> Storage => LadderInfo.Teams;
 
         [Resolved]
+        private TournamentGameBase? tournamentGame { get; set; }
+
+        [Resolved]
         private IDialogOverlay? dialogOverlay { get; set; }
+
+        public TeamEditorScreen()
+        {
+            FetchAction = fetchAll => Task.Run(() => tournamentGame?.AddPlayers(fetchAll))
+                                          .ContinueWith(_ => Scheduler.Add(RefreshFlow));
+        }
 
         [BackgroundDependencyLoader]
         private void load()
