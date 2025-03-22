@@ -231,7 +231,7 @@ namespace osu.Game.Tournament.Components
             cancelButton.Action = () => invokeAndExpire();
 
             if (closeOnComplete)
-                this.Delay(1000).FadeOut(500, Easing.OutQuint).Then().Expire();
+                this.Delay(1000).FadeOut(500, Easing.OutQuint);
         }
 
         private void invokeAndExpire(Action? action = null)

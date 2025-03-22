@@ -78,6 +78,7 @@ namespace osu.Game.Tournament
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 Alpha = 0,
+                Depth = float.MinValue,
             });
 
             Resources.AddStore(new DllResourceStore(typeof(TournamentGameBase).Assembly));
@@ -381,16 +382,6 @@ namespace osu.Game.Tournament
 
         private void updateLoadProgressMessage(LocalisableString s, LocalisableString itemInfo, int current = 1, int total = 1) => Schedule(() =>
         {
-            if (!progressPopup.IsAlive)
-            {
-                Add(progressPopup = new FetchProgressPopup(closeOnComplete: true)
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Alpha = 0,
-                });
-            }
-
             progressPopup.FadeIn(300, Easing.OutQuint);
             progressPopup.PromptString = s;
             progressPopup.StatusString = itemInfo;
