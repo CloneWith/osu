@@ -21,7 +21,6 @@ using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
-using osu.Game.Tournament.Screens.Gameplay.Components;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
@@ -82,11 +81,7 @@ namespace osu.Game.Tournament.Screens.Board
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 },
-                new MatchHeader
-                {
-                    ShowScores = false,
-                    ShowRound = false,
-                },
+                new FumoMatchHeader(),
 
                 // Box for trap type / display of other info.
                 new EmptyBox(cornerRadius: 10)
