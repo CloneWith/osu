@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Configuration;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Localisation.HUD;
 using osu.Game.Rulesets.Objects;
 using osuTK.Graphics;
 
@@ -15,33 +16,33 @@ namespace osu.Game.Screens.Play.HUD
 {
     public partial class FumoSongProgress : SongProgress
     {
-        [SettingSource("Show background")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.ShowBackground))]
         public BindableBool ShowBackground { get; } = new BindableBool(true);
 
-        [SettingSource("Enable background gradient")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.EnableGradient), nameof(FumoSongProgressStrings.EnableGradientDescription))]
         public BindableBool UseBackgroundGradient { get; } = new BindableBool(true);
 
-        [SettingSource("Background colour")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.BackgroundColour))]
         public BindableColour4 BackgroundColour { get; } = new BindableColour4(FumoColours.SeaBlue.Light);
 
-        [SettingSource("Line colour")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.LineColour))]
         public BindableColour4 LineColour { get; } = new BindableColour4(Color4.White);
 
-        [SettingSource("Horizontal spacing")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.HorizontalSpacing))]
         public BindableInt HorizontalSpacing { get; } = new BindableInt(5)
         {
             MinValue = 3,
             MaxValue = 10,
         };
 
-        [SettingSource("Vertical spacing")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.VerticalSpacing))]
         public BindableInt VerticalSpacing { get; } = new BindableInt(10)
         {
             MinValue = 5,
             MaxValue = 20,
         };
 
-        [SettingSource("Section granularity")]
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.SectionGranularity), nameof(FumoSongProgressStrings.SectionGranularityDescription))]
         public BindableInt SectionGranularity { get; } = new BindableInt(50)
         {
             MinValue = 10,
