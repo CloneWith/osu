@@ -8,9 +8,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
 {
     /// <summary>
     /// Useful colour schemes for our customized interface.
-    /// <br />
-    /// Some of them are inspired from Material UI.
     /// </summary>
+    /// <remarks>Some of these schemes are inspired from Material UI.</remarks>
     public static class FumoColours
     {
         public static class SeaBlue
@@ -22,6 +21,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public static Color4 Light { get; } = Color4Extensions.FromHex("#43ACFE");
             public static Color4 Lighter { get; } = Color4Extensions.FromHex("#52B2FE");
             public static Color4 Lightest { get; } = Color4Extensions.FromHex("#7DC6FE");
+
+            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
         }
 
         public static class SunshineYellow
@@ -33,6 +34,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public static Color4 Light { get; } = Color4Extensions.FromHex("#F4B03B");
             public static Color4 Lighter { get; } = Color4Extensions.FromHex("#F7C775");
             public static Color4 Lightest { get; } = Color4Extensions.FromHex("#FADDAC");
+
+            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
         }
 
         public static class FlandreRed
@@ -44,6 +47,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public static Color4 Light { get; } = Color4Extensions.FromHex("#D96E8D");
             public static Color4 Lighter { get; } = Color4Extensions.FromHex("#E394AC");
             public static Color4 Lightest { get; } = Color4Extensions.FromHex("#EEBDCD");
+
+            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
         }
 
         public static class DeepPurple
@@ -55,6 +60,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public static Color4 Light { get; } = Color4Extensions.FromHex("#7E57C2");
             public static Color4 Lighter { get; } = Color4Extensions.FromHex("#9575CD");
             public static Color4 Lightest { get; } = Color4Extensions.FromHex("#B39DDB");
+
+            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
         }
 
         public static class LightGreen
@@ -66,6 +73,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public static Color4 Light { get; } = Color4Extensions.FromHex("#9CCC65");
             public static Color4 Lighter { get; } = Color4Extensions.FromHex("#AED581");
             public static Color4 Lightest { get; } = Color4Extensions.FromHex("#C5E1A5");
+
+            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
         }
     }
 }

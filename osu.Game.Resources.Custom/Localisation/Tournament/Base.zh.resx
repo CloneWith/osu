@@ -19,13 +19,13 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="populating_user_stats" xml:space="preserve">
-        <value>正在处理用户数据 ({0} / {1})</value>
+        <value>正在处理用户数据</value>
     </data>
     <data name="populating_round_beatmaps" xml:space="preserve">
-        <value>正在处理比赛谱面 ({0} / {1})</value>
+        <value>正在处理比赛谱面</value>
     </data>
     <data name="populating_seeding_beatmaps" xml:space="preserve">
-        <value>正在处理选种谱面 ({0} / {1})</value>
+        <value>正在处理选种谱面</value>
     </data>
     <data name="bracket_error_warning" xml:space="preserve">
         <value>无法解析 {0} 文件。请查看 runtime.log 获取详情。</value>
@@ -92,5 +92,23 @@
     </data>
     <data name="unknown_round" xml:space="preserve">
         <value>未知回合</value>
+    </data>
+    <data name="task_completed" xml:space="preserve">
+        <value>任务完成！</value>
+    </data>
+    <data name="task_failed" xml:space="preserve">
+        <value>该任务失败了。</value>
+    </data>
+    <data name="please_wait" xml:space="preserve">
+        <value>请稍候...</value>
+    </data>
+    <data name="fetching_header" xml:space="preserve">
+        <value>获取中...</value>
+    </data>
+    <data name="fetching_description" xml:space="preserve">
+        <value>从服务器获取数据中，请稍候...</value>
+    </data>
+    <data name="fetch_data" xml:space="preserve">
+        <value>获取数据</value>
     </data>
 </root>

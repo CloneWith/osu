@@ -1,6 +1,7 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -21,15 +22,19 @@ namespace osu.Game.Tournament.Components
     {
         private readonly FillFlowContainer buttons;
 
+        public Action<bool>? RefetchAction;
+
         protected override Container<Drawable> Content => buttons;
 
-        public ControlPanel(bool needSaving = false)
+        public ControlPanel(bool needSaving = false, Action<bool>? refetchAction = null)
         {
             Name = "Control Panel Sidebar";
             RelativeSizeAxes = Axes.Y;
             AlwaysPresent = true;
             Width = TournamentSceneManager.CONTROL_AREA_WIDTH;
             Anchor = Anchor.TopRight;
+
+            RefetchAction = refetchAction;
 
             InternalChildren = new Drawable[]
             {
@@ -47,6 +52,7 @@ namespace osu.Game.Tournament.Components
                     {
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(),
+                        new Dimension(GridSizeMode.AutoSize),
                         new Dimension(GridSizeMode.AutoSize),
                     },
                     Content = new[]
@@ -100,6 +106,17 @@ namespace osu.Game.Tournament.Components
                                     Spacing = new Vector2(0, 5f),
                                 },
                             },
+                        },
+                        new[]
+                        {
+                            RefetchAction != null
+                                ? new FetchDataButton(RefetchAction)
+                                {
+                                    Anchor = Anchor.BottomCentre,
+                                    Origin = Anchor.BottomCentre,
+                                    Padding = new MarginPadding(5),
+                                }
+                                : Empty(),
                         },
                         new[]
                         {

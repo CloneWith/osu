@@ -128,9 +128,13 @@ namespace osu.Game.Tournament.Components
 
                     info = newInfo;
                 }
-                // Don't let clear changes affect the background.
+                // When we've already loaded a background,
+                // don't let clear changes affect it.
                 catch (InvalidOperationException)
                 {
+                    if (imageSprite == null && video == null && drawFallbackGradient)
+                        loadFallbackGradient();
+
                     return;
                 }
             }
@@ -204,27 +208,32 @@ namespace osu.Game.Tournament.Components
                     level: LogLevel.Important);
 #endif
 
-                spriteContainer.Children = new Drawable[]
-                {
-                    new Box
-                    {
-                        Colour = ColourInfo.GradientVertical(OsuColour.Gray(0.3f), OsuColour.Gray(0.6f)),
-                        RelativeSizeAxes = Axes.Both,
-                        Alpha = drawFallbackGradient ? 1 : 0
-                    },
-                    errorFlow = new OsuTextFlowContainer
-                    {
-                        Name = @"Error Text",
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        AutoSizeAxes = Axes.Both,
-                        Alpha = isFaulted && showError ? 1 : 0
-                    }
-                };
-
-                errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
-                errorFlow.AddText(" Background unavailable!");
+                loadFallbackGradient(isFaulted);
             }
+        }
+
+        private void loadFallbackGradient(bool isFaulted = false)
+        {
+            spriteContainer.Children = new Drawable[]
+            {
+                new Box
+                {
+                    Colour = ColourInfo.GradientVertical(OsuColour.Gray(0.3f), OsuColour.Gray(0.6f)),
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = drawFallbackGradient ? 1 : 0
+                },
+                errorFlow = new OsuTextFlowContainer
+                {
+                    Name = @"Error Text",
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    AutoSizeAxes = Axes.Both,
+                    Alpha = isFaulted && showError ? 1 : 0
+                }
+            };
+
+            errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
+            errorFlow.AddText(" Background unavailable!");
         }
 
         private bool loop;

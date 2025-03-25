@@ -10,22 +10,22 @@ namespace osu.Game.Tournament.Localisation
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Base";
 
         /// <summary>
-        /// "Populating user stats ({0} / {1})"
+        /// "Populating user stats"
         /// </summary>
-        public static LocalisableString PopulatingUserStats(int current, int total) => new TranslatableString(getKey(@"populating_user_stats"),
-            @"Populating user stats ({0} / {1})", current, total);
+        public static LocalisableString PopulatingUserStats => new TranslatableString(getKey(@"populating_user_stats"),
+            @"Populating user stats");
 
         /// <summary>
-        /// "Populating round beatmaps ({0} / {1})"
+        /// "Populating round beatmaps"
         /// </summary>
-        public static LocalisableString PopulatingRoundBeatmaps(int current, int total) => new TranslatableString(getKey(@"populating_round_beatmaps"),
-            @"Populating round beatmaps ({0} / {1})", current, total);
+        public static LocalisableString PopulatingRoundBeatmaps => new TranslatableString(getKey(@"populating_round_beatmaps"),
+            @"Populating round beatmaps");
 
         /// <summary>
-        /// "Populating seeding beatmaps ({0} / {1})"
+        /// "Populating seeding beatmaps"
         /// </summary>
-        public static LocalisableString PopulatingSeedingBeatmaps(int current, int total) => new TranslatableString(getKey(@"populating_seeding_beatmaps"),
-            @"Populating seeding beatmaps ({0} / {1})", current, total);
+        public static LocalisableString PopulatingSeedingBeatmaps => new TranslatableString(getKey(@"populating_seeding_beatmaps"),
+            @"Populating seeding beatmaps");
 
         /// <summary>
         /// "Your {0} file could not be parsed. Please check runtime.log for more details."
@@ -66,6 +66,11 @@ namespace osu.Game.Tournament.Localisation
         /// "Save Changes"
         /// </summary>
         public static LocalisableString SaveChanges => new TranslatableString(getKey(@"save_changes"), @"Save Changes");
+
+        /// <summary>
+        /// "Fetch Data"
+        /// </summary>
+        public static LocalisableString FetchData => new TranslatableString(getKey(@"fetch_data"), @"Fetch Data");
 
         /// <summary>
         /// "Add New"
@@ -141,6 +146,31 @@ namespace osu.Game.Tournament.Localisation
         /// "Unknown Round"
         /// </summary>
         public static LocalisableString UnknownRound => new TranslatableString(getKey(@"unknown_round"), @"Unknown Round");
+
+        /// <summary>
+        /// "Task completed!"
+        /// </summary>
+        public static LocalisableString TaskCompleted => new TranslatableString(getKey(@"task_completed"), @"Task completed!");
+
+        /// <summary>
+        /// "This task has failed."
+        /// </summary>
+        public static LocalisableString TaskFailed => new TranslatableString(getKey(@"task_failed"), @"This task has failed.");
+
+        /// <summary>
+        /// "Please wait..."
+        /// </summary>
+        public static LocalisableString PleaseWait => new TranslatableString(getKey(@"please_wait"), @"Please wait...");
+
+        /// <summary>
+        /// "Fetching..."
+        /// </summary>
+        public static LocalisableString FetchingHeader => new TranslatableString(getKey(@"fetching_header"), @"Fetching...");
+
+        /// <summary>
+        /// "Fetching data from server, please wait..."
+        /// </summary>
+        public static LocalisableString FetchingDescription => new TranslatableString(getKey(@"fetching_description"), @"Fetching data from server, please wait...");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

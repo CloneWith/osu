@@ -145,8 +145,6 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 AutoSizeAxes = Axes.Both,
-                                                AutoSizeEasing = Easing.OutQuint,
-                                                AutoSizeDuration = 100,
                                             },
                                         },
                                     },
@@ -311,11 +309,6 @@ namespace osu.Game.Tournament.Screens.Setup
             currentFileText.AddText(BackgroundSelectStrings.PromptSelectFile, t => t.Font = OsuFont.Default.With(size: 16));
 
             saveButton.Enabled.Value = false;
-
-            if (!LadderInfo.BackgroundMap.Any())
-            {
-                LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
-            }
 
             infoText.Text = LadderInfo.BackgroundMap.LastOrDefault(v => v.Key == typeDropdown.Current.Value).Value.Name;
             infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
