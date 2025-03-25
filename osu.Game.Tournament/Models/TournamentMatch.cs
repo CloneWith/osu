@@ -50,6 +50,8 @@ namespace osu.Game.Tournament.Models
 
         public readonly ObservableCollection<BeatmapChoice> PicksBans = new ObservableCollection<BeatmapChoice>();
 
+        public readonly ObservableCollection<ChessPlacement> ChessPlacements = new ObservableCollection<ChessPlacement>();
+
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();
 
