@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -72,17 +73,22 @@ namespace osu.Game.Screens.Play.HUD
                         {
                             Name = "Difficulty graph",
                             Blending = BlendingParameters.Additive,
-                            SectionGranularity = SectionGranularity.Value,
-                            HorizontalSpacing = HorizontalSpacing.Value,
-                            VerticalSpacing = VerticalSpacing.Value,
-                            ShowBackground = ShowBackground.Value,
-                            UseBackgroundGradient = UseBackgroundGradient.Value,
-                            BackgroundColour = BackgroundColour.Value,
-                            LineColour = LineColour.Value,
                         },
                     },
                 },
             };
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            graph.SectionGranularity = SectionGranularity.Value;
+            graph.HorizontalSpacing = HorizontalSpacing.Value;
+            graph.VerticalSpacing = VerticalSpacing.Value;
+            graph.ShowBackground = ShowBackground.Value;
+            graph.UseBackgroundGradient = UseBackgroundGradient.Value;
+            graph.BackgroundColour = BackgroundColour.Value;
+            graph.LineColour = LineColour.Value;
         }
 
         protected override void LoadComplete()
