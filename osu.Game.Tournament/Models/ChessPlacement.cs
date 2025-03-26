@@ -15,10 +15,10 @@ namespace osu.Game.Tournament.Models
     public class ChessPlacement
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public TeamColour OwnerTeam = TeamColour.Neutral;
+        public TeamColour OwnerTeam;
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public ChoiceType CurrentType = ChoiceType.Neutral;
+        public ChoiceType CurrentType;
 
         /// <summary>
         /// The ID of the beatmap the chess is associated with. Zero if it isn't associated with one.

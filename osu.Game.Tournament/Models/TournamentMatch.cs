@@ -121,27 +121,20 @@ namespace osu.Game.Tournament.Models
             Team2Score.Value = 0;
         }
 
+        /// <summary>
+        /// Search for the maximum successive chess pieces on the board for two teams.
+        /// </summary>
+        /// <returns>A tuple containing the number of successive chess for the red and blue team.</returns>
         public (int redNum, int blueNum) GetMaximumSuccessiveChess()
         {
-            int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
-            {
-                // Step 1: Find the next chess; Return if not found or not desired type (range check implicitly included)
-                var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
-
-                if (nextChess == null || nextChess.CurrentType != targetType)
-                    // Edge case: Dismiss dual diagonal matches
-                    return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
-
-                // Step 2: Search forwards
-                return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
-            }
-
             (int red, int blue) num = (0, 0);
 
             (int row, int column)[] directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
 
             for (int i = 1; i <= 4; i++)
             {
+                // The modification of i won't affect these lines.
+                // ReSharper disable once AccessToModifiedClosure
                 var rowChess = ChessPlacements.Where(c => c.BoardRow == i);
 
                 foreach (var chess in rowChess)
@@ -163,6 +156,19 @@ namespace osu.Game.Tournament.Models
             if (num.blue == 1) num.blue = 0;
 
             return num;
+
+            int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
+            {
+                // Step 1: Find the next chess; Return if not found or not desired type (range check implicitly included)
+                var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+
+                if (nextChess == null || nextChess.CurrentType != targetType)
+                    // Edge case: Dismiss dual diagonal matches
+                    return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
+
+                // Step 2: Search forwards
+                return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
+            }
         }
 
         public void Reset()
