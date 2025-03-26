@@ -33,12 +33,14 @@ namespace osu.Game.Tournament.Models
         /// </summary>
         public List<ChessRecord> Records = new List<ChessRecord>();
 
-        public ChessPlacement(int boardRow, int boardColumn, int beatmapID = 0)
+        public ChessPlacement(int boardRow, int boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral, int beatmapID = 0)
         {
             BeatmapID = beatmapID;
+            OwnerTeam = ownerTeam;
+            CurrentType = type;
 
-            Debug.Assert(boardRow >= 0 && boardRow < 4, "Board row out of range.");
-            Debug.Assert(boardColumn >= 0 && boardColumn < 4, "Board column out of range.");
+            Debug.Assert(boardRow > 0 && boardRow <= 4, "Board row out of range.");
+            Debug.Assert(boardColumn > 0 && boardColumn <= 4, "Board column out of range.");
 
             BoardRow = boardRow;
             BoardColumn = boardColumn;

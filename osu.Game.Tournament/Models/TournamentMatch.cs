@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Game.Tournament.Screens.Ladder.Components;
@@ -118,6 +119,56 @@ namespace osu.Game.Tournament.Models
 
             Team1Score.Value = 0;
             Team2Score.Value = 0;
+        }
+
+        public (int redNum, int blueNum) GetMaximumSuccessiveChess()
+        {
+            int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
+            {
+                // Step 1: Range check
+                if (row + rowDelta > 4
+                    || column + columnDelta > 4
+                    || row + rowDelta < 0
+                    || column + columnDelta < 0)
+                    return current;
+
+                // Step 2: Find next chess; Return if not found or not desired type
+                var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+
+                if (nextChess == null || nextChess.CurrentType != targetType)
+                    return current;
+
+                // Step 3: Search forwards
+                return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
+            }
+
+            (int red, int blue) num = (0, 0);
+
+            (int row, int column)[] directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
+
+            for (int i = 1; i <= 4; i++)
+            {
+                var rowChess = ChessPlacements.Where(c => c.BoardRow == i);
+
+                foreach (var chess in rowChess)
+                {
+                    if (chess.CurrentType == ChoiceType.RedWin)
+                    {
+                        foreach (var d in directions)
+                            num.red = Math.Max(num.red, progress(d.row, d.column, ChoiceType.RedWin, chess.BoardRow, chess.BoardColumn));
+                    }
+                    else if (chess.CurrentType == ChoiceType.BlueWin)
+                    {
+                        foreach (var d in directions)
+                            num.blue = Math.Max(num.red, progress(d.row, d.column, ChoiceType.RedWin, chess.BoardRow, chess.BoardColumn));
+                    }
+                }
+            }
+
+            if (num.red == 1) num.red = 0;
+            if (num.blue == 1) num.blue = 0;
+
+            return num;
         }
 
         public void Reset()
