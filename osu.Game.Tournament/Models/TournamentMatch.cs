@@ -126,10 +126,10 @@ namespace osu.Game.Tournament.Models
             int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
             {
                 // Step 1: Range check
-                if (row + rowDelta > 4
-                    || column + columnDelta > 4
-                    || row + rowDelta < 0
-                    || column + columnDelta < 0)
+                if (row > 4
+                    || column > 4
+                    || row <= 0
+                    || column <= 0)
                     return current;
 
                 // Step 2: Find next chess; Return if not found or not desired type
