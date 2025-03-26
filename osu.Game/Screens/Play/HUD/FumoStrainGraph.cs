@@ -185,12 +185,34 @@ namespace osu.Game.Screens.Play.HUD
 
         private void standardizeValues()
         {
+            // Step 1: Calculate the range of values and normalize them
             float minValue = values.Min();
             float maxValue = values.Max() - minValue;
 
             for (int i = 0; i < displayGranularity; i++)
             {
                 values[i] = (values[i] - minValue) / maxValue * highest_point;
+            }
+
+            // Step 2: Use weighted averages to smooth each normalized value
+            const int smoothing_passes = 2;
+
+            for (int pass = 0; pass < smoothing_passes; pass++)
+            {
+                float[] smoothedValues = new float[displayGranularity];
+
+                for (int i = 0; i < displayGranularity; i++)
+                {
+                    if (i == 0 || i == displayGranularity - 1)
+                    {
+                        smoothedValues[i] = values[i];
+                        continue;
+                    }
+
+                    smoothedValues[i] = 0.25f * values[i - 1] + 0.5f * values[i] + 0.25f * values[i + 1];
+                }
+
+                values = smoothedValues;
             }
         }
 
