@@ -125,21 +125,14 @@ namespace osu.Game.Tournament.Models
         {
             int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
             {
-                // Step 1: Range check
-                if (row > 4
-                    || column > 4
-                    || row <= 0
-                    || column <= 0)
-                    return current;
-
-                // Step 2: Find next chess; Return if not found or not desired type
+                // Step 1: Find the next chess; Return if not found or not desired type (range check implicitly included)
                 var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
-                    // Edge case: Dismiss double diagonal matches
-                    return rowDelta == 1 && columnDelta != 0 && current == 2 ? 0 : current;
+                    // Edge case: Dismiss dual diagonal matches
+                    return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
 
-                // Step 3: Search forwards
+                // Step 2: Search forwards
                 return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
             }
 
@@ -161,7 +154,7 @@ namespace osu.Game.Tournament.Models
                     else if (chess.CurrentType == ChoiceType.BlueWin)
                     {
                         foreach (var d in directions)
-                            num.blue = Math.Max(num.red, progress(d.row, d.column, ChoiceType.RedWin, chess.BoardRow, chess.BoardColumn));
+                            num.blue = Math.Max(num.blue, progress(d.row, d.column, ChoiceType.BlueWin, chess.BoardRow, chess.BoardColumn));
                     }
                 }
             }
