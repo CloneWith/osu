@@ -136,7 +136,8 @@ namespace osu.Game.Tournament.Models
                 var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
-                    return current;
+                    // Edge case: Dismiss double diagonal matches
+                    return rowDelta == 1 && columnDelta != 0 && current == 2 ? 0 : current;
 
                 // Step 3: Search forwards
                 return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
