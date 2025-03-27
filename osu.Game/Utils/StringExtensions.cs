@@ -107,6 +107,7 @@ namespace osu.Game.Utils
                 }
             }
 
+            errorMessage = string.Empty;
             return true;
         }
     }
