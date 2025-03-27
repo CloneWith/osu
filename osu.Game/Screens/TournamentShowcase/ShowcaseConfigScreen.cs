@@ -78,10 +78,14 @@ namespace osu.Game.Screens.TournamentShowcase
         private void load()
         {
             var availableProfiles = storage.ListTournaments();
-            var firstConfig = storage.GetConfig(availableProfiles.First());
 
-            if (firstConfig != null)
-                currentProfile.Value = firstConfig;
+            var firstProfile = availableProfiles.FirstOrDefault();
+            if (firstProfile != null)
+            {
+                var firstConfig = storage.GetConfig(firstProfile);
+                if (firstConfig != null)
+                    currentProfile.Value = firstConfig;
+            }
 
             // Enforce a non-null current profile and necessary properties.
             currentProfile.Value ??= new ShowcaseConfig();
