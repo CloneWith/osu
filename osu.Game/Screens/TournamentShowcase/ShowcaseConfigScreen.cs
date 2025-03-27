@@ -9,6 +9,7 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Graphics.Containers;
@@ -20,6 +21,7 @@ using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
+using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
 
@@ -410,6 +412,16 @@ namespace osu.Game.Screens.TournamentShowcase
             if (!isValid)
             {
                 dialogOverlay?.Push(new ProfileCheckFailedDialog());
+
+                return false;
+            }
+
+            if (!$"{tournamentNameInput.Current.Value}-{roundNameInput.Current.Value}".IsSafeForFilename(out LocalisableString error, 50))
+            {
+                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                {
+                    BodyText = error,
+                });
 
                 return false;
             }

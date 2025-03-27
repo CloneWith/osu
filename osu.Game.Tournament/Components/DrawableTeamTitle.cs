@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Game.Tournament.Models;
+using osu.Game.Utils;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
