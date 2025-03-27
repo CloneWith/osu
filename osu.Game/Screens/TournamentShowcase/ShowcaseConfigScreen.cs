@@ -79,7 +79,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             var availableProfiles = storage.ListTournaments();
 
-            var firstProfile = availableProfiles.FirstOrDefault();
+            string? firstProfile = availableProfiles.FirstOrDefault();
+
             if (firstProfile != null)
             {
                 var firstConfig = storage.GetConfig(firstProfile);
