@@ -14,6 +14,7 @@ using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
+using osu.Game.Utils;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components

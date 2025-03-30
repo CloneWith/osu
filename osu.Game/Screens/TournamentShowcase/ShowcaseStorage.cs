@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Game.IO;
+using osu.Game.Utils;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
@@ -45,7 +46,22 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        public IEnumerable<string> ListTournaments() => GetFiles(string.Empty, "*.json");
+        public IEnumerable<string> ListTournaments()
+        {
+            int validNum = 0;
+            var fileList = GetFiles(string.Empty, "*.json");
+
+            foreach (string file in fileList)
+            {
+                if (file.IsSafeForFilename(50))
+                {
+                    validNum++;
+                    yield return file;
+                }
+            }
+
+            Logger.Log($"Loaded {validNum} valid showcase profiles.");
+        }
 
         public void SaveChanges(ShowcaseConfig config)
         {

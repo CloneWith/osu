@@ -17,6 +17,7 @@ using osuTK;
 using osuTK.Graphics;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Tournament.Models;
+using osu.Game.Utils;
 
 namespace osu.Game.Tournament.Components
 {
