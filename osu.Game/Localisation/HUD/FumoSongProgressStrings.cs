@@ -22,7 +22,19 @@ namespace osu.Game.Localisation.HUD
         /// <summary>
         /// "When enabled, the background will be filled with the specified colour in a vertical gradient style."
         /// </summary>
-        public static LocalisableString EnableGradientDescription => new TranslatableString(getKey(@"enable_gradient_description"), @"When enabled, the background will be filled with the specified colour in a vertical gradient style.");
+        public static LocalisableString EnableGradientDescription => new TranslatableString(getKey(@"enable_gradient_description"),
+            @"When enabled, the background will be filled with the specified colour in a vertical gradient style.");
+
+        /// <summary>
+        /// "Use additive blending for strain graph"
+        /// </summary>
+        public static LocalisableString UseAdditiveBlending => new TranslatableString(getKey(@"use_additive_blending"), @"Use additive blending for strain graph");
+
+        /// <summary>
+        /// "When enabled, the additive mode would be used for graph blending. This can help make fancy visual effects, but would seem poor in some cases."
+        /// </summary>
+        public static LocalisableString AdditiveBlendingDescription => new TranslatableString(getKey(@"additive_blending_description"),
+            @"When enabled, the additive mode would be used for graph blending. This can help make fancy visual effects, but would seem poor in some cases.");
 
         /// <summary>
         /// "Background colour"

@@ -22,6 +22,9 @@ namespace osu.Game.Screens.Play.HUD
         [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.EnableGradient), nameof(FumoSongProgressStrings.EnableGradientDescription))]
         public BindableBool UseBackgroundGradient { get; } = new BindableBool(true);
 
+        [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.UseAdditiveBlending), nameof(FumoSongProgressStrings.AdditiveBlendingDescription))]
+        public BindableBool UseAdditiveBlending { get; } = new BindableBool(true);
+
         [SettingSource(typeof(FumoSongProgressStrings), nameof(FumoSongProgressStrings.BackgroundColour))]
         public BindableColour4 BackgroundColour { get; } = new BindableColour4(FumoColours.SeaBlue.Light);
 
@@ -73,7 +76,6 @@ namespace osu.Game.Screens.Play.HUD
                         Child = graph = new FumoStrainGraph
                         {
                             Name = "Difficulty graph",
-                            Blending = BlendingParameters.Additive,
                         },
                     },
                 },
@@ -88,6 +90,7 @@ namespace osu.Game.Screens.Play.HUD
             graph.VerticalSpacing = VerticalSpacing.Value;
             graph.ShowBackground = ShowBackground.Value;
             graph.UseBackgroundGradient = UseBackgroundGradient.Value;
+            graph.UseAdditiveBlending = UseAdditiveBlending.Value;
             graph.BackgroundColour = BackgroundColour.Value;
             graph.LineColour = LineColour.Value;
         }
@@ -102,6 +105,7 @@ namespace osu.Game.Screens.Play.HUD
 
             ShowBackground.BindValueChanged(e => graph.ShowBackground = e.NewValue);
             UseBackgroundGradient.BindValueChanged(e => graph.UseBackgroundGradient = e.NewValue);
+            UseAdditiveBlending.BindValueChanged(e => graph.UseAdditiveBlending = e.NewValue);
             BackgroundColour.BindValueChanged(e => graph.BackgroundColour = e.NewValue);
             LineColour.BindValueChanged(e => graph.LineColour = e.NewValue);
         }
@@ -113,6 +117,7 @@ namespace osu.Game.Screens.Play.HUD
 
         protected override void UpdateProgress(double progress, bool isIntro)
         {
+            graph.Progress = progress;
         }
     }
 }

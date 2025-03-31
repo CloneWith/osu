@@ -7,6 +7,7 @@ using System.Linq;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Lines;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Beatmaps;
@@ -73,6 +74,17 @@ namespace osu.Game.Screens.Play.HUD
             }
         }
 
+        public bool UseAdditiveBlending
+        {
+            set
+            {
+                if (useAdditiveBlending == value) return;
+
+                useAdditiveBlending = value;
+                frontPath.Blending = useAdditiveBlending ? BlendingParameters.Additive : BlendingParameters.Inherit;
+            }
+        }
+
         public Colour4 BackgroundColour
         {
             set
@@ -91,15 +103,30 @@ namespace osu.Game.Screens.Play.HUD
                 if (lineColour == value) return;
 
                 lineColour = value;
-                drawablePath.FadeColour(lineColour, 300, Easing.OutQuint);
+                frontPath.FadeColour(lineColour, 300, Easing.OutQuint);
+            }
+        }
+
+        public double Progress
+        {
+            get => progress;
+
+            set
+            {
+                if (progress == value) return;
+
+                progress = value;
+                frontContainer.ResizeWidthTo((float)progress, 300, Easing.OutQuint);
             }
         }
 
         private int displayGranularity = 10;
         private int horizontalSpacing = 5;
         private int verticalSpacing = 10;
+        private double progress;
 
         private bool useBackgroundGradient = true;
+        private bool useAdditiveBlending = true;
         private Colour4 backgroundColour = FumoColours.SeaBlue.Light;
         private Colour4 lineColour = Color4.White;
 
@@ -108,6 +135,8 @@ namespace osu.Game.Screens.Play.HUD
         private readonly Box background;
         private readonly SliderPath path = new SliderPath();
         private readonly SmoothPath drawablePath;
+        private readonly Container frontContainer;
+        private readonly SmoothPath frontPath;
 
         private IEnumerable<HitObject>? objects;
         private float[] values = new float[10];
@@ -140,8 +169,24 @@ namespace osu.Game.Screens.Play.HUD
                 {
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.BottomLeft,
-                    PathRadius = 2,
-                    Colour = lineColour,
+                    PathRadius = 3,
+                    Alpha = 0.5f,
+                },
+                frontContainer = new Container
+                {
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    RelativeSizeAxes = Axes.Both,
+                    Width = 0,
+                    Masking = true,
+                    Child = frontPath = new SmoothPath
+                    {
+                        Anchor = Anchor.BottomLeft,
+                        Origin = Anchor.BottomLeft,
+                        PathRadius = 3,
+                        Colour = lineColour,
+                        Blending = useAdditiveBlending ? BlendingParameters.Additive : BlendingParameters.Inherit,
+                    },
                 },
             };
         }
@@ -233,6 +278,7 @@ namespace osu.Game.Screens.Play.HUD
             path.GetPathToProgress(vertices, 0, 1);
 
             drawablePath.Vertices = vertices;
+            frontPath.Vertices = vertices;
         }
     }
 }

@@ -45,4 +45,10 @@
     <data name="section_granularity_description" xml:space="preserve">
         <value>谱面应被均分成的段数。此值越高，图线呈现的信息越细致，同时也会更宽。</value>
     </data>
+    <data name="use_additive_blending" xml:space="preserve">
+        <value>叠加渲染耐力图</value>
+    </data>
+    <data name="additive_blending_description" xml:space="preserve">
+        <value>启用时，将使用叠加模式渲染图线。多数情况下会使视觉效果更佳，但有时会不太好看。</value>
+    </data>
 </root>
