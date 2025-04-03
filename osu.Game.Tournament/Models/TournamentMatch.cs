@@ -173,8 +173,11 @@ namespace osu.Game.Tournament.Models
                 // Step 3: Search forwards
                 return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
 
+#pragma warning disable format
+                // This is EXACTLY the code format we expected.
                 EndRecursion:
                 return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
+#pragma warning restore format
             }
         }
 
