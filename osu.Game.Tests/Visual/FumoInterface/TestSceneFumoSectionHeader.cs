@@ -58,6 +58,10 @@ namespace osu.Game.Tests.Visual.FumoInterface
         {
             AddSliderStep("Icon size", 16, 48, 20, s => sectionHeader.IconSize = s);
 
+            AddStep("Set HD mod icon", () => sectionHeader.Icon = OsuIcon.ModHidden);
+            AddStep("Set HR mod icon", () => sectionHeader.Icon = OsuIcon.ModHardRock);
+            AddStep("Set DT mod icon", () => sectionHeader.Icon = OsuIcon.ModDoubleTime);
+
             AddStep("Set FontAwesome icon", () => sectionHeader.Icon = FontAwesome.Regular.Clipboard);
             AddStep("Set icon to empty", () => sectionHeader.Icon = new IconUsage());
             AddStep("Set OsuIcon icon", () => sectionHeader.Icon = OsuIcon.Tournament);
