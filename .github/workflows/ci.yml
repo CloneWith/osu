@@ -1,5 +1,14 @@
-on: [push, pull_request]
 name: Continuous Integration
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - "derived/new"
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
