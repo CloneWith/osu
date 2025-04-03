@@ -118,6 +118,17 @@ namespace osu.Game.Tournament.Tests.NonVisual
         }
 
         [Test]
+        public void TestOutOfBoundsChess()
+        {
+            match.ChessPlacements.Clear();
+            for (int i = -5; i <= 15; i++)
+                match.ChessPlacements.Add(new ChessPlacement(i, i, type: ChoiceType.RedWin));
+
+            runOnce();
+            Assert.AreEqual(4, nums.red, "Out of bound chess test failed: Red chess");
+        }
+
+        [Test]
         public void TestComprehensiveBoard()
         {
             runWith(new[]

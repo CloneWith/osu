@@ -159,15 +159,22 @@ namespace osu.Game.Tournament.Models
 
             int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
             {
-                // Step 1: Find the next chess; Return if not found or not desired type (range check implicitly included)
+                // Step 1: Boundary check
+                if (row <= 0 || row > 4 || column <= 0 || column > 4)
+                    goto EndRecursion;
+
+                // Step 2: Find the next chess; Return if not found or not desired type
                 var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
                     // Edge case: Dismiss dual diagonal matches
-                    return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
+                    goto EndRecursion;
 
-                // Step 2: Search forwards
+                // Step 3: Search forwards
                 return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
+
+                EndRecursion:
+                return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
             }
         }
 
