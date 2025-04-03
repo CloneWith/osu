@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Newtonsoft.Json;
+using osu.Framework.Logging;
 
 namespace osu.Game.Tournament.Models
 {
@@ -47,8 +47,11 @@ namespace osu.Game.Tournament.Models
             OwnerTeam = ownerTeam;
             CurrentType = type;
 
-            Debug.Assert(boardRow > 0 && boardRow <= 4, "Board row out of range.");
-            Debug.Assert(boardColumn > 0 && boardColumn <= 4, "Board column out of range.");
+            if (boardRow <= 0 || boardRow > 4 || boardColumn <= 0 || boardColumn > 4)
+            {
+                Logger.Log($"The position of the chess ({boardRow}, {boardColumn}) is out of range. Please check the bracket file.",
+                    level: LogLevel.Important);
+            }
 
             BoardRow = boardRow;
             BoardColumn = boardColumn;
