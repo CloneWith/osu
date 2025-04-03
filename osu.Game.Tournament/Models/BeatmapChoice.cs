@@ -58,5 +58,10 @@ namespace osu.Game.Tournament.Models
         Ban,
         RedWin,
         BlueWin,
+
+        /// <summary>
+        /// Specially designed for board chess. Set when it is used for other actions.
+        /// </summary>
+        Consumed,
     }
 }

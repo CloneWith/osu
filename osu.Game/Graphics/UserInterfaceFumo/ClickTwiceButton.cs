@@ -9,10 +9,17 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
+    /// <summary>
+    /// A button that is only triggered when user clicks it twice within a range of time.
+    /// </summary>
     public partial class ClickTwiceButton : FumoButton
     {
         private double? activateTime;
 
+        /// <summary>
+        /// The currently shown text of the button.
+        /// </summary>
+        /// <remarks>Setting this value would update texts of both states, thus not suggested.</remarks>
         public LocalisableString Text
         {
             get => activateTime != null ? ActiveText : IdleText;

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Linq;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Game.Tournament.Screens.Ladder.Components;
@@ -49,6 +50,8 @@ namespace osu.Game.Tournament.Models
         public readonly Bindable<bool> Losers = new Bindable<bool>();
 
         public readonly ObservableCollection<BeatmapChoice> PicksBans = new ObservableCollection<BeatmapChoice>();
+
+        public readonly ObservableCollection<ChessPlacement> ChessPlacements = new ObservableCollection<ChessPlacement>();
 
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();
@@ -116,6 +119,66 @@ namespace osu.Game.Tournament.Models
 
             Team1Score.Value = 0;
             Team2Score.Value = 0;
+        }
+
+        /// <summary>
+        /// Search for the maximum successive chess pieces on the board for two teams.
+        /// </summary>
+        /// <returns>A tuple containing the number of successive chess for the red and blue team.</returns>
+        public (int redNum, int blueNum) GetMaximumSuccessiveChess()
+        {
+            (int red, int blue) num = (0, 0);
+
+            (int row, int column)[] directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
+
+            for (int i = 1; i <= 4; i++)
+            {
+                // The modification of i won't affect these lines.
+                // ReSharper disable once AccessToModifiedClosure
+                var rowChess = ChessPlacements.Where(c => c.BoardRow == i);
+
+                foreach (var chess in rowChess)
+                {
+                    if (chess.CurrentType == ChoiceType.RedWin)
+                    {
+                        foreach (var d in directions)
+                            num.red = Math.Max(num.red, progress(d.row, d.column, ChoiceType.RedWin, chess.BoardRow, chess.BoardColumn));
+                    }
+                    else if (chess.CurrentType == ChoiceType.BlueWin)
+                    {
+                        foreach (var d in directions)
+                            num.blue = Math.Max(num.blue, progress(d.row, d.column, ChoiceType.BlueWin, chess.BoardRow, chess.BoardColumn));
+                    }
+                }
+            }
+
+            if (num.red == 1) num.red = 0;
+            if (num.blue == 1) num.blue = 0;
+
+            return num;
+
+            int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)
+            {
+                // Step 1: Boundary check
+                if (row <= 0 || row > 4 || column <= 0 || column > 4)
+                    goto EndRecursion;
+
+                // Step 2: Find the next chess; Return if not found or not desired type
+                var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+
+                if (nextChess == null || nextChess.CurrentType != targetType)
+                    // Edge case: Dismiss dual diagonal matches
+                    goto EndRecursion;
+
+                // Step 3: Search forwards
+                return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
+
+#pragma warning disable format
+                // This is EXACTLY the code format we expected.
+                EndRecursion:
+                return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
+#pragma warning restore format
+            }
         }
 
         public void Reset()

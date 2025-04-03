@@ -18,18 +18,27 @@ using osuTK.Graphics;
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
     /// <summary>
-    /// A general button class for those with two statuses and optional icons and texts.
+    /// A general button class with two statuses and optional icons and texts.
     /// </summary>
     public partial class FumoButton : OsuAnimatedButton
     {
+        /// <summary>
+        /// The length of common transforms (resizing, fading, etc.).
+        /// </summary>
         protected const int TRANSFORM_DURATION = 600;
 
+        /// <summary>
+        /// The filling direction of all the content in this button.
+        /// </summary>
         protected readonly FillDirection LayoutDirection;
 
         protected Box Background = null!;
         protected SpriteIcon IconSprite = null!;
         protected SpriteText TextSprite = null!;
 
+        /// <summary>
+        /// The <see cref="Action"/> to call when the button is clicked.
+        /// </summary>
         public new Action? Action;
 
         public LocalisableString IdleText = string.Empty;
@@ -42,6 +51,10 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         public ColourInfo ActiveBackgroundColour = Color4.SkyBlue;
         public ColourInfo ActiveForegroundColour = Color4.Black;
 
+        /// <summary>
+        /// A placeholder action that won't do anything.
+        /// </summary>
+        /// <remarks>This exists to prevent the button from being disabled when no action is bound.</remarks>
         public static void DummyAction() { }
 
         public FumoButton(FillDirection direction = FillDirection.Horizontal)
