@@ -40,6 +40,8 @@ namespace osu.Game.Tournament
         public const string BRACKET_FILENAME = @"bracket.json";
         public const string BACKGROUND_MAPPING_FILENAME = @"backgrounds.json";
 
+        public const string WINDOW_TITLE = "OFFC Tournament Client";
+
         private LadderInfo ladder = new LadderInfo();
         private TournamentStorage storage = null!;
         private DependencyContainer dependencies = null!;
@@ -111,6 +113,9 @@ namespace osu.Game.Tournament
             GlobalCursorDisplay.MenuCursor.Alpha = 0;
 
             base.LoadComplete();
+
+            // Use an initial title first.
+            Host.Window.Title = $"{WINDOW_TITLE} - {Version}";
 
             #region Localisation Initialization
 
@@ -285,6 +290,9 @@ namespace osu.Game.Tournament
                 bracketLoadTaskCompletionSource.SetResult(true);
 
                 progressPopup.SetTaskCompleted();
+
+                // Update the title with the tournament name.
+                Host.Window.Title = $"{WINDOW_TITLE} - {storage.CurrentTournament.Value}@{Version}";
             });
         }
 
