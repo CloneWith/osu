@@ -115,7 +115,8 @@ namespace osu.Game.Tournament
             base.LoadComplete();
 
             // Use an initial title first.
-            Host.Window.Title = $"{WINDOW_TITLE} - {Version}";
+            if (Host.Window != null)
+                Host.Window.Title = $"{WINDOW_TITLE} - {Version}";
 
             #region Localisation Initialization
 
@@ -292,7 +293,8 @@ namespace osu.Game.Tournament
                 progressPopup.SetTaskCompleted();
 
                 // Update the title with the tournament name.
-                Host.Window.Title = $"{WINDOW_TITLE} - {storage.CurrentTournament.Value}@{Version}";
+                if (Host.Window != null)
+                    Host.Window.Title = $"{WINDOW_TITLE} - {storage.CurrentTournament.Value}@{Version}";
             });
         }
 
