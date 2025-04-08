@@ -107,7 +107,7 @@ namespace osu.Game.Screens.Menu
         private SongTicker songTicker;
         private Container logoTarget;
         private OnlineMenuBanner onlineMenuBanner;
-        private MenuTip menuTip;
+        private MenuTipDisplay menuTipDisplay;
         private FillFlowContainer bottomElementsFlow;
         private SupporterDisplay supporterDisplay;
 
@@ -193,7 +193,7 @@ namespace osu.Game.Screens.Menu
                     Spacing = new Vector2(5),
                     Children = new Drawable[]
                     {
-                        menuTip = new MenuTip
+                        menuTipDisplay = new MenuTipDisplay
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
@@ -208,8 +208,8 @@ namespace osu.Game.Screens.Menu
                 supporterDisplay = new SupporterDisplay
                 {
                     Margin = new MarginPadding(5),
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
+                    Anchor = Anchor.TopLeft,
+                    Origin = Anchor.TopLeft,
                 },
                 holdToExitGameOverlay?.CreateProxy() ?? Empty()
             });
@@ -393,7 +393,7 @@ namespace osu.Game.Screens.Menu
             musicController.EnsurePlayingSomething();
 
             // Cycle tip on resuming
-            menuTip.ShowNextTip();
+            menuTipDisplay.ShowNextTip();
 
             bottomElementsFlow
                 .ScaleTo(1, 1000, Easing.OutQuint)
