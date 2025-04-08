@@ -6,6 +6,7 @@ on:
     inputs:
       profile:
         description: 'Build Profile'
+        type: choice
         required: true
         default: 'Release'
         options:
@@ -46,13 +47,18 @@ jobs:
 
       - name: Update version number (Windows)
         if: ${{ matrix.os.fullname == 'windows-latest' }}
-        run: powershell -ExecutionPolicy Bypass -File ./SetProjectVersion.ps1 ${{ inputs.version }}
+        run: pwsh -ExecutionPolicy Bypass -File ./SetProjectVersion.ps1 ${{ inputs.version }}
 
       - name: Compile
         run: dotnet build -c ${{inputs.profile}} osu.Desktop.slnf
 
-      - name: Compress build output as ZIP file
+      - name: Compress build output (Linux)
+        if: ${{ matrix.os.fullname == 'ubuntu-latest' }}
         run: zip -r build-output.zip ./osu.Desktop/bin/${{ inputs.profile }}/
+
+      - name: Compress build output (Windows)
+        if: ${{ matrix.os.fullname == 'windows-latest' }}
+        run: pwsh -Command "Compress-Archive -Path ./osu.Desktop/bin/${{ inputs.profile }}/ -DestinationPath build-output.zip"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
