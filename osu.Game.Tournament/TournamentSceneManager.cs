@@ -96,7 +96,7 @@ namespace osu.Game.Tournament
         }
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(TournamentGameBase gameBase)
         {
             InternalChildren = new Drawable[]
             {
@@ -174,6 +174,8 @@ namespace osu.Game.Tournament
                             ScrollbarVisible = false,
                             Child = buttons = new FillFlowContainer
                             {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
@@ -202,6 +204,23 @@ namespace osu.Game.Tournament
                                     new Separator(),
                                     new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
                                     new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
+                                    new Separator(),
+                                    new TournamentSpriteText
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        Text = BaseStrings.ClientName,
+                                        Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
+                                        Colour = colourProvider.Colour1,
+                                    },
+                                    new TournamentSpriteText
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        Text = gameBase.Version,
+                                        Font = OsuFont.GetFont(size: 18, weight: FontWeight.SemiBold),
+                                        Margin = new MarginPadding { Bottom = 5 },
+                                    },
                                 }
                             }
                         },
@@ -307,6 +326,8 @@ namespace osu.Game.Tournament
         {
             public Separator()
             {
+                Anchor = Anchor.TopCentre;
+                Origin = Anchor.TopCentre;
                 RelativeSizeAxes = Axes.X;
                 Height = 5;
             }
@@ -321,6 +342,9 @@ namespace osu.Game.Tournament
 
             public ScreenButton(Type type, Key? shortcutKey = null)
             {
+                Anchor = Anchor.TopCentre;
+                Origin = Anchor.TopCentre;
+
                 this.shortcutKey = shortcutKey;
                 Height = 46;
 
