@@ -120,7 +120,7 @@ namespace osu.Game
 
         public bool IsDeployedBuild => AssemblyVersion.Major > 0;
 
-        internal const string BUILD_SUFFIX = "lazer";
+        internal const string BUILD_SUFFIX = "offc";
 
         public virtual string Version
         {
