@@ -33,6 +33,7 @@ using osu.Framework.Bindables;
 using osu.Game.Graphics.Containers;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
+using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components.Animations;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Screens.Countdown;
@@ -183,6 +184,15 @@ namespace osu.Game.Tournament
                                 Padding = new MarginPadding(5),
                                 Children = new Drawable[]
                                 {
+                                    new ToolbarClock
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        AutoSizeAxes = Axes.X,
+                                        RelativeSizeAxes = Axes.None,
+                                        Height = 50,
+                                        Scale = new Vector2(1.25f),
+                                    },
                                     new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
                                     new Separator(),
                                     new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
