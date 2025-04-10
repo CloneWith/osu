@@ -26,6 +26,7 @@ namespace osu.Game.Tournament.Screens.Board
 {
     public partial class BoardScreen : TournamentMatchScreen
     {
+        private const float board_size = 570;
         private readonly List<BoardBeatmapPanel> boardMapList = new List<BoardBeatmapPanel>();
 
         [Resolved]
@@ -121,7 +122,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.Y,
-                            Width = 570,
+                            Width = board_size,
                             Children = new Drawable[]
                             {
                                 new Container
@@ -130,7 +131,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
-                                    Height = 570,
+                                    Height = board_size,
                                     // 有实际内容后删除
                                     Child = new EmptyBox(10)
                                     {
