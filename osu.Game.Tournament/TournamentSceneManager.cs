@@ -297,35 +297,36 @@ namespace osu.Game.Tournament
 
             var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
 
-            switch (currentScreen)
+            chatContainer.FadeOut(TournamentScreen.FADE_DELAY / 2);
+
+            using (chatContainer.BeginDelayedSequence(TournamentScreen.FADE_DELAY / 2))
             {
-                case MapPoolScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
-                    chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144), 500, Easing.OutQuint);
-                    chat.ChangeRadius(0);
-                    break;
+                switch (currentScreen)
+                {
+                    case MapPoolScreen:
+                        chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
+                        chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH);
+                        chatContainer.ResizeHeightTo(144);
+                        chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144));
+                        chat.ChangeRadius(0);
+                        break;
 
-                case GameplayScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(144, 500, Easing.OutQuint);
-                    chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200), 500, Easing.OutQuint);
-                    chat.ChangeRadius(0);
-                    break;
+                    case GameplayScreen:
+                        chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
+                        chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f);
+                        chatContainer.ResizeHeightTo(144);
+                        chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200));
+                        chat.ChangeRadius(0);
+                        break;
 
-                case BoardScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
-                    chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
-                    chat.ChangeRadius(10);
-                    break;
-
-                default:
-                    chatContainer.FadeOut(TournamentScreen.FADE_DELAY);
-                    break;
+                    case BoardScreen:
+                        chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
+                        chatContainer.MoveTo(new Vector2(30, 100 + 466));
+                        chatContainer.ResizeWidthTo(350);
+                        chatContainer.ResizeHeightTo(192);
+                        chat.ChangeRadius(10);
+                        break;
+                }
             }
 
             foreach (var s in buttons.OfType<ScreenButton>())
