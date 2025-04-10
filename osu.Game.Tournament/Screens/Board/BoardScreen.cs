@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Textures;
@@ -49,8 +50,6 @@ namespace osu.Game.Tournament.Screens.Board
 
         private DialogOverlay dialogOverlay = null!;
 
-        private const int side_list_height = 660;
-
         private ScheduledDelegate? scheduledScreenChange;
 
         [BackgroundDependencyLoader]
@@ -67,6 +66,112 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.Both,
                 },
                 new FumoMatchHeader(),
+
+                new Container
+                {
+                    Name = "Main Container", // without header
+                    Padding = new MarginPadding { Top = 100, Left = 30, Bottom = 10, Right = 30 },
+                    RelativeSizeAxes = Axes.Both,
+                    Children = new Drawable[]
+                    {
+                        new Container
+                        {
+                            Name = "Left Side",
+                            Anchor = Anchor.TopLeft,
+                            Origin = Anchor.TopLeft,
+                            Width = 350,
+                            RelativeSizeAxes = Axes.Y,
+                            Children = new Drawable[]
+                            {
+                                new Container
+                                {
+                                    Name = "还没想好这里放什么",
+                                    Anchor = Anchor.TopLeft,
+                                    Origin = Anchor.TopLeft,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Height = 0.7f,
+                                    Padding = new MarginPadding { Bottom = 5f },
+                                    Child = new EmptyBox(10)
+                                    {
+                                        Colour = Color4Extensions.FromHex("#454545"),
+                                        Alpha = 0.74f,
+                                        RelativeSizeAxes = Axes.Both,
+                                    }
+                                },
+                                new Container
+                                {
+                                    Name = "chat container",
+                                    Anchor = Anchor.BottomLeft,
+                                    Origin = Anchor.BottomLeft,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Height = 0.3f,
+                                    Padding = new MarginPadding { Top = 5f },
+                                    Child = new EmptyBox(10)
+                                    {
+                                        Colour = Color4Extensions.FromHex("#454545"),
+                                        Alpha = 0.74f,
+                                        RelativeSizeAxes = Axes.Both,
+                                    }
+                                },
+                            }
+                        },
+                        new Container
+                        {
+                            Name = "Centre",
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 570,
+                            Children = new Drawable[]
+                            {
+                                new Container
+                                {
+                                    Name = "Board Container",
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    Height = 570,
+                                    // 有实际内容后删除
+                                    Child = new EmptyBox(10)
+                                    {
+                                        Colour = Color4Extensions.FromHex("#454545"),
+                                        Alpha = 0.74f,
+                                        RelativeSizeAxes = Axes.Both,
+                                    }
+                                },
+                                new Container
+                                {
+                                    Name = "EX message",
+                                    Anchor = Anchor.BottomCentre,
+                                    Origin = Anchor.BottomCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    Height = 80,
+                                    Child = new EmptyBox(10)
+                                    {
+                                        Colour = Color4Extensions.FromHex("#454545"),
+                                        Alpha = 0.74f,
+                                        RelativeSizeAxes = Axes.Both,
+                                    }
+                                }
+                            }
+                        },
+                        new Container
+                        {
+                            Name = "right (aka 棋池)",
+                            Anchor = Anchor.TopRight,
+                            Origin = Anchor.TopRight,
+                            RelativeSizeAxes = Axes.Y,
+                            Width = 350,
+                            // 有实际内容后删除
+                            Child = new EmptyBox(10)
+                            {
+                                Colour = Color4Extensions.FromHex("#454545"),
+                                Alpha = 0.74f,
+                                RelativeSizeAxes = Axes.Both,
+                            }
+                        }
+                    }
+                },
 
                 warningContainer = new Container
                 {
