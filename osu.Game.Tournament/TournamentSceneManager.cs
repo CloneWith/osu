@@ -295,8 +295,6 @@ namespace osu.Game.Tournament
             currentScreen.Show();
             currentScreen.FirstSelected();
 
-            var team1List = new DrawableTeamPlayerList(middle.LadderInfo.CurrentMatch.Value?.Team1.Value);
-
             chatContainer.FadeOut(TournamentScreen.FADE_DELAY / 2);
 
             using (chatContainer.BeginDelayedSequence(TournamentScreen.FADE_DELAY / 2))
