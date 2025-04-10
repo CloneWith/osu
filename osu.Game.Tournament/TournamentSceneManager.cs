@@ -66,14 +66,7 @@ namespace osu.Game.Tournament
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
-        private Container chatContainer = new Container
-        {
-            Anchor = Anchor.TopLeft,
-            Origin = Anchor.TopLeft,
-            RelativeSizeAxes = Axes.None,
-            Width = STREAM_AREA_WIDTH,
-            Height = 480,
-        };
+        private Container chatContainer = null!;
 
         private FillFlowContainer buttons = null!;
 
