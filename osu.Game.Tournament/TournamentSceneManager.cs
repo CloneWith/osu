@@ -58,7 +58,19 @@ namespace osu.Game.Tournament
 
         public const int REQUIRED_WIDTH = CONTROL_AREA_WIDTH * 2 + STREAM_AREA_WIDTH;
 
-        public bool IsChatShown = true;
+        public bool ShowChat
+        {
+            get => showChat;
+            set
+            {
+                showChat = value;
+
+                if (currentScreen is GameplayScreen)
+                    chatContainer.MoveToY(value ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200, 500, Easing.OutQuint);
+            }
+        }
+
+        private bool showChat = true;
 
         [Cached]
         private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
@@ -69,8 +81,6 @@ namespace osu.Game.Tournament
         private Container chatContainer = null!;
 
         private FillFlowContainer buttons = null!;
-
-        private TournamentScreen middle = null!;
 
         public TournamentSceneManager()
         {
@@ -120,7 +130,7 @@ namespace osu.Game.Tournament
                         screens = new Container<TournamentScreen>
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Children = new[]
+                            Children = new TournamentScreen[]
                             {
                                 new SetupScreen(),
                                 new ScheduleScreen(),
@@ -136,7 +146,7 @@ namespace osu.Game.Tournament
                                 new DrawingsScreen(),
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
-                                middle = new BoardScreen(),
+                                new BoardScreen(),
                             }
                         },
                         chatContainer = new Container
@@ -306,7 +316,7 @@ namespace osu.Game.Tournament
                         chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
                         chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f);
                         chatContainer.ResizeHeightTo(144);
-                        chatContainer.MoveTo(new Vector2(0, IsChatShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200));
+                        chatContainer.MoveTo(new Vector2(0, showChat ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200));
                         chat.ChangeRadius(0);
                         break;
 
@@ -408,27 +418,6 @@ namespace osu.Game.Tournament
 
             public Action<Type>? RequestSelection;
         }
-
-        public void UpdateChatState(bool isShown)
-        {
-            IsChatShown = isShown;
-
-            switch (currentScreen)
-            {
-                case GameplayScreen:
-                    chatContainer.MoveToY(isShown ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200, 500, Easing.OutQuint);
-                    break;
-
-                default:
-                    return;
-            }
-        }
-
-        public void HideShowChat(int duration) =>
-            chatContainer.Delay(1500).FadeTo(0.6f, duration, Easing.OutQuint)
-                         .Then().Delay(5700).FadeIn(duration, Easing.OutQuint);
-
-        public void ShowChat(int duration) => chatContainer.FadeIn(duration, Easing.OutQuint);
 
         public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral) => queueAnimation(new TournamentIntro(map, colour)
         {
