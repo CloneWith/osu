@@ -20,12 +20,8 @@ namespace osu.Game.Tournament.Components
 
         public EmptyBox(int cornerRadius = 0)
         {
-            Width = 250;
-            Height = 250;
-
             Masking = true;
             CornerRadius = cornerRadius;
-            // CornerExponent = 5;
 
             InternalChildren = new Drawable[]
             {
