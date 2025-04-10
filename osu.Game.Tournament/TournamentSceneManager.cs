@@ -288,9 +288,9 @@ namespace osu.Game.Tournament
 
                 case BoardScreen:
                     chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.MoveTo(new Vector2(40, team1List.GetHeight() + 100), 500, Easing.OutQuint);
-                    chatContainer.ResizeWidthTo(300, 500, Easing.OutQuint);
-                    chatContainer.ResizeHeightTo(660 - team1List.GetHeight() - 5, 500, Easing.OutQuint);
+                    chatContainer.MoveTo(new Vector2(30, 100 + 466), 500, Easing.OutQuint);
+                    chatContainer.ResizeWidthTo(350, 500, Easing.OutQuint);
+                    chatContainer.ResizeHeightTo(192, 500, Easing.OutQuint);
                     chat.ChangeRadius(10);
                     break;
 
