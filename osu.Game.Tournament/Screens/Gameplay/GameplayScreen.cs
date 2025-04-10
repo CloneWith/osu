@@ -93,6 +93,15 @@ namespace osu.Game.Tournament.Screens.Gameplay
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.TopCentre,
                 },
+                chatBackground = new EmptyBox
+                {
+                    Name = "chat Background",
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    RelativeSizeAxes = Axes.X,
+                    Width = 0.5f,
+                    Height = 144,
+                },
                 new ControlPanel(true)
                 {
                     Children = new Drawable[]
@@ -182,6 +191,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
         private TourneyState lastState;
         private MatchHeader header = null!;
+        private EmptyBox chatBackground = null!;
 
         private void contract()
         {
@@ -193,6 +203,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             SongBar.Expanded = false;
             scoreDisplay.FadeOut(100);
             sceneManager?.UpdateChatState(true);
+            chatBackground.MoveToY(0, 500, Easing.OutQuint);
         }
 
         private void expand()
@@ -203,6 +214,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             scheduledContract?.Cancel();
 
             sceneManager?.UpdateChatState(false);
+            chatBackground.MoveToY(200, 500, Easing.OutQuint);
 
             using (BeginDelayedSequence(300))
             {

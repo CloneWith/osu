@@ -411,6 +411,8 @@ namespace osu.Game.Tournament
 
         public void UpdateChatState(bool isShown)
         {
+            IsChatShown = isShown;
+
             switch (currentScreen)
             {
                 case GameplayScreen:
