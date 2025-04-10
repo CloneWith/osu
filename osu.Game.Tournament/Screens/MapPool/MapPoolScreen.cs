@@ -61,6 +61,15 @@ namespace osu.Game.Tournament.Screens.MapPool
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                 },
+                new EmptyBox
+                {
+                    Name = "chat Background",
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    RelativeSizeAxes = Axes.X,
+                    Alpha = 0.8f,
+                    Height = 144,
+                },
                 new ControlPanel(true)
                 {
                     Children = new Drawable[]
