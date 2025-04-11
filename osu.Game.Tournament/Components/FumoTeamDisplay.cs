@@ -54,7 +54,7 @@ namespace osu.Game.Tournament.Components
                 teamSeed.BindTo(team.Seed);
             }
 
-            var anchor = colour == TeamColour.Red ? Anchor.CentreLeft : Anchor.CentreRight;
+            var anchor = colour == TeamColour.Red ? Anchor.TopLeft : Anchor.TopRight;
 
             AutoSizeAxes = Axes.Both;
             Direction = FillDirection.Horizontal;
