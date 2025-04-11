@@ -28,7 +28,7 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private LadderInfo ladderInfo { get; set; } = null!;
 
-        public TournamentMatchChatDisplay(float cornerRadius = 0, bool autoSizeY = false, bool relativeSizeY = false, float bkgAlpha = 0.7f)
+        public TournamentMatchChatDisplay(float cornerRadius = 0, bool autoSizeY = false, bool relativeSizeY = false, float bkgAlpha = 0)
         {
             AutoSizeAxes = autoSizeY ? Axes.Y : Axes.None;
             RelativeSizeAxes = relativeSizeY ? Axes.Both : Axes.X;
