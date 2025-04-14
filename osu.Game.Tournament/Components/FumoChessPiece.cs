@@ -47,7 +47,10 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
+            ModColourScheme colourScheme = ModColours.FromModString(ModName);
+
             Texture? borderTexture = textures.Get(@"Board/chess-border");
+            Texture? specialMask = textures.Get(@"Board/special-mask");
             Texture? chessIcon = textures.Get(@$"Board/{ModName}{ModIndex}")
                                  ?? textures.Get(@$"Board/{ModName}");
 
@@ -59,8 +62,8 @@ namespace osu.Game.Tournament.Components
                 Radius = 3,
             };
 
-            InternalChildren = new Drawable[]
-            {
+            InternalChildren =
+            [
                 borderTexture == null
                     ? new Box
                     {
@@ -75,6 +78,7 @@ namespace osu.Game.Tournament.Components
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
+                    Scale = borderTexture != null ? Vector2.One : new Vector2(0.8f),
                     Children = new Drawable[]
                     {
                         new Circle
@@ -82,15 +86,15 @@ namespace osu.Game.Tournament.Components
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Colour = FumoColours.SunshineYellow.Darkest,
+                            Colour = colourScheme.Background,
                         },
                         new Triangles
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            ColourLight = FumoColours.SunshineYellow.Dark,
-                            ColourDark = FumoColours.SunshineYellow.Darker,
+                            ColourLight = colourScheme.TriangleLight,
+                            ColourDark = colourScheme.TriangleDark,
                             TriangleScale = 1.25f,
                             Velocity = 0.75f,
                         },
@@ -104,11 +108,12 @@ namespace osu.Game.Tournament.Components
                         },
                         new Sprite
                         {
+                            Name = @"Chess icon",
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Texture = chessIcon,
+                            FillMode = FillMode.Fit,
                             Size = new Vector2(64),
-                            Colour = FumoColours.SunshineYellow.Regular,
                         },
                     },
                 },
@@ -123,7 +128,7 @@ namespace osu.Game.Tournament.Components
                         Texture = borderTexture,
                     }
                     : Empty(),
-            };
+            ];
         }
     }
 }
