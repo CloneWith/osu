@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -19,16 +20,18 @@ namespace osu.Game.Tournament.Components
         private const int loop_anim_duration = 1500;
         private const int loop_delay = 3000;
 
-        private readonly Bindable<string> teamName = new Bindable<string>("Unknown Team");
-        private readonly Bindable<string> teamSeed = new Bindable<string>("#?");
+        private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
+        private readonly Bindable<TournamentTeam?> currentTeam = new Bindable<TournamentTeam?>();
 
         private bool isActive;
+        private readonly TeamColour colour;
 
-        private readonly OsuSpriteText teamNameText;
-        private readonly OsuSpriteText teamSeedText;
-        private readonly Circle nameHeader;
-        private readonly Box colourMask;
-        private readonly SpriteIcon activeIcon;
+        private Container flagContainer = null!;
+        private OsuSpriteText teamNameText = null!;
+        private OsuSpriteText teamSeedText = null!;
+        private Circle nameHeader = null!;
+        private Box colourMask = null!;
+        private SpriteIcon activeIcon = null!;
 
         /// <summary>
         /// Is the specified team in an active state.
@@ -46,15 +49,20 @@ namespace osu.Game.Tournament.Components
             }
         }
 
-        public FumoTeamDisplay(TournamentTeam? team, TeamColour colour)
+        public FumoTeamDisplay(TeamColour colour)
         {
-            if (team != null)
-            {
-                teamName.BindTo(team.FullName);
-                teamSeed.BindTo(team.Seed);
-            }
+            this.colour = colour;
+        }
 
-            var anchor = colour == TeamColour.Red ? Anchor.CentreLeft : Anchor.CentreRight;
+        [BackgroundDependencyLoader]
+        private void load(LadderInfo ladder)
+        {
+            currentMatch.BindTo(ladder.CurrentMatch);
+            currentMatch.BindValueChanged(matchChanged);
+
+            currentTeam.BindValueChanged(teamChanged);
+
+            var anchor = colour == TeamColour.Red ? Anchor.TopLeft : Anchor.TopRight;
 
             AutoSizeAxes = Axes.Both;
             Direction = FillDirection.Horizontal;
@@ -70,10 +78,15 @@ namespace osu.Game.Tournament.Components
                     Masking = true,
                     Children = new Drawable[]
                     {
-                        new DrawableTeamFlag(team)
+                        flagContainer = new Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
+                            Child = new DrawableTeamFlag(currentTeam.Value)
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                            },
                         },
                         colourMask = new Box
                         {
@@ -128,14 +141,45 @@ namespace osu.Game.Tournament.Components
                     },
                 },
             };
+
+            updateMatch();
         }
 
-        protected override void LoadComplete()
+        private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            base.LoadComplete();
+            currentTeam.UnbindBindings();
+            Scheduler.AddOnce(updateMatch);
+        }
 
-            teamName.BindValueChanged(name => teamNameText.Text = name.NewValue, true);
-            teamSeed.BindValueChanged(seed => teamSeedText.Text = seed.NewValue, true);
+        private void teamChanged(ValueChangedEvent<TournamentTeam?> team)
+        {
+            // We also need to subscribe to relevant data changes.
+            team.NewValue?.FullName.BindValueChanged(_ => currentTeam.TriggerChange());
+            team.NewValue?.FlagName.BindValueChanged(_ => currentTeam.TriggerChange());
+            team.NewValue?.Seed.BindValueChanged(_ => currentTeam.TriggerChange());
+
+            teamNameText.Text = team.NewValue?.FullName.Value ?? "Unknown Team";
+            teamSeedText.Text = team.NewValue?.Seed.Value ?? "#?";
+            flagContainer.Child = new DrawableTeamFlag(team.NewValue)
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+            };
+        }
+
+        private void updateMatch()
+        {
+            var match = currentMatch.Value;
+
+            if (match != null)
+            {
+                match.StartMatch();
+                currentTeam.BindTo(colour == TeamColour.Red ? match.Team1 : match.Team2);
+            }
+
+            // team may change to same team, which means score is not in a good state.
+            // thus we handle this manually.
+            currentTeam.TriggerChange();
         }
 
         protected void Activate()
