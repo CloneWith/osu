@@ -8,10 +8,12 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Input.Events;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osuTK;
 using osuTK.Graphics;
+using osuTK.Input;
 
 namespace osu.Game.Tournament.Components
 {
@@ -29,6 +31,13 @@ namespace osu.Game.Tournament.Components
         /// The index of the chess in its mod category.
         /// </summary>
         public readonly string ModIndex;
+
+        /// <summary>
+        /// Triggered when the chess piece is requested to be removed (typically via user interaction).
+        /// </summary>
+        public event ChessRemovalHandler? OnRemovalRequested;
+
+        public delegate void ChessRemovalHandler(string mod, string index);
 
         /// <summary>
         /// Constructs a chess piece.
@@ -141,6 +150,29 @@ namespace osu.Game.Tournament.Components
                     }
                     : Empty(),
             ];
+        }
+
+        /// <summary>
+        /// Remove this chess piece and do proper cleaning.
+        /// </summary>
+        public void Remove()
+        {
+            OnRemovalRequested?.Invoke(ModName, ModIndex);
+
+            this.ScaleTo(1.5f, 500, Easing.OutQuint);
+            this.FadeOut(400, Easing.OutQuint);
+            Expire();
+        }
+
+        protected override bool OnMouseDown(MouseDownEvent e)
+        {
+            if (e.Button == MouseButton.Right)
+            {
+                Remove();
+                return true;
+            }
+
+            return base.OnMouseDown(e);
         }
     }
 }
