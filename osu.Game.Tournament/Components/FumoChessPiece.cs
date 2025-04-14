@@ -44,6 +44,14 @@ namespace osu.Game.Tournament.Components
             Width = 100;
         }
 
+        /// <summary>
+        /// Constructs a chess piece with no mod information, usually for empty chess pieces or test purposes.
+        /// </summary>
+        public FumoChessPiece()
+            : this(string.Empty, string.Empty)
+        {
+        }
+
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Components;
@@ -21,9 +22,30 @@ namespace osu.Game.Tournament.Tests.Components
             new KeyValuePair<string, List<int>>("FM", [1, 2, 3, 4, 5]),
         ];
 
-        public TestSceneChessPiece()
+        [Test]
+        public void TestDefaultConstructor()
+        {
+            AddStep("Add empty chess piece", () =>
+            {
+                Clear();
+                Add(new FumoChessPiece
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                });
+            });
+        }
+
+        [Test]
+        public void TestNormalModIcons()
+        {
+            AddStep("Add mod icons", addNormalModIcons);
+        }
+
+        private void addNormalModIcons()
         {
             FillFlowContainer iconFlow;
+            Clear();
 
             Add(iconFlow = new FillFlowContainer
             {
@@ -44,8 +66,8 @@ namespace osu.Game.Tournament.Tests.Components
                     Spacing = new Vector2(15),
                     ChildrenEnumerable = modPair.Value.Select(i => new FumoChessPiece(modPair.Key, i.ToString())
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
                     }),
                 });
             }
