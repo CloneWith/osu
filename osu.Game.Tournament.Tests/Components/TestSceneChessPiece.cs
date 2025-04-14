@@ -1,7 +1,10 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Components;
 using osuTK;
 
@@ -9,17 +12,43 @@ namespace osu.Game.Tournament.Tests.Components
 {
     public partial class TestSceneChessPiece : TournamentTestScene
     {
-        private readonly FumoChessPiece chessPiece;
+        private readonly List<KeyValuePair<string, List<int>>> availableMods =
+        [
+            new KeyValuePair<string, List<int>>("NM", [1, 2, 3, 4, 5]),
+            new KeyValuePair<string, List<int>>("HD", [1, 2, 3]),
+            new KeyValuePair<string, List<int>>("HR", [1, 2, 3]),
+            new KeyValuePair<string, List<int>>("DT", [1, 2, 3, 4]),
+            new KeyValuePair<string, List<int>>("FM", [1, 2, 3, 4, 5]),
+        ];
 
         public TestSceneChessPiece()
         {
-            Add(chessPiece = new FumoChessPiece("HR", "1"));
-        }
+            FillFlowContainer iconFlow;
 
-        [Test]
-        public void TestChessBorderOffset()
-        {
-            AddSliderStep("Scale", 0.5f, 3f, 1f, v => chessPiece.Scale = new Vector2(v));
+            Add(iconFlow = new FillFlowContainer
+            {
+                AutoSizeAxes = Axes.Both,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(15),
+            });
+
+            foreach (var modPair in availableMods)
+            {
+                iconFlow.Add(new FillFlowContainer
+                {
+                    Name = @$"{modPair.Key} mod icons",
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(15),
+                    ChildrenEnumerable = modPair.Value.Select(i => new FumoChessPiece(modPair.Key, i.ToString())
+                    {
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                    }),
+                });
+            }
         }
     }
 }
