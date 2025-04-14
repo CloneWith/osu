@@ -98,13 +98,15 @@ namespace osu.Game.Tournament.Components
                             TriangleScale = 1.25f,
                             Velocity = 0.75f,
                         },
-                        new Circle
+                        new Sprite
                         {
-                            Name = "Dim mask",
+                            Name = @"Special mask",
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Color4.Black.Opacity(0.6f),
+                            Texture = specialMask,
+                            FillMode = FillMode.Fit,
+                            Colour = colourScheme.Accent.Opacity(0.3f),
                         },
                         new Sprite
                         {
@@ -114,6 +116,7 @@ namespace osu.Game.Tournament.Components
                             Texture = chessIcon,
                             FillMode = FillMode.Fit,
                             Size = new Vector2(64),
+                            Colour = colourScheme.Accent,
                         },
                     },
                 },
