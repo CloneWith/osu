@@ -38,7 +38,7 @@ namespace osu.Game.Tournament.Components
             AutoSizeAxes = Axes.Both;
             Masking = true;
             CornerRadius = 10;
-            Alpha = 1;
+            Alpha = 0;
             AlwaysPresent = true;
 
             InternalChildren = new Drawable[]
