@@ -6,7 +6,6 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
-using osu.Game.Graphics.UserInterfaceFumo;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
@@ -27,18 +26,6 @@ namespace osu.Game.Tournament.Components
             set => Background.Colour = value;
         }
 
-        public new Color4 BorderColour
-        {
-            get => Background.BorderColour;
-            set => Background.BorderColour = value;
-        }
-
-        public new float BorderThickness
-        {
-            get => Background.BorderThickness;
-            set => Background.BorderThickness = value;
-        }
-
         protected readonly Circle Background;
 
         public FumoSpriteText(
@@ -46,22 +33,26 @@ namespace osu.Game.Tournament.Components
             Color4? backgroundColor = null, Color4? textColor = null, FontWeight? textWeight = FontWeight.SemiBold)
         {
             AutoSizeAxes = Axes.Both;
+            Masking = true;
 
             InternalChildren = new Drawable[]
             {
                 Background = new Circle
                 {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
                     Colour = backgroundColor.IsNotNull() ? backgroundColor.Value : Color4.White,
-                    BorderColour = FumoColours.SeaBlue.Regular,
-                    BorderThickness = 2,
                     RelativeSizeAxes = Axes.Both,
                 },
                 Text = new TournamentSpriteText
                 {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
                     Colour = textColor.IsNotNull() ? textColor.Value : Color4.Black,
                     Font = OsuFont.Torus.With(weight: textWeight, size: fontSize),
                     Padding = new MarginPadding { Horizontal = 50, Vertical = 10 },
                     Text = text,
+                    Shadow = false,
                 }
             };
         }

@@ -4,9 +4,11 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Gameplay.Components
 {
@@ -16,6 +18,9 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
 
         public MatchRoundDisplay()
         {
+            BorderColour = Color4.White;
+            BackgroundColour = FumoColours.SeaBlue.Regular;
+            TextColour = Color4.White;
             BorderThickness = 5;
             Text.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 72);
         }
