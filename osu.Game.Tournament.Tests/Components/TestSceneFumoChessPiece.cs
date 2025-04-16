@@ -7,11 +7,12 @@ using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Models;
 using osuTK;
 
 namespace osu.Game.Tournament.Tests.Components
 {
-    public partial class TestSceneChessPiece : TournamentTestScene
+    public partial class TestSceneFumoChessPiece : TournamentTestScene
     {
         private readonly List<KeyValuePair<string, List<int>>> availableMods =
         [
@@ -25,15 +26,25 @@ namespace osu.Game.Tournament.Tests.Components
         [Test]
         public void TestDefaultConstructor()
         {
+            FumoChessPiece piece = new FumoChessPiece
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+            };
+
             AddStep("Add empty chess piece", () =>
             {
                 Clear();
-                Add(new FumoChessPiece
+                Add(piece = new FumoChessPiece
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                 });
             });
+
+            AddStep("Set status to red win", () => piece.CurrentType = ChoiceType.RedWin);
+            AddStep("Set status to blue win", () => piece.CurrentType = ChoiceType.BlueWin);
+            AddStep("Set status to consumed", () => piece.CurrentType = ChoiceType.Consumed);
         }
 
         [Test]
