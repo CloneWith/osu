@@ -75,7 +75,7 @@ namespace osu.Game.Tournament.Components
         public delegate void ChessRemovalHandler(string mod, string index);
 
         [Resolved]
-        private TextureStore? textures { get; set; }
+        private TextureStore textures { get; set; } = null!;
 
         private ModColourScheme colourScheme = ModColours.Empty;
 
@@ -115,10 +115,10 @@ namespace osu.Game.Tournament.Components
         {
             colourScheme = ModColours.FromModString(ModName);
 
-            Texture? borderTexture = textures?.Get(@"Board/chess-border");
-            Texture? specialTexture = textures?.Get(@"Board/special-mask");
-            chessIcon = textures?.Get(@$"Board/{ModName}{ModIndex}")
-                        ?? textures?.Get(@$"Board/{ModName}");
+            Texture? borderTexture = textures.Get(@"Board/chess-border");
+            Texture? specialTexture = textures.Get(@"Board/special-mask");
+            chessIcon = textures.Get(@$"Board/{ModName}{ModIndex}")
+                        ?? textures.Get(@$"Board/{ModName}");
 
             EdgeEffect = new EdgeEffectParameters
             {
@@ -200,6 +200,11 @@ namespace osu.Game.Tournament.Components
                     }
                     : Empty(),
             ];
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
 
             updateChess();
         }
@@ -218,6 +223,9 @@ namespace osu.Game.Tournament.Components
 
         private void updateChess()
         {
+            if (!IsLoaded)
+                return;
+
             if (currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed)
             {
                 ModColourScheme specialScheme = currentType switch
@@ -247,8 +255,8 @@ namespace osu.Game.Tournament.Components
 
             topIcon.Texture = currentType switch
             {
-                ChoiceType.RedWin or ChoiceType.BlueWin => textures?.Get(@"Board/chess-win"),
-                ChoiceType.Consumed => textures?.Get(@"Board/chess-consumed"),
+                ChoiceType.RedWin or ChoiceType.BlueWin => textures.Get(@"Board/chess-win"),
+                ChoiceType.Consumed => textures.Get(@"Board/chess-consumed"),
                 _ => chessIcon,
             };
 
