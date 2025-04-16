@@ -21,8 +21,8 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             BorderColour = Color4.White;
             BackgroundColour = FumoColours.SeaBlue.Regular;
             TextColour = Color4.White;
-            BorderThickness = 5;
-            Text.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 72);
+            BorderThickness = 3;
+            Text.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 55);
         }
 
         [BackgroundDependencyLoader]
