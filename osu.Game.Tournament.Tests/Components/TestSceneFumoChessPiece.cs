@@ -45,6 +45,7 @@ namespace osu.Game.Tournament.Tests.Components
             AddStep("Set status to red win", () => piece.CurrentType = ChoiceType.RedWin);
             AddStep("Set status to blue win", () => piece.CurrentType = ChoiceType.BlueWin);
             AddStep("Set status to consumed", () => piece.CurrentType = ChoiceType.Consumed);
+            AddStep("Reset status", () => piece.CurrentType = ChoiceType.Neutral);
         }
 
         [Test]

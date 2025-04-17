@@ -84,6 +84,7 @@ namespace osu.Game.Tournament.Components
         private Sprite topIcon = null!;
         private Sprite specialMask = null!;
         private Triangles triangles = null!;
+        private Box dimMask = null!;
 
         /// <summary>
         /// Constructs a chess piece.
@@ -199,6 +200,14 @@ namespace osu.Game.Tournament.Components
                         Texture = borderTexture,
                     }
                     : Empty(),
+                dimMask = new Box
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black,
+                    Alpha = 0,
+                }
             ];
         }
 
@@ -242,6 +251,7 @@ namespace osu.Game.Tournament.Components
                 topIcon.FadeColour(specialScheme.Accent, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourLight), specialScheme.TriangleLight, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourDark), specialScheme.TriangleDark, 500, Easing.OutQuint);
+                dimMask.FadeTo(currentType is ChoiceType.Consumed ? 0.3f : 0, 500, Easing.OutQuint);
             }
             else
             {
@@ -251,6 +261,7 @@ namespace osu.Game.Tournament.Components
                 topIcon.FadeColour(colourScheme.Accent, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourLight), colourScheme.TriangleLight, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourDark), colourScheme.TriangleDark, 500, Easing.OutQuint);
+                dimMask.FadeOut(500, Easing.OutQuint);
             }
 
             topIcon.Texture = currentType switch
