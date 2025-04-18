@@ -109,7 +109,7 @@ namespace osu.Game.Tournament.Components.Animations
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Shear = new Vector2(OsuGame.SHEAR, 0f),
+                    Shear = OsuGame.SHEAR,
                     Children = new Drawable[]
                     {
                         titleContainer = new Container
@@ -140,7 +140,7 @@ namespace osu.Game.Tournament.Components.Animations
                                             Origin = Anchor.Centre,
                                             Text = "You've picked...",
                                             Margin = new MarginPadding { Horizontal = 10f, Vertical = 5f },
-                                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                            Shear = -OsuGame.SHEAR,
                                             Font = OsuFont.GetFont(size: 32, weight: FontWeight.Light, typeface: Typeface.TorusAlternate),
                                         },
                                     }
@@ -166,7 +166,7 @@ namespace osu.Game.Tournament.Components.Animations
                                             Origin = Anchor.Centre,
                                             Text = $"...{mod}:",
                                             Margin = new MarginPadding { Horizontal = 10f, Vertical = 5f },
-                                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                            Shear = -OsuGame.SHEAR,
                                             Font = OsuFont.GetFont(size: 45, weight: FontWeight.SemiBold, typeface: Typeface.TorusAlternate),
                                             Colour = colourProvider.Background3,
                                         },
@@ -240,7 +240,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                 {
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
-                                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                                    Shear = -OsuGame.SHEAR,
                                                     MaxWidth = horizontal_info_size,
                                                     Text = map.Beatmap != null ? map.Beatmap.Metadata.GetDisplayTitleRomanisable(false) : "This beatmap!",
                                                     Padding = new MarginPadding { Horizontal = 5f },
@@ -251,7 +251,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Text = $"Difficulty: {(map.Beatmap != null ? map.Beatmap.DifficultyName : "A Random Difficulty")}",
                                                     Font = OsuFont.GetFont(size: 20, italics: true),
                                                     MaxWidth = horizontal_info_size,
-                                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                                    Shear = -OsuGame.SHEAR,
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                 },
@@ -260,13 +260,13 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Text = $"by {(map.Beatmap != null ? map.Beatmap.Metadata.Author.Username : "A Random Mapper")}",
                                                     Font = OsuFont.GetFont(size: 16, italics: true),
                                                     MaxWidth = horizontal_info_size,
-                                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                                    Shear = -OsuGame.SHEAR,
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                 },
                                                 new StarRatingDisplay(new StarDifficulty(map.Beatmap?.StarRating ?? 0, 0))
                                                 {
-                                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                                    Shear = -OsuGame.SHEAR,
                                                     Margin = new MarginPadding(5),
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
@@ -290,7 +290,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Origin = Anchor.BottomRight,
                                                     Icon = FontAwesome.Solid.Check,
                                                     Size = new Vector2(20),
-                                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                                    Shear = -OsuGame.SHEAR,
                                                     Colour = themeColour,
                                                 },
                                                 new TruncatingSpriteText
@@ -299,7 +299,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Font = OsuFont.GetFont(size: 16, italics: true),
                                                     MaxWidth = horizontal_info_size,
                                                     Colour = themeColour,
-                                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                                    Shear = -OsuGame.SHEAR,
                                                     Anchor = Anchor.BottomRight,
                                                     Origin = Anchor.BottomRight,
                                                 }
@@ -325,7 +325,7 @@ namespace osu.Game.Tournament.Components.Animations
                 Origin = Anchor.Centre,
                 FillMode = FillMode.Fit,
                 Scale = new Vector2(1.2f),
-                Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                Shear = -OsuGame.SHEAR,
             }, c =>
             {
                 beatmapBackground.Add(c);

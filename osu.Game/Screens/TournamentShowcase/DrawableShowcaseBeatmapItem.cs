@@ -37,7 +37,7 @@ using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
 using osu.Game.Screens.Ranking;
-using osu.Game.Screens.SelectV2.Leaderboards;
+using osu.Game.Screens.SelectV2;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
@@ -283,7 +283,7 @@ namespace osu.Game.Screens.TournamentShowcase
             recordScoreContainer.Clear();
 
             recordScoreContainer.Child = item.ShowcaseScore != null
-                ? new LeaderboardScoreV2(item.ShowcaseScore, false)
+                ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
                 {
                     ActionOnClick = () => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(item.ShowcaseScore)), [typeof(ShowcaseConfigScreen)])
                 }
@@ -456,7 +456,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Height = 0.5f,
                                 Y = 0.5f,
                                 Child = item.ShowcaseScore != null
-                                    ? new LeaderboardScoreV2(item.ShowcaseScore, false)
+                                    ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
                                     : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt),
                             }
                         },
