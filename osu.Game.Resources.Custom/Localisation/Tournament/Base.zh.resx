@@ -34,7 +34,7 @@
         <value>无法解析 {0} 文件。请查看 runtime.log 获取详情。</value>
     </data>
     <data name="aspect_ratio_warning" xml:space="preserve">
-        <value>请调整窗口宽高比，宽度至少应为 {0}。</value>
+        <value>请加宽窗口以便操作。</value>
     </data>
     <data name="control_panel" xml:space="preserve">
         <value>控制面板</value>
