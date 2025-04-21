@@ -114,4 +114,7 @@
     <data name="fetch_data" xml:space="preserve">
         <value>获取数据</value>
     </data>
+    <data name="unknown" xml:space="preserve">
+        <value>未知</value>
+    </data>
 </root>

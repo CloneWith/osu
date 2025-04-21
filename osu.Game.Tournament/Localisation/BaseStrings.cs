@@ -78,6 +78,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString FetchData => new TranslatableString(getKey(@"fetch_data"), @"Fetch Data");
 
         /// <summary>
+        /// "Unknown"
+        /// </summary>
+        public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
+
+        /// <summary>
         /// "Add New"
         /// </summary>
         public static LocalisableString AddNew => new TranslatableString(getKey(@"add_new"), @"Add New");

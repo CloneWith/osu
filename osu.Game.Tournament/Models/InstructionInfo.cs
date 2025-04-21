@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Tournament.Localisation;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Models
@@ -44,55 +45,56 @@ namespace osu.Game.Tournament.Models
 
             bool notDraw = team == TeamColour.Red || team == TeamColour.Blue;
 
-            teamPrompt = team == TeamColour.Red ? @"红队" : team == TeamColour.Blue ? @"蓝队" : string.Empty;
+            teamPrompt = team == TeamColour.Red ? BaseStrings.TeamRed
+                : team == TeamColour.Blue ? BaseStrings.TeamBlue : BaseStrings.Unknown;
 
             switch (RoundStep)
             {
                 case RoundStep.Ban:
-                    Name = @$"标记禁图·{teamPrompt}";
-                    Description = @"被禁止的图无法被选与设置陷阱。";
+                    Name = InstructionsStrings.BanName(teamPrompt);
+                    Description = InstructionsStrings.BanDescription;
                     Icon = FontAwesome.Solid.Ban;
                     IconColour = Color4.Orange;
                     break;
 
                 case RoundStep.Pick:
-                    Name = @$"标记选图·{teamPrompt}";
-                    Description = @"选择该轮要游玩的图。";
+                    Name = InstructionsStrings.PickName(teamPrompt);
+                    Description = InstructionsStrings.PickDescription;
                     Icon = FontAwesome.Solid.Check;
                     IconColour = new OsuColour().Green;
                     break;
 
                 case RoundStep.Win:
-                    Name = @$"胜方染色·{teamPrompt}";
-                    Description = @"此图所在格将染成获胜队颜色。";
+                    Name = InstructionsStrings.WinName(teamPrompt);
+                    Description = InstructionsStrings.WinDescription;
                     Icon = FontAwesome.Solid.Trophy;
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 case RoundStep.TieBreaker:
-                    Name = @"即将进入 EX 模式";
-                    Description = @"当前棋盘不足以任一方取胜，需要重新染色。";
+                    Name = InstructionsStrings.TieBreakerName;
+                    Description = InstructionsStrings.TieBreakerDescription;
                     Icon = FontAwesome.Solid.Bolt;
                     IconColour = Color4.Orange;
                     break;
 
                 case RoundStep.FinalWin:
-                    Name = notDraw ? @$"{teamPrompt}获胜！" : team == TeamColour.Neutral ? @"EX: 决胜局" : @"Do you want smoke?";
-                    Description = notDraw ? @$"恭喜{teamPrompt}获得最终胜利！" : team == TeamColour.Neutral ? @"我只是个笨蛋，也没有你聪明。" : @"来看看礼堂顶针？";
+                    Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : @"Do you want smoke?";
+                    Description = notDraw ? InstructionsStrings.FinalWinDescription : @"来看看礼堂顶针？";
                     Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
+                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 case RoundStep.Halt:
-                    Name = @"请稍候...";
-                    Description = @"等待裁判响应...";
+                    Name = InstructionsStrings.HaltName;
+                    Description = InstructionsStrings.HaltDescription;
                     Icon = FontAwesome.Solid.ExclamationCircle;
                     IconColour = Color4.Orange;
                     break;
 
                 default:
-                    Name = @"Welcome to the Fumo era!";
-                    Description = @"(ᗜˬᗜ)";
+                    Name = InstructionsStrings.DefaultName;
+                    Description = InstructionsStrings.DefaultDescription;
                     break;
             }
         }
