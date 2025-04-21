@@ -140,7 +140,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                             Origin = Anchor.CentreLeft,
                                             RelativeSizeAxes = Axes.X,
                                             Text = thisStep.Description,
-                                            Font = OsuFont.Torus.With(size: 30, weight: FontWeight.Regular),
+                                            Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Regular),
                                         },
                                     },
                                 },
