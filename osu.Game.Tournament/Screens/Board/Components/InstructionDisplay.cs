@@ -20,12 +20,37 @@ namespace osu.Game.Tournament.Screens.Board.Components
     /// </summary>
     public partial class InstructionDisplay : CompositeDrawable
     {
+        public TeamColour Team
+        {
+            get => thisStep.Team;
+            set
+            {
+                thisStep = new InstructionInfo(value, thisStep.RoundStep);
+                updateDisplay();
+            }
+        }
+
+        public RoundStep Step
+        {
+            get => thisStep.RoundStep;
+            set
+            {
+                thisStep = new InstructionInfo(thisStep.Team, value);
+                updateDisplay();
+            }
+        }
+
         public const float WIDTH = 500;
         public const float HEIGHT = 100;
 
-        private readonly InstructionInfo thisStep;
+        [Resolved]
+        private TextureStore? textures { get; set; }
+
+        private InstructionInfo thisStep;
 
         private readonly Container iconHolder;
+        private readonly TruncatingSpriteText stepName;
+        private readonly TruncatingSpriteText stepDescription;
 
         public InstructionDisplay(TeamColour team = TeamColour.Neutral, RoundStep roundStep = RoundStep.Default)
         {
@@ -66,7 +91,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         ],
                         ColumnDimensions =
                         [
-                            new Dimension(GridSizeMode.AutoSize),
+                            new Dimension(GridSizeMode.Absolute, 60),
                             new Dimension(GridSizeMode.Absolute, 30),
                             new Dimension(),
                         ],
@@ -101,7 +126,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
                                     {
-                                        new TruncatingSpriteText
+                                        stepName = new TruncatingSpriteText
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
@@ -109,27 +134,39 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                             Text = thisStep.Name,
                                             Font = OsuFont.Torus.With(size: 40, weight: FontWeight.SemiBold),
                                         },
-                                        new TruncatingSpriteText
+                                        stepDescription = new TruncatingSpriteText
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
                                             RelativeSizeAxes = Axes.X,
                                             Text = thisStep.Description,
                                             Font = OsuFont.Torus.With(size: 30, weight: FontWeight.Regular),
-                                        }
-                                    }
-                                }
+                                        },
+                                    },
+                                },
                             },
-                        }
+                        },
                     },
                 },
             };
         }
 
-        [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        protected override void LoadComplete()
         {
-            Texture? welcomeTexture = textures.Get("Icons/welcome-img");
+            base.LoadComplete();
+            updateDisplay();
+        }
+
+        private void updateDisplay()
+        {
+            if (!IsLoaded)
+                return;
+
+            iconHolder.FadeOut();
+            iconHolder.FadeIn(900, Easing.OutQuint);
+            iconHolder.ScaleTo(2f).Then().ScaleTo(1, 600, Easing.OutQuint);
+
+            Texture? welcomeTexture = textures?.Get("Icons/welcome-img");
 
             if (thisStep.RoundStep == RoundStep.Default && welcomeTexture != null)
             {
@@ -149,9 +186,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Origin = Anchor.CentreLeft,
                     Icon = thisStep.Icon,
                     Size = new Vector2(56),
-                    Colour = thisStep.IconColor,
+                    Colour = thisStep.IconColour,
                 };
             }
+
+            stepName.Text = thisStep.Name;
+            stepDescription.Text = thisStep.Description;
         }
     }
 }
