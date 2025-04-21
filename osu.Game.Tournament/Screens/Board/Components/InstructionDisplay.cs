@@ -8,18 +8,24 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components
 {
+    /// <summary>
+    /// A rounded display of tournament match steps with a specific icon.
+    /// </summary>
     public partial class InstructionDisplay : CompositeDrawable
     {
+        public const float WIDTH = 500;
+        public const float HEIGHT = 100;
+
         private readonly InstructionInfo thisStep;
 
         private readonly Container iconHolder;
-        private readonly Container descHolder;
 
         public InstructionDisplay(TeamColour team = TeamColour.Neutral, RoundStep roundStep = RoundStep.Default)
         {
@@ -28,72 +34,102 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 team: team,
                 roundStep: roundStep
             );
-            Anchor = Anchor.CentreLeft;
-            Origin = Anchor.CentreLeft;
-            Height = 100;
-            Width = 500;
-            AlwaysPresent = true;
 
-            InternalChild = new FillFlowContainer
+            Height = HEIGHT;
+            Width = WIDTH;
+
+            InternalChild = new Container
             {
-                Anchor = Anchor.CentreLeft,
-                Origin = Anchor.CentreLeft,
-                Y = -15,
-                Direction = FillDirection.Horizontal,
-                AutoSizeAxes = Axes.Both,
-                Spacing = new Vector2(20, 0),
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Masking = true,
+                CornerRadius = 10,
                 Children = new Drawable[]
                 {
-                    iconHolder = new Container
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Size = new Vector2(56),
-                        Alpha = 1,
-                    },
                     new Box
                     {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Colour = Color4.White,
-                        RelativeSizeAxes = Axes.Y,
-                        Height = 0.75f,
-                        Width = 3,
+                        Name = @"Background box",
+                        RelativeSizeAxes = Axes.Both,
+                        Colour = Color4.Black,
+                        Alpha = 0.5f,
                     },
-                    new FillFlowContainer
+                    new GridContainer
                     {
-                        AutoSizeAxes = Axes.Both,
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(15),
-
-                        Children = new Drawable[]
+                        RelativeSizeAxes = Axes.Both,
+                        Padding = new MarginPadding { Horizontal = 20, Vertical = 10 },
+                        RowDimensions =
+                        [
+                            new Dimension(),
+                        ],
+                        ColumnDimensions =
+                        [
+                            new Dimension(GridSizeMode.AutoSize),
+                            new Dimension(GridSizeMode.Absolute, 30),
+                            new Dimension(),
+                        ],
+                        Content = new[]
                         {
-                            new TournamentSpriteText
+                            new Drawable[]
                             {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
-                                Text = thisStep.Name,
-                                Font = OsuFont.Torus.With(size: 42, weight: FontWeight.Bold),
-                            },
-                            descHolder = new Container
-                            {
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft,
+                                iconHolder = new Container
+                                {
+                                    Name = @"Icon display",
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Size = new Vector2(56),
+                                },
+                                new Box
+                                {
+                                    Name = @"Separator",
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Colour = Color4.White,
+                                    RelativeSizeAxes = Axes.Y,
+                                    Height = 0.75f,
+                                    Width = 3,
+                                },
+                                new FillFlowContainer
+                                {
+                                    Name = @"Information flow",
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Children = new Drawable[]
+                                    {
+                                        new TruncatingSpriteText
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            RelativeSizeAxes = Axes.X,
+                                            Text = thisStep.Name,
+                                            Font = OsuFont.Torus.With(size: 40, weight: FontWeight.SemiBold),
+                                        },
+                                        new TruncatingSpriteText
+                                        {
+                                            Anchor = Anchor.CentreLeft,
+                                            Origin = Anchor.CentreLeft,
+                                            RelativeSizeAxes = Axes.X,
+                                            Text = thisStep.Description,
+                                            Font = OsuFont.Torus.With(size: 30, weight: FontWeight.Regular),
+                                        }
+                                    }
+                                }
                             },
                         }
-                    }
-                }
+                    },
+                },
             };
         }
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            // Put one under the tournament match directory
-            Texture welcomeTexture = textures.Get("Icons/welcome-img");
-            Texture mainDescTexture = textures.Get("Icons/main-descimg");
+            Texture? welcomeTexture = textures.Get("Icons/welcome-img");
 
             if (thisStep.RoundStep == RoundStep.Default && welcomeTexture != null)
             {
@@ -101,10 +137,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
-                    // Feel free to change based on the texture's size
-                    Size = new Vector2(100),
-                    X = -20,
-                    Alpha = 1,
+                    Width = HEIGHT - 10 * 2,
                     Texture = welcomeTexture,
                 };
             }
@@ -117,29 +150,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Icon = thisStep.Icon,
                     Size = new Vector2(56),
                     Colour = thisStep.IconColor,
-                    Alpha = 1,
-                };
-            }
-
-            if (thisStep.RoundStep == RoundStep.Default && mainDescTexture != null)
-            {
-                descHolder.Child = new Sprite
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    // Feel free to change based on the texture's size
-                    Size = new Vector2(60, mainDescTexture.Height * (60f / mainDescTexture.Width)),
-                    Texture = mainDescTexture,
-                };
-            }
-            else
-            {
-                descHolder.Child = new TournamentSpriteText
-                {
-                    Anchor = Anchor.CentreLeft,
-                    Origin = Anchor.CentreLeft,
-                    Text = thisStep.Description,
-                    Font = OsuFont.Torus.With(size: 30, weight: FontWeight.Regular),
                 };
             }
         }
