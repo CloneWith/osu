@@ -37,10 +37,10 @@
         <value>选择该轮要游玩的图。</value>
     </data>
     <data name="win_name" xml:space="preserve">
-        <value>胜方染色·{0}</value>
+        <value>胜方赢棋·{0}</value>
     </data>
     <data name="win_description" xml:space="preserve">
-        <value>此图对应棋子将染成获胜队颜色。</value>
+        <value>此图对应棋子将变为获胜方赢棋。</value>
     </data>
     <data name="tie_breaker_name" xml:space="preserve">
         <value>即将进入 TB 模式</value>

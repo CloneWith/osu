@@ -47,13 +47,13 @@ namespace osu.Game.Tournament.Localisation
         /// "Unknown"
         /// </summary>
         public static LocalisableString WinName(LocalisableString team) => new TranslatableString(getKey(@"win_name"),
-            @"Winner Colouring ({0})", team);
+            @"Round winner({0})", team);
 
         /// <summary>
         /// "Unknown"
         /// </summary>
         public static LocalisableString WinDescription => new TranslatableString(getKey(@"win_description"),
-            @"The chess would be tinted the winner's colour.");
+            @"The chess pieces will be painted in the winner's color.");
 
         /// <summary>
         /// "Unknown"
