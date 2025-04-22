@@ -15,7 +15,6 @@ namespace osu.Game.Tournament.Tests.Components
     {
         private FumoTeamDisplay team1Display = null!;
         private FumoTeamDisplay team2Display = null!;
-        private readonly TournamentMatch match = CreateSampleMatch();
 
         [BackgroundDependencyLoader]
         private void load()
@@ -27,8 +26,8 @@ namespace osu.Game.Tournament.Tests.Components
                 Spacing = new Vector2(5),
                 Children = new Drawable[]
                 {
-                    team1Display = new FumoTeamDisplay(match.Team1.Value, TeamColour.Red),
-                    team2Display = new FumoTeamDisplay(match.Team2.Value, TeamColour.Blue),
+                    team1Display = new FumoTeamDisplay(TeamColour.Red),
+                    team2Display = new FumoTeamDisplay(TeamColour.Blue),
                 }
             });
         }
@@ -36,8 +35,8 @@ namespace osu.Game.Tournament.Tests.Components
         [Test]
         public void TestTeamChange()
         {
-            AddStep("Change Red team name", () => match.Team1.Value!.FullName.Value = "赢了曹飞对面电脑显示屏");
-            AddStep("Change Blue team name", () => match.Team2.Value!.FullName.Value = "弱队");
+            AddStep("Change Red team name", () => Ladder.CurrentMatch.Value!.Team1.Value!.FullName.Value = "赢了曹飞对面电脑显示屏");
+            AddStep("Change Blue team name", () => Ladder.CurrentMatch.Value!.Team2.Value!.FullName.Value = "弱队");
         }
 
         [Test]

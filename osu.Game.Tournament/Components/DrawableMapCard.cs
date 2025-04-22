@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -99,7 +98,7 @@ namespace osu.Game.Tournament.Components
 
             Masking = true;
             // RelativeSizeAxes = Axes.Both;
-            Shear = new Vector2(OsuGame.SHEAR, 0f);
+            Shear = OsuGame.SHEAR;
             CornerRadius = 10f;
 
             InternalChildren = new Drawable[]
@@ -127,7 +126,7 @@ namespace osu.Game.Tournament.Components
                     Icon = FontAwesome.Solid.Heart,
                     Size = new Vector2(24),
                     Colour = Color4.White,
-                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Shear = -OsuGame.SHEAR,
                     Alpha = 0,
                 },
                 instructText = new TournamentSpriteText
@@ -135,7 +134,7 @@ namespace osu.Game.Tournament.Components
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreLeft,
                     Font = OsuFont.TorusAlternate.With(size: 36, weight: FontWeight.SemiBold),
-                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Shear = -OsuGame.SHEAR,
                     Text = "This is a new map",
                     Alpha = 0,
                 },
@@ -145,7 +144,7 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.CentreLeft,
                     AutoSizeAxes = Axes.Both,
                     Direction = FillDirection.Horizontal,
-                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                    Shear = -OsuGame.SHEAR,
                 },
                 beatmapInfoContainer = new Container
                 {
@@ -165,7 +164,7 @@ namespace osu.Game.Tournament.Components
                             Origin = Anchor.Centre,
                             Colour = OsuColour.Gray(0.5f),
                             OnlineInfo = (Beatmap as IBeatmapSetOnlineInfo),
-                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                            Shear = -OsuGame.SHEAR,
                             Scale = new Vector2(1.25f),
                         },
                         backgroundAddition = new Box
@@ -190,7 +189,7 @@ namespace osu.Game.Tournament.Components
                                     Text = truncatedSongName,
                                     Margin = new MarginPadding { Bottom = 5 },
                                     Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 32),
-                                    Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                    Shear = -OsuGame.SHEAR,
                                 },
                                 new FillFlowContainer
                                 {
@@ -208,7 +207,7 @@ namespace osu.Game.Tournament.Components
                                             AutoSizeAxes = Axes.Both,
                                             Direction = FillDirection.Horizontal,
                                             Spacing = new Vector2(6),
-                                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                            Shear = -OsuGame.SHEAR,
                                             Children = new Drawable[]
                                             {
                                                 Beatmap != null
@@ -246,7 +245,7 @@ namespace osu.Game.Tournament.Components
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
                                             Text = $"mapper: {Beatmap?.Metadata.Author.Username}",
-                                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                                            Shear = -OsuGame.SHEAR,
                                             Font = OsuFont.Torus.With(size: 18)
                                         }
                                     }
@@ -259,7 +258,7 @@ namespace osu.Game.Tournament.Components
                             Origin = Anchor.CentreRight,
                             Margin = new MarginPadding { Bottom = -50, Right = 20 },
                             Size = new Vector2(96),
-                            Shear = new Vector2(-OsuGame.SHEAR, 0f),
+                            Shear = -OsuGame.SHEAR,
                         },
                         topMask = new Box
                         {
@@ -465,16 +464,6 @@ namespace osu.Game.Tournament.Components
                 charSpriteText.Delay((int)(start + i * duration / text.Length))
                               .FadeIn(duration, easing);
             }
-        }
-
-        private partial class NoUnloadBeatmapSetCover : UpdateableOnlineBeatmapSetCover
-        {
-            // As covers are displayed on stream, we want them to load as soon as possible.
-            protected override double LoadDelay => 0;
-
-            // Use DelayedLoadWrapper to avoid content unloading when switching away to another screen.
-            protected override DelayedLoadWrapper CreateDelayedLoadWrapper(Func<Drawable> createContentFunc, double timeBeforeLoad)
-                => new DelayedLoadWrapper(createContentFunc(), timeBeforeLoad);
         }
     }
 }

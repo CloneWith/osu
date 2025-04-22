@@ -13,7 +13,7 @@ namespace osu.Game.Tournament.Components
     public partial class FumoMatchHeader : Container
     {
         [BackgroundDependencyLoader]
-        private void load(LadderInfo ladder)
+        private void load()
         {
             RelativeSizeAxes = Axes.X;
             Height = 95;
@@ -45,13 +45,13 @@ namespace osu.Game.Tournament.Components
                         },
                     },
                 },
-                new FumoTeamDisplay(ladder.CurrentMatch.Value?.Team1.Value, TeamColour.Red)
+                new FumoTeamDisplay(TeamColour.Red)
                 {
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Margin = new MarginPadding(15),
                 },
-                new FumoTeamDisplay(ladder.CurrentMatch.Value?.Team2.Value, TeamColour.Blue)
+                new FumoTeamDisplay(TeamColour.Blue)
                 {
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.TopRight,

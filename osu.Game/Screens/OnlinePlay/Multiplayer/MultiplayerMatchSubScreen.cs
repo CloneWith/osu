@@ -35,6 +35,7 @@ using osu.Game.Screens.OnlinePlay.Multiplayer.Match;
 using osu.Game.Screens.OnlinePlay.Multiplayer.Match.Playlist;
 using osu.Game.Screens.OnlinePlay.Multiplayer.Participants;
 using osu.Game.Screens.OnlinePlay.Multiplayer.Spectate;
+using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Users;
 using osu.Game.Utils;
 using osuTK;
@@ -276,7 +277,8 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
                                                                             new MultiplayerPlaylist
                                                                             {
                                                                                 RelativeSizeAxes = Axes.Both,
-                                                                                RequestEdit = ShowSongSelect
+                                                                                RequestEdit = ShowSongSelect,
+                                                                                RequestResults = showResults
                                                                             }
                                                                         },
                                                                         new Drawable[]
@@ -465,7 +467,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         {
             if (settings.PlaylistItemId != lastPlaylistItemId)
             {
-                updateGameplayState();
+                Scheduler.AddOnce(updateGameplayState);
                 lastPlaylistItemId = settings.PlaylistItemId;
             }
 
@@ -478,7 +480,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         private void onItemChanged(MultiplayerPlaylistItem item)
         {
             if (item.ID == client.Room?.Settings.PlaylistItemId)
-                updateGameplayState();
+                Scheduler.AddOnce(updateGameplayState);
         }
 
         /// <summary>
@@ -487,7 +489,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         private void onUserStyleChanged(MultiplayerRoomUser user)
         {
             if (user.Equals(client.LocalUser))
-                updateGameplayState();
+                Scheduler.AddOnce(updateGameplayState);
         }
 
         /// <summary>
@@ -496,7 +498,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         private void onUserModsChanged(MultiplayerRoomUser user)
         {
             if (user.Equals(client.LocalUser))
-                updateGameplayState();
+                Scheduler.AddOnce(updateGameplayState);
         }
 
         /// <summary>
@@ -683,6 +685,19 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
 
             MultiplayerPlaylistItem item = client.Room.CurrentPlaylistItem;
             this.Push(new MultiplayerMatchFreestyleSelect(room, new PlaylistItem(item)));
+        }
+
+        /// <summary>
+        /// Shows the results screen for a playlist item.
+        /// </summary>
+        private void showResults(PlaylistItem item)
+        {
+            if (!this.IsCurrentScreen() || client.Room == null || client.LocalUser == null)
+                return;
+
+            // fallback is to allow this class to operate when there is no parent OnlineScreen (testing purposes).
+            var targetScreen = (Screen?)parentScreen ?? this;
+            targetScreen.Push(new PlaylistItemUserBestResultsScreen(client.Room.RoomID, item, client.LocalUser.UserID));
         }
 
         public override void OnEntering(ScreenTransitionEvent e)
