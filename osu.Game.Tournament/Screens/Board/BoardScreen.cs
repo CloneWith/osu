@@ -8,8 +8,8 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
+using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
@@ -27,12 +27,12 @@ namespace osu.Game.Tournament.Screens.Board
     public partial class BoardScreen : TournamentMatchScreen
     {
         private const float board_size = 570;
+
+        // ReSharper disable once CollectionNeverUpdated.Local
         private readonly List<BoardBeatmapPanel> boardMapList = new List<BoardBeatmapPanel>();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
-
-        private Container warningContainer = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -54,7 +54,7 @@ namespace osu.Game.Tournament.Screens.Board
         private ScheduledDelegate? scheduledScreenChange;
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load()
         {
             currentMatch.BindValueChanged(matchChanged);
             currentMatch.BindTo(LadderInfo.CurrentMatch);
@@ -173,8 +173,7 @@ namespace osu.Game.Tournament.Screens.Board
                         }
                     }
                 },
-
-                warningContainer = new Container
+                new Container
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -268,13 +267,6 @@ namespace osu.Game.Tournament.Screens.Board
                             Colour = Color4.Gray,
                             Action = () => setMode(TeamColour.Neutral, ChoiceType.Neutral)
                         },
-                        //new TourneyButton
-                        //{
-                        //    RelativeSizeAxes = Axes.X,
-                        //    Text = BaseStrings.Refresh,
-                        //    BackgroundColour = Color4.Orange,
-                        //    Action =
-                        //},
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
@@ -293,11 +285,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            if (match.NewValue != null)
-            {
-                if (!IsLoaded)
-                    return;
-            }
+            Logger.Log(@"MatchChanged event triggered (implementation in progress).");
         }
 
         private void setMode(TeamColour colour, ChoiceType choiceType)
@@ -408,8 +396,9 @@ namespace osu.Game.Tournament.Screens.Board
                 // don't attempt to add if the beatmap isn't in our pool
                 return;
 
-            if (!isPickWin && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
-                                                                    && (p.Type == ChoiceType.Ban || p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)))
+            if (!isPickWin
+                && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
+                                                         && (p.Type == ChoiceType.Ban || p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)))
                 // don't attempt to add if already banned / won, and it's not a win type.
                 return;
 
