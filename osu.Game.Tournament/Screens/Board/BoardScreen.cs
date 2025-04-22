@@ -8,6 +8,8 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
@@ -54,10 +56,12 @@ namespace osu.Game.Tournament.Screens.Board
         private ScheduledDelegate? scheduledScreenChange;
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(TextureStore textures)
         {
             currentMatch.BindValueChanged(matchChanged);
             currentMatch.BindTo(LadderInfo.CurrentMatch);
+
+            var boardTexture = textures.Get("Board/board");
 
             InternalChildren = new Drawable[]
             {
@@ -70,14 +74,14 @@ namespace osu.Game.Tournament.Screens.Board
 
                 new Container
                 {
-                    Name = "Main Container", // without header
+                    Name = "Main container", // without header
                     Padding = new MarginPadding { Top = 100, Left = 30, Bottom = 10, Right = 30 },
                     RelativeSizeAxes = Axes.Both,
                     Children = new Drawable[]
                     {
                         new Container
                         {
-                            Name = "Left Side",
+                            Name = "Left side",
                             Anchor = Anchor.TopLeft,
                             Origin = Anchor.TopLeft,
                             Width = 350,
@@ -86,7 +90,7 @@ namespace osu.Game.Tournament.Screens.Board
                             {
                                 new Container
                                 {
-                                    Name = "还没想好这里放什么",
+                                    Name = "Top-left information area",
                                     Anchor = Anchor.TopLeft,
                                     Origin = Anchor.TopLeft,
                                     RelativeSizeAxes = Axes.Both,
@@ -97,11 +101,11 @@ namespace osu.Game.Tournament.Screens.Board
                                         Colour = Color4Extensions.FromHex("#454545"),
                                         Alpha = 0.74f,
                                         RelativeSizeAxes = Axes.Both,
-                                    }
+                                    },
                                 },
                                 new Container
                                 {
-                                    Name = "chat container",
+                                    Name = "Chat area",
                                     Anchor = Anchor.BottomLeft,
                                     Origin = Anchor.BottomLeft,
                                     RelativeSizeAxes = Axes.Both,
@@ -112,9 +116,9 @@ namespace osu.Game.Tournament.Screens.Board
                                         Colour = Color4Extensions.FromHex("#454545"),
                                         Alpha = 0.74f,
                                         RelativeSizeAxes = Axes.Both,
-                                    }
+                                    },
                                 },
-                            }
+                            },
                         },
                         new Container
                         {
@@ -127,22 +131,35 @@ namespace osu.Game.Tournament.Screens.Board
                             {
                                 new Container
                                 {
-                                    Name = "Board Container",
+                                    Name = "Board container",
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
                                     Height = board_size,
                                     // 有实际内容后删除
-                                    Child = new EmptyBox(10)
+                                    Children = new Drawable[]
                                     {
-                                        Colour = Color4Extensions.FromHex("#454545"),
-                                        Alpha = 0.74f,
-                                        RelativeSizeAxes = Axes.Both,
-                                    }
+                                        boardTexture != null
+                                            ? new Sprite
+                                            {
+                                                Name = @"Board texture",
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                FillMode = FillMode.Fit,
+                                                Texture = textures.Get(@"Board/board"),
+                                            }
+                                            : new EmptyBox(10)
+                                            {
+                                                Colour = Color4Extensions.FromHex("#454545"),
+                                                Alpha = 0.74f,
+                                                RelativeSizeAxes = Axes.Both,
+                                            },
+                                    },
                                 },
                                 new Container
                                 {
-                                    Name = "EX message",
+                                    Name = "Instruction area",
                                     Anchor = Anchor.BottomCentre,
                                     Origin = Anchor.BottomCentre,
                                     RelativeSizeAxes = Axes.X,
@@ -152,9 +169,9 @@ namespace osu.Game.Tournament.Screens.Board
                                         Colour = Color4Extensions.FromHex("#454545"),
                                         Alpha = 0.74f,
                                         RelativeSizeAxes = Axes.Both,
-                                    }
-                                }
-                            }
+                                    },
+                                },
+                            },
                         },
                         new Container
                         {
@@ -169,9 +186,9 @@ namespace osu.Game.Tournament.Screens.Board
                                 Colour = Color4Extensions.FromHex("#454545"),
                                 Alpha = 0.74f,
                                 RelativeSizeAxes = Axes.Both,
-                            }
-                        }
-                    }
+                            },
+                        },
+                    },
                 },
                 new Container
                 {
@@ -196,16 +213,16 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Ban",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Ban)
+                                        Action = () => setMode(TeamColour.Red, ChoiceType.Ban),
                                     },
                                     buttonBlueBan = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Ban",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Ban)
+                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Ban),
                                     },
-                                }
+                                },
                             },
                         },
                         new GridContainer
@@ -221,16 +238,16 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Pick",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Pick)
+                                        Action = () => setMode(TeamColour.Red, ChoiceType.Pick),
                                     },
                                     buttonBluePick = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Pick",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Pick)
+                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Pick),
                                     },
-                                }
+                                },
                             },
                         },
                         new GridContainer
@@ -246,16 +263,16 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Win",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.RedWin)
+                                        Action = () => setMode(TeamColour.Red, ChoiceType.RedWin),
                                     },
                                     buttonBlueWin = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Win",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.BlueWin)
+                                        Action = () => setMode(TeamColour.Blue, ChoiceType.BlueWin),
                                     },
-                                }
+                                },
                             },
                         },
                         new ControlPanel.Spacer(),
@@ -265,7 +282,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Text = "TB Indicator",
                             BackgroundColour = Color4.Purple,
                             Colour = Color4.Gray,
-                            Action = () => setMode(TeamColour.Neutral, ChoiceType.Neutral)
+                            Action = () => setMode(TeamColour.Neutral, ChoiceType.Neutral),
                         },
                         new TourneyButton
                         {
