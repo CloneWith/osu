@@ -29,7 +29,7 @@ namespace osu.Game.Tournament.Screens
         /// Called when the screen is selected the first time in this session.
         /// </summary>
         /// <param name="enforced">Enforce this function to be executed even the screen had been selected before.</param>
-        public virtual void FirstSelected(bool enforced = false)
+        public virtual void OnFirstSelected(bool enforced = false)
         {
             if (HadBeenSelected && !enforced) return;
 
