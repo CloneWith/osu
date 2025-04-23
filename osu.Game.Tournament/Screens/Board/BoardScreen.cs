@@ -41,6 +41,13 @@ namespace osu.Game.Tournament.Screens.Board
         private TeamColour pickTeam;
         private ChoiceType pickType;
 
+        private Container mainContainer = null!;
+        private Container informationContainer = null!;
+        private Container chatContainer = null!;
+        private Container boardContainer = null!;
+        private Container instructionContainer = null!;
+        private Container mapPoolContainer = null!;
+
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
         private OsuButton buttonRedPick = null!;
@@ -72,11 +79,12 @@ namespace osu.Game.Tournament.Screens.Board
                 },
                 new FumoMatchHeader(),
 
-                new Container
+                mainContainer = new Container
                 {
                     Name = "Main container", // without header
                     Padding = new MarginPadding { Top = 100, Left = 30, Bottom = 10, Right = 30 },
                     RelativeSizeAxes = Axes.Both,
+                    Masking = true,
                     Children = new Drawable[]
                     {
                         new Container
@@ -88,12 +96,13 @@ namespace osu.Game.Tournament.Screens.Board
                             RelativeSizeAxes = Axes.Y,
                             Children = new Drawable[]
                             {
-                                new Container
+                                informationContainer = new Container
                                 {
                                     Name = "Top-left information area",
                                     Anchor = Anchor.TopLeft,
                                     Origin = Anchor.TopLeft,
                                     RelativeSizeAxes = Axes.Both,
+                                    RelativePositionAxes = Axes.Both,
                                     Height = 0.7f,
                                     Padding = new MarginPadding { Bottom = 5f },
                                     Child = new EmptyBox(10)
@@ -103,12 +112,13 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.Both,
                                     },
                                 },
-                                new Container
+                                chatContainer = new Container
                                 {
                                     Name = "Chat area",
                                     Anchor = Anchor.BottomLeft,
                                     Origin = Anchor.BottomLeft,
                                     RelativeSizeAxes = Axes.Both,
+                                    RelativePositionAxes = Axes.Both,
                                     Height = 0.3f,
                                     Padding = new MarginPadding { Top = 5f },
                                     Child = new EmptyBox(10)
@@ -129,12 +139,13 @@ namespace osu.Game.Tournament.Screens.Board
                             Width = board_size,
                             Children = new Drawable[]
                             {
-                                new Container
+                                boardContainer = new Container
                                 {
                                     Name = "Board container",
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     RelativeSizeAxes = Axes.X,
+                                    RelativePositionAxes = Axes.Both,
                                     Height = board_size,
                                     // 有实际内容后删除
                                     Children = new Drawable[]
@@ -157,12 +168,13 @@ namespace osu.Game.Tournament.Screens.Board
                                             },
                                     },
                                 },
-                                new Container
+                                instructionContainer = new Container
                                 {
                                     Name = "Instruction area",
                                     Anchor = Anchor.BottomCentre,
                                     Origin = Anchor.BottomCentre,
                                     RelativeSizeAxes = Axes.X,
+                                    RelativePositionAxes = Axes.Both,
                                     Height = 80,
                                     Child = new EmptyBox(10)
                                     {
@@ -173,12 +185,13 @@ namespace osu.Game.Tournament.Screens.Board
                                 },
                             },
                         },
-                        new Container
+                        mapPoolContainer = new Container
                         {
                             Name = "right (aka 棋池)",
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
                             RelativeSizeAxes = Axes.Y,
+                            RelativePositionAxes = Axes.Both,
                             Width = 350,
                             // 有实际内容后删除
                             Child = new EmptyBox(10)
@@ -189,12 +202,6 @@ namespace osu.Game.Tournament.Screens.Board
                             },
                         },
                     },
-                },
-                new Container
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
                 },
                 new ControlPanel(true)
                 {
@@ -352,6 +359,38 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             return base.OnMouseDown(e);
+        }
+
+        public override void OnFirstSelected(bool enforced = false)
+        {
+            base.OnFirstSelected(enforced);
+
+            // Padding cannot be changed partially, moving the container instead.
+            mainContainer.MoveToY(10);
+            informationContainer.MoveToY(1.5f);
+            chatContainer.MoveToY(1.75f);
+            boardContainer.MoveToY(1.5f);
+            instructionContainer.MoveToY(1.75f);
+            mapPoolContainer.MoveToY(1.5f);
+
+            // All containers start moving into the screen in order.
+            using (BeginDelayedSequence(1500))
+            {
+                boardContainer.MoveToY(0, 900, Easing.OutQuint);
+
+                using (BeginDelayedSequence(300))
+                {
+                    informationContainer.MoveToY(0, 900, Easing.OutQuint);
+                    chatContainer.Delay(100).MoveToY(0, 900, Easing.OutQuint);
+                    mapPoolContainer.MoveToY(0, 900, Easing.OutQuint);
+                    instructionContainer.MoveToY(0, 900, Easing.OutQuint);
+                }
+            }
+
+            using (BeginDelayedSequence(500))
+            {
+                mainContainer.MoveToY(0, 1000, Easing.OutQuint);
+            }
         }
 
         private void updateWinStatusForBeatmap(int beatmapId)
