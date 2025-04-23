@@ -11,7 +11,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
-using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Overlays;
@@ -309,7 +308,8 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            Logger.Log(@"MatchChanged event triggered (implementation in progress).");
+            ResetSelectStatus();
+            // TODO: Add more relevant actions.
         }
 
         private void setMode(TeamColour colour, ChoiceType choiceType)
@@ -374,7 +374,7 @@ namespace osu.Game.Tournament.Screens.Board
             mapPoolContainer.MoveToY(1.5f);
 
             // All containers start moving into the screen in order.
-            using (BeginDelayedSequence(1500))
+            using (BeginDelayedSequence(1000))
             {
                 boardContainer.MoveToY(0, 900, Easing.OutQuint);
 
