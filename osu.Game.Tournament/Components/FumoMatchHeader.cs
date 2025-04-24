@@ -23,16 +23,11 @@ namespace osu.Game.Tournament.Components
                 {
                     RelativeSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
-                    Padding = new MarginPadding(20),
+                    Padding = new MarginPadding { Horizontal = 20 },
                     Spacing = new Vector2(5),
                     Children = new Drawable[]
                     {
                         new DrawableTournamentHeaderLogo
-                        {
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                        },
-                        new DrawableTournamentHeaderText
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,

@@ -97,7 +97,7 @@ namespace osu.Game.Tournament
                         Depth = float.MinValue,
                         AlwaysPresent = true,
                     },
-                    heightWarning = new WarningBox(BaseStrings.AspectRatioWarning(TournamentSceneManager.REQUIRED_WIDTH))
+                    heightWarning = new WarningBox(BaseStrings.AspectRatioWarning)
                     {
                         Anchor = Anchor.BottomCentre,
                         Origin = Anchor.BottomCentre,

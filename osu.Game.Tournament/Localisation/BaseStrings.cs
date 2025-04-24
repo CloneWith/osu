@@ -57,10 +57,9 @@ namespace osu.Game.Tournament.Localisation
             @"This round isn't set up for board view...");
 
         /// <summary>
-        /// "Please adjust the aspect ratio. The minimum window width is {0}."
+        /// "Please make the window wider for better control."
         /// </summary>
-        public static LocalisableString AspectRatioWarning(int requiredWidth) => new TranslatableString(getKey(@"aspect_ratio_warning"),
-            @"Please adjust the aspect ratio. The minimum window width is {0}.", requiredWidth);
+        public static LocalisableString AspectRatioWarning => new TranslatableString(getKey(@"aspect_ratio_warning"), @"Please make the window wider for better control.");
 
         /// <summary>
         /// "Control Panel"

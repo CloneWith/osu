@@ -9,6 +9,7 @@ using osuTK.Graphics;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Game.Graphics;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 
@@ -16,10 +17,12 @@ namespace osu.Game.Tournament.Components
 {
     public partial class WindowSizeIndicator : CompositeDrawable
     {
+        private const int entry_spacing = 15;
+
         private readonly BindableSize sizeBindable;
 
-        private TournamentSpriteText winWidthText = null!;
-        private TournamentSpriteText winHeightText = null!;
+        private TournamentSpriteText widthText = null!;
+        private TournamentSpriteText heightText = null!;
 
         public WindowSizeIndicator(BindableSize bSize)
         {
@@ -32,77 +35,87 @@ namespace osu.Game.Tournament.Components
         {
             Anchor = Anchor.Centre;
             Origin = Anchor.Centre;
-            RelativeSizeAxes = Axes.Both;
+            AutoSizeAxes = Axes.Both;
+            Masking = true;
+            CornerRadius = 10;
             Alpha = 0;
             AlwaysPresent = true;
 
             InternalChildren = new Drawable[]
             {
-                new EmptyBox(cornerRadius: 10)
+                new Box
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Width = 0.15f,
-                    Height = 0.15f,
                     Colour = Color4.Black.Opacity(0.6f),
                 },
                 new FillFlowContainer
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
+                    AutoSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(5),
+                    Padding = new MarginPadding(25),
                     Children = new Drawable[]
                     {
-                        new FillFlowContainer
+                        new GridContainer
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Height = 40,
-                            Direction = FillDirection.Horizontal,
-                            AutoSizeAxes = Axes.X,
-                            Spacing = new Vector2(5),
-                            Children = new Drawable[]
+                            AutoSizeAxes = Axes.Both,
+                            RowDimensions =
+                            [
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.Absolute, entry_spacing),
+                                new Dimension(GridSizeMode.AutoSize),
+                            ],
+                            ColumnDimensions =
+                            [
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.Absolute, entry_spacing),
+                                new Dimension(GridSizeMode.AutoSize),
+                            ],
+                            Content = new[]
                             {
-                                new SpriteIcon
+                                new[]
                                 {
-                                    Icon = FontAwesome.Solid.RulerHorizontal,
-                                    Size = new Vector2(24),
+                                    new SpriteIcon
+                                    {
+                                        Icon = FontAwesome.Solid.RulerHorizontal,
+                                        Size = new Vector2(24),
+                                    },
+                                    Empty(),
+                                    widthText = new TournamentSpriteText
+                                    {
+                                        Text = sizeBindable.Value.Width.ToString(),
+                                        Colour = TournamentGame.TEXT_COLOUR,
+                                        Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
+                                    },
                                 },
-                                winWidthText = new TournamentSpriteText
+                                [
+                                    Empty(),
+                                    Empty(),
+                                    Empty(),
+                                ],
+                                new[]
                                 {
-                                    Text = sizeBindable.Value.Width.ToString(),
-                                    Colour = TournamentGame.TEXT_COLOUR,
-                                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
+                                    new SpriteIcon
+                                    {
+                                        Icon = FontAwesome.Solid.RulerVertical,
+                                        Size = new Vector2(24),
+                                    },
+                                    Empty(),
+                                    heightText = new TournamentSpriteText
+                                    {
+                                        Text = sizeBindable.Value.Height.ToString(),
+                                        Colour = TournamentGame.TEXT_COLOUR,
+                                        Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
+                                    },
                                 },
                             }
                         },
-                        new FillFlowContainer
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Height = 40,
-                            Direction = FillDirection.Horizontal,
-                            AutoSizeAxes = Axes.X,
-                            Spacing = new Vector2(5),
-                            Children = new Drawable[]
-                            {
-                                new SpriteIcon
-                                {
-                                    Icon = FontAwesome.Solid.RulerVertical,
-                                    Size = new Vector2(24),
-                                },
-                                winHeightText = new TournamentSpriteText
-                                {
-                                    Text = sizeBindable.Value.Height.ToString(),
-                                    Colour = TournamentGame.TEXT_COLOUR,
-                                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
-                                },
-                            }
-                        },
-                    }
+                    },
                 },
             };
         }
@@ -111,8 +124,8 @@ namespace osu.Game.Tournament.Components
         {
             Scheduler.Add(() =>
             {
-                winWidthText.Text = e.NewValue.Width.ToString();
-                winHeightText.Text = e.NewValue.Height.ToString();
+                widthText.Text = e.NewValue.Width.ToString();
+                heightText.Text = e.NewValue.Height.ToString();
             });
         }
     }
