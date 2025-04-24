@@ -47,20 +47,7 @@ namespace osu.Game.Tournament.Components
                     return;
 
                 selected = value;
-
-                if (!IsLoaded)
-                    return;
-
-                if (value)
-                {
-                    beatmapInfoContainer.BorderColour = Colour4.White;
-                    beatmapInfoContainer.TransformTo(nameof(beatmapInfoContainer.BorderThickness), INNER_BORDER, 500, Easing.OutQuint);
-                    backgroundAddition.FlashColour(Color4.White.Opacity(0.9f), 1000, Easing.OutQuint);
-                }
-                else
-                {
-                    beatmapInfoContainer.TransformTo(nameof(beatmapInfoContainer.BorderThickness), 0f, 500, Easing.OutQuint);
-                }
+                updateBorder();
             }
         }
 
@@ -197,6 +184,14 @@ namespace osu.Game.Tournament.Components
             };
         }
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            updateBorder();
+            updateState();
+        }
+
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
             if (match.OldValue != null)
@@ -212,6 +207,23 @@ namespace osu.Game.Tournament.Components
             => Scheduler.AddOnce(updateState);
 
         private ChessPlacement? lastPlacement;
+
+        private void updateBorder()
+        {
+            if (!IsLoaded)
+                return;
+
+            if (selected)
+            {
+                beatmapInfoContainer.BorderColour = Colour4.White;
+                beatmapInfoContainer.TransformTo(nameof(beatmapInfoContainer.BorderThickness), INNER_BORDER, 500, Easing.OutQuint);
+                backgroundAddition.FlashColour(Color4.White.Opacity(0.9f), 1000, Easing.OutQuint);
+            }
+            else
+            {
+                beatmapInfoContainer.TransformTo(nameof(beatmapInfoContainer.BorderThickness), 0f, 500, Easing.OutQuint);
+            }
+        }
 
         private void updateState()
         {
