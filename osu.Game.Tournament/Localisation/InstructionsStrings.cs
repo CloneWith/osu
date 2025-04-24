@@ -56,6 +56,18 @@ namespace osu.Game.Tournament.Localisation
             @"The chess pieces will be painted in the winner's color.");
 
         /// <summary>
+        /// "Deploy Shiro ({0})"
+        /// </summary>
+        public static LocalisableString ShiroName(LocalisableString team) => new TranslatableString(getKey(@"shiro_name"),
+            @"Deploy Shiro ({0})", team);
+
+        /// <summary>
+        /// "Consume couplets to deploy one."
+        /// </summary>
+        public static LocalisableString ShiroDescription => new TranslatableString(getKey(@"shiro_description"),
+            @"Consume couplets to deploy one.");
+
+        /// <summary>
         /// "Entering TieBreaker Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),

@@ -71,6 +71,13 @@ namespace osu.Game.Tournament.Models
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
+                case RoundStep.Shiro:
+                    Name = InstructionsStrings.ShiroName(teamPrompt);
+                    Description = InstructionsStrings.ShiroDescription;
+                    Icon = FontAwesome.Regular.Circle;
+                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
+                    break;
+
                 case RoundStep.TieBreaker:
                     Name = InstructionsStrings.TieBreakerName;
                     Description = InstructionsStrings.TieBreakerDescription;
@@ -120,6 +127,11 @@ namespace osu.Game.Tournament.Models
         /// Mark colours.
         /// </summary>
         Win,
+
+        /// <summary>
+        /// Place the empty chess.
+        /// </summary>
+        Shiro,
 
         /// <summary>
         /// The final stage.
