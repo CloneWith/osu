@@ -220,11 +220,12 @@ namespace osu.Game.Tournament.Components
                 return;
             }
 
-            var newPlacement = currentMatch.Value.ChessPlacements.FirstOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
+            var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
             string choiceText = newPlacement?.OwnerTeam == TeamColour.Red ? "Red" :
                 newPlacement?.OwnerTeam == TeamColour.Blue ? "Blue" : "Map";
-            bool shouldAnimate = newPlacement != lastPlacement;
+            bool shouldAnimate = newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
+                                 || newPlacement?.CurrentType != lastPlacement?.CurrentType;
 
             if (newPlacement != null)
             {
