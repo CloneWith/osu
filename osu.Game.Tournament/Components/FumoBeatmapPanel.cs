@@ -313,23 +313,23 @@ namespace osu.Game.Tournament.Components
             floatingContainer.ResizeHeightTo(0);
             floatingBox.Colour = useColour;
 
-            statusIcon.Y = 1f;
+            statusIcon.Y = 1.5f;
             statusIcon.FadeOut();
 
-            instructText.Y = 1f;
+            instructText.Y = 1.5f;
             instructText.FadeOut();
 
             using (BeginDelayedSequence(200))
             {
-                floatingContainer.ResizeHeightTo(1, 600, Easing.InOutQuint);
+                floatingContainer.ResizeHeightTo(1, 700, Easing.OutQuint);
 
                 statusIcon.FadeIn(300, Easing.OutQuint);
                 instructText.FadeIn(300, Easing.OutQuint);
 
-                using (BeginDelayedSequence(200))
+                using (BeginDelayedSequence(100))
                 {
-                    statusIcon.MoveToY(-0.175f, 900, Easing.InOutQuint);
-                    instructText.Delay(150).MoveToY(0.175f, 900, Easing.InOutQuint);
+                    statusIcon.MoveToY(-0.175f, 800, Easing.OutExpo);
+                    instructText.Delay(50).MoveToY(0.175f, 800, Easing.OutExpo);
                     statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
                     instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
 
@@ -338,12 +338,12 @@ namespace osu.Game.Tournament.Components
                         floatingContainer.Anchor = Anchor.TopCentre;
                         floatingContainer.Origin = Anchor.TopCentre;
 
-                        floatingContainer.ResizeHeightTo(0, 1500, Easing.InOutQuint);
+                        floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
 
-                        statusIcon.MoveToY(-2f, 1000, Easing.InOutQuint);
-                        instructText.MoveToY(-2f, 1000, Easing.InOutQuint);
+                        statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
+                        instructText.MoveToY(-2f, 1450, Easing.InExpo);
 
-                        using (BeginDelayedSequence(300))
+                        using (BeginDelayedSequence(500))
                         {
                             statusIcon.FadeOut(600, Easing.OutQuint);
                             instructText.FadeOut(600, Easing.OutQuint);
