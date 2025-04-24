@@ -44,11 +44,13 @@ namespace osu.Game.Tournament.Screens.Board.Components
         public const float HEIGHT = 100;
 
         [Resolved]
-        private TextureStore? textures { get; set; }
+        private TextureStore textures { get; set; } = null!;
 
         private InstructionInfo thisStep;
 
         private readonly Container iconHolder;
+        private Texture? welcomeTexture;
+
         private readonly TruncatingSpriteText stepName;
         private readonly TruncatingSpriteText stepDescription;
 
@@ -104,7 +106,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                     Name = @"Icon display",
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Size = new Vector2(56),
+                                    RelativeSizeAxes = Axes.Both,
                                 },
                                 new Box
                                 {
@@ -154,6 +156,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            welcomeTexture = textures.Get("Icons/welcome-img");
             updateDisplay();
         }
 
@@ -166,15 +170,14 @@ namespace osu.Game.Tournament.Screens.Board.Components
             iconHolder.FadeIn(900, Easing.OutQuint);
             iconHolder.ScaleTo(2f).Then().ScaleTo(1, 600, Easing.OutQuint);
 
-            Texture? welcomeTexture = textures?.Get("Icons/welcome-img");
-
             if (thisStep.RoundStep == RoundStep.Default && welcomeTexture != null)
             {
                 iconHolder.Child = new Sprite
                 {
                     Anchor = Anchor.CentreLeft,
                     Origin = Anchor.CentreLeft,
-                    Width = HEIGHT - 10 * 2,
+                    RelativeSizeAxes = Axes.Both,
+                    FillMode = FillMode.Fit,
                     Texture = welcomeTexture,
                 };
             }
