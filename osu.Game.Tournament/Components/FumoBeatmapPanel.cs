@@ -234,8 +234,13 @@ namespace osu.Game.Tournament.Components
 
             var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
-            string choiceText = newPlacement?.OwnerTeam == TeamColour.Red ? "Red" :
-                newPlacement?.OwnerTeam == TeamColour.Blue ? "Blue" : "Map";
+            string choiceText = newPlacement?.OwnerTeam switch
+            {
+                TeamColour.Red => @"Red",
+                TeamColour.Blue => @"Blue",
+                _ => @"Map",
+            };
+
             bool shouldAnimate = newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
                                  || newPlacement?.CurrentType != lastPlacement?.CurrentType;
 
