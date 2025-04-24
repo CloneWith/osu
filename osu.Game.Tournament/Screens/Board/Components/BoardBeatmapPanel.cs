@@ -207,8 +207,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
             // Flash when new changes are made.
             bool shouldFlash = newBpChoice != bpChoice;
 
-            string choiceText = newBpChoice?.Team == TeamColour.Red ? "Red" :
-                newBpChoice?.Team == TeamColour.Blue ? "Blue" : "Map";
+            string choiceText = newBpChoice?.Team switch
+            {
+                TeamColour.Red => @"Red",
+                TeamColour.Blue => @"Blue",
+                _ => @"Map",
+            };
 
             if (newBpChoice != null)
             {
