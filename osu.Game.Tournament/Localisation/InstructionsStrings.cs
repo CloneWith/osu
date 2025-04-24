@@ -44,16 +44,16 @@ namespace osu.Game.Tournament.Localisation
             @"The picked map would be played later.");
 
         /// <summary>
-        /// "Round winner({0})"
+        /// "Round winner ({0})"
         /// </summary>
         public static LocalisableString WinName(LocalisableString team) => new TranslatableString(getKey(@"win_name"),
-            @"Round winner({0})", team);
+            @"Round winner ({0})", team);
 
         /// <summary>
         /// "The chess pieces will be painted in the winner's color."
         /// </summary>
         public static LocalisableString WinDescription => new TranslatableString(getKey(@"win_description"),
-            @"The chess pieces will be painted in the winner's color.");
+            @"Paint the chess with winner's colour.");
 
         /// <summary>
         /// "Deploy Shiro ({0})"
@@ -71,7 +71,7 @@ namespace osu.Game.Tournament.Localisation
         /// "Entering TieBreaker Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),
-            @"Entering TieBreaker Mode...");
+            @"Entering TB Mode...");
 
         /// <summary>
         /// "Yes, the final round coming now."

@@ -32,6 +32,7 @@ namespace osu.Game.Tournament.Models
         public ColourInfo IconColour { get; private set; } = new OsuColour().Yellow;
 
         private LocalisableString teamPrompt;
+        private LocalisableString shortTeamPrompt;
 
         /// <summary>
         /// A constructor to set up an instance of <see cref="InstructionInfo"/>.
@@ -45,34 +46,45 @@ namespace osu.Game.Tournament.Models
 
             bool notDraw = team == TeamColour.Red || team == TeamColour.Blue;
 
-            teamPrompt = team == TeamColour.Red ? BaseStrings.TeamRed
-                : team == TeamColour.Blue ? BaseStrings.TeamBlue : BaseStrings.Unknown;
+            teamPrompt = team switch
+            {
+                TeamColour.Red => BaseStrings.TeamRed,
+                TeamColour.Blue => BaseStrings.TeamBlue,
+                _ => BaseStrings.Unknown,
+            };
+
+            shortTeamPrompt = team switch
+            {
+                TeamColour.Red => BaseStrings.TeamRedShort,
+                TeamColour.Blue => BaseStrings.TeamBlueShort,
+                _ => @"?",
+            };
 
             switch (RoundStep)
             {
                 case RoundStep.Ban:
-                    Name = InstructionsStrings.BanName(teamPrompt);
+                    Name = InstructionsStrings.BanName(shortTeamPrompt);
                     Description = InstructionsStrings.BanDescription;
                     Icon = FontAwesome.Solid.Ban;
                     IconColour = Color4.Orange;
                     break;
 
                 case RoundStep.Pick:
-                    Name = InstructionsStrings.PickName(teamPrompt);
+                    Name = InstructionsStrings.PickName(shortTeamPrompt);
                     Description = InstructionsStrings.PickDescription;
                     Icon = FontAwesome.Solid.Check;
                     IconColour = new OsuColour().Green;
                     break;
 
                 case RoundStep.Win:
-                    Name = InstructionsStrings.WinName(teamPrompt);
+                    Name = InstructionsStrings.WinName(shortTeamPrompt);
                     Description = InstructionsStrings.WinDescription;
                     Icon = FontAwesome.Solid.Trophy;
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 case RoundStep.Shiro:
-                    Name = InstructionsStrings.ShiroName(teamPrompt);
+                    Name = InstructionsStrings.ShiroName(shortTeamPrompt);
                     Description = InstructionsStrings.ShiroDescription;
                     Icon = FontAwesome.Regular.Circle;
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
