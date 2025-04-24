@@ -299,7 +299,7 @@ namespace osu.Game.Tournament.Components
         private void runAnimation(ColourInfo? colour = null)
         {
             // Stop any transform process (if exists) first
-            ClearTransforms();
+            FinishTransforms(true);
 
             ColourInfo useColour = colour ?? Color4.White;
             ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
