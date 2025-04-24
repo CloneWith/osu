@@ -98,8 +98,8 @@ namespace osu.Game.Tournament.Models
                     break;
 
                 case RoundStep.FinalWin:
-                    Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : @"Do you want smoke?";
-                    Description = notDraw ? InstructionsStrings.FinalWinDescription : @"来看看礼堂顶针？";
+                    Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : InstructionsStrings.OnFireName;
+                    Description = notDraw ? InstructionsStrings.FinalWinDescription : InstructionsStrings.OnFireDescription;
                     Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;

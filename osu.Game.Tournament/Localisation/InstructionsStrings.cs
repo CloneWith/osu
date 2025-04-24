@@ -50,7 +50,7 @@ namespace osu.Game.Tournament.Localisation
             @"Round winner ({0})", team);
 
         /// <summary>
-        /// "The chess pieces will be painted in the winner's color."
+        /// "Paint the chess with winner's colour."
         /// </summary>
         public static LocalisableString WinDescription => new TranslatableString(getKey(@"win_description"),
             @"Paint the chess with winner's colour.");
@@ -68,7 +68,7 @@ namespace osu.Game.Tournament.Localisation
             @"Consume couplets to deploy one.");
 
         /// <summary>
-        /// "Entering TieBreaker Mode..."
+        /// "Entering TB Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),
             @"Entering TB Mode...");
@@ -90,6 +90,16 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString FinalWinDescription => new TranslatableString(getKey(@"final_win_description"),
             @"Congratulations!");
+
+        /// <summary>
+        /// "Do you want smoke?"
+        /// </summary>
+        public static LocalisableString OnFireName => new TranslatableString(getKey(@"on_fire_name"), @"Do you want smoke?");
+
+        /// <summary>
+        /// "You need Ding Zhen's Ruike V5!"
+        /// </summary>
+        public static LocalisableString OnFireDescription => new TranslatableString(getKey(@"on_fire_description"), @"You need Ding Zhen's Ruike V5!");
 
         /// <summary>
         /// "Please Wait..."
