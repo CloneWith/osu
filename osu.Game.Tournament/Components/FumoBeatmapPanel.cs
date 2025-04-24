@@ -279,6 +279,7 @@ namespace osu.Game.Tournament.Components
             }
             else
             {
+                topMask.FadeOut(300, Easing.OutQuint);
                 statusIcon.FadeOut(200, Easing.OutQuint);
                 Alpha = 1;
             }
