@@ -57,6 +57,13 @@ namespace osu.Game.Tournament.Tests.Components
                     TeamColour.Red, ChoiceType.Ban, panel.Beatmap.Beatmap!.OnlineID));
             });
 
+            AddStep("Add blue ban record", () =>
+            {
+                // This is longest text possible so I added this for testing
+                placements.Add(new ChessPlacement(1, 1,
+                    TeamColour.Blue, ChoiceType.Ban, panel.Beatmap.Beatmap!.OnlineID));
+            });
+
             AddStep("Remove latest record", () =>
             {
                 if (placements.Any(r => r.BeatmapID == panel.Beatmap.Beatmap!.OnlineID))

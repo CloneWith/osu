@@ -262,6 +262,7 @@ namespace osu.Game.Tournament.Components
                         case ChoiceType.Ban:
                             instructText.Text = $"{choiceText} banned!";
                             statusIcon.Icon = FontAwesome.Solid.Ban;
+                            instructText.Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold);
 
                             runAnimation(Color4.Gray);
                             break;
