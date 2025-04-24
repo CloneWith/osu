@@ -10,86 +10,86 @@ namespace osu.Game.Tournament.Localisation
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Instructions";
 
         /// <summary>
-        /// "Unknown"
+        /// "Welcome to OFFC!"
         /// </summary>
         public static LocalisableString DefaultName => new TranslatableString(getKey(@"default_name"), @"Welcome to OFFC!");
 
         /// <summary>
-        /// "Unknown"
+        /// "Enjoy the game!"
         /// </summary>
         public static LocalisableString DefaultDescription => new TranslatableString(getKey(@"default_description"), @"Enjoy the game!");
 
         /// <summary>
-        /// "Unknown"
+        /// "Ban Maps ({0})"
         /// </summary>
         public static LocalisableString BanName(LocalisableString team) => new TranslatableString(getKey(@"ban_name"),
             @"Ban Maps ({0})", team);
 
         /// <summary>
-        /// "Unknown"
+        /// "Banned maps cannot be chosen."
         /// </summary>
         public static LocalisableString BanDescription => new TranslatableString(getKey(@"ban_description"),
             @"Banned maps cannot be chosen.");
 
         /// <summary>
-        /// "Unknown"
+        /// "Pick Maps ({0})"
         /// </summary>
         public static LocalisableString PickName(LocalisableString team) => new TranslatableString(getKey(@"pick_name"),
             @"Pick Maps ({0})", team);
 
         /// <summary>
-        /// "Unknown"
+        /// "The picked map would be played later."
         /// </summary>
         public static LocalisableString PickDescription => new TranslatableString(getKey(@"pick_description"),
             @"The picked map would be played later.");
 
         /// <summary>
-        /// "Unknown"
+        /// "Round winner({0})"
         /// </summary>
         public static LocalisableString WinName(LocalisableString team) => new TranslatableString(getKey(@"win_name"),
             @"Round winner({0})", team);
 
         /// <summary>
-        /// "Unknown"
+        /// "The chess pieces will be painted in the winner's color."
         /// </summary>
         public static LocalisableString WinDescription => new TranslatableString(getKey(@"win_description"),
             @"The chess pieces will be painted in the winner's color.");
 
         /// <summary>
-        /// "Unknown"
+        /// "Entering TieBreaker Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),
             @"Entering TieBreaker Mode...");
 
         /// <summary>
-        /// "Unknown"
+        /// "Yes, the final round coming now."
         /// </summary>
         public static LocalisableString TieBreakerDescription => new TranslatableString(getKey(@"tie_breaker_description"),
             @"Yes, the final round coming now.");
 
         /// <summary>
-        /// "Unknown"
+        /// "{0} Won!"
         /// </summary>
         public static LocalisableString FinalWinName(LocalisableString team) => new TranslatableString(getKey(@"final_win_name"),
             @"{0} Won!", team);
 
         /// <summary>
-        /// "Unknown"
+        /// "Congratulations!"
         /// </summary>
         public static LocalisableString FinalWinDescription => new TranslatableString(getKey(@"final_win_description"),
             @"Congratulations!");
 
         /// <summary>
-        /// "Unknown"
+        /// "Please Wait..."
         /// </summary>
         public static LocalisableString HaltName => new TranslatableString(getKey(@"halt_name"),
             @"Please Wait...");
 
         /// <summary>
-        /// "Unknown"
+        /// "Waiting for referees' reply..."
         /// </summary>
         public static LocalisableString HaltDescription => new TranslatableString(getKey(@"halt_description"),
-            @"Wait for referees' reply.");
+            @"Waiting for referees' reply...");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
