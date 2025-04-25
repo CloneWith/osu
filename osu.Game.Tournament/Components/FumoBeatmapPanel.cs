@@ -451,9 +451,7 @@ namespace osu.Game.Tournament.Components
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
                         instructText.MoveToY(-2f, 1450, Easing.InExpo);
 
-                        var currentPlacement = currentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
-
-                        if (useColour == Color4.Gray && currentPlacement?.CurrentType == ChoiceType.Ban)
+                        if (useColour == Color4.Gray && placement.CurrentType == ChoiceType.Ban)
                         {
                             banPill.Y = 15;
                             banPill.Alpha = 0;
@@ -464,10 +462,9 @@ namespace osu.Game.Tournament.Components
                                 banPill.MoveToY(0, 600, Easing.OutExpo);
                             }
                         }
-                        else if ((useColour == TournamentGame.COLOUR_RED || useColour == TournamentGame.COLOUR_BLUE)
-                                 && currentPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                        else if (placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                         {
-                            trophyBg.Colour = currentPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                            trophyBg.Colour = placement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
                             trophyIcon.Y = 15;
                             trophyIcon.Alpha = 0;
 
