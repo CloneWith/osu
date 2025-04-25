@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Tournament.Localisation;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Models
@@ -24,13 +25,14 @@ namespace osu.Game.Tournament.Models
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public RoundStep RoundStep;
 
-        private SpriteIcon icon = new SpriteIcon
-        {
-            Icon = FontAwesome.Regular.GrinWink,
-            Colour = new OsuColour().Yellow,
-        };
+        public LocalisableString Name { get; private set; }
+        public LocalisableString Description { get; private set; }
+
+        public IconUsage Icon { get; private set; } = FontAwesome.Regular.StickyNote;
+        public ColourInfo IconColour { get; private set; } = new OsuColour().Yellow;
 
         private LocalisableString teamPrompt;
+        private LocalisableString shortTeamPrompt;
 
         /// <summary>
         /// A constructor to set up an instance of <see cref="InstructionInfo"/>.
@@ -39,97 +41,80 @@ namespace osu.Game.Tournament.Models
         /// <param name="roundStep">The current step.</param>
         public InstructionInfo(TeamColour team = TeamColour.Neutral, RoundStep roundStep = RoundStep.Default)
         {
+            Team = team;
             RoundStep = roundStep;
 
             bool notDraw = team == TeamColour.Red || team == TeamColour.Blue;
 
-            teamPrompt = team == TeamColour.Red ? @"红队" : (team == TeamColour.Blue ? @"蓝队" : string.Empty);
+            teamPrompt = team switch
+            {
+                TeamColour.Red => BaseStrings.TeamRed,
+                TeamColour.Blue => BaseStrings.TeamBlue,
+                _ => BaseStrings.Unknown,
+            };
+
+            shortTeamPrompt = team switch
+            {
+                TeamColour.Red => BaseStrings.TeamRedShort,
+                TeamColour.Blue => BaseStrings.TeamBlueShort,
+                _ => @"?",
+            };
 
             switch (RoundStep)
             {
                 case RoundStep.Ban:
-                    Name = @$"标记禁图·{teamPrompt}";
-                    Description = @"被禁止的图无法被选与设置陷阱。";
-                    icon.Icon = FontAwesome.Solid.Ban;
-                    icon.Colour = Color4.Orange;
+                    Name = InstructionsStrings.BanName(shortTeamPrompt);
+                    Description = InstructionsStrings.BanDescription;
+                    Icon = FontAwesome.Solid.Ban;
+                    IconColour = Color4.Orange;
                     break;
 
                 case RoundStep.Pick:
-                    Name = @$"标记选图·{teamPrompt}";
-                    Description = @"选择该轮要游玩的图。";
-                    icon.Icon = FontAwesome.Solid.Check;
-                    icon.Colour = new OsuColour().Green;
+                    Name = InstructionsStrings.PickName(shortTeamPrompt);
+                    Description = InstructionsStrings.PickDescription;
+                    Icon = FontAwesome.Solid.Check;
+                    IconColour = new OsuColour().Green;
                     break;
 
                 case RoundStep.Win:
-                    Name = @$"胜方染色·{teamPrompt}";
-                    Description = @"此图所在格将染成获胜队颜色。";
-                    icon.Icon = FontAwesome.Solid.Trophy;
-                    icon.Colour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
+                    Name = InstructionsStrings.WinName(shortTeamPrompt);
+                    Description = InstructionsStrings.WinDescription;
+                    Icon = FontAwesome.Solid.Trophy;
+                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
+                    break;
+
+                case RoundStep.Shiro:
+                    Name = InstructionsStrings.ShiroName(shortTeamPrompt);
+                    Description = InstructionsStrings.ShiroDescription;
+                    Icon = FontAwesome.Regular.Circle;
+                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 case RoundStep.TieBreaker:
-                    Name = @"即将进入 EX 模式";
-                    Description = @"当前棋盘不足以任一方取胜，需要重新染色。";
-                    icon.Icon = FontAwesome.Solid.Bolt;
-                    icon.Colour = Color4.Orange;
+                    Name = InstructionsStrings.TieBreakerName;
+                    Description = InstructionsStrings.TieBreakerDescription;
+                    Icon = FontAwesome.Solid.Bolt;
+                    IconColour = Color4.Orange;
                     break;
 
                 case RoundStep.FinalWin:
-                    Name = notDraw ? @$"{teamPrompt}获胜！" : team == TeamColour.Neutral ? @"EX: 决胜局" : @"Do you want smoke?";
-                    Description = notDraw ? @$"恭喜{teamPrompt}获得最终胜利！" : team == TeamColour.Neutral ? @"我只是个笨蛋，也没有你聪明。" : @"来看看礼堂顶针？";
-                    icon.Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
-                    icon.Colour = team == TeamColour.Red ? new OsuColour().Pink : (team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow);
+                    Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : InstructionsStrings.OnFireName;
+                    Description = notDraw ? InstructionsStrings.FinalWinDescription : InstructionsStrings.OnFireDescription;
+                    Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
+                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 case RoundStep.Halt:
-                    Name = @"请稍候...";
-                    Description = @"等待裁判响应...";
-                    icon.Icon = FontAwesome.Solid.ExclamationCircle;
-                    icon.Colour = Color4.Orange;
+                    Name = InstructionsStrings.HaltName;
+                    Description = InstructionsStrings.HaltDescription;
+                    Icon = FontAwesome.Solid.ExclamationCircle;
+                    IconColour = Color4.Orange;
                     break;
 
                 default:
-                    Name = @"Welcome to the Fumo era!";
-                    Description = @"(ᗜˬᗜ)";
+                    Name = InstructionsStrings.DefaultName;
+                    Description = InstructionsStrings.DefaultDescription;
                     break;
-            }
-        }
-
-        public LocalisableString Name { get; }
-
-        public LocalisableString Description { get; }
-
-        public IconUsage Icon => icon.Icon;
-        public ColourInfo IconColor => icon.Colour;
-
-        /// <summary>
-        /// Get the original step type based on a string.
-        /// The string should exactly match the name of the step.
-        /// </summary>
-        /// <param name="typeString">A <see cref="LocalisableString"/>, the string to handle</param>
-        /// <returns>A <see cref="RoundStep"/>, representing the current step</returns>
-        public RoundStep GetReversedType(LocalisableString typeString)
-        {
-            switch (typeString.ToString())
-            {
-                case @"标记禁图":
-                    return RoundStep.Ban;
-
-                case @"标记选图":
-                    return RoundStep.Pick;
-
-                case @"胜方染色":
-                    return RoundStep.Win;
-
-                case @"最后一战":
-                    return RoundStep.TieBreaker;
-
-                case @"请稍候...":
-                    return RoundStep.Halt;
-
-                default:
-                    return RoundStep.Default;
             }
         }
     }
@@ -154,6 +139,11 @@ namespace osu.Game.Tournament.Models
         /// Mark colours.
         /// </summary>
         Win,
+
+        /// <summary>
+        /// Place the empty chess.
+        /// </summary>
+        Shiro,
 
         /// <summary>
         /// The final stage.
