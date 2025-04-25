@@ -277,12 +277,12 @@ namespace osu.Game.Tournament.Components
             {
                 if (newPlacement.CurrentType == ChoiceType.Ban)
                 {
-                    banPill.FadeIn(300, Easing.OutQuint);
                     var pillBg = banPill.Children.OfType<Box>().First();
                     pillBg.Colour = newPlacement.OwnerTeam == TeamColour.Red ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
                 }
                 else
                 {
+                    banPill.FinishTransforms(true);
                     banPill.FadeOut(300, Easing.OutQuint);
                 }
 
@@ -295,7 +295,8 @@ namespace osu.Game.Tournament.Components
                         case ChoiceType.Pick:
                             statusIcon.Icon = FontAwesome.Solid.CheckCircle;
                             instructText.Text = "Map picked!";
-
+                            banPill.FinishTransforms(true);
+                            banPill.FadeOut(300, Easing.OutQuint);
                             runAnimation();
                             break;
 
@@ -308,23 +309,24 @@ namespace osu.Game.Tournament.Components
                             break;
 
                         case ChoiceType.RedWin:
-                            statusIcon.Icon = FontAwesome.Solid.Trophy;
-                            instructText.Text = "Red wins!";
-
-                            runAnimation(TournamentGame.COLOUR_RED);
-                            break;
-
                         case ChoiceType.BlueWin:
                             statusIcon.Icon = FontAwesome.Solid.Trophy;
-                            instructText.Text = "Blue wins!";
-
-                            runAnimation(TournamentGame.COLOUR_BLUE);
+                            instructText.Text = newPlacement.CurrentType == ChoiceType.RedWin ? "Red wins!" : "Blue wins!";
+                            banPill.FinishTransforms(true);
+                            banPill.FadeOut(300, Easing.OutQuint);
+                            runAnimation(newPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE);
                             break;
                     }
+                }
+                else if (newPlacement.CurrentType != ChoiceType.Ban)
+                {
+                    banPill.FinishTransforms(true);
+                    banPill.FadeOut(300, Easing.OutQuint);
                 }
             }
             else
             {
+                banPill.FinishTransforms(true);
                 banPill.FadeOut(300, Easing.OutQuint);
                 topMask.FadeOut(300, Easing.OutQuint);
                 statusIcon.FadeOut(200, Easing.OutQuint);
@@ -342,6 +344,10 @@ namespace osu.Game.Tournament.Components
         {
             // Stop any transform process (if exists) first
             FinishTransforms(true);
+
+            banPill.FinishTransforms(true);
+            banPill.Alpha = 0;
+            banPill.Y = 0;
 
             ColourInfo useColour = colour ?? Color4.White;
             ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
@@ -384,6 +390,22 @@ namespace osu.Game.Tournament.Components
 
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
                         instructText.MoveToY(-2f, 1450, Easing.InExpo);
+
+                        if (useColour == Color4.Gray)
+                        {
+                            var currentPlacement = currentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
+                            if (currentPlacement?.CurrentType == ChoiceType.Ban)
+                            {
+                                banPill.Y = 15;
+                                banPill.Alpha = 0;
+
+                                using (BeginDelayedSequence(500))
+                                {
+                                    banPill.FadeIn(600, Easing.OutExpo);
+                                    banPill.MoveToY(0, 600, Easing.OutExpo);
+                                }
+                            }
+                        }
 
                         using (BeginDelayedSequence(500))
                         {
