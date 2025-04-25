@@ -61,7 +61,7 @@ namespace osu.Game.Tournament.Components
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
         private Container banPill = null!;
-        private SpriteIcon trophyIcon = null!;
+        private Container trophyIcon = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -210,15 +210,31 @@ namespace osu.Game.Tournament.Components
                         }
                     }
                 },
-                trophyIcon = new SpriteIcon
+                trophyIcon = new Container
                 {
-                    Name = "Win Trophy",
-                    Icon = FontAwesome.Solid.Trophy,
-                    Size = new Vector2(18),
+                    Name = "Win Circle",
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
-                    Margin = new MarginPadding { Horizontal = -5, Bottom = -8.5f },
+                    Margin = new MarginPadding { Horizontal = -5, Bottom = -11 },
+                    Size = new Vector2(24),
+                    Masking = true,
+                    CornerRadius = 12,
                     Alpha = 0,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                        },
+                        new SpriteIcon
+                        {
+                            Icon = FontAwesome.Solid.Trophy,
+                            Size = new Vector2(14),
+                            Colour = Color4.White,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                        }
+                    }
                 }
             };
         }
@@ -295,7 +311,8 @@ namespace osu.Game.Tournament.Components
                 }
                 else if (newPlacement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                 {
-                    trophyIcon.Colour = newPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                    var trophyBg = trophyIcon.Children.OfType<Box>().First();
+                    trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
                     banPill.FinishTransforms(true);
                     banPill.FadeOut(300, Easing.OutQuint);
                 }
@@ -445,7 +462,8 @@ namespace osu.Game.Tournament.Components
                         else if ((useColour == TournamentGame.COLOUR_RED || useColour == TournamentGame.COLOUR_BLUE)
                                  && currentPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                         {
-                            trophyIcon.Colour = currentPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                            var trophyBg = trophyIcon.Children.OfType<Box>().First();
+                            trophyBg.Colour = currentPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
                             trophyIcon.Y = 15;
                             trophyIcon.Alpha = 0;
 
