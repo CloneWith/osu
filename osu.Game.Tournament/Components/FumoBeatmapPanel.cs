@@ -61,9 +61,9 @@ namespace osu.Game.Tournament.Components
         private Box topMask = null!;
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
-        private Container banPill = null!;
+        private CircularContainer banPill = null!;
         private Box pillBg = null!;
-        private Container trophyIcon = null!;
+        private CircularContainer trophyIcon = null!;
         private Box trophyBg = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
@@ -186,7 +186,7 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.CentreLeft,
                     Scale = new Vector2(0.75f),
                 },
-                banPill = new Container
+                banPill = new CircularContainer
                 {
                     Name = "Ban Pill",
                     Anchor = Anchor.BottomRight,
@@ -194,7 +194,6 @@ namespace osu.Game.Tournament.Components
                     Margin = new MarginPadding { Horizontal = -5, Bottom = -8.5f },
                     AutoSizeAxes = Axes.Both,
                     Masking = true,
-                    CornerRadius = 8,
                     Alpha = 0,
                     Children = new Drawable[]
                     {
@@ -213,7 +212,7 @@ namespace osu.Game.Tournament.Components
                         }
                     }
                 },
-                trophyIcon = new Container
+                trophyIcon = new CircularContainer
                 {
                     Name = "Win Circle",
                     Anchor = Anchor.BottomRight,
@@ -221,7 +220,6 @@ namespace osu.Game.Tournament.Components
                     Margin = new MarginPadding { Horizontal = -5, Bottom = -11 },
                     Size = new Vector2(24),
                     Masking = true,
-                    CornerRadius = 12,
                     Alpha = 0,
                     Children = new Drawable[]
                     {
