@@ -260,7 +260,6 @@ namespace osu.Game.Tournament
             currentScreen = null;
 
             screens.Add(temporaryScreen = screen);
-            temporaryScreen.FirstSelected();
         }
 
         public void SetScreen(Type screenType)
@@ -296,7 +295,6 @@ namespace osu.Game.Tournament
 
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
-            currentScreen.FirstSelected();
 
             chatContainer.FadeOut(TournamentScreen.FADE_DELAY / 2);
 

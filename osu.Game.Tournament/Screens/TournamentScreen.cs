@@ -28,16 +28,19 @@ namespace osu.Game.Tournament.Screens
         /// <summary>
         /// Called when the screen is selected the first time in this session.
         /// </summary>
-        /// <param name="enforced">Enforce this function to be executed even the screen had been selected before.</param>
-        public virtual void FirstSelected(bool enforced = false)
+        public virtual void FirstSelected()
         {
-            if (HadBeenSelected && !enforced) return;
-
-            HadBeenSelected = true;
         }
 
         public override void Hide() => this.FadeOut(FADE_DELAY);
 
-        public override void Show() => this.FadeIn(FADE_DELAY);
+        public override void Show()
+        {
+            this.FadeIn(FADE_DELAY);
+            if (HadBeenSelected) return;
+
+            HadBeenSelected = true;
+            FirstSelected();
+        }
     }
 }
