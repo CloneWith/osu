@@ -288,8 +288,6 @@ namespace osu.Game.Tournament.Components
 
                 if (shouldAnimate)
                 {
-                    topMask.FadeTo(newPlacement.CurrentType == ChoiceType.Ban ? 0.5f : 0f, 300, Easing.OutQuint);
-
                     switch (newPlacement.CurrentType)
                     {
                         case ChoiceType.Pick:
@@ -349,6 +347,8 @@ namespace osu.Game.Tournament.Components
             banPill.Alpha = 0;
             banPill.Y = 0;
 
+            topMask.Alpha = 0;
+
             ColourInfo useColour = colour ?? Color4.White;
             ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
 
@@ -387,6 +387,9 @@ namespace osu.Game.Tournament.Components
                         floatingContainer.Origin = Anchor.TopCentre;
 
                         floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
+
+                        bool shouldDim = (Color4)useColour == Color4.Gray || (Color4)useColour == (Color4)TournamentGame.COLOUR_RED || (Color4)useColour == (Color4)TournamentGame.COLOUR_BLUE;
+                        topMask.FadeTo(shouldDim ? 0.5f : 0f, 300, Easing.OutQuint);
 
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
                         instructText.MoveToY(-2f, 1450, Easing.InExpo);
