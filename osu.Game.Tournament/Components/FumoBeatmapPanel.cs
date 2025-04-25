@@ -62,6 +62,7 @@ namespace osu.Game.Tournament.Components
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
         private Container banPill = null!;
+        private Box pillBg = null!;
         private Container trophyIcon = null!;
         private Box trophyBg = null!;
 
@@ -197,7 +198,7 @@ namespace osu.Game.Tournament.Components
                     Alpha = 0,
                     Children = new Drawable[]
                     {
-                        new Box
+                        pillBg = new Box
                         {
                             RelativeSizeAxes = Axes.Both,
                         },
@@ -299,7 +300,6 @@ namespace osu.Game.Tournament.Components
             {
                 if (newPlacement.CurrentType == ChoiceType.Ban)
                 {
-                    var pillBg = banPill.Children.OfType<Box>().First();
                     pillBg.Colour = TournamentGame.GetTeamColour(newPlacement.OwnerTeam);
                     trophyIcon.FinishTransforms(true);
                     trophyIcon.FadeOut(300, Easing.OutQuint);
