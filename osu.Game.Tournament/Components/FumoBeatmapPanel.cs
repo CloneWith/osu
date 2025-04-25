@@ -60,6 +60,7 @@ namespace osu.Game.Tournament.Components
         private Box topMask = null!;
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
+        private Container banPill = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -181,6 +182,33 @@ namespace osu.Game.Tournament.Components
                     Origin = Anchor.CentreLeft,
                     Scale = new Vector2(0.75f),
                 },
+                banPill = new Container
+                {
+                    Name = "Ban Pill",
+                    Anchor = Anchor.BottomRight,
+                    Origin = Anchor.BottomRight,
+                    Margin = new MarginPadding { Horizontal = -5, Bottom = -8.5f },
+                    AutoSizeAxes = Axes.Both,
+                    Masking = true,
+                    CornerRadius = 8,
+                    Alpha = 0,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                        },
+                        new TournamentSpriteText
+                        {
+                            Text = "Ban",
+                            Padding = new MarginPadding { Horizontal = 5, Top = 0.3f, Bottom = 2.5f },
+                            Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold),
+                            Colour = Color4.White,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                        }
+                    }
+                }
             };
         }
 
@@ -229,6 +257,7 @@ namespace osu.Game.Tournament.Components
         {
             if (currentMatch.Value == null)
             {
+                banPill?.FadeOut(300, Easing.OutQuint);
                 return;
             }
 
@@ -246,6 +275,17 @@ namespace osu.Game.Tournament.Components
 
             if (newPlacement != null)
             {
+                if (newPlacement.CurrentType == ChoiceType.Ban)
+                {
+                    banPill.FadeIn(300, Easing.OutQuint);
+                    var pillBg = banPill.Children.OfType<Box>().First();
+                    pillBg.Colour = newPlacement.OwnerTeam == TeamColour.Red ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                }
+                else
+                {
+                    banPill.FadeOut(300, Easing.OutQuint);
+                }
+
                 if (shouldAnimate)
                 {
                     topMask.FadeTo(newPlacement.CurrentType == ChoiceType.Ban ? 0.5f : 0f, 300, Easing.OutQuint);
@@ -285,6 +325,7 @@ namespace osu.Game.Tournament.Components
             }
             else
             {
+                banPill.FadeOut(300, Easing.OutQuint);
                 topMask.FadeOut(300, Easing.OutQuint);
                 statusIcon.FadeOut(200, Easing.OutQuint);
                 Alpha = 1;
