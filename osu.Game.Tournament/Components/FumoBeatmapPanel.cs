@@ -415,14 +415,14 @@ namespace osu.Game.Tournament.Components
             // Reset the state of the floating container
             floatingContainer.Anchor = Anchor.BottomCentre;
             floatingContainer.Origin = Anchor.BottomCentre;
-            floatingContainer.ResizeHeightTo(0);
+            floatingContainer.Height = 0;
             floatingBox.Colour = useColour;
 
             statusIcon.Y = 1.5f;
-            statusIcon.FadeOut();
+            statusIcon.Alpha = 0f;
 
             instructText.Y = 1.5f;
-            instructText.FadeOut();
+            instructText.Alpha = 0f;
 
             using (BeginDelayedSequence(200))
             {
