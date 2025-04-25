@@ -72,6 +72,7 @@ namespace osu.Game.Tournament.Tests.Components
 
             AddStep("Add pick record", () => addPlacement(placements, null, ChoiceType.Pick));
             AddStep("Add blue win record", () => addPlacement(placements, null, ChoiceType.BlueWin));
+            AddStep("Add red win record", () => addPlacement(placements, null, ChoiceType.RedWin));
 
             AddStep("Add consume record", () => addPlacement(placements, null, ChoiceType.Consumed));
         }

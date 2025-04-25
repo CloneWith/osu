@@ -61,6 +61,7 @@ namespace osu.Game.Tournament.Components
         private Box backgroundAddition = null!;
         private TournamentSpriteText instructText = null!;
         private Container banPill = null!;
+        private SpriteIcon trophyIcon = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -208,6 +209,16 @@ namespace osu.Game.Tournament.Components
                             Origin = Anchor.Centre,
                         }
                     }
+                },
+                trophyIcon = new SpriteIcon
+                {
+                    Name = "Win Trophy",
+                    Icon = FontAwesome.Solid.Trophy,
+                    Size = new Vector2(18),
+                    Anchor = Anchor.BottomRight,
+                    Origin = Anchor.BottomRight,
+                    Margin = new MarginPadding { Horizontal = -5, Bottom = -8.5f },
+                    Alpha = 0,
                 }
             };
         }
@@ -279,15 +290,27 @@ namespace osu.Game.Tournament.Components
                 {
                     var pillBg = banPill.Children.OfType<Box>().First();
                     pillBg.Colour = newPlacement.OwnerTeam == TeamColour.Red ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                    trophyIcon.FinishTransforms(true);
+                    trophyIcon.FadeOut(300, Easing.OutQuint);
+                }
+                else if (newPlacement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                {
+                    trophyIcon.Colour = newPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                    banPill.FinishTransforms(true);
+                    banPill.FadeOut(300, Easing.OutQuint);
                 }
                 else
                 {
                     banPill.FinishTransforms(true);
                     banPill.FadeOut(300, Easing.OutQuint);
+                    trophyIcon.FinishTransforms(true);
+                    trophyIcon.FadeOut(300, Easing.OutQuint);
                 }
 
                 if (shouldAnimate)
                 {
+                    instructText.Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold);
+
                     switch (newPlacement.CurrentType)
                     {
                         case ChoiceType.Pick:
@@ -295,6 +318,8 @@ namespace osu.Game.Tournament.Components
                             instructText.Text = "Map picked!";
                             banPill.FinishTransforms(true);
                             banPill.FadeOut(300, Easing.OutQuint);
+                            trophyIcon.FinishTransforms(true);
+                            trophyIcon.FadeOut(300, Easing.OutQuint);
                             runAnimation();
                             break;
 
@@ -303,6 +328,8 @@ namespace osu.Game.Tournament.Components
                             statusIcon.Icon = FontAwesome.Solid.Ban;
                             instructText.Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold);
 
+                            trophyIcon.FinishTransforms(true);
+                            trophyIcon.FadeOut(300, Easing.OutQuint);
                             runAnimation(Color4.Gray);
                             break;
 
@@ -316,16 +343,20 @@ namespace osu.Game.Tournament.Components
                             break;
                     }
                 }
-                else if (newPlacement.CurrentType != ChoiceType.Ban)
+                else if (newPlacement.CurrentType != ChoiceType.Ban && newPlacement.CurrentType != ChoiceType.RedWin && newPlacement.CurrentType != ChoiceType.BlueWin)
                 {
                     banPill.FinishTransforms(true);
                     banPill.FadeOut(300, Easing.OutQuint);
+                    trophyIcon.FinishTransforms(true);
+                    trophyIcon.FadeOut(300, Easing.OutQuint);
                 }
             }
             else
             {
                 banPill.FinishTransforms(true);
                 banPill.FadeOut(300, Easing.OutQuint);
+                trophyIcon.FinishTransforms(true);
+                trophyIcon.FadeOut(300, Easing.OutQuint);
                 topMask.FadeOut(300, Easing.OutQuint);
                 statusIcon.FadeOut(200, Easing.OutQuint);
                 Alpha = 1;
@@ -346,6 +377,10 @@ namespace osu.Game.Tournament.Components
             banPill.FinishTransforms(true);
             banPill.Alpha = 0;
             banPill.Y = 0;
+
+            trophyIcon.FinishTransforms(true);
+            trophyIcon.Alpha = 0;
+            trophyIcon.Y = 0;
 
             topMask.Alpha = 0;
 
@@ -394,19 +429,30 @@ namespace osu.Game.Tournament.Components
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
                         instructText.MoveToY(-2f, 1450, Easing.InExpo);
 
-                        if (useColour == Color4.Gray)
-                        {
-                            var currentPlacement = currentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
-                            if (currentPlacement?.CurrentType == ChoiceType.Ban)
-                            {
-                                banPill.Y = 15;
-                                banPill.Alpha = 0;
+                        var currentPlacement = currentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
-                                using (BeginDelayedSequence(500))
-                                {
-                                    banPill.FadeIn(600, Easing.OutExpo);
-                                    banPill.MoveToY(0, 600, Easing.OutExpo);
-                                }
+                        if (useColour == Color4.Gray && currentPlacement?.CurrentType == ChoiceType.Ban)
+                        {
+                            banPill.Y = 15;
+                            banPill.Alpha = 0;
+
+                            using (BeginDelayedSequence(500))
+                            {
+                                banPill.FadeIn(600, Easing.OutExpo);
+                                banPill.MoveToY(0, 600, Easing.OutExpo);
+                            }
+                        }
+                        else if ((useColour == TournamentGame.COLOUR_RED || useColour == TournamentGame.COLOUR_BLUE)
+                                 && currentPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                        {
+                            trophyIcon.Colour = currentPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                            trophyIcon.Y = 15;
+                            trophyIcon.Alpha = 0;
+
+                            using (BeginDelayedSequence(500))
+                            {
+                                trophyIcon.FadeIn(600, Easing.OutExpo);
+                                trophyIcon.MoveToY(0, 600, Easing.OutExpo);
                             }
                         }
 
