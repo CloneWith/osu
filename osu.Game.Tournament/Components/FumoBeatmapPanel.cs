@@ -62,6 +62,7 @@ namespace osu.Game.Tournament.Components
         private TournamentSpriteText instructText = null!;
         private Container banPill = null!;
         private Container trophyIcon = null!;
+        private Box trophyBg = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -222,7 +223,7 @@ namespace osu.Game.Tournament.Components
                     Alpha = 0,
                     Children = new Drawable[]
                     {
-                        new Box
+                        trophyBg = new Box
                         {
                             RelativeSizeAxes = Axes.Both,
                         },
@@ -305,13 +306,12 @@ namespace osu.Game.Tournament.Components
                 if (newPlacement.CurrentType == ChoiceType.Ban)
                 {
                     var pillBg = banPill.Children.OfType<Box>().First();
-                    pillBg.Colour = newPlacement.OwnerTeam == TeamColour.Red ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                    pillBg.Colour = TournamentGame.GetTeamColour(newPlacement.OwnerTeam);
                     trophyIcon.FinishTransforms(true);
                     trophyIcon.FadeOut(300, Easing.OutQuint);
                 }
                 else if (newPlacement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                 {
-                    var trophyBg = trophyIcon.Children.OfType<Box>().First();
                     trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
                     banPill.FinishTransforms(true);
                     banPill.FadeOut(300, Easing.OutQuint);
@@ -462,7 +462,6 @@ namespace osu.Game.Tournament.Components
                         else if ((useColour == TournamentGame.COLOUR_RED || useColour == TournamentGame.COLOUR_BLUE)
                                  && currentPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                         {
-                            var trophyBg = trophyIcon.Children.OfType<Box>().First();
                             trophyBg.Colour = currentPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
                             trophyIcon.Y = 15;
                             trophyIcon.Alpha = 0;
