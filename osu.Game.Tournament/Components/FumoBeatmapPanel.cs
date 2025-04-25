@@ -84,7 +84,7 @@ namespace osu.Game.Tournament.Components
             {
                 beatmapInfoContainer = new Container
                 {
-                    Name = "Beatmap information",
+                    Name = @"Beatmap information",
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Width = WIDTH,
@@ -181,14 +181,14 @@ namespace osu.Game.Tournament.Components
                 },
                 new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap.Beatmap?.StarRating ?? 0, 0), animated: true)
                 {
-                    Name = "Star rating pill",
+                    Name = @"Star rating pill",
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.CentreLeft,
                     Scale = new Vector2(0.75f),
                 },
                 banPill = new CircularContainer
                 {
-                    Name = "Ban Pill",
+                    Name = @"Ban Pill",
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
                     Margin = new MarginPadding { Horizontal = -5, Bottom = -8.5f },
@@ -203,7 +203,7 @@ namespace osu.Game.Tournament.Components
                         },
                         new TournamentSpriteText
                         {
-                            Text = "Ban",
+                            Text = @"Ban",
                             Padding = new MarginPadding { Horizontal = 5, Top = 0.3f, Bottom = 2.5f },
                             Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold),
                             Colour = Color4.White,
@@ -214,7 +214,7 @@ namespace osu.Game.Tournament.Components
                 },
                 trophyIcon = new CircularContainer
                 {
-                    Name = "Win Circle",
+                    Name = @"Win Circle",
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
                     Margin = new MarginPadding { Horizontal = -5, Bottom = -11 },
@@ -245,7 +245,7 @@ namespace osu.Game.Tournament.Components
             base.LoadComplete();
 
             updateBorder();
-            updateState();
+            updateState(false);
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -256,11 +256,11 @@ namespace osu.Game.Tournament.Components
             if (match.NewValue != null)
                 match.NewValue.ChessPlacements.CollectionChanged += onPlacementChanged;
 
-            Scheduler.AddOnce(updateState);
+            Scheduler.AddOnce(() => updateState(false));
         }
 
         private void onPlacementChanged(object? _, NotifyCollectionChangedEventArgs e)
-            => Scheduler.AddOnce(updateState);
+            => Scheduler.AddOnce(updateState, e.Action == NotifyCollectionChangedAction.Add);
 
         private ChessPlacement? lastPlacement;
 
@@ -281,66 +281,51 @@ namespace osu.Game.Tournament.Components
             }
         }
 
-        private void updateState()
+        private void updateState(bool playFullAnimation = true)
         {
+            // Match unavailable: Clean up
             if (currentMatch.Value == null)
             {
                 banPill.FadeOut(300, Easing.OutQuint);
+                trophyIcon.FadeOut(300, Easing.OutQuint);
                 return;
             }
 
             var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
-            bool shouldAnimate = newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
+            bool shouldAnimate = playFullAnimation
+                                 && newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
                                  || newPlacement?.CurrentType != lastPlacement?.CurrentType;
+
+            // Always finish transforms first!
+            // Do this at the very beginning of animation.
+            FinishTransforms(true);
+
+            topMask.FadeTo(newPlacement != null && newPlacement.CurrentType != ChoiceType.Pick ? 0.5f : 0,
+                300, Easing.OutQuint);
+            banPill.FadeTo(!playFullAnimation && newPlacement?.CurrentType == ChoiceType.Ban ? 1 : 0, 300, Easing.OutQuint);
+            trophyIcon.FadeTo(!playFullAnimation && newPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin ? 1 : 0,
+                300, Easing.OutQuint);
 
             if (newPlacement != null)
             {
+                // First: Change colour of pills
                 switch (newPlacement.CurrentType)
                 {
                     case ChoiceType.Ban:
-                        pillBg.Colour = TournamentGame.GetTeamColour(newPlacement.OwnerTeam);
-                        trophyIcon.FinishTransforms(true);
-                        trophyIcon.FadeOut(300, Easing.OutQuint);
+                        pillBg.FadeColour(TournamentGame.GetTeamColour(newPlacement.OwnerTeam), 300, Easing.OutQuint);
                         break;
 
                     case ChoiceType.RedWin or ChoiceType.BlueWin:
-                        trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin
-                            ? TournamentGame.GetTeamColour(TeamColour.Red)
-                            : TournamentGame.GetTeamColour(TeamColour.Blue);
-                        banPill.FinishTransforms(true);
-                        banPill.FadeOut(300, Easing.OutQuint);
-                        break;
-
-                    default:
-                        banPill.FinishTransforms(true);
-                        banPill.FadeOut(300, Easing.OutQuint);
-                        trophyIcon.FinishTransforms(true);
-                        trophyIcon.FadeOut(300, Easing.OutQuint);
+                        trophyBg.FadeColour(TournamentGame.GetTypeColour(newPlacement.CurrentType), 300, Easing.OutQuint);
                         break;
                 }
 
+                // Second: Optional animation
                 if (shouldAnimate)
                 {
                     runAnimation(newPlacement);
                 }
-                else if (newPlacement.CurrentType != ChoiceType.Ban && newPlacement.CurrentType != ChoiceType.RedWin && newPlacement.CurrentType != ChoiceType.BlueWin)
-                {
-                    banPill.FinishTransforms(true);
-                    banPill.FadeOut(300, Easing.OutQuint);
-                    trophyIcon.FinishTransforms(true);
-                    trophyIcon.FadeOut(300, Easing.OutQuint);
-                }
-            }
-            else
-            {
-                banPill.FinishTransforms(true);
-                banPill.FadeOut(300, Easing.OutQuint);
-                trophyIcon.FinishTransforms(true);
-                trophyIcon.FadeOut(300, Easing.OutQuint);
-                topMask.FadeOut(300, Easing.OutQuint);
-                statusIcon.FadeOut(200, Easing.OutQuint);
-                Alpha = 1;
             }
 
             lastPlacement = newPlacement;
@@ -352,9 +337,6 @@ namespace osu.Game.Tournament.Components
         /// <param name="placement">The chess placement.</param>
         private void runAnimation(ChessPlacement placement)
         {
-            // Stop any transform process (if exists) first
-            FinishTransforms(true);
-
             LocalisableString choiceText = TournamentGame.GetTeamString(placement.OwnerTeam, true, @"Map");
 
             instructText.Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold);
@@ -365,22 +347,18 @@ namespace osu.Game.Tournament.Components
                 case ChoiceType.Pick:
                     statusIcon.Icon = FontAwesome.Solid.CheckCircle;
                     instructText.Text = "Map picked!";
-                    banPill.FadeOut(300, Easing.OutQuint);
-                    trophyIcon.FadeOut(300, Easing.OutQuint);
                     break;
 
                 case ChoiceType.Ban:
                     instructText.Text = $"{choiceText} banned!";
                     statusIcon.Icon = FontAwesome.Solid.Ban;
                     instructText.Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold);
-                    trophyIcon.FadeOut(300, Easing.OutQuint);
                     break;
 
                 case ChoiceType.RedWin:
                 case ChoiceType.BlueWin:
                     statusIcon.Icon = FontAwesome.Solid.Trophy;
                     instructText.Text = placement.CurrentType == ChoiceType.RedWin ? "Red wins!" : "Blue wins!";
-                    banPill.FadeOut(300, Easing.OutQuint);
                     break;
 
                 default:
@@ -394,27 +372,26 @@ namespace osu.Game.Tournament.Components
             trophyIcon.FadeOut(300, Easing.OutQuint);
             trophyIcon.MoveToY(0, 300, Easing.OutQuint);
 
-            topMask.Alpha = 0;
-
             ColourInfo useColour = placement.CurrentType switch
             {
                 ChoiceType.Pick => Color4.White,
                 ChoiceType.Ban => Color4.Gray,
                 ChoiceType.RedWin => TournamentGame.GetTeamColour(TeamColour.Red),
                 ChoiceType.BlueWin => TournamentGame.GetTeamColour(TeamColour.Blue),
-                _ => Color4.White
+                _ => Color4.White,
             };
 
             ColourInfo fadeColour = useColour == Color4.White ? Color4.Black : Color4.White;
-
-            statusIcon.Colour = Color4.Black;
-            instructText.Colour = Color4.Black;
 
             // Reset the state of the floating container
             floatingContainer.Anchor = Anchor.BottomCentre;
             floatingContainer.Origin = Anchor.BottomCentre;
             floatingContainer.Height = 0;
-            floatingBox.Colour = useColour;
+
+            // Colours may change halfway, using transforms to handle them.
+            statusIcon.FadeColour(fadeColour, 300, Easing.OutQuint);
+            instructText.FadeColour(fadeColour, 300, Easing.OutQuint);
+            floatingBox.FadeColour(useColour, 300, Easing.OutQuint);
 
             statusIcon.Y = 1.5f;
             statusIcon.Alpha = 0f;
@@ -422,6 +399,7 @@ namespace osu.Game.Tournament.Components
             instructText.Y = 1.5f;
             instructText.Alpha = 0f;
 
+            // Expand floating container and show instructions.
             using (BeginDelayedSequence(200))
             {
                 floatingContainer.ResizeHeightTo(1, 700, Easing.OutQuint);
@@ -433,56 +411,43 @@ namespace osu.Game.Tournament.Components
                 {
                     statusIcon.MoveToY(-0.175f, 800, Easing.OutExpo);
                     instructText.Delay(50).MoveToY(0.175f, 800, Easing.OutExpo);
-                    statusIcon.FadeColour(fadeColour, 1000, Easing.OutQuint);
-                    instructText.FadeColour(fadeColour, 1000, Easing.OutQuint);
-
-                    Scheduler.AddDelayed(() =>
-                    {
-                        floatingContainer.Anchor = Anchor.TopCentre;
-                        floatingContainer.Origin = Anchor.TopCentre;
-
-                        floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
-
-                        bool shouldDim = placement.CurrentType != ChoiceType.Pick;
-                        topMask.FadeTo(shouldDim ? 0.5f : 0f, 300, Easing.OutQuint);
-
-                        statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
-                        instructText.MoveToY(-2f, 1450, Easing.InExpo);
-
-                        if (placement.CurrentType == ChoiceType.Ban)
-                        {
-                            banPill.Y = 15;
-                            banPill.Alpha = 0;
-
-                            using (BeginDelayedSequence(500))
-                            {
-                                banPill.FadeIn(600, Easing.OutExpo);
-                                banPill.MoveToY(0, 600, Easing.OutExpo);
-                            }
-                        }
-                        else if (placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
-                        {
-                            trophyBg.Colour = placement.CurrentType == ChoiceType.RedWin
-                                ? TournamentGame.GetTeamColour(TeamColour.Red)
-                                : TournamentGame.GetTeamColour(TeamColour.Blue);
-                            trophyIcon.Y = 15;
-                            trophyIcon.Alpha = 0;
-
-                            using (BeginDelayedSequence(500))
-                            {
-                                trophyIcon.FadeIn(600, Easing.OutExpo);
-                                trophyIcon.MoveToY(0, 600, Easing.OutExpo);
-                            }
-                        }
-
-                        using (BeginDelayedSequence(500))
-                        {
-                            statusIcon.FadeOut(600, Easing.OutQuint);
-                            instructText.FadeOut(600, Easing.OutQuint);
-                        }
-                    }, 3000);
                 }
             }
+
+            // Show pills when possible.
+            using (BeginDelayedSequence(300 + 1000 + 500))
+            {
+                if (placement.CurrentType == ChoiceType.Ban)
+                {
+                    banPill.FadeIn(600, Easing.OutExpo);
+                    banPill.MoveToY(15)
+                           .Then().MoveToY(0, 600, Easing.OutExpo);
+                }
+                else if (placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                {
+                    trophyIcon.FadeIn(600, Easing.OutExpo);
+                    trophyIcon.MoveToY(15)
+                              .Then().MoveToY(0, 600, Easing.OutExpo);
+                }
+            }
+
+            // Use a separate scheduler to handle other things around floating container.
+            Scheduler.AddDelayed(() =>
+            {
+                floatingContainer.Anchor = Anchor.TopCentre;
+                floatingContainer.Origin = Anchor.TopCentre;
+
+                floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
+
+                statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
+                instructText.MoveToY(-2f, 1450, Easing.InExpo);
+
+                using (BeginDelayedSequence(500))
+                {
+                    statusIcon.FadeOut(600, Easing.OutQuint);
+                    instructText.FadeOut(600, Easing.OutQuint);
+                }
+            }, 200 + 100 + 1000);
         }
     }
 }

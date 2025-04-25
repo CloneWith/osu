@@ -12,6 +12,7 @@ using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
@@ -41,6 +42,15 @@ namespace osu.Game.Tournament
                 _ => fallback ?? COLOUR_NEUTRAL,
             };
 
+        public static ColourInfo GetTypeColour(ChoiceType? type, ColourInfo? fallback = null)
+            => type switch
+            {
+                ChoiceType.Pick => new OsuColour().Green,
+                ChoiceType.RedWin => COLOUR_RED,
+                ChoiceType.BlueWin => COLOUR_BLUE,
+                _ => fallback ?? COLOUR_CHOICES,
+            };
+
         /// <summary>
         /// Get the representation of a team in the form of a <see cref="LocalisableString"/>.
         /// </summary>
@@ -60,6 +70,7 @@ namespace osu.Game.Tournament
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
+        public static readonly Color4 COLOUR_CHOICES = Color4.Orange;
         public static readonly Color4 COLOUR_NEUTRAL = Color4.White;
 
         public static readonly Color4 ELEMENT_BACKGROUND_COLOUR = Color4Extensions.FromHex("#fff");
