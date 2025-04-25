@@ -305,7 +305,9 @@ namespace osu.Game.Tournament.Components
                 }
                 else if (newPlacement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                 {
-                    trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                    trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin
+                        ? TournamentGame.GetTeamColour(TeamColour.Red)
+                        : TournamentGame.GetTeamColour(TeamColour.Blue);
                     banPill.FinishTransforms(true);
                     banPill.FadeOut(300, Easing.OutQuint);
                 }
@@ -451,7 +453,7 @@ namespace osu.Game.Tournament.Components
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
                         instructText.MoveToY(-2f, 1450, Easing.InExpo);
 
-                        if (useColour == Color4.Gray && placement.CurrentType == ChoiceType.Ban)
+                        if (placement.CurrentType == ChoiceType.Ban)
                         {
                             banPill.Y = 15;
                             banPill.Alpha = 0;
@@ -464,7 +466,9 @@ namespace osu.Game.Tournament.Components
                         }
                         else if (placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                         {
-                            trophyBg.Colour = placement.CurrentType == ChoiceType.RedWin ? TournamentGame.COLOUR_RED : TournamentGame.COLOUR_BLUE;
+                            trophyBg.Colour = placement.CurrentType == ChoiceType.RedWin
+                                ? TournamentGame.GetTeamColour(TeamColour.Red)
+                                : TournamentGame.GetTeamColour(TeamColour.Blue);
                             trophyIcon.Y = 15;
                             trophyIcon.Alpha = 0;
 
