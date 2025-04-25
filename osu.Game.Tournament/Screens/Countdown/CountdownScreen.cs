@@ -223,7 +223,7 @@ namespace osu.Game.Tournament.Screens.Countdown
             });
         }
 
-        public override void FirstSelected()
+        protected override void FirstSelected()
         {
             base.FirstSelected();
 

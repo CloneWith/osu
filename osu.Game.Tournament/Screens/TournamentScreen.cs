@@ -28,7 +28,7 @@ namespace osu.Game.Tournament.Screens
         /// <summary>
         /// Called when the screen is selected the first time in this session.
         /// </summary>
-        public virtual void FirstSelected()
+        protected virtual void FirstSelected()
         {
         }
 
