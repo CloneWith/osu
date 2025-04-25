@@ -284,7 +284,7 @@ namespace osu.Game.Tournament.Components
         {
             if (currentMatch.Value == null)
             {
-                banPill?.FadeOut(300, Easing.OutQuint);
+                banPill.FadeOut(300, Easing.OutQuint);
                 return;
             }
 
@@ -440,7 +440,7 @@ namespace osu.Game.Tournament.Components
 
                         floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
 
-                        bool shouldDim = (Color4)useColour == Color4.Gray || (Color4)useColour == (Color4)TournamentGame.COLOUR_RED || (Color4)useColour == (Color4)TournamentGame.COLOUR_BLUE;
+                        bool shouldDim = useColour == Color4.Gray || useColour == TournamentGame.COLOUR_RED || useColour == TournamentGame.COLOUR_BLUE;
                         topMask.FadeTo(shouldDim ? 0.5f : 0f, 300, Easing.OutQuint);
 
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
