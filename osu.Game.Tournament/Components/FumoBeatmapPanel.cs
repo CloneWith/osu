@@ -375,12 +375,12 @@ namespace osu.Game.Tournament.Components
             FinishTransforms(true);
 
             banPill.FinishTransforms(true);
-            banPill.Alpha = 0;
-            banPill.Y = 0;
+            banPill.FadeOut(300, Easing.OutQuint);
+            banPill.MoveToY(0, 300, Easing.OutQuint);
 
             trophyIcon.FinishTransforms(true);
-            trophyIcon.Alpha = 0;
-            trophyIcon.Y = 0;
+            trophyIcon.FadeOut(300, Easing.OutQuint);
+            trophyIcon.MoveToY(0, 300, Easing.OutQuint);
 
             topMask.Alpha = 0;
 
