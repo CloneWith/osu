@@ -30,13 +30,15 @@ namespace osu.Game.Tournament
         /// Get the corresponding colour of a team.
         /// </summary>
         /// <param name="teamColour">the <see cref="TeamColour"/> of the specific team.</param>
+        /// <param name="fallback">the alternative <see cref="ColourInfo"/> to use
+        /// when <paramref name="teamColour"/> is not red nor blue.</param>
         /// <returns>a <see cref="ColourInfo"/> representing the target colour.</returns>
-        public static ColourInfo GetTeamColour(TeamColour? teamColour)
+        public static ColourInfo GetTeamColour(TeamColour? teamColour, ColourInfo? fallback = null)
             => teamColour switch
             {
                 TeamColour.Red => COLOUR_RED,
                 TeamColour.Blue => COLOUR_BLUE,
-                _ => COLOUR_NEUTRAL
+                _ => fallback ?? COLOUR_NEUTRAL,
             };
 
         /// <summary>
