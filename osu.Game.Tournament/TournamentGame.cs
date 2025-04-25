@@ -9,6 +9,7 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Input.Handlers.Mouse;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Game.Graphics.Cursor;
@@ -25,12 +26,34 @@ namespace osu.Game.Tournament
     [Cached]
     public partial class TournamentGame : TournamentGameBase
     {
-        public static ColourInfo GetTeamColour(TeamColour teamColour)
+        /// <summary>
+        /// Get the corresponding colour of a team.
+        /// </summary>
+        /// <param name="teamColour">the <see cref="TeamColour"/> of the specific team.</param>
+        /// <returns>a <see cref="ColourInfo"/> representing the target colour.</returns>
+        public static ColourInfo GetTeamColour(TeamColour? teamColour)
             => teamColour switch
             {
                 TeamColour.Red => COLOUR_RED,
                 TeamColour.Blue => COLOUR_BLUE,
                 _ => COLOUR_NEUTRAL
+            };
+
+        /// <summary>
+        /// Get the representation of a team in the form of a <see cref="LocalisableString"/>.
+        /// </summary>
+        /// <param name="teamColour">the <see cref="TeamColour"/> of the specific team.</param>
+        /// <param name="shortForm">whether to return a shortened string, useful in special cases.</param>
+        /// <param name="fallback">the alternative <see cref="LocalisableString"/> to use
+        /// when <paramref name="teamColour"/> is not red nor blue.</param>
+        /// <returns>a <see cref="LocalisableString"/> representing the team.</returns>
+        public static LocalisableString GetTeamString(TeamColour? teamColour, bool shortForm = false,
+                                                      LocalisableString? fallback = null) =>
+            teamColour switch
+            {
+                TeamColour.Red => shortForm ? BaseStrings.TeamRedShort : BaseStrings.TeamRed,
+                TeamColour.Blue => shortForm ? BaseStrings.TeamBlueShort : BaseStrings.TeamBlue,
+                _ => fallback ?? (shortForm ? @"?" : BaseStrings.Unknown),
             };
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;

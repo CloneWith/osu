@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
@@ -290,12 +291,7 @@ namespace osu.Game.Tournament.Components
 
             var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
-            string choiceText = newPlacement?.OwnerTeam switch
-            {
-                TeamColour.Red => @"Red",
-                TeamColour.Blue => @"Blue",
-                _ => @"Map",
-            };
+            LocalisableString choiceText = TournamentGame.GetTeamString(newPlacement?.OwnerTeam, true, @"Map");
 
             bool shouldAnimate = newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
                                  || newPlacement?.CurrentType != lastPlacement?.CurrentType;
