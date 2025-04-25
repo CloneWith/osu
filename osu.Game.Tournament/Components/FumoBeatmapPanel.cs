@@ -294,8 +294,8 @@ namespace osu.Game.Tournament.Components
             var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
             bool shouldAnimate = playFullAnimation
-                                 && newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
-                                 || newPlacement?.CurrentType != lastPlacement?.CurrentType;
+                                 && (newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
+                                     || newPlacement?.CurrentType != lastPlacement?.CurrentType);
 
             // Always finish transforms first!
             // Do this at the very beginning of animation.
