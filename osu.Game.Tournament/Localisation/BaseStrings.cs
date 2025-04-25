@@ -77,6 +77,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString FetchData => new TranslatableString(getKey(@"fetch_data"), @"Fetch Data");
 
         /// <summary>
+        /// "Unknown"
+        /// </summary>
+        public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
+
+        /// <summary>
         /// "Add New"
         /// </summary>
         public static LocalisableString AddNew => new TranslatableString(getKey(@"add_new"), @"Add New");
@@ -135,6 +140,16 @@ namespace osu.Game.Tournament.Localisation
         /// "Team Blue"
         /// </summary>
         public static LocalisableString TeamBlue => new TranslatableString(getKey(@"team_blue"), @"Team Blue");
+
+        /// <summary>
+        /// "Red"
+        /// </summary>
+        public static LocalisableString TeamRedShort => new TranslatableString(getKey(@"team_red_short"), @"Red");
+
+        /// <summary>
+        /// "Blue"
+        /// </summary>
+        public static LocalisableString TeamBlueShort => new TranslatableString(getKey(@"team_blue_short"), @"Blue");
 
         /// <summary>
         /// "Seeding Mod"

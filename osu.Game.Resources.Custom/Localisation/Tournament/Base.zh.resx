@@ -84,6 +84,12 @@
     <data name="team_blue" xml:space="preserve">
         <value>蓝队</value>
     </data>
+    <data name="team_red_short" xml:space="preserve">
+        <value>红队</value>
+    </data>
+    <data name="team_blue_short" xml:space="preserve">
+        <value>蓝队</value>
+    </data>
     <data name="no_match_warning" xml:space="preserve">
         <value>请先从对阵图选择比赛</value>
     </data>
@@ -113,5 +119,8 @@
     </data>
     <data name="fetch_data" xml:space="preserve">
         <value>获取数据</value>
+    </data>
+    <data name="unknown" xml:space="preserve">
+        <value>未知</value>
     </data>
 </root>
