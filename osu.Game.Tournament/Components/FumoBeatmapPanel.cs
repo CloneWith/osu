@@ -298,26 +298,28 @@ namespace osu.Game.Tournament.Components
 
             if (newPlacement != null)
             {
-                if (newPlacement.CurrentType == ChoiceType.Ban)
+                switch (newPlacement.CurrentType)
                 {
-                    pillBg.Colour = TournamentGame.GetTeamColour(newPlacement.OwnerTeam);
-                    trophyIcon.FinishTransforms(true);
-                    trophyIcon.FadeOut(300, Easing.OutQuint);
-                }
-                else if (newPlacement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
-                {
-                    trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin
-                        ? TournamentGame.GetTeamColour(TeamColour.Red)
-                        : TournamentGame.GetTeamColour(TeamColour.Blue);
-                    banPill.FinishTransforms(true);
-                    banPill.FadeOut(300, Easing.OutQuint);
-                }
-                else
-                {
-                    banPill.FinishTransforms(true);
-                    banPill.FadeOut(300, Easing.OutQuint);
-                    trophyIcon.FinishTransforms(true);
-                    trophyIcon.FadeOut(300, Easing.OutQuint);
+                    case ChoiceType.Ban:
+                        pillBg.Colour = TournamentGame.GetTeamColour(newPlacement.OwnerTeam);
+                        trophyIcon.FinishTransforms(true);
+                        trophyIcon.FadeOut(300, Easing.OutQuint);
+                        break;
+
+                    case ChoiceType.RedWin or ChoiceType.BlueWin:
+                        trophyBg.Colour = newPlacement.CurrentType == ChoiceType.RedWin
+                            ? TournamentGame.GetTeamColour(TeamColour.Red)
+                            : TournamentGame.GetTeamColour(TeamColour.Blue);
+                        banPill.FinishTransforms(true);
+                        banPill.FadeOut(300, Easing.OutQuint);
+                        break;
+
+                    default:
+                        banPill.FinishTransforms(true);
+                        banPill.FadeOut(300, Easing.OutQuint);
+                        trophyIcon.FinishTransforms(true);
+                        trophyIcon.FadeOut(300, Easing.OutQuint);
+                        break;
                 }
 
                 if (shouldAnimate)
