@@ -390,11 +390,9 @@ namespace osu.Game.Tournament.Components
                     return;
             }
 
-            banPill.FinishTransforms(true);
             banPill.FadeOut(300, Easing.OutQuint);
             banPill.MoveToY(0, 300, Easing.OutQuint);
 
-            trophyIcon.FinishTransforms(true);
             trophyIcon.FadeOut(300, Easing.OutQuint);
             trophyIcon.MoveToY(0, 300, Easing.OutQuint);
 
@@ -447,7 +445,7 @@ namespace osu.Game.Tournament.Components
 
                         floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
 
-                        bool shouldDim = useColour == Color4.Gray || useColour == TournamentGame.COLOUR_RED || useColour == TournamentGame.COLOUR_BLUE;
+                        bool shouldDim = placement.CurrentType != ChoiceType.Pick;
                         topMask.FadeTo(shouldDim ? 0.5f : 0f, 300, Easing.OutQuint);
 
                         statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
