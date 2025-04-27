@@ -302,6 +302,10 @@ namespace osu.Game.Tournament.Components
             // Always finish transforms first!
             // Do this at the very beginning of animation.
             // RunTask must run before FinishTransforms.
+            // If the delegate had been executed, initialize it again then.
+            if (scheduledFloatingBoxAnimation == null || scheduledFloatingBoxAnimation.Completed)
+                prepareFloatingBox();
+
             scheduledFloatingBoxAnimation?.RunTask();
             FinishTransforms(true);
 
@@ -436,22 +440,24 @@ namespace osu.Game.Tournament.Components
             }
 
             // Use a separate scheduler to handle other things around floating container.
-            scheduledFloatingBoxAnimation = Scheduler.AddDelayed(() =>
-            {
-                floatingContainer.Anchor = Anchor.TopCentre;
-                floatingContainer.Origin = Anchor.TopCentre;
-
-                floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
-
-                statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
-                instructText.MoveToY(-2f, 1450, Easing.InExpo);
-
-                using (BeginDelayedSequence(500))
-                {
-                    statusIcon.FadeOut(600, Easing.OutQuint);
-                    instructText.FadeOut(600, Easing.OutQuint);
-                }
-            }, 200 + 100 + 1000);
+            prepareFloatingBox();
         }
+
+        private void prepareFloatingBox() => scheduledFloatingBoxAnimation = Scheduler.AddDelayed(() =>
+        {
+            floatingContainer.Anchor = Anchor.TopCentre;
+            floatingContainer.Origin = Anchor.TopCentre;
+
+            floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
+
+            statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
+            instructText.MoveToY(-2f, 1450, Easing.InExpo);
+
+            using (BeginDelayedSequence(500))
+            {
+                statusIcon.FadeOut(600, Easing.OutQuint);
+                instructText.FadeOut(600, Easing.OutQuint);
+            }
+        }, 200 + 100 + 1000);
     }
 }
