@@ -9,8 +9,10 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Input.Handlers.Mouse;
+using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
@@ -25,16 +27,50 @@ namespace osu.Game.Tournament
     [Cached]
     public partial class TournamentGame : TournamentGameBase
     {
-        public static ColourInfo GetTeamColour(TeamColour teamColour)
+        /// <summary>
+        /// Get the corresponding colour of a team.
+        /// </summary>
+        /// <param name="teamColour">the <see cref="TeamColour"/> of the specific team.</param>
+        /// <param name="fallback">the alternative <see cref="ColourInfo"/> to use
+        /// when <paramref name="teamColour"/> is not red nor blue.</param>
+        /// <returns>a <see cref="ColourInfo"/> representing the target colour.</returns>
+        public static ColourInfo GetTeamColour(TeamColour? teamColour, ColourInfo? fallback = null)
             => teamColour switch
             {
                 TeamColour.Red => COLOUR_RED,
                 TeamColour.Blue => COLOUR_BLUE,
-                _ => COLOUR_NEUTRAL
+                _ => fallback ?? COLOUR_NEUTRAL,
+            };
+
+        public static ColourInfo GetTypeColour(ChoiceType? type, ColourInfo? fallback = null)
+            => type switch
+            {
+                ChoiceType.Pick => new OsuColour().Green,
+                ChoiceType.RedWin => COLOUR_RED,
+                ChoiceType.BlueWin => COLOUR_BLUE,
+                _ => fallback ?? COLOUR_CHOICES,
+            };
+
+        /// <summary>
+        /// Get the representation of a team in the form of a <see cref="LocalisableString"/>.
+        /// </summary>
+        /// <param name="teamColour">the <see cref="TeamColour"/> of the specific team.</param>
+        /// <param name="shortForm">whether to return a shortened string, useful in special cases.</param>
+        /// <param name="fallback">the alternative <see cref="LocalisableString"/> to use
+        /// when <paramref name="teamColour"/> is not red nor blue.</param>
+        /// <returns>a <see cref="LocalisableString"/> representing the team.</returns>
+        public static LocalisableString GetTeamString(TeamColour? teamColour, bool shortForm = false,
+                                                      LocalisableString? fallback = null) =>
+            teamColour switch
+            {
+                TeamColour.Red => shortForm ? BaseStrings.TeamRedShort : BaseStrings.TeamRed,
+                TeamColour.Blue => shortForm ? BaseStrings.TeamBlueShort : BaseStrings.TeamBlue,
+                _ => fallback ?? (shortForm ? @"?" : BaseStrings.Unknown),
             };
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
+        public static readonly Color4 COLOUR_CHOICES = Color4.Orange;
         public static readonly Color4 COLOUR_NEUTRAL = Color4.White;
 
         public static readonly Color4 ELEMENT_BACKGROUND_COLOUR = Color4Extensions.FromHex("#fff");

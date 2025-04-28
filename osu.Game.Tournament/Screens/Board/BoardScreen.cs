@@ -361,9 +361,9 @@ namespace osu.Game.Tournament.Screens.Board
             return base.OnMouseDown(e);
         }
 
-        public override void OnFirstSelected(bool enforced = false)
+        protected override void OnFirstSelected()
         {
-            base.OnFirstSelected(enforced);
+            base.OnFirstSelected();
 
             // Padding cannot be changed partially, moving the container instead.
             mainContainer.MoveToY(10);

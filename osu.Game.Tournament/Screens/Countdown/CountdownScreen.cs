@@ -223,9 +223,9 @@ namespace osu.Game.Tournament.Screens.Countdown
             });
         }
 
-        public override void OnFirstSelected(bool enforced = false)
+        protected override void OnFirstSelected()
         {
-            base.OnFirstSelected(enforced);
+            base.OnFirstSelected();
 
             countdown.Target.Value = LadderInfo.CurrentMatch.Value?.Date.Value;
             countdownContainer.Delay(700).MoveToY(0, 1000, Easing.OutQuint);
