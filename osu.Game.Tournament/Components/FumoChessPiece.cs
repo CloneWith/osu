@@ -34,6 +34,11 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public readonly string ModIndex;
 
+        /// <summary>
+        /// The ID of the beatmap.
+        /// </summary>
+        public readonly int BeatmapID;
+
         /// <inheritdoc cref="ChessPlacement.OwnerTeam"/>
         /// <remarks>Changing this will trigger an update of the chess.</remarks>
         public TeamColour OwnerTeam
@@ -96,6 +101,7 @@ namespace osu.Game.Tournament.Components
         {
             ModName = mod;
             ModIndex = index;
+            BeatmapID = target?.BeatmapID ?? 0;
             ownerTeam = target?.OwnerTeam ?? TeamColour.Neutral;
             currentType = target?.CurrentType ?? ChoiceType.Neutral;
 
