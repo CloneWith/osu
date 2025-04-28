@@ -40,6 +40,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
             }
         }
 
+        public MarginPadding InnerPadding
+        {
+            get => contentGrid.Padding;
+            set => contentGrid.Padding = value;
+        }
+
         public const float WIDTH = 500;
         public const float HEIGHT = 100;
 
@@ -47,6 +53,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private TextureStore textures { get; set; } = null!;
 
         private InstructionInfo thisStep;
+
+        private readonly GridContainer contentGrid;
 
         private readonly Container iconHolder;
         private Texture? welcomeTexture;
@@ -81,7 +89,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         Colour = Color4.Black,
                         Alpha = 0.5f,
                     },
-                    new GridContainer
+                    contentGrid = new GridContainer
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
@@ -123,8 +131,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                     Name = @"Information flow",
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
+                                    RelativeSizeAxes = Axes.Both,
                                     Direction = FillDirection.Vertical,
                                     Children = new Drawable[]
                                     {

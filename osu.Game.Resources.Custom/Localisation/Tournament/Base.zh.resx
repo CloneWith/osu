@@ -123,4 +123,10 @@
     <data name="unknown" xml:space="preserve">
         <value>未知</value>
     </data>
+    <data name="okay" xml:space="preserve">
+        <value>好</value>
+    </data>
+    <data name="action_not_permitted" xml:space="preserve">
+        <value>不允许的操作</value>
+    </data>
 </root>

@@ -77,6 +77,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString FetchData => new TranslatableString(getKey(@"fetch_data"), @"Fetch Data");
 
         /// <summary>
+        /// "Okay"
+        /// </summary>
+        public static LocalisableString Okay => new TranslatableString(getKey(@"okay"), @"Okay");
+
+        /// <summary>
         /// "Unknown"
         /// </summary>
         public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
@@ -190,6 +195,11 @@ namespace osu.Game.Tournament.Localisation
         /// "Fetching data from server, please wait..."
         /// </summary>
         public static LocalisableString FetchingDescription => new TranslatableString(getKey(@"fetching_description"), @"Fetching data from server, please wait...");
+
+        /// <summary>
+        /// "Action not permitted"
+        /// </summary>
+        public static LocalisableString ActionNotPermitted => new TranslatableString(getKey(@"action_not_permitted"), @"Action not permitted");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

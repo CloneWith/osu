@@ -17,6 +17,7 @@ using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
@@ -30,7 +31,7 @@ namespace osu.Game.Tournament.Screens.Board
         private const float board_size = 570;
 
         // ReSharper disable once CollectionNeverUpdated.Local
-        private readonly List<BoardBeatmapPanel> boardMapList = new List<BoardBeatmapPanel>();
+        private readonly List<FumoChessPiece> boardMapList = new List<FumoChessPiece>();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -38,7 +39,7 @@ namespace osu.Game.Tournament.Screens.Board
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         private TeamColour pickTeam;
-        private ChoiceType pickType;
+        private RoundStep pickType;
 
         private Container mainContainer = null!;
         private Container informationContainer = null!;
@@ -54,6 +55,8 @@ namespace osu.Game.Tournament.Screens.Board
 
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
+        private OsuButton buttonRedShiro = null!;
+        private OsuButton buttonBlueShiro = null!;
 
         private OsuButton buttonIndicator = null!;
 
@@ -215,14 +218,14 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Ban",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Ban),
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Ban),
                                     },
                                     buttonBlueBan = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Ban",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Ban),
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Ban),
                                     },
                                 },
                             },
@@ -240,14 +243,14 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Pick",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Pick),
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Pick),
                                     },
                                     buttonBluePick = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Pick",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Pick),
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Pick),
                                     },
                                 },
                             },
@@ -265,14 +268,39 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Win",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.RedWin),
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Win),
                                     },
                                     buttonBlueWin = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Win",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.BlueWin),
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Win),
+                                    },
+                                },
+                            },
+                        },
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    buttonRedShiro = new TourneyButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = "Red Shiro",
+                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Shiro),
+                                    },
+                                    buttonBlueShiro = new TourneyButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = "Blue Shiro",
+                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Shiro),
                                     },
                                 },
                             },
@@ -284,7 +312,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Text = "TB Indicator",
                             BackgroundColour = Color4.Purple,
                             Colour = Color4.Gray,
-                            Action = () => setMode(TeamColour.Neutral, ChoiceType.Neutral),
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
                         },
                         new TourneyButton
                         {
@@ -308,17 +336,23 @@ namespace osu.Game.Tournament.Screens.Board
             // TODO: Add more relevant actions.
         }
 
-        private void setMode(TeamColour colour, ChoiceType choiceType)
+        private void setMode(TeamColour colour, RoundStep stepType)
         {
             pickTeam = colour;
-            pickType = choiceType;
+            pickType = stepType;
 
-            buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Ban);
-            buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Ban);
-            buttonRedPick.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Pick);
-            buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Pick);
-            buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.RedWin);
-            buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.BlueWin);
+            instructionDisplay.Team = colour;
+            instructionDisplay.Step = stepType;
+
+            buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
+            buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
+            buttonRedPick.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Pick);
+            buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Pick);
+            buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Win);
+            buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Win);
+            buttonRedShiro.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Shiro);
+            buttonBlueShiro.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Shiro);
+            return;
 
             static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
         }
@@ -327,34 +361,59 @@ namespace osu.Game.Tournament.Screens.Board
         {
             var map = boardMapList.FirstOrDefault(m => m.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
 
-            if (map != null)
+            if (map == null)
+                return base.OnMouseDown(e);
+
+            switch (e.Button)
             {
-                if (e.Button == MouseButton.Left && map.Beatmap?.OnlineID > 0)
+                case MouseButton.Left when map.BeatmapID > 0:
                 {
                     // Handle updating status to Red/Blue Win
-                    if (isPickWin)
+                    if (pickType == RoundStep.Win)
                     {
-                        updateWinStatusForBeatmap(map.Beatmap.OnlineID);
+                        updateWinStatusForBeatmap(map.BeatmapID);
                     }
                     else
                     {
-                        addForBeatmap(map.Beatmap.OnlineID);
+                        addForBeatmap(map.BeatmapID);
                     }
+
+                    break;
                 }
-                else if (e.Button == MouseButton.Right)
+
+                case MouseButton.Right:
                 {
-                    var existing = CurrentMatch.Value?.PicksBans.LastOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
+                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == map.BeatmapID);
 
-                    if (existing != null)
+                    if (placement == null)
+                        return true;
+
                     {
-                        CurrentMatch.Value?.PicksBans.Remove(existing);
-                    }
-                }
+                        CurrentMatch.Value?.ChessPlacements.Remove(placement);
 
-                return true;
+                        var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == map.BeatmapID);
+
+                        if (chessPiece == null)
+                            return true;
+
+                        placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == map.BeatmapID);
+
+                        if (placement != null)
+                        {
+                            chessPiece.OwnerTeam = placement.OwnerTeam;
+                            chessPiece.CurrentType = placement.CurrentType;
+                        }
+                        else
+                        {
+                            chessPiece.Remove();
+                        }
+                    }
+                    break;
+                }
             }
 
-            return base.OnMouseDown(e);
+            return true;
+
         }
 
         protected override void OnFirstSelected()
@@ -366,7 +425,7 @@ namespace osu.Game.Tournament.Screens.Board
             informationContainer.MoveToY(1.5f);
             chatContainer.MoveToY(1.75f);
             boardContainer.MoveToY(1.5f);
-            instructionContainer.MoveToY(1.75f);
+            instructionDisplay.MoveToY(1.75f);
             mapPoolContainer.MoveToY(1.5f);
 
             // All containers start moving into the screen in order.
@@ -379,7 +438,7 @@ namespace osu.Game.Tournament.Screens.Board
                     informationContainer.MoveToY(0, 900, Easing.OutQuint);
                     chatContainer.Delay(100).MoveToY(0, 900, Easing.OutQuint);
                     mapPoolContainer.MoveToY(0, 900, Easing.OutQuint);
-                    instructionContainer.MoveToY(0, 900, Easing.OutQuint);
+                    instructionDisplay.MoveToY(0, 900, Easing.OutQuint);
                 }
             }
 
@@ -391,19 +450,18 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void updateWinStatusForBeatmap(int beatmapId)
         {
-            var existing = CurrentMatch.Value?.PicksBans.FirstOrDefault(p => p.BeatmapID == beatmapId && (p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin));
+            var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
+                p.BeatmapID == beatmapId && p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin);
 
-            if (existing != null)
+            // Updating winning status without existing placement entries is not allowed now.
+            if (existing == null)
             {
-                CurrentMatch.Value?.PicksBans.Remove(existing);
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.PickBansUnavailable));
+                return;
             }
 
-            CurrentMatch.Value?.PicksBans.Add(new BeatmapChoice
-            {
-                Team = pickType == ChoiceType.RedWin ? TeamColour.Red : TeamColour.Blue,
-                Type = pickType,
-                BeatmapID = beatmapId,
-            });
+            CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
+                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
         }
 
         private void reset()
@@ -429,16 +487,14 @@ namespace osu.Game.Tournament.Screens.Board
             buttonIndicator.Colour = Color4.Gray;
 
             pickTeam = TeamColour.None;
-            pickType = ChoiceType.Neutral;
+            pickType = RoundStep.Default;
         }
-
-        private bool isPickWin => pickType == ChoiceType.RedWin || pickType == ChoiceType.BlueWin;
 
         private void addForBeatmap(int beatmapId)
         {
-            bool isPickBan = pickType == ChoiceType.Pick || pickType == ChoiceType.Ban || isPickWin;
+            bool isCommonType = pickType is RoundStep.Pick or RoundStep.Ban or RoundStep.Win or RoundStep.Shiro;
 
-            if (pickType == ChoiceType.Neutral || pickTeam == TeamColour.None || pickTeam == TeamColour.None)
+            if (pickType == RoundStep.Default || pickTeam == TeamColour.None)
                 return;
 
             if (CurrentMatch.Value?.Round.Value == null)
@@ -448,13 +504,13 @@ namespace osu.Game.Tournament.Screens.Board
                 // don't attempt to add if the beatmap isn't in our pool
                 return;
 
-            if (!isPickWin
-                && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
-                                                         && (p.Type == ChoiceType.Ban || p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)))
+            if (pickType != RoundStep.Win
+                && CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId
+                                                               && p.CurrentType is ChoiceType.Ban or ChoiceType.RedWin or ChoiceType.BlueWin))
                 // don't attempt to add if already banned / won, and it's not a win type.
                 return;
 
-            if (pickType == ChoiceType.Pick)
+            if (pickType == RoundStep.Pick)
             {
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
@@ -462,27 +518,32 @@ namespace osu.Game.Tournament.Screens.Board
                     sceneManager?.ShowMapIntro(introMap, pickTeam);
             }
 
-            if (isPickBan && !CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId && p.Type == pickType))
+            if (isCommonType && !CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && isSameStep(p.CurrentType, pickType)))
             {
-                CurrentMatch.Value.PicksBans.Add(new BeatmapChoice
-                {
-                    Team = pickTeam,
-                    Type = pickType,
-                    BeatmapID = beatmapId,
-                });
+                // TODO: Depended on virtual board layer implementation
+                // CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(null, null, pickTeam, pickType, beatmapId));
             }
 
             // setNextMode(); // Uncomment if you still want to automatically set the next mode
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
-                if (pickType == ChoiceType.Pick && CurrentMatch.Value.PicksBans.Any(i => i.Type == ChoiceType.Pick))
+                if (pickType == RoundStep.Pick && CurrentMatch.Value.PicksBans.Any(i => i.Type == ChoiceType.Pick))
                 {
                     scheduledScreenChange?.Cancel();
                     scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(GameplayScreen)); }, 10000);
                 }
             }
         }
+
+        private bool isSameStep(ChoiceType choiceType, RoundStep step)
+            => step switch
+            {
+                RoundStep.Pick => choiceType == ChoiceType.Pick,
+                RoundStep.Ban => choiceType == ChoiceType.Ban,
+                RoundStep.Win => choiceType is ChoiceType.RedWin or ChoiceType.BlueWin,
+                _ => false,
+            };
 
         public override void Hide()
         {
