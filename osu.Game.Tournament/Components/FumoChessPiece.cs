@@ -9,13 +9,11 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
-using osu.Framework.Input.Events;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Game.Tournament.Components
 {
@@ -278,17 +276,6 @@ namespace osu.Game.Tournament.Components
             };
 
             topIcon.ScaleTo(1.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
-        }
-
-        protected override bool OnMouseDown(MouseDownEvent e)
-        {
-            if (e.Button == MouseButton.Right)
-            {
-                Remove();
-                return true;
-            }
-
-            return base.OnMouseDown(e);
         }
     }
 }
