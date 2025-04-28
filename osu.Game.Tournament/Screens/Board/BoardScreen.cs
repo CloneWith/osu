@@ -44,8 +44,8 @@ namespace osu.Game.Tournament.Screens.Board
         private Container informationContainer = null!;
         private Container chatContainer = null!;
         private Container boardContainer = null!;
-        private Container instructionContainer = null!;
         private Container mapPoolContainer = null!;
+        private InstructionDisplay instructionDisplay = null!;
 
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
@@ -167,20 +167,16 @@ namespace osu.Game.Tournament.Screens.Board
                                             },
                                     },
                                 },
-                                instructionContainer = new Container
+                                instructionDisplay = new InstructionDisplay
                                 {
-                                    Name = "Instruction area",
+                                    Name = @"Instruction area",
                                     Anchor = Anchor.BottomCentre,
                                     Origin = Anchor.BottomCentre,
                                     RelativeSizeAxes = Axes.X,
                                     RelativePositionAxes = Axes.Both,
+                                    Width = 1,
                                     Height = 80,
-                                    Child = new EmptyBox(10)
-                                    {
-                                        Colour = Color4Extensions.FromHex("#454545"),
-                                        Alpha = 0.74f,
-                                        RelativeSizeAxes = Axes.Both,
-                                    },
+                                    InnerPadding = new MarginPadding { Horizontal = 20 },
                                 },
                             },
                         },
