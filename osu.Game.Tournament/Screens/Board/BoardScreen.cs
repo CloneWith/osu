@@ -45,7 +45,7 @@ namespace osu.Game.Tournament.Screens.Board
         private Container informationContainer = null!;
         private Container chatContainer = null!;
         private Container boardContainer = null!;
-        private Container mapPoolContainer = null!;
+        private ChessMapPool mapPool = null!;
         private InstructionDisplay instructionDisplay = null!;
 
         private OsuButton buttonRedBan = null!;
@@ -149,7 +149,6 @@ namespace osu.Game.Tournament.Screens.Board
                                     RelativeSizeAxes = Axes.X,
                                     RelativePositionAxes = Axes.Both,
                                     Height = board_size,
-                                    // 有实际内容后删除
                                     Children = new Drawable[]
                                     {
                                         boardTexture != null
@@ -183,21 +182,14 @@ namespace osu.Game.Tournament.Screens.Board
                                 },
                             },
                         },
-                        mapPoolContainer = new Container
+                        mapPool = new ChessMapPool
                         {
-                            Name = "right (aka 棋池)",
+                            Name = @"Chess piece pool",
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
                             RelativeSizeAxes = Axes.Y,
                             RelativePositionAxes = Axes.Both,
                             Width = 350,
-                            // 有实际内容后删除
-                            Child = new EmptyBox(10)
-                            {
-                                Colour = Color4Extensions.FromHex("#454545"),
-                                Alpha = 0.74f,
-                                RelativeSizeAxes = Axes.Both,
-                            },
                         },
                     },
                 },
@@ -426,7 +418,7 @@ namespace osu.Game.Tournament.Screens.Board
             chatContainer.MoveToY(1.75f);
             boardContainer.MoveToY(1.5f);
             instructionDisplay.MoveToY(1.75f);
-            mapPoolContainer.MoveToY(1.5f);
+            mapPool.MoveToY(1.5f);
 
             // All containers start moving into the screen in order.
             using (BeginDelayedSequence(1000))
@@ -437,7 +429,7 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     informationContainer.MoveToY(0, 900, Easing.OutQuint);
                     chatContainer.Delay(100).MoveToY(0, 900, Easing.OutQuint);
-                    mapPoolContainer.MoveToY(0, 900, Easing.OutQuint);
+                    mapPool.MoveToY(0, 900, Easing.OutQuint);
                     instructionDisplay.MoveToY(0, 900, Easing.OutQuint);
                 }
             }

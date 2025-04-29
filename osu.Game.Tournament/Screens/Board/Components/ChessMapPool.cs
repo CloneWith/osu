@@ -1,0 +1,113 @@
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// See the LICENCE file in the repository root for full licence text.
+
+using System.Linq;
+using osu.Framework.Allocation;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
+using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
+using osuTK;
+using osuTK.Graphics;
+
+namespace osu.Game.Tournament.Screens.Board.Components
+{
+    public partial class ChessMapPool : CompositeDrawable
+    {
+        public ChessMapPool()
+        {
+            RelativeSizeAxes = Axes.Both;
+            Masking = true;
+            CornerRadius = 10;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
+            InternalChildren = new Drawable[]
+            {
+                new Box
+                {
+                    Name = @"Background box",
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black,
+                    Alpha = 0.5f,
+                },
+                new GridContainer
+                {
+                    Name = @"Content grid",
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding { Horizontal = 10, Vertical = 5 },
+                    RowDimensions =
+                    [
+                        new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.AutoSize),
+                    ],
+                    ColumnDimensions =
+                    [
+                        new Dimension(),
+                    ],
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            new TournamentSpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = @"Header",
+                                Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                            },
+                        },
+                        new Drawable[]
+                        {
+                            new OsuScrollContainer
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                RelativeSizeAxes = Axes.Both,
+                                ScrollbarVisible = false,
+                                Padding = new MarginPadding { Vertical = 10 },
+                                Child = new FillFlowContainer
+                                {
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    AutoSizeAxes = Axes.Y,
+                                    Direction = FillDirection.Vertical,
+                                    Spacing = new Vector2(20),
+                                    ChildrenEnumerable = TournamentGame.MODS.Select(kv => new ModMapSection(kv.Key, kv.Value)
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Width = 1,
+                                    }),
+                                },
+                            },
+                        },
+                        new Drawable[]
+                        {
+                            new TournamentSpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Text = @"<All remaining chess pieces>",
+                                Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                            },
+                        },
+                    },
+                },
+            };
+        }
+
+        private void updateList()
+        {
+            // ModMapSection has the update logic itself.
+        }
+    }
+}
