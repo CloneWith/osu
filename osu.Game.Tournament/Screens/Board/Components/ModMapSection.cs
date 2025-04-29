@@ -2,16 +2,20 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osuTK;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components
 {
@@ -28,6 +32,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private readonly ModColourScheme colourScheme;
 
         private FillFlowContainer mapFlow = null!;
+        private FillFlowContainer remainingFlow = null!;
 
         public ModMapSection(string acronym, string? name = null)
         {
@@ -72,21 +77,25 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             Origin = Anchor.CentreRight,
                             AutoSizeAxes = Axes.Both,
                             Direction = FillDirection.Horizontal,
-                            Spacing = new Vector2(3),
+                            Spacing = new Vector2(5),
                             Children = new Drawable[]
                             {
                                 new TournamentSpriteText
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Text = "Remaining: ",
+                                    Text = "Remaining:",
+                                    Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
                                 },
-                                // TODO: Integrate with LadderInfo
-                                new TournamentSpriteText
+                                remainingFlow = new FillFlowContainer
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Text = "1 3 4 5",
+                                    AutoSizeAxes = Axes.Both,
+                                    AutoSizeEasing = Easing.OutQuint,
+                                    AutoSizeDuration = 300,
+                                    Direction = FillDirection.Horizontal,
+                                    Spacing = new Vector2(5),
                                 },
                             },
                         },
@@ -109,12 +118,32 @@ namespace osu.Game.Tournament.Screens.Board.Components
         {
             base.LoadComplete();
 
-            ladder.CurrentMatch.BindValueChanged(_ => updateList());
+            ladder.CurrentMatch.BindValueChanged(matchChanged);
             ladder.CurrentMatch.Value?.Round.BindValueChanged(_ => updateList());
             ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.BindCollectionChanged((_, _) => updateList());
 
             updateList();
         }
+
+        private void matchChanged(ValueChangedEvent<TournamentMatch?> e)
+        {
+            if (e.OldValue != null)
+            {
+                e.OldValue.ChessPlacements.CollectionChanged -= placementChanged;
+            }
+
+            if (e.NewValue != null)
+            {
+                e.NewValue.ChessPlacements.CollectionChanged += placementChanged;
+                e.NewValue.Round.BindValueChanged(_ => updateList());
+                e.NewValue.Round.Value?.Beatmaps.BindCollectionChanged((_, _) => updateList());
+            }
+
+            updateList();
+        }
+
+        private void placementChanged(object? _, NotifyCollectionChangedEventArgs __)
+            => Scheduler.AddOnce(updateList);
 
         private void updateList()
         {
@@ -126,6 +155,39 @@ namespace osu.Game.Tournament.Screens.Board.Components
             if (mapList != null)
             {
                 mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m));
+
+                var unselectedIndexes = mapList.Where(b => ladder.CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == b.ID) != true)
+                                               .Select(b => b.ModIndex).ToList();
+
+                // Ensure indexes are in order
+                unselectedIndexes.Sort();
+                remainingFlow.ChildrenEnumerable = unselectedIndexes.Select(i => new CircularContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    AutoSizeAxes = Axes.Both,
+                    Masking = true,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = colourScheme.Accent,
+                        },
+                        new TournamentSpriteText
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Text = i,
+                            Colour = Color4.White,
+                            Shadow = false,
+                            Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
+                            Margin = new MarginPadding(2),
+                        },
+                    },
+                });
             }
             else
             {
