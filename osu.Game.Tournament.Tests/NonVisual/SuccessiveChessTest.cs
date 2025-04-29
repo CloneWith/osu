@@ -28,7 +28,7 @@ namespace osu.Game.Tournament.Tests.NonVisual
 
         private void updateStatusAt(int row, int col, TeamColour? newOwner, ChoiceType? newType)
         {
-            var source = match.ChessPlacements.First(r => r.BoardRow == row && r.BoardColumn == col);
+            var source = match.ChessPlacements.Last(r => r.BoardRow == row && r.BoardColumn == col);
             match.ChessPlacements.Add(new ChessPlacement(source.BoardRow, source.BoardColumn,
                 newOwner ?? source.OwnerTeam, newType ?? source.CurrentType));
         }

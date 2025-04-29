@@ -136,7 +136,9 @@ namespace osu.Game.Tournament.Models
             {
                 // The modification of i won't affect these lines.
                 // ReSharper disable once AccessToModifiedClosure
-                var rowChess = ChessPlacements.Where(c => c.BoardRow == i);
+                var rowChess = ChessPlacements.Where(c => c.BoardRow == i)
+                                              .GroupBy(c => c.BoardColumn)
+                                              .Select(g => g.Last());
 
                 foreach (var chess in rowChess)
                 {
@@ -165,7 +167,7 @@ namespace osu.Game.Tournament.Models
                     goto EndRecursion;
 
                 // Step 2: Find the next chess; Return if not found or not desired type
-                var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+                var nextChess = ChessPlacements.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
                     // Edge case: Dismiss dual diagonal matches
