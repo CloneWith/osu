@@ -8,6 +8,7 @@ using osu.Framework.Configuration;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
@@ -66,6 +67,22 @@ namespace osu.Game.Tournament
                 TeamColour.Red => shortForm ? BaseStrings.TeamRedShort : BaseStrings.TeamRed,
                 TeamColour.Blue => shortForm ? BaseStrings.TeamBlueShort : BaseStrings.TeamBlue,
                 _ => fallback ?? (shortForm ? @"?" : BaseStrings.Unknown),
+            };
+
+        /// <summary>
+        /// Get the corresponding icon based on the acronym of a mod.
+        /// </summary>
+        /// <param name="modAcronym">the acronym of the mod.</param>
+        /// <returns>a <see cref="IconUsage"/> representing the icon.</returns>
+        public static IconUsage GetModIcon(string modAcronym) =>
+            modAcronym.ToUpperInvariant() switch
+            {
+                @"NM" => FumoIcon.NoMod,
+                @"HR" => FumoIcon.HardRock,
+                @"FM" => FumoIcon.FreeMod,
+                @"HD" => OsuIcon.ModHidden,
+                @"DT" => OsuIcon.ModDoubleTime,
+                _ => FontAwesome.Regular.Circle,
             };
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
