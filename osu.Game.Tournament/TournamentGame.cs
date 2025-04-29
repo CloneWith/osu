@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -28,6 +29,18 @@ namespace osu.Game.Tournament
     [Cached]
     public partial class TournamentGame : TournamentGameBase
     {
+        /// <summary>
+        /// A list of normal mods used in the map pool.
+        /// </summary>
+        public static readonly List<KeyValuePair<string, string>> MODS =
+        [
+            new KeyValuePair<string, string>(@"NM", @"No Mod"),
+            new KeyValuePair<string, string>(@"HR", @"Hard Rock"),
+            new KeyValuePair<string, string>(@"HD", @"Hidden"),
+            new KeyValuePair<string, string>(@"DT", @"Double Time"),
+            new KeyValuePair<string, string>(@"FM", @"Free Mod"),
+        ];
+
         /// <summary>
         /// Get the corresponding colour of a team.
         /// </summary>
