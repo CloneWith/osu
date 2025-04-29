@@ -405,7 +405,6 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             return true;
-
         }
 
         protected override void OnFirstSelected()

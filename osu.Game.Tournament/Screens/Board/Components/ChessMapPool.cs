@@ -8,6 +8,8 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osuTK;
 using osuTK.Graphics;
 
@@ -61,8 +63,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = @"Header",
+                                Text = ScreenStrings.MapPool,
                                 Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                Margin = new MarginPadding { Vertical = 5 },
                             },
                         },
                         new Drawable[]
@@ -92,22 +95,38 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         },
                         new Drawable[]
                         {
-                            new TournamentSpriteText
+                            new FillFlowContainer
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Text = @"<All remaining chess pieces>",
-                                Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                AutoSizeAxes = Axes.Both,
+                                Direction = FillDirection.Horizontal,
+                                Spacing = new Vector2(2),
+                                Margin = new MarginPadding { Vertical = 5 },
+                                Children = new Drawable[]
+                                {
+                                    new TournamentSpriteText
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Text = BoardStrings.RemainingHeader,
+                                        Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                    },
+                                    new FillFlowContainer
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        AutoSizeAxes = Axes.Both,
+                                        Direction = FillDirection.Horizontal,
+                                        Spacing = new Vector2(5),
+                                        ChildrenEnumerable = TournamentGame.MODS.Select(kv => new ModChessCounterText(kv.Key)),
+                                    },
+                                },
                             },
                         },
                     },
                 },
             };
-        }
-
-        private void updateList()
-        {
-            // ModMapSection has the update logic itself.
         }
     }
 }

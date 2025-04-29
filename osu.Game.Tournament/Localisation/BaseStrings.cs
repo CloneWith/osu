@@ -201,6 +201,11 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString ActionNotPermitted => new TranslatableString(getKey(@"action_not_permitted"), @"Action not permitted");
 
+        /// <summary>
+        /// "No beatmap available!"
+        /// </summary>
+        public static LocalisableString NoBeatmapAvailable => new TranslatableString(getKey(@"no_beatmap_available"), @"No beatmap available!");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

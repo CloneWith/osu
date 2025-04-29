@@ -21,4 +21,7 @@
     <data name="pick_bans_unavailable" xml:space="preserve">
         <value>找不到该谱面对应的 Pick / Ban 记录。</value>
     </data>
+    <data name="remaining_header" xml:space="preserve">
+        <value>剩余：</value>
+    </data>
 </root>

@@ -13,6 +13,8 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -90,7 +92,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                 {
                                     Anchor = Anchor.CentreLeft,
                                     Origin = Anchor.CentreLeft,
-                                    Text = "Remaining:",
+                                    Text = BoardStrings.RemainingHeader,
                                     Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
                                 },
                                 remainingFlow = new FillFlowContainer
@@ -210,7 +212,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Text = @"No map available!",
+                        Text = BaseStrings.NoBeatmapAvailable,
                         Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 24),
                     },
                 };

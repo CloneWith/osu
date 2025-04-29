@@ -129,4 +129,7 @@
     <data name="action_not_permitted" xml:space="preserve">
         <value>不允许的操作</value>
     </data>
+    <data name="no_beatmap_available" xml:space="preserve">
+        <value>没有可用的谱面！</value>
+    </data>
 </root>

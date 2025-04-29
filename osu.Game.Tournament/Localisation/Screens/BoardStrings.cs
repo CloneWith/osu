@@ -15,6 +15,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString PickBansUnavailable => new TranslatableString(getKey(@"pick_bans_unavailable"),
             @"Cannot find a Pick / Ban record associated with the selected beatmap.");
 
+        /// <summary>
+        /// "Remaining:"
+        /// </summary>
+        public static LocalisableString RemainingHeader => new TranslatableString(getKey(@"remaining_header"), @"Remaining:");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
