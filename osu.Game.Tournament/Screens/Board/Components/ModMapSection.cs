@@ -156,9 +156,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
             var mapList = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.Where(b =>
                 b.Mods.Equals(ModAcronym, StringComparison.OrdinalIgnoreCase));
 
-            mapFlow.Direction = mapList != null ? FillDirection.Full : FillDirection.Vertical;
+            mapFlow.Direction = mapList != null && mapList.Any() ? FillDirection.Full : FillDirection.Horizontal;
 
-            if (mapList != null)
+            if (mapList != null && mapList.Any())
             {
                 mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m));
 
@@ -201,15 +201,15 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 {
                     new SpriteIcon
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
                         Icon = FontAwesome.Solid.ExclamationCircle,
-                        Size = new Vector2(32),
+                        Size = new Vector2(24),
                     },
                     new TournamentSpriteText
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
                         Text = @"No map available!",
                         Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 24),
                     },
