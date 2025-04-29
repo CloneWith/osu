@@ -61,8 +61,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
                             AccentColour = colourScheme.Accent,
-                            // TODO: Mod-based icon
-                            Icon = FontAwesome.Solid.Asterisk,
+                            Icon = TournamentGame.GetModIcon(ModAcronym),
+                            IconSize = 30,
                             Text = ModName,
                         },
                         new FillFlowContainer
@@ -77,15 +77,15 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             {
                                 new TournamentSpriteText
                                 {
-                                    Anchor = Anchor.CentreRight,
-                                    Origin = Anchor.CentreRight,
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
                                     Text = "Remaining: ",
                                 },
                                 // TODO: Integrate with LadderInfo
                                 new TournamentSpriteText
                                 {
-                                    Anchor = Anchor.CentreRight,
-                                    Origin = Anchor.CentreRight,
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
                                     Text = "1 3 4 5",
                                 },
                             },
