@@ -19,6 +19,9 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components
 {
+    /// <summary>
+    /// A section showing all beatmaps of a specific mod category.
+    /// </summary>
     public partial class ModMapSection : FillFlowContainer
     {
         public const int WIDTH = 250;
@@ -34,6 +37,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private FillFlowContainer mapFlow = null!;
         private FillFlowContainer remainingFlow = null!;
 
+        /// <inheritdoc cref="ModMapSection"/>
+        /// <param name="acronym">the acronym of the mod.</param>
+        /// <param name="name">the title of the section's header.</param>
         public ModMapSection(string acronym, string? name = null)
         {
             ModAcronym = acronym;
