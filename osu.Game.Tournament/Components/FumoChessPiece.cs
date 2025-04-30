@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -26,12 +27,12 @@ namespace osu.Game.Tournament.Components
         /// <summary>
         /// The name of the chess's mod.
         /// </summary>
-        public readonly string ModName;
+        public string ModName { get; private set; } = string.Empty;
 
         /// <summary>
         /// The index of the chess in its mod category.
         /// </summary>
-        public readonly string ModIndex;
+        public string ModIndex { get; private set; } = string.Empty;
 
         /// <summary>
         /// The ID of the beatmap.
@@ -71,13 +72,6 @@ namespace osu.Game.Tournament.Components
         private TeamColour ownerTeam;
         private ChoiceType currentType;
 
-        /// <summary>
-        /// Triggered when the chess piece is requested to be removed (typically via user interaction).
-        /// </summary>
-        public event ChessRemovalHandler? OnRemovalRequested;
-
-        public delegate void ChessRemovalHandler(string mod, string index);
-
         [Resolved]
         private TextureStore textures { get; set; } = null!;
 
@@ -89,6 +83,14 @@ namespace osu.Game.Tournament.Components
         private Sprite specialMask = null!;
         private Triangles triangles = null!;
         private Box dimMask = null!;
+
+        private readonly bool requireFetch;
+
+        public FumoChessPiece(int beatmapId)
+        {
+            BeatmapID = beatmapId;
+            requireFetch = true;
+        }
 
         /// <summary>
         /// Constructs a chess piece.
@@ -117,8 +119,19 @@ namespace osu.Game.Tournament.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(LadderInfo ladder)
         {
+            if (requireFetch)
+            {
+                var beatmap = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == BeatmapID);
+
+                if (beatmap != null)
+                {
+                    ModName = beatmap.Mods;
+                    ModIndex = beatmap.ModIndex;
+                }
+            }
+
             colourScheme = ModColours.FromModString(ModName);
 
             Texture? borderTexture = textures.Get(@"Board/chess-border");
@@ -228,8 +241,6 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public void Remove()
         {
-            OnRemovalRequested?.Invoke(ModName, ModIndex);
-
             this.ScaleTo(1.5f, 500, Easing.OutQuint);
             this.FadeOut(400, Easing.OutQuint);
             Expire();
