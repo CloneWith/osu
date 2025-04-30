@@ -9,6 +9,7 @@ using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
+using osu.Framework.Input.Events;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Models;
@@ -277,5 +278,7 @@ namespace osu.Game.Tournament.Components
 
             topIcon.ScaleTo(1.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
         }
+
+        protected override bool OnMouseDown(MouseDownEvent e) => false;
     }
 }
