@@ -9,7 +9,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class EmptyBox : CompositeDrawable
+    public partial class EmptyBox : Container
     {
         private readonly Box box;
 
