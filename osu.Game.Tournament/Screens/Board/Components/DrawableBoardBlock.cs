@@ -24,7 +24,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         public readonly int BoardColumn;
 
         private const int border_duration = 300;
-        private const int transform_duration = 600;
+        private const int transform_duration = 1000;
 
         private EmptyBox backgroundLayer = null!;
         private SpriteIcon iconLayer = null!;
@@ -74,6 +74,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         /// <remarks>the colour of the flash would be dimmed by 25%.</remarks>
         public void FlashColour(Color4? colour = null!, int duration = transform_duration)
         {
+            backgroundLayer.FinishTransforms();
             backgroundLayer.BoxColour = colour?.Opacity(0.75f) ?? Color4.White.Opacity(0.75f);
             backgroundLayer.TransformTo(nameof(backgroundLayer.BoxColour), Color4.White.Opacity(0), duration, Easing.OutQuint);
         }
@@ -86,6 +87,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         /// <param name="duration">the length of the icon's appearance.</param>
         public void FlashIcon(IconUsage icon, Color4? colour = null, int duration = transform_duration)
         {
+            iconLayer.FinishTransforms();
             iconLayer.Icon = icon;
             iconLayer.Colour = colour ?? Color4.White;
 
