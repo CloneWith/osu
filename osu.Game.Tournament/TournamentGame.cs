@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -96,6 +97,28 @@ namespace osu.Game.Tournament
                 @"HD" => OsuIcon.ModHidden,
                 @"DT" => OsuIcon.ModDoubleTime,
                 _ => FontAwesome.Regular.Circle,
+            };
+
+        /// <summary>
+        /// Get the corresponding <see cref="ChoiceType"/> based on the <see cref="RoundStep"/>
+        /// and <see cref="TeamColour"/> information.
+        /// </summary>
+        /// <param name="step">the current <see cref="RoundStep"/>.</param>
+        /// <param name="colour">the current <see cref="TeamColour"/>.</param>
+        /// <returns>a <see cref="ChoiceType"/> converted from the input.</returns>
+        /// <exception cref="ArgumentException">thrown when attempting to convert a win state without a valid team colour.</exception>
+        public static ChoiceType ToChoiceType(RoundStep? step, TeamColour? colour) =>
+            step switch
+            {
+                RoundStep.Ban => ChoiceType.Ban,
+                RoundStep.Pick => ChoiceType.Pick,
+                RoundStep.Win => colour switch
+                {
+                    TeamColour.Red => ChoiceType.RedWin,
+                    TeamColour.Blue => ChoiceType.BlueWin,
+                    _ => throw new ArgumentException(@$"The {nameof(RoundStep.Win)} cannot be converted to {nameof(ChoiceType)} without a valid {nameof(TeamColour)}."),
+                },
+                _ => ChoiceType.Neutral,
             };
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;

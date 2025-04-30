@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
@@ -50,7 +51,7 @@ namespace osu.Game.Tournament.Screens.Board
         private Container boardContainer = null!;
         private ChessMapPool mapPool = null!;
         private InstructionDisplay instructionDisplay = null!;
-        private FillFlowContainer boardBlockArea = null!;
+        private FillFlowContainer<DrawableBoardBlock> boardBlockArea = null!;
 
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
@@ -171,7 +172,7 @@ namespace osu.Game.Tournament.Screens.Board
                                                 Alpha = 0.74f,
                                                 RelativeSizeAxes = Axes.Both,
                                             },
-                                        boardBlockArea = new FillFlowContainer
+                                        boardBlockArea = new FillFlowContainer<DrawableBoardBlock>
                                         {
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
@@ -389,9 +390,13 @@ namespace osu.Game.Tournament.Screens.Board
         protected override bool OnMouseDown(MouseDownEvent e)
         {
             var map = boardMapList.FirstOrDefault(m => m.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+            var block = blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
 
             if (map == null)
+            {
+                showFail(block);
                 return base.OnMouseDown(e);
+            }
 
             switch (e.Button)
             {
@@ -400,11 +405,11 @@ namespace osu.Game.Tournament.Screens.Board
                     // Handle updating status to Red/Blue Win
                     if (pickType == RoundStep.Win)
                     {
-                        updateWinStatusForBeatmap(map.BeatmapID);
+                        addWinPlacement(map.BeatmapID, block);
                     }
                     else
                     {
-                        addForBeatmap(map.BeatmapID);
+                        addPlacement(map.BeatmapID, block);
                     }
 
                     break;
@@ -476,22 +481,6 @@ namespace osu.Game.Tournament.Screens.Board
             }
         }
 
-        private void updateWinStatusForBeatmap(int beatmapId)
-        {
-            var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
-                p.BeatmapID == beatmapId && p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin);
-
-            // Updating winning status without existing placement entries is not allowed now.
-            if (existing == null)
-            {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.PickBansUnavailable));
-                return;
-            }
-
-            CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
-                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
-        }
-
         private void reset()
         {
             // Clear map marking lists
@@ -518,15 +507,38 @@ namespace osu.Game.Tournament.Screens.Board
             pickType = RoundStep.Default;
         }
 
-        private void addForBeatmap(int beatmapId)
+        private void showFail(DrawableBoardBlock? flashBlock)
+        {
+            flashBlock?.FlashIcon(FontAwesome.Solid.Times);
+            flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
+        }
+
+        private void addWinPlacement(int beatmapId, DrawableBoardBlock? block)
+        {
+            var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
+                p.BeatmapID == beatmapId && p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin);
+
+            // Updating winning status without existing placement entries is not allowed now.
+            if (existing == null)
+            {
+                showFail(block);
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.PickBansUnavailable));
+                return;
+            }
+
+            CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
+                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
+        }
+
+        private void addPlacement(int beatmapId, DrawableBoardBlock? block)
         {
             bool isCommonType = pickType is RoundStep.Pick or RoundStep.Ban or RoundStep.Win or RoundStep.Shiro;
 
-            if (pickType == RoundStep.Default || pickTeam == TeamColour.None)
+            if (pickType == RoundStep.Default || pickTeam == TeamColour.None || CurrentMatch.Value?.Round.Value == null)
+            {
+                showFail(block);
                 return;
-
-            if (CurrentMatch.Value?.Round.Value == null)
-                return;
+            }
 
             if (CurrentMatch.Value.Round.Value.Beatmaps.All(b => b.Beatmap?.OnlineID != beatmapId))
                 // don't attempt to add if the beatmap isn't in our pool
@@ -546,10 +558,12 @@ namespace osu.Game.Tournament.Screens.Board
                     sceneManager?.ShowMapIntro(introMap, pickTeam);
             }
 
-            if (isCommonType && !CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && isSameStep(p.CurrentType, pickType)))
+            if (isCommonType
+                && block != null
+                && !CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && isSameStep(p.CurrentType, pickType)))
             {
-                // TODO: Depended on virtual board layer implementation
-                // CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(null, null, pickTeam, pickType, beatmapId));
+                CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
+                    pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
             }
 
             // setNextMode(); // Uncomment if you still want to automatically set the next mode
