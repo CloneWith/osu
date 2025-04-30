@@ -389,13 +389,12 @@ namespace osu.Game.Tournament.Screens.Board
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {
-            var map = boardMapList.FirstOrDefault(m => m.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
             var block = blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+            var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
 
             // 1. Map pool interaction
             if (mapPool.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
             {
-                var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
                 var target = mapPool.MapPanels.FirstOrDefault(p => p.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
 
                 if (target == null)
@@ -417,7 +416,7 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             // 2. Chess board interaction or no special handling needed
-            if (map == null)
+            if (lastSelected == null)
             {
                 showFail(block);
                 return base.OnMouseDown(e);
@@ -425,16 +424,16 @@ namespace osu.Game.Tournament.Screens.Board
 
             switch (e.Button)
             {
-                case MouseButton.Left when map.BeatmapID > 0:
+                case MouseButton.Left when lastSelected.Beatmap.ID > 0:
                 {
                     // Handle updating status to Red/Blue Win
                     if (pickType == RoundStep.Win)
                     {
-                        addWinPlacement(map.BeatmapID, block);
+                        addWinPlacement(lastSelected.Beatmap.ID, block);
                     }
                     else
                     {
-                        addPlacement(map.BeatmapID, block);
+                        addPlacement(lastSelected.Beatmap.ID, block);
                     }
 
                     break;
@@ -442,7 +441,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                 case MouseButton.Right:
                 {
-                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == map.BeatmapID);
+                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == lastSelected.Beatmap.ID);
 
                     if (placement == null)
                         return true;
@@ -450,12 +449,12 @@ namespace osu.Game.Tournament.Screens.Board
                     {
                         CurrentMatch.Value?.ChessPlacements.Remove(placement);
 
-                        var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == map.BeatmapID);
+                        var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == lastSelected.Beatmap.ID);
 
                         if (chessPiece == null)
                             return true;
 
-                        placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == map.BeatmapID);
+                        placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == lastSelected.Beatmap.ID);
 
                         if (placement != null)
                         {
@@ -587,6 +586,22 @@ namespace osu.Game.Tournament.Screens.Board
                 && block != null
                 && !CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && isSameStep(p.CurrentType, pickType)))
             {
+                var newPiece = new FumoChessPiece(beatmapId)
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Width = 1,
+                    Height = 1,
+                    Alpha = 0,
+                };
+
+                block.ChessLayer.Add(newPiece);
+                boardMapList.Add(newPiece);
+
+                newPiece.FadeIn(500, Easing.OutQuint);
+                newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
+
                 CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
                     pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
             }
