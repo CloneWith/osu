@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -31,12 +32,15 @@ namespace osu.Game.Tournament.Screens.Board.Components
         public readonly string ModAcronym;
         public readonly string ModName;
 
+        public IReadOnlyList<FumoBeatmapPanel> Cards => mapFlow.Children;
+
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
 
         private readonly ModColourScheme colourScheme;
 
-        private FillFlowContainer mapFlow = null!;
+        private FillFlowContainer<FumoBeatmapPanel> mapFlow = null!;
+        private FillFlowContainer placeholderFlow = null!;
         private FillFlowContainer remainingFlow = null!;
 
         /// <inheritdoc cref="ModMapSection"/>
@@ -110,7 +114,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         },
                     },
                 },
-                mapFlow = new FillFlowContainer
+                mapFlow = new FillFlowContainer<FumoBeatmapPanel>
                 {
                     Name = @"Map pool content",
                     Anchor = Anchor.TopCentre,
@@ -119,6 +123,33 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     AutoSizeAxes = Axes.Y,
                     Spacing = new Vector2(10),
                     Padding = new MarginPadding { Horizontal = 10 },
+                },
+                placeholderFlow = new FillFlowContainer
+                {
+                    Name = @"Placeholder",
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    RelativeSizeAxes = Axes.X,
+                    AutoSizeAxes = Axes.Y,
+                    Spacing = new Vector2(10),
+                    Padding = new MarginPadding { Horizontal = 10 },
+                    Children = new Drawable[]
+                    {
+                        new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Icon = FontAwesome.Solid.ExclamationCircle,
+                            Size = new Vector2(24),
+                        },
+                        new TournamentSpriteText
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Text = BaseStrings.NoBeatmapAvailable,
+                            Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 24),
+                        },
+                    },
                 },
             };
         }
@@ -163,6 +194,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
             if (mapList != null && mapList.Any())
             {
+                mapFlow.Show();
+                placeholderFlow.Hide();
+
                 mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m)
                 {
                     Scale = new Vector2(0.8f),
@@ -203,23 +237,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
             }
             else
             {
-                mapFlow.Children = new Drawable[]
-                {
-                    new SpriteIcon
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Icon = FontAwesome.Solid.ExclamationCircle,
-                        Size = new Vector2(24),
-                    },
-                    new TournamentSpriteText
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Text = BaseStrings.NoBeatmapAvailable,
-                        Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 24),
-                    },
-                };
+                mapFlow.Clear();
+                mapFlow.Hide();
+                placeholderFlow.Show();
             }
         }
     }

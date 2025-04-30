@@ -392,6 +392,31 @@ namespace osu.Game.Tournament.Screens.Board
             var map = boardMapList.FirstOrDefault(m => m.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
             var block = blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
 
+            // 1. Map pool interaction
+            if (mapPool.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
+            {
+                var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
+                var target = mapPool.MapPanels.FirstOrDefault(p => p.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+
+                if (target == null)
+                    return true;
+
+                // Unselect itself
+                if (lastSelected == target)
+                {
+                    target.Selected = false;
+                }
+                else
+                {
+                    if (lastSelected != null)
+                        lastSelected.Selected = false;
+                    target.Selected = true;
+                }
+
+                return true;
+            }
+
+            // 2. Chess board interaction or no special handling needed
             if (map == null)
             {
                 showFail(block);
