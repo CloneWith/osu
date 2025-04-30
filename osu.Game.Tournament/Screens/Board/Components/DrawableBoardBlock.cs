@@ -23,6 +23,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
         public readonly int BoardRow;
         public readonly int BoardColumn;
 
+        public Container ChessLayer { get; private set; } = null!;
+
         private const int border_duration = 300;
         private const int transform_duration = 1000;
 
@@ -62,7 +64,16 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Origin = Anchor.Centre,
                     Size = new Vector2(48),
                     Alpha = 0,
-                }
+                },
+                ChessLayer = new Container
+                {
+                    Name = @"Chess layer",
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.Both,
+                    Width = 0.8f,
+                    Height = 0.8f,
+                },
             };
         }
 
