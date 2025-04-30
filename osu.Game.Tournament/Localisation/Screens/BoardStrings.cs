@@ -20,6 +20,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// </summary>
         public static LocalisableString RemainingHeader => new TranslatableString(getKey(@"remaining_header"), @"Remaining:");
 
+        /// <summary>
+        /// "Chess area size"
+        /// </summary>
+        public static LocalisableString MainBoardAreaSize => new TranslatableString(getKey(@"main_board_area_size"), @"Chess area size");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

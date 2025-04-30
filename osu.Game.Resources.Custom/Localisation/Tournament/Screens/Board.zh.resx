@@ -24,4 +24,7 @@
     <data name="remaining_header" xml:space="preserve">
         <value>剩余：</value>
     </data>
+    <data name="main_board_area_size" xml:space="preserve">
+        <value>落子区大小</value>
+    </data>
 </root>

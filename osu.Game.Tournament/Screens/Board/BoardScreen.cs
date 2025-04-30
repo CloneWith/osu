@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
@@ -21,6 +22,7 @@ using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
+using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 
@@ -32,6 +34,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         // ReSharper disable once CollectionNeverUpdated.Local
         private readonly List<FumoChessPiece> boardMapList = new List<FumoChessPiece>();
+        private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -47,6 +50,7 @@ namespace osu.Game.Tournament.Screens.Board
         private Container boardContainer = null!;
         private ChessMapPool mapPool = null!;
         private InstructionDisplay instructionDisplay = null!;
+        private FillFlowContainer boardBlockArea = null!;
 
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
@@ -167,6 +171,26 @@ namespace osu.Game.Tournament.Screens.Board
                                                 Alpha = 0.74f,
                                                 RelativeSizeAxes = Axes.Both,
                                             },
+                                        boardBlockArea = new FillFlowContainer
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Direction = FillDirection.Full,
+                                            Width = LadderInfo.MainBoardSize.Value,
+                                            Height = LadderInfo.MainBoardSize.Value,
+                                            ChildrenEnumerable = blocks =
+                                                (from row in Enumerable.Range(1, 4)
+                                                 from column in Enumerable.Range(1, 4)
+                                                 select new DrawableBoardBlock(row, column)
+                                                 {
+                                                     Anchor = Anchor.Centre,
+                                                     Origin = Anchor.Centre,
+                                                     RelativeSizeAxes = Axes.Both,
+                                                     Width = 0.25f,
+                                                     Height = 0.25f,
+                                                 })
+                                                .ToList(),
+                                        },
                                     },
                                 },
                                 instructionDisplay = new InstructionDisplay
@@ -297,6 +321,11 @@ namespace osu.Game.Tournament.Screens.Board
                                 },
                             },
                         },
+                        new FormSliderBar<int>
+                        {
+                            Current = LadderInfo.MainBoardSize,
+                            Caption = BoardStrings.MainBoardAreaSize,
+                        },
                         new ControlPanel.Spacer(),
                         buttonIndicator = new TourneyButton
                         {
@@ -320,6 +349,14 @@ namespace osu.Game.Tournament.Screens.Board
                 },
                 dialogOverlay = new DialogOverlay(),
             };
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            LadderInfo.MainBoardSize.BindValueChanged(e =>
+                boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
