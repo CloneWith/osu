@@ -64,7 +64,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 Text = ScreenStrings.MapPool,
-                                Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
                                 Margin = new MarginPadding { Vertical = 5 },
                             },
                         },
@@ -76,7 +76,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
                                 ScrollbarVisible = false,
-                                Padding = new MarginPadding { Vertical = 10 },
+                                Padding = new MarginPadding { Vertical = 5 },
                                 Child = new FillFlowContainer
                                 {
                                     Anchor = Anchor.TopCentre,
@@ -84,7 +84,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                     RelativeSizeAxes = Axes.X,
                                     AutoSizeAxes = Axes.Y,
                                     Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(20),
+                                    Spacing = new Vector2(15),
                                     ChildrenEnumerable = TournamentGame.MODS.Select(kv => new ModMapSection(kv.Key, kv.Value)
                                     {
                                         RelativeSizeAxes = Axes.X,
@@ -110,7 +110,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
                                         Text = BoardStrings.RemainingHeader,
-                                        Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                        Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
                                     },
                                     new FillFlowContainer
                                     {

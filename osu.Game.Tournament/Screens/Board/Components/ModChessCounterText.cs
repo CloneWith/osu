@@ -29,7 +29,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
             var colourScheme = ModColours.FromModString(acronym);
 
             Colour = colourScheme.Accent;
-            Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 20);
+            Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 18);
         }
 
         protected override void LoadComplete()

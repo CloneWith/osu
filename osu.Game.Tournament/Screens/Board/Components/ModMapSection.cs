@@ -57,7 +57,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
             Origin = Anchor.TopCentre;
             AutoSizeAxes = Axes.Y;
             Direction = FillDirection.Vertical;
-            Spacing = new Vector2(20);
+            Spacing = new Vector2(10);
             Children = new Drawable[]
             {
                 new Container
@@ -73,6 +73,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
+                            Scale = new Vector2(0.75f),
                             AccentColour = colourScheme.Accent,
                             Icon = TournamentGame.GetModIcon(ModAcronym),
                             IconSize = 30,
@@ -117,7 +118,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Spacing = new Vector2(10),
-                    Padding = new MarginPadding { Horizontal = 15 },
+                    Padding = new MarginPadding { Horizontal = 10 },
                 },
             };
         }
@@ -162,7 +163,10 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
             if (mapList != null && mapList.Any())
             {
-                mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m));
+                mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m)
+                {
+                    Scale = new Vector2(0.8f),
+                });
 
                 var unselectedIndexes = mapList.Where(b => ladder.CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == b.ID) != true)
                                                .Select(b => b.ModIndex).ToList();
