@@ -30,7 +30,10 @@ namespace osu.Game.Tournament.Models
         /// </summary>
         public readonly int BeatmapID;
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public readonly int BoardRow;
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public readonly int BoardColumn;
 
         public ChessPlacement(int? boardRow, int? boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral, int beatmapID = 0)
