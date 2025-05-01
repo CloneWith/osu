@@ -9,16 +9,13 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
-using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
-using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Board.Components
 {
@@ -41,7 +38,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
         private FillFlowContainer<FumoBeatmapPanel> mapFlow = null!;
         private FillFlowContainer placeholderFlow = null!;
-        private FillFlowContainer remainingFlow = null!;
 
         /// <inheritdoc cref="ModMapSection"/>
         /// <param name="acronym">the acronym of the mod.</param>
@@ -71,47 +67,15 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    Children = new Drawable[]
+                    Child = new FumoSectionHeader
                     {
-                        new FumoSectionHeader
-                        {
-                            Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft,
-                            Scale = new Vector2(0.75f),
-                            AccentColour = colourScheme.Accent,
-                            Icon = TournamentGame.GetModIcon(ModAcronym),
-                            IconSize = 30,
-                            Text = ModName,
-                        },
-                        new FillFlowContainer
-                        {
-                            Name = @"Remaining maps display",
-                            Anchor = Anchor.CentreRight,
-                            Origin = Anchor.CentreRight,
-                            AutoSizeAxes = Axes.Both,
-                            Direction = FillDirection.Horizontal,
-                            Spacing = new Vector2(5),
-                            Children = new Drawable[]
-                            {
-                                new TournamentSpriteText
-                                {
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                    Text = BoardStrings.RemainingHeader,
-                                    Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
-                                },
-                                remainingFlow = new FillFlowContainer
-                                {
-                                    Anchor = Anchor.CentreLeft,
-                                    Origin = Anchor.CentreLeft,
-                                    AutoSizeAxes = Axes.Both,
-                                    AutoSizeEasing = Easing.OutQuint,
-                                    AutoSizeDuration = 300,
-                                    Direction = FillDirection.Horizontal,
-                                    Spacing = new Vector2(5),
-                                },
-                            },
-                        },
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        Scale = new Vector2(0.75f),
+                        AccentColour = colourScheme.Accent,
+                        Icon = TournamentGame.GetModIcon(ModAcronym),
+                        IconSize = 30,
+                        Text = ModName,
                     },
                 },
                 mapFlow = new FillFlowContainer<FumoBeatmapPanel>
@@ -200,39 +164,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m)
                 {
                     Scale = new Vector2(0.8f),
-                });
-
-                var unselectedIndexes = mapList.Where(b => ladder.CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == b.ID) != true)
-                                               .Select(b => b.ModIndex).ToList();
-
-                // Ensure indexes are in order
-                unselectedIndexes.Sort();
-                remainingFlow.ChildrenEnumerable = unselectedIndexes.Select(i => new CircularContainer
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    AutoSizeAxes = Axes.Both,
-                    Masking = true,
-                    Children = new Drawable[]
-                    {
-                        new Box
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            RelativeSizeAxes = Axes.Both,
-                            Colour = colourScheme.Accent,
-                        },
-                        new TournamentSpriteText
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Text = i,
-                            Colour = Color4.White,
-                            Shadow = false,
-                            Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
-                            Margin = new MarginPadding(2),
-                        },
-                    },
                 });
             }
             else
