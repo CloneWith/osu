@@ -353,8 +353,8 @@ namespace osu.Game.Tournament.Components
             switch (placement.CurrentType)
             {
                 case ChoiceType.Pick:
+                    instructText.Text = $"{choiceText} picked!";
                     statusIcon.Icon = FontAwesome.Solid.CheckCircle;
-                    instructText.Text = "Map picked!";
                     break;
 
                 case ChoiceType.Ban:
