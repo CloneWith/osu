@@ -41,8 +41,6 @@ namespace osu.Game.Tournament.Screens.Board
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
-
         private TeamColour pickTeam;
         private RoundStep pickType;
 
@@ -73,9 +71,6 @@ namespace osu.Game.Tournament.Screens.Board
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            currentMatch.BindValueChanged(matchChanged);
-            currentMatch.BindTo(LadderInfo.CurrentMatch);
-
             var boardTexture = textures.Get("Board/board");
 
             InternalChildren = new Drawable[]
@@ -357,6 +352,8 @@ namespace osu.Game.Tournament.Screens.Board
         {
             base.LoadComplete();
             initializeBoard();
+
+            CurrentMatch.BindValueChanged(matchChanged);
 
             LadderInfo.MainBoardSize.BindValueChanged(e =>
                 boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
