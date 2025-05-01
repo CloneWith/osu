@@ -392,6 +392,8 @@ namespace osu.Game.Tournament.Screens.Board
             var block = blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
             var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
 
+            bool succeeded = false;
+
             // 1. Map pool interaction
             if (mapPool.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
             {
@@ -404,88 +406,120 @@ namespace osu.Game.Tournament.Screens.Board
                 var chessBlock = blocks.FirstOrDefault(b => b.BoardRow == existingPlacement?.BoardRow
                                                             && b.BoardColumn == existingPlacement.BoardColumn);
 
-                switch (pickType)
+                switch (e.Button)
                 {
-                    case RoundStep.Ban:
-                        addPlacement(target.Beatmap.ID, chessBlock);
+                    case MouseButton.Left:
+                        switch (pickType)
+                        {
+                            case RoundStep.Ban:
+                                succeeded |= addPlacement(target.Beatmap.ID, chessBlock);
+                                break;
+
+                            case RoundStep.Win:
+                                succeeded |= addWinPlacement(target.Beatmap.ID, chessBlock);
+                                break;
+
+                            default:
+                                // Unselect itself
+                                if (lastSelected == target)
+                                {
+                                    target.Selected = false;
+                                }
+                                else
+                                {
+                                    if (lastSelected != null)
+                                        lastSelected.Selected = false;
+                                    target.Selected = true;
+                                }
+
+                                break;
+                        }
+
                         break;
 
-                    case RoundStep.Win:
-                        addWinPlacement(target.Beatmap.ID, chessBlock);
-                        break;
-
-                    default:
-                        // Unselect itself
-                        if (lastSelected == target)
-                        {
-                            target.Selected = false;
-                        }
-                        else
-                        {
-                            if (lastSelected != null)
-                                lastSelected.Selected = false;
-                            target.Selected = true;
-                        }
-
+                    case MouseButton.Right:
+                        removeLatestPlacement(target.Beatmap.ID);
                         break;
                 }
+            }
+            else if (boardBlockArea.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
+            {
+                // 2. Chess board interaction or no special handling needed
+                var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BoardRow == block?.BoardRow && p.BoardColumn == block.BoardColumn);
+                var target = boardMapList.FirstOrDefault(c => c.BeatmapID == placement?.BeatmapID);
 
+                switch (e.Button)
+                {
+                    case MouseButton.Left:
+                    {
+                        switch (pickType)
+                        {
+                            case RoundStep.Win:
+                                if (target != null)
+                                    succeeded |= addWinPlacement(target.BeatmapID, block);
+                                break;
+
+                            case RoundStep.Pick:
+                                if (lastSelected == null)
+                                {
+                                    showFail(block);
+                                    break;
+                                }
+
+                                succeeded |= addPlacement(lastSelected.Beatmap.ID, block);
+                                break;
+                        }
+
+                        break;
+                    }
+
+                    case MouseButton.Right:
+                    {
+                        if (target != null)
+                            succeeded |= removeLatestPlacement(target.BeatmapID);
+                        break;
+                    }
+                }
+            }
+
+            switch (succeeded)
+            {
+                case true when lastSelected != null:
+                    lastSelected.Selected = false;
+                    break;
+
+                case false:
+                    showFail(block);
+                    break;
+            }
+
+            return true;
+        }
+
+        private bool removeLatestPlacement(int beatmapId)
+        {
+            var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+            if (placement == null)
+                return false;
+
+            CurrentMatch.Value?.ChessPlacements.Remove(placement);
+
+            var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
+
+            if (chessPiece == null)
                 return true;
-            }
 
-            // 2. Chess board interaction or no special handling needed
-            if (lastSelected == null)
+            placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+            if (placement != null)
             {
-                showFail(block);
-                return base.OnMouseDown(e);
+                chessPiece.OwnerTeam = placement.OwnerTeam;
+                chessPiece.CurrentType = placement.CurrentType;
             }
-
-            switch (e.Button)
+            else
             {
-                case MouseButton.Left when lastSelected.Beatmap.ID > 0:
-                {
-                    // Handle updating status to Red/Blue Win
-                    if (pickType == RoundStep.Win)
-                    {
-                        addWinPlacement(lastSelected.Beatmap.ID, block);
-                    }
-                    else
-                    {
-                        addPlacement(lastSelected.Beatmap.ID, block);
-                    }
-
-                    break;
-                }
-
-                case MouseButton.Right:
-                {
-                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == lastSelected.Beatmap.ID);
-
-                    if (placement == null)
-                        return true;
-
-                    {
-                        CurrentMatch.Value?.ChessPlacements.Remove(placement);
-
-                        var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == lastSelected.Beatmap.ID);
-
-                        if (chessPiece == null)
-                            return true;
-
-                        placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == lastSelected.Beatmap.ID);
-
-                        if (placement != null)
-                        {
-                            chessPiece.OwnerTeam = placement.OwnerTeam;
-                            chessPiece.CurrentType = placement.CurrentType;
-                        }
-                        else
-                        {
-                            chessPiece.Remove();
-                        }
-                    }
-                    break;
-                }
+                chessPiece.Remove();
             }
 
             return true;
@@ -555,7 +589,7 @@ namespace osu.Game.Tournament.Screens.Board
             flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
         }
 
-        private void addWinPlacement(int beatmapId, DrawableBoardBlock? block)
+        private bool addWinPlacement(int beatmapId, DrawableBoardBlock? block)
         {
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                 p.BeatmapID == beatmapId && p.CurrentType is ChoiceType.Pick or ChoiceType.Ban);
@@ -564,15 +598,14 @@ namespace osu.Game.Tournament.Screens.Board
             // Updating winning status without existing placement entries is not allowed now.
             if (existing == null)
             {
-                showFail(block);
                 dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.PicksUnavailable));
-                return;
+                return false;
             }
 
             if (existing.CurrentType is ChoiceType.Ban)
             {
                 dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.WinOnBanNotAllowed));
-                return;
+                return false;
             }
 
             CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
@@ -583,30 +616,33 @@ namespace osu.Game.Tournament.Screens.Board
                 chess.OwnerTeam = pickTeam;
                 chess.CurrentType = TournamentGame.ToChoiceType(pickType, pickTeam);
             }
+
+            return true;
         }
 
-        private void addPlacement(int beatmapId, DrawableBoardBlock? block)
+        private bool addPlacement(int beatmapId, DrawableBoardBlock? block)
         {
             bool isCommonType = pickType is RoundStep.Pick or RoundStep.Ban or RoundStep.Win or RoundStep.Shiro;
 
             if (pickType == RoundStep.Default || pickTeam == TeamColour.None || CurrentMatch.Value?.Round.Value == null)
-            {
-                showFail(block);
-                return;
-            }
+                return false;
 
             if (CurrentMatch.Value.Round.Value.Beatmaps.All(b => b.Beatmap?.OnlineID != beatmapId))
                 // don't attempt to add if the beatmap isn't in our pool
-                return;
+                return false;
 
             if (pickType != RoundStep.Win
                 && CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId
                                                                && p.CurrentType is ChoiceType.Ban or ChoiceType.RedWin or ChoiceType.BlueWin))
                 // don't attempt to add if already banned / won, and it's not a win type.
-                return;
+                return false;
 
             if (pickType == RoundStep.Pick)
             {
+                // Multiple pick records are not allowed
+                if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && p.CurrentType == ChoiceType.Pick))
+                    return false;
+
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
                 if (introMap != null)
@@ -650,6 +686,8 @@ namespace osu.Game.Tournament.Screens.Board
                     scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(GameplayScreen)); }, 10000);
                 }
             }
+
+            return true;
         }
 
         private bool isSameStep(ChoiceType choiceType, RoundStep step)
