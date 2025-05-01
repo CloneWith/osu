@@ -180,8 +180,8 @@ namespace osu.Game.Tournament.Screens.Board
                                             Width = LadderInfo.MainBoardSize.Value,
                                             Height = LadderInfo.MainBoardSize.Value,
                                             ChildrenEnumerable = blocks =
-                                                (from row in Enumerable.Range(1, 4)
-                                                 from column in Enumerable.Range(1, 4)
+                                                (from row in Enumerable.Range(0, 4)
+                                                 from column in Enumerable.Range(0, 4)
                                                  select new DrawableBoardBlock(row, column)
                                                  {
                                                      Anchor = Anchor.Centre,
