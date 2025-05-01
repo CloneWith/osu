@@ -92,6 +92,14 @@ namespace osu.Game.Tournament.Components
             requireFetch = true;
         }
 
+        public FumoChessPiece(ChessPlacement placement)
+        {
+            BeatmapID = placement.BeatmapID;
+            ownerTeam = placement.OwnerTeam;
+            currentType = placement.CurrentType;
+            requireFetch = true;
+        }
+
         /// <summary>
         /// Constructs a chess piece.
         /// </summary>
