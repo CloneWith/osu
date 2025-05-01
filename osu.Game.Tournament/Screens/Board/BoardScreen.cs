@@ -6,6 +6,7 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -355,6 +356,7 @@ namespace osu.Game.Tournament.Screens.Board
         protected override void LoadComplete()
         {
             base.LoadComplete();
+            initializeBoard();
 
             LadderInfo.MainBoardSize.BindValueChanged(e =>
                 boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
@@ -363,7 +365,7 @@ namespace osu.Game.Tournament.Screens.Board
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
             ResetSelectStatus();
-            // TODO: Add more relevant actions.
+            initializeBoard();
         }
 
         private void setMode(TeamColour colour, RoundStep stepType)
@@ -564,6 +566,9 @@ namespace osu.Game.Tournament.Screens.Board
             CurrentMatch.Value?.ChessPlacements.Clear();
             CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
+            boardMapList.Clear();
+            boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
+
             if (CurrentMatch.Value != null)
             {
                 CurrentMatch.Value.Completed.Value = false;
@@ -653,24 +658,9 @@ namespace osu.Game.Tournament.Screens.Board
             if (isCommonType
                 && !CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && isSameStep(p.CurrentType, pickType)))
             {
-                // Add chess piece only when a block exists
                 if (block != null)
                 {
-                    var newPiece = new FumoChessPiece(beatmapId)
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        RelativeSizeAxes = Axes.Both,
-                        Width = 1,
-                        Height = 1,
-                        Alpha = 0,
-                    };
-
-                    block.ChessLayer.Add(newPiece);
-                    boardMapList.Add(newPiece);
-
-                    newPiece.FadeIn(500, Easing.OutQuint);
-                    newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
+                    addSingleChess(beatmapId, block.BoardRow, block.BoardColumn);
                 }
 
                 CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block?.BoardRow, block?.BoardColumn,
@@ -689,6 +679,55 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             return true;
+        }
+
+        private void addSingleChess(int beatmapId, int row, int column,
+                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral)
+        {
+            var block = blocks.FirstOrDefault(b => b.BoardRow == row && b.BoardColumn == column);
+
+            // Add chess piece only when a block exists
+            if (block == null)
+                return;
+
+            var newPiece = new FumoChessPiece(beatmapId)
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Width = 1,
+                Height = 1,
+                Alpha = 0,
+                OwnerTeam = ownerTeam,
+                CurrentType = choiceType,
+            };
+
+            block.ChessLayer.Add(newPiece);
+            boardMapList.Add(newPiece);
+
+            newPiece.FadeIn(500, Easing.OutQuint);
+            newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
+        }
+
+        private void initializeBoard()
+        {
+            if (!IsLoaded)
+                return;
+
+            boardMapList.Clear();
+            boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
+                        p.BoardRow == i && p.BoardColumn == j);
+
+                    if (placement != null)
+                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType);
+                }
+            }
         }
 
         private bool isSameStep(ChoiceType choiceType, RoundStep step)
