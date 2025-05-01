@@ -18,8 +18,11 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="pick_bans_unavailable" xml:space="preserve">
-        <value>找不到该谱面对应的 Pick / Ban 记录。</value>
+    <data name="pick_unavailable" xml:space="preserve">
+        <value>找不到该谱面对应的 Pick 记录。</value>
+    </data>
+    <data name="win_on_ban_not_allowed" xml:space="preserve">
+        <value>不可向已被 Ban 的图添加 Win 状态。</value>
     </data>
     <data name="remaining_header" xml:space="preserve">
         <value>剩余：</value>

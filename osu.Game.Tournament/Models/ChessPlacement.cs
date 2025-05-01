@@ -33,20 +33,20 @@ namespace osu.Game.Tournament.Models
         public readonly int BoardRow;
         public readonly int BoardColumn;
 
-        public ChessPlacement(int boardRow, int boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral, int beatmapID = 0)
+        public ChessPlacement(int? boardRow, int? boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral, int beatmapID = 0)
         {
             BeatmapID = beatmapID;
             OwnerTeam = ownerTeam;
             CurrentType = type;
 
-            if (boardRow <= 0 || boardRow > 4 || boardColumn <= 0 || boardColumn > 4)
+            if (boardRow <= -1 || boardRow > 4 || boardColumn <= -1 || boardColumn > 4)
             {
                 Logger.Log($"The position of the chess ({boardRow}, {boardColumn}) is out of range. Please check the bracket file.",
                     level: LogLevel.Important);
             }
 
-            BoardRow = boardRow;
-            BoardColumn = boardColumn;
+            BoardRow = boardRow ?? -1;
+            BoardColumn = boardColumn ?? -1;
         }
 
         /// <summary>

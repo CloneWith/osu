@@ -10,10 +10,16 @@ namespace osu.Game.Tournament.Localisation.Screens
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Screens.Board";
 
         /// <summary>
-        /// "Cannot find a Pick / Ban record associated with the selected beatmap."
+        /// "Cannot find a Pick record associated with the selected beatmap."
         /// </summary>
-        public static LocalisableString PickBansUnavailable => new TranslatableString(getKey(@"pick_bans_unavailable"),
-            @"Cannot find a Pick / Ban record associated with the selected beatmap.");
+        public static LocalisableString PicksUnavailable => new TranslatableString(getKey(@"pick_unavailable"),
+            @"Cannot find a Pick record associated with the selected beatmap.");
+
+        /// <summary>
+        /// "Cannot add a Win status to a banned beatmap."
+        /// </summary>
+        public static LocalisableString WinOnBanNotAllowed => new TranslatableString(getKey(@"win_on_ban_not_allowed"),
+            @"Cannot add a Win status to a banned beatmap.");
 
         /// <summary>
         /// "Remaining:"
