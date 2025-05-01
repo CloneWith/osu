@@ -561,6 +561,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             // Clear map marking lists
             CurrentMatch.Value?.PicksBans.Clear();
+            CurrentMatch.Value?.ChessPlacements.Clear();
             CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
             if (CurrentMatch.Value != null)
