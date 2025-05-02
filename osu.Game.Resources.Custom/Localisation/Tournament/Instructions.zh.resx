@@ -58,10 +58,10 @@
         <value>{0}获胜！</value>
     </data>
     <data name="final_win_description" xml:space="preserve">
-        <value>Do you want smoke?</value>
+        <value>恭喜你获得最终胜利！</value>
     </data>
     <data name="on_fire_name" xml:space="preserve">
-        <value>恭喜你获得最终胜利！</value>
+        <value>Do you want smoke?</value>
     </data>
     <data name="on_fire_description" xml:space="preserve">
         <value>来看看礼堂顶针？</value>
