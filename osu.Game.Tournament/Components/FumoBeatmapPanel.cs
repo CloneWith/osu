@@ -295,6 +295,10 @@ namespace osu.Game.Tournament.Components
 
             var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
+            // Relevant placement unchanged: don't update
+            if (lastPlacement == newPlacement)
+                return;
+
             bool shouldAnimate = playFullAnimation
                                  && (newPlacement?.OwnerTeam != lastPlacement?.OwnerTeam
                                      || newPlacement?.CurrentType != lastPlacement?.CurrentType);
