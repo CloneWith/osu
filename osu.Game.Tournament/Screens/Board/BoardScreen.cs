@@ -181,8 +181,8 @@ namespace osu.Game.Tournament.Screens.Board
                                             Width = LadderInfo.MainBoardSize.Value,
                                             Height = LadderInfo.MainBoardSize.Value,
                                             ChildrenEnumerable = blocks =
-                                                (from row in Enumerable.Range(0, 4)
-                                                 from column in Enumerable.Range(0, 4)
+                                                (from row in Enumerable.Range(1, 4)
+                                                 from column in Enumerable.Range(1, 4)
                                                  select new DrawableBoardBlock(row, column)
                                                  {
                                                      Anchor = Anchor.Centre,
@@ -373,8 +373,11 @@ namespace osu.Game.Tournament.Screens.Board
             pickTeam = colour;
             pickType = stepType;
 
-            instructionDisplay.Team = colour;
-            instructionDisplay.Step = stepType;
+            if (instructionDisplay.Team != colour || instructionDisplay.Step != stepType)
+            {
+                instructionDisplay.Team = colour;
+                instructionDisplay.Step = stepType;
+            }
 
             buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
@@ -387,6 +390,23 @@ namespace osu.Game.Tournament.Screens.Board
             return;
 
             static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
+        }
+
+        private void detectWin()
+        {
+            if (CurrentMatch.Value == null)
+                return;
+
+            (int red, int blue) couplets = CurrentMatch.Value.GetMaximumSuccessiveChess();
+
+            if (couplets.red == 4 && couplets.blue == 4)
+            {
+                setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+            }
+            else if (couplets.blue == 4 || couplets.red == 4)
+            {
+                setMode(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue, RoundStep.FinalWin);
+            }
         }
 
         protected override bool OnMouseDown(MouseDownEvent e)
@@ -486,8 +506,10 @@ namespace osu.Game.Tournament.Screens.Board
 
             switch (succeeded)
             {
-                case true when lastSelected != null:
-                    lastSelected.Selected = false;
+                case true:
+                    detectWin();
+                    if (lastSelected != null)
+                        lastSelected.Selected = false;
                     break;
 
                 case false:
@@ -717,9 +739,9 @@ namespace osu.Game.Tournament.Screens.Board
             boardMapList.Clear();
             boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 1; i <= 4; i++)
             {
-                for (int j = 0; j < 4; j++)
+                for (int j = 1; j <= 4; j++)
                 {
                     var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                         p.BoardRow == i && p.BoardColumn == j);
