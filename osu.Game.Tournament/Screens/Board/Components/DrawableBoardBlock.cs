@@ -23,7 +23,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         public readonly int BoardRow;
         public readonly int BoardColumn;
 
-        public Container ChessLayer { get; private set; } = null!;
+        public Container<FumoChessPiece> ChessLayer { get; private set; } = null!;
 
         private const int border_duration = 300;
         private const int transform_duration = 1000;
@@ -65,7 +65,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Size = new Vector2(48),
                     Alpha = 0,
                 },
-                ChessLayer = new Container
+                ChessLayer = new Container<FumoChessPiece>
                 {
                     Name = @"Chess layer",
                     Anchor = Anchor.Centre,
@@ -75,6 +75,18 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Height = 0.8f,
                 },
             };
+        }
+
+        /// <summary>
+        /// Fade the background to a specific colour.
+        /// </summary>
+        /// <param name="colour">the <see cref="Color4"/> to fade to.</param>
+        /// <param name="duration">the length of the animation.</param>
+        /// <remarks>the colour of the flash would be dimmed by 25%.</remarks>
+        public void FadeBackgroundColour(Color4? colour = null!, int duration = transform_duration)
+        {
+            backgroundLayer.FinishTransforms();
+            backgroundLayer.TransformTo(nameof(backgroundLayer.BoxColour), colour?.Opacity(0.75f) ?? Color4.White.Opacity(0), duration, Easing.OutQuint);
         }
 
         /// <summary>

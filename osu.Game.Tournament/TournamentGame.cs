@@ -112,11 +112,11 @@ namespace osu.Game.Tournament
             {
                 RoundStep.Ban => ChoiceType.Ban,
                 RoundStep.Pick => ChoiceType.Pick,
-                RoundStep.Win => colour switch
+                RoundStep.Win or RoundStep.Shiro => colour switch
                 {
                     TeamColour.Red => ChoiceType.RedWin,
                     TeamColour.Blue => ChoiceType.BlueWin,
-                    _ => throw new ArgumentException(@$"The {nameof(RoundStep.Win)} cannot be converted to {nameof(ChoiceType)} without a valid {nameof(TeamColour)}."),
+                    _ => throw new ArgumentException(@$"The {nameof(RoundStep.Win)} and {nameof(RoundStep.Shiro)} cannot be converted to {nameof(ChoiceType)} without a valid {nameof(TeamColour)}."),
                 },
                 _ => ChoiceType.Neutral,
             };

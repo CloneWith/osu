@@ -36,7 +36,11 @@ namespace osu.Game.Tournament.Screens.Board
 
         // ReSharper disable once CollectionNeverUpdated.Local
         private readonly List<FumoChessPiece> boardMapList = new List<FumoChessPiece>();
+
         private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
+        private readonly List<DrawableBoardBlock> selectedBlocks = new List<DrawableBoardBlock>();
+
+        private readonly BindableBool shiroModeActivated = new BindableBool();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -56,11 +60,8 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonBlueBan = null!;
         private OsuButton buttonRedPick = null!;
         private OsuButton buttonBluePick = null!;
-
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
-        private OsuButton buttonRedShiro = null!;
-        private OsuButton buttonBlueShiro = null!;
 
         private OsuButton buttonIndicator = null!;
 
@@ -218,6 +219,7 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     Children = new Drawable[]
                     {
+                        new SectionHeader(@"Current mode"),
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.X,
@@ -293,31 +295,6 @@ namespace osu.Game.Tournament.Screens.Board
                                 },
                             },
                         },
-                        new GridContainer
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Height = 40,
-                            Content = new[]
-                            {
-                                new Drawable[]
-                                {
-                                    buttonRedShiro = new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Red Shiro",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, RoundStep.Shiro),
-                                    },
-                                    buttonBlueShiro = new TourneyButton
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        Text = "Blue Shiro",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, RoundStep.Shiro),
-                                    },
-                                },
-                            },
-                        },
                         new FormSliderBar<int>
                         {
                             Current = LadderInfo.MainBoardSize,
@@ -342,6 +319,33 @@ namespace osu.Game.Tournament.Screens.Board
                                 dialogOverlay.Push(new ResetBoardDialog(reset));
                             },
                         },
+                        new SectionHeader(@"Shiro deployment"),
+                        new LabelledSwitchButton
+                        {
+                            Label = @"Deployment mode",
+                            Current = shiroModeActivated,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = "Initialize",
+                            BackgroundColour = FumoColours.SeaBlue.Regular,
+                            Action = initializeShiro,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = "Update",
+                            BackgroundColour = FumoColours.SunshineYellow.Darker,
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = "Clear Selection",
+                            BackgroundColour = FumoColours.FlandreRed.Regular,
+                            Action = clearShiroSelection,
+                        },
                     },
                 },
                 dialogOverlay = new DialogOverlay(),
@@ -357,6 +361,15 @@ namespace osu.Game.Tournament.Screens.Board
 
             LadderInfo.MainBoardSize.BindValueChanged(e =>
                 boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
+
+            shiroModeActivated.BindValueChanged(e =>
+            {
+                // Only handle enabled cases to prevent infinite loops
+                if (e.NewValue)
+                {
+                    setMode(TeamColour.Neutral, RoundStep.Shiro);
+                }
+            });
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -376,17 +389,42 @@ namespace osu.Game.Tournament.Screens.Board
                 instructionDisplay.Step = stepType;
             }
 
+            if (stepType != RoundStep.Shiro)
+                shiroModeActivated.Value = false;
+
             buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
             buttonRedPick.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Pick);
             buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Pick);
             buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Win);
             buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Win);
-            buttonRedShiro.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Shiro);
-            buttonBlueShiro.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Shiro);
+
             return;
 
             static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
+        }
+
+        private void initializeShiro()
+        {
+            var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+
+            if (chessPieces.Count() != 2)
+            {
+                dialogOverlay.Push(new ActionNotPermittedDialog("Must select two chess pieces to activate Shiro."));
+                return;
+            }
+
+            if (chessPieces.GroupBy(b => b.OwnerTeam).Count() != 1)
+            {
+                dialogOverlay.Push(new ActionNotPermittedDialog("Must be in one single colour."));
+                return;
+            }
+
+            setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
+        }
+
+        private void updateShiro()
+        {
         }
 
         private void detectWin()
@@ -422,8 +460,7 @@ namespace osu.Game.Tournament.Screens.Board
                     return true;
 
                 var existingPlacement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(c => c.BeatmapID == target.Beatmap.ID);
-                var chessBlock = blocks.FirstOrDefault(b => b.BoardRow == existingPlacement?.BoardRow
-                                                            && b.BoardColumn == existingPlacement.BoardColumn);
+                var chessBlock = blocks.FirstOrDefault(b => positionEquals(existingPlacement, b));
 
                 switch (e.Button)
                 {
@@ -464,7 +501,7 @@ namespace osu.Game.Tournament.Screens.Board
             else if (boardBlockArea.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
             {
                 // 2. Chess board interaction or no special handling needed
-                var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BoardRow == block?.BoardRow && p.BoardColumn == block.BoardColumn);
+                var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => positionEquals(p, block));
                 var target = boardMapList.FirstOrDefault(c => c.BeatmapID == placement?.BeatmapID);
 
                 switch (e.Button)
@@ -486,6 +523,60 @@ namespace osu.Game.Tournament.Screens.Board
                                 }
 
                                 succeeded |= addPlacement(lastSelected.Beatmap.ID, block);
+                                break;
+
+                            case RoundStep.Shiro:
+                                if (!shiroModeActivated.Value)
+                                    break;
+
+                                if (block != null)
+                                {
+                                    switch (pickTeam)
+                                    {
+                                        case TeamColour.Red or TeamColour.Blue:
+                                            succeeded |= addWinPlacement(0, block);
+
+                                            if (succeeded)
+                                            {
+                                                foreach (var b in selectedBlocks)
+                                                {
+                                                    b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
+                                                    var record = CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b));
+
+                                                    if (record != null)
+                                                        CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
+                                                }
+
+                                                clearShiroSelection();
+                                            }
+
+                                            break;
+
+                                        default:
+                                            var matches = CurrentMatch.Value?.ChessPlacements.Where(p => positionEquals(p, block));
+
+                                            if (matches?.Any(p => p.CurrentType is ChoiceType.Consumed) == true
+                                                || matches?.Any(p => p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin) != true)
+                                                break;
+
+                                            succeeded = true;
+                                            bool exists = selectedBlocks.Contains(block);
+
+                                            block.FadeBackgroundColour(!exists ? FumoColours.SeaBlue.Regular : null);
+
+                                            if (exists)
+                                            {
+                                                selectedBlocks.Remove(block);
+                                            }
+                                            else
+                                            {
+                                                selectedBlocks.Add(block);
+                                            }
+
+                                            break;
+                                    }
+                                }
+
                                 break;
                         }
 
@@ -515,6 +606,15 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             return true;
+        }
+
+        private bool positionEquals(ChessPlacement? placement, DrawableBoardBlock? block)
+            => placement != null && block != null && placement.BoardRow == block.BoardRow && placement.BoardColumn == block.BoardColumn;
+
+        private void clearShiroSelection()
+        {
+            selectedBlocks.ForEach(b => b.FadeBackgroundColour());
+            selectedBlocks.Clear();
         }
 
         private bool removeLatestPlacement(int beatmapId)
@@ -616,6 +716,20 @@ namespace osu.Game.Tournament.Screens.Board
 
         private bool addWinPlacement(int beatmapId, DrawableBoardBlock? block)
         {
+            if (pickType == RoundStep.Shiro)
+            {
+                if (block == null)
+                    return false;
+
+                CurrentMatch.Value?.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
+                    pickTeam, pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
+
+                addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam,
+                    pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin);
+
+                return true;
+            }
+
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                 p.BeatmapID == beatmapId && p.CurrentType is ChoiceType.Pick or ChoiceType.Ban);
             var chess = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
@@ -652,7 +766,7 @@ namespace osu.Game.Tournament.Screens.Board
             if (pickType == RoundStep.Default || pickTeam == TeamColour.None || CurrentMatch.Value?.Round.Value == null)
                 return false;
 
-            if (CurrentMatch.Value.Round.Value.Beatmaps.All(b => b.Beatmap?.OnlineID != beatmapId))
+            if (CurrentMatch.Value.Round.Value.Beatmaps.All(b => b.Beatmap?.OnlineID != beatmapId) && pickType != RoundStep.Shiro)
                 // don't attempt to add if the beatmap isn't in our pool
                 return false;
 
