@@ -121,6 +121,8 @@ namespace osu.Game.Tournament
                 _ => ChoiceType.Neutral,
             };
 
+        public const int RESERVED_BEATMAP_ID = -1;
+
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
         public static readonly Color4 COLOUR_CHOICES = Color4.Orange;

@@ -425,6 +425,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void updateShiro()
         {
+            var shiro = boardMapList.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
         }
 
         private void detectWin()
@@ -534,7 +535,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     switch (pickTeam)
                                     {
                                         case TeamColour.Red or TeamColour.Blue:
-                                            succeeded |= addWinPlacement(0, block);
+                                            succeeded |= addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
 
                                             if (succeeded)
                                             {
