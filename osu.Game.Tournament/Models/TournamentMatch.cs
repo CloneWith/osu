@@ -126,7 +126,11 @@ namespace osu.Game.Tournament.Models
         /// Search for the maximum successive chess pieces on the board for two teams.
         /// </summary>
         /// <returns>A tuple containing the number of successive chess for the red and blue team.</returns>
-        public (int redNum, int blueNum) GetMaximumSuccessiveChess()
+        public (int redNum, int blueNum) GetMaximumSuccessiveChess() => GetMaximumSuccessiveChess(ChessPlacements);
+
+        /// <inheritdoc cref="GetMaximumSuccessiveChess()"/>
+        /// <param name="source">the data source providing <see cref="ChessPlacement"/> information.</param>
+        public static (int redNum, int blueNum) GetMaximumSuccessiveChess(Collection<ChessPlacement> source)
         {
             (int red, int blue) num = (0, 0);
 
@@ -136,9 +140,9 @@ namespace osu.Game.Tournament.Models
             {
                 // The modification of i won't affect these lines.
                 // ReSharper disable once AccessToModifiedClosure
-                var rowChess = ChessPlacements.Where(c => c.BoardRow == i)
-                                              .GroupBy(c => c.BoardColumn)
-                                              .Select(g => g.Last());
+                var rowChess = source.Where(c => c.BoardRow == i)
+                                     .GroupBy(c => c.BoardColumn)
+                                     .Select(g => g.Last());
 
                 foreach (var chess in rowChess)
                 {
@@ -167,7 +171,7 @@ namespace osu.Game.Tournament.Models
                     goto EndRecursion;
 
                 // Step 2: Find the next chess; Return if not found or not desired type
-                var nextChess = ChessPlacements.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+                var nextChess = source.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
                     // Edge case: Dismiss dual diagonal matches
