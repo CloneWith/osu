@@ -471,8 +471,7 @@ namespace osu.Game.Tournament.Screens.Board
             TeamColour targetTeam = placements.GroupBy(p => p.OwnerTeam).Single().Key;
             int coupletCount = targetTeam == TeamColour.Red ? couplets.red : couplets.blue;
 
-            if (coupletCount == 3
-                || coupletCount == 2 && placements.Count - coupletCount == 2)
+            if (coupletCount == 3 || (coupletCount == 2 && placements.Count - coupletCount == 2))
             {
                 shiro.OwnerTeam = targetTeam;
                 shiro.CurrentType = targetTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
