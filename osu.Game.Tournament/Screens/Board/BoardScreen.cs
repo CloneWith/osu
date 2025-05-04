@@ -220,7 +220,7 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     Children = new Drawable[]
                     {
-                        new SectionHeader(@"Current mode"),
+                        new SectionHeader(BoardStrings.CurrentMode),
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.X,
@@ -320,30 +320,30 @@ namespace osu.Game.Tournament.Screens.Board
                                 dialogOverlay.Push(new ResetBoardDialog(reset));
                             },
                         },
-                        new SectionHeader(@"Shiro deployment"),
+                        new SectionHeader(BoardStrings.ShiroDeployment),
                         new LabelledSwitchButton
                         {
-                            Label = @"Deployment mode",
+                            Label = BoardStrings.EnableDeployment,
                             Current = shiroModeActivated,
                         },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Initialize",
+                            Text = BoardStrings.ActivateShiro,
                             BackgroundColour = FumoColours.SeaBlue.Regular,
-                            Action = initializeShiro,
+                            Action = activateShiro,
                         },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Update",
+                            Text = BoardStrings.UpdateShiroOwner,
                             BackgroundColour = FumoColours.SunshineYellow.Darker,
                             Action = updateShiro,
                         },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Clear Selection",
+                            Text = BoardStrings.ClearSelection,
                             BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = clearShiroSelection,
                         },
@@ -409,7 +409,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             if (source.GroupBy(b => b.OwnerTeam).Count() != 1)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog("Must be in one single colour."));
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.SingleColourPrompt));
                 return false;
             }
 
@@ -428,13 +428,13 @@ namespace osu.Game.Tournament.Screens.Board
             }
         }
 
-        private void initializeShiro()
+        private void activateShiro()
         {
             var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
 
             if (chessPieces.Count() != 2)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog("Must select two chess pieces to activate Shiro."));
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroActivationPrompt));
                 return;
             }
 
@@ -458,7 +458,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (shiro == null)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog("Cannot find an existing shiro chess piece."));
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroMissingPrompt));
                 return;
             }
 
@@ -487,7 +487,7 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog("Invalid combination for updating Shiro."));
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroOwnerUpdatePrompt));
             }
         }
 

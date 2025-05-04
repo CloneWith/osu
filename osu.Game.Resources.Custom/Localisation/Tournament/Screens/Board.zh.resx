@@ -30,4 +30,34 @@
     <data name="main_board_area_size" xml:space="preserve">
         <value>落子区大小</value>
     </data>
+    <data name="current_mode" xml:space="preserve">
+        <value>当前模式</value>
+    </data>
+    <data name="shiro_deployment" xml:space="preserve">
+        <value>白子部署</value>
+    </data>
+    <data name="enable_deployment" xml:space="preserve">
+        <value>部署模式</value>
+    </data>
+    <data name="activate_shiro" xml:space="preserve">
+        <value>激活</value>
+    </data>
+    <data name="update_shiro_owner" xml:space="preserve">
+        <value>更新持有队</value>
+    </data>
+    <data name="clear_selection" xml:space="preserve">
+        <value>清除选区</value>
+    </data>
+    <data name="single_colour_prompt" xml:space="preserve">
+        <value>所选棋子必须同色。</value>
+    </data>
+    <data name="shiro_activation_prompt" xml:space="preserve">
+        <value>仅可使用两个棋子激活白子。</value>
+    </data>
+    <data name="shiro_owner_update_prompt" xml:space="preserve">
+        <value>不可使用该组合更新白子状态。</value>
+    </data>
+    <data name="shiro_missing_prompt" xml:space="preserve">
+        <value>找不到棋盘上已有的白子。</value>
+    </data>
 </root>

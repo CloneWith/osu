@@ -10,6 +10,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Screens.Board";
 
         /// <summary>
+        /// "Current Mode"
+        /// </summary>
+        public static LocalisableString CurrentMode => new TranslatableString(getKey(@"current_mode"), @"Current Mode");
+
+        /// <summary>
         /// "Cannot find a Pick record associated with the selected beatmap."
         /// </summary>
         public static LocalisableString PicksUnavailable => new TranslatableString(getKey(@"pick_unavailable"),
@@ -30,6 +35,55 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// "Chess area size"
         /// </summary>
         public static LocalisableString MainBoardAreaSize => new TranslatableString(getKey(@"main_board_area_size"), @"Chess area size");
+
+        /// <summary>
+        /// "Shiro Deployment"
+        /// </summary>
+        public static LocalisableString ShiroDeployment => new TranslatableString(getKey(@"shiro_deployment"), @"Shiro Deployment");
+
+        /// <summary>
+        /// "Deployment Mode"
+        /// </summary>
+        public static LocalisableString EnableDeployment => new TranslatableString(getKey(@"enable_deployment"), @"Deployment Mode");
+
+        /// <summary>
+        /// "Activate"
+        /// </summary>
+        public static LocalisableString ActivateShiro => new TranslatableString(getKey(@"activate_shiro"), @"Activate");
+
+        /// <summary>
+        /// "Update Owner"
+        /// </summary>
+        public static LocalisableString UpdateShiroOwner => new TranslatableString(getKey(@"update_shiro_owner"), @"Update Owner");
+
+        /// <summary>
+        /// "Clear Selection"
+        /// </summary>
+        public static LocalisableString ClearSelection => new TranslatableString(getKey(@"clear_selection"), @"Clear Selection");
+
+        /// <summary>
+        /// "The selected chess pieces must be in the same colour."
+        /// </summary>
+        public static LocalisableString SingleColourPrompt => new TranslatableString(getKey(@"single_colour_prompt"),
+            @"The selected chess pieces must be in the same colour.");
+
+        /// <summary>
+        /// "Must select two chess pieces to activate Shiro."
+        /// </summary>
+        public static LocalisableString ShiroActivationPrompt => new TranslatableString(getKey(@"shiro_activation_prompt"),
+            @"Must select two chess pieces to activate Shiro.");
+
+        /// <summary>
+        /// "Invalid combination for updating Shiro."
+        /// </summary>
+        public static LocalisableString ShiroOwnerUpdatePrompt => new TranslatableString(getKey(@"shiro_owner_update_prompt"),
+            @"Invalid combination for updating Shiro.");
+
+        /// <summary>
+        /// "Cannot find an existing shiro chess piece."
+        /// </summary>
+        public static LocalisableString ShiroMissingPrompt => new TranslatableString(getKey(@"shiro_missing_prompt"),
+            @"Cannot find an existing shiro chess piece.");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
