@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -337,7 +338,7 @@ namespace osu.Game.Tournament.Screens.Board
                             RelativeSizeAxes = Axes.X,
                             Text = "Update",
                             BackgroundColour = FumoColours.SunshineYellow.Darker,
-                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
+                            Action = updateShiro,
                         },
                         new TourneyButton
                         {
@@ -404,6 +405,29 @@ namespace osu.Game.Tournament.Screens.Board
             static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
         }
 
+        private bool checkSelected(IEnumerable<FumoChessPiece> source)
+        {
+            if (source.GroupBy(b => b.OwnerTeam).Count() != 1)
+            {
+                dialogOverlay.Push(new ActionNotPermittedDialog("Must be in one single colour."));
+                return false;
+            }
+
+            return true;
+        }
+
+        private void consumeSelected()
+        {
+            foreach (var b in selectedBlocks)
+            {
+                b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
+                var record = CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b));
+
+                if (record != null)
+                    CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
+            }
+        }
+
         private void initializeShiro()
         {
             var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
@@ -414,18 +438,57 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
             }
 
-            if (chessPieces.GroupBy(b => b.OwnerTeam).Count() != 1)
-            {
-                dialogOverlay.Push(new ActionNotPermittedDialog("Must be in one single colour."));
+            if (!checkSelected(chessPieces))
                 return;
-            }
 
             setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
         }
 
         private void updateShiro()
         {
+            if (CurrentMatch.Value == null || !CurrentMatch.Value.ChessPlacements.Any())
+                return;
+
+            var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+            var placements = new Collection<ChessPlacement>(chessPieces.Select(p => p.BeatmapID)
+                                                                       .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
+                                                                       .Where(i => i != null)
+                                                                       .ToList()!);
             var shiro = boardMapList.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
+
+            if (shiro == null)
+            {
+                dialogOverlay.Push(new ActionNotPermittedDialog("Cannot find an existing shiro chess piece."));
+                return;
+            }
+
+            if (!checkSelected(chessPieces))
+                return;
+
+            (int red, int blue) couplets = TournamentMatch.GetMaximumSuccessiveChess(placements);
+
+            // Have checked in checkSelected, guaranteed to have exactly one group
+            TeamColour targetTeam = placements.GroupBy(p => p.OwnerTeam).Single().Key;
+            int coupletCount = targetTeam == TeamColour.Red ? couplets.red : couplets.blue;
+
+            if (coupletCount == 3 || coupletCount == 2 && placements.Count - coupletCount == 2)
+            {
+                shiro.OwnerTeam = targetTeam;
+                shiro.CurrentType = targetTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
+
+                pickTeam = targetTeam;
+                pickType = RoundStep.Shiro;
+
+                instructionDisplay.Team = targetTeam;
+                instructionDisplay.Step = RoundStep.Shiro;
+
+                consumeSelected();
+                clearShiroSelection();
+            }
+            else
+            {
+                dialogOverlay.Push(new ActionNotPermittedDialog("Invalid combination for updating Shiro."));
+            }
         }
 
         private void detectWin()
@@ -539,15 +602,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                                             if (succeeded)
                                             {
-                                                foreach (var b in selectedBlocks)
-                                                {
-                                                    b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
-                                                    var record = CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b));
-
-                                                    if (record != null)
-                                                        CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
-                                                }
-
+                                                consumeSelected();
                                                 clearShiroSelection();
                                             }
 
@@ -614,6 +669,9 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void clearShiroSelection()
         {
+            // Get back to normal route to avoid accidentally adding win states.
+            shiroModeActivated.Value = false;
+
             selectedBlocks.ForEach(b => b.FadeBackgroundColour());
             selectedBlocks.Clear();
         }
