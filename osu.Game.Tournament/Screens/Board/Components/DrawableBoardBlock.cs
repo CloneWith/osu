@@ -95,7 +95,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         /// <param name="colour">the <see cref="Color4"/> of the flash.</param>
         /// <param name="duration">the length of the flash.</param>
         /// <remarks>the colour of the flash would be dimmed by 25%.</remarks>
-        public void FlashColour(Color4? colour = null!, int duration = transform_duration)
+        public void FlashColour(Color4? colour = null, int duration = transform_duration)
         {
             backgroundLayer.FinishTransforms();
             backgroundLayer.BoxColour = colour?.Opacity(0.75f) ?? Color4.White.Opacity(0.75f);
