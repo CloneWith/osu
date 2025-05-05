@@ -35,9 +35,7 @@ namespace osu.Game.Tournament.Screens.Board
     {
         private const float board_size = 570;
 
-        // ReSharper disable once CollectionNeverUpdated.Local
         private readonly List<FumoChessPiece> boardMapList = new List<FumoChessPiece>();
-
         private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
         private readonly List<DrawableBoardBlock> selectedBlocks = new List<DrawableBoardBlock>();
 
