@@ -83,6 +83,14 @@ namespace osu.Game.Tournament.Components
 
             InternalChildren = new Drawable[]
             {
+                new EmptyBox(5)
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    Width = WIDTH,
+                    Height = HEIGHT,
+                    BoxColour = Color4.White,
+                },
                 beatmapInfoContainer = new Container
                 {
                     Name = @"Beatmap information",
@@ -273,13 +281,12 @@ namespace osu.Game.Tournament.Components
 
             if (selected)
             {
-                beatmapInfoContainer.BorderColour = Colour4.White;
-                beatmapInfoContainer.TransformTo(nameof(beatmapInfoContainer.BorderThickness), INNER_BORDER, 500, Easing.OutQuint);
+                beatmapInfoContainer.ResizeTo(new Vector2(WIDTH - 6, HEIGHT - 6), 500, Easing.OutQuint);
                 backgroundAddition.FlashColour(Color4.White.Opacity(0.9f), 1000, Easing.OutQuint);
             }
             else
             {
-                beatmapInfoContainer.TransformTo(nameof(beatmapInfoContainer.BorderThickness), 0f, 500, Easing.OutQuint);
+                beatmapInfoContainer.ResizeTo(new Vector2(WIDTH, HEIGHT), 500, Easing.OutQuint);
             }
         }
 
