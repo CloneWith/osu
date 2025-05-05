@@ -288,6 +288,7 @@ namespace osu.Game.Tournament.Components
             // Match unavailable: Clean up
             if (currentMatch.Value == null)
             {
+                FinishTransforms(true);
                 banPill.FadeOut(300, Easing.OutQuint);
                 trophyIcon.FadeOut(300, Easing.OutQuint);
                 lastPlacement = null;
