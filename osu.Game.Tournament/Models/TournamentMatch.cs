@@ -130,7 +130,7 @@ namespace osu.Game.Tournament.Models
 
         /// <inheritdoc cref="GetMaximumSuccessiveChess()"/>
         /// <param name="source">the data source providing <see cref="ChessPlacement"/> information.</param>
-        public static (int redNum, int blueNum) GetMaximumSuccessiveChess(Collection<ChessPlacement> source)
+        public static (int redNum, int blueNum) GetMaximumSuccessiveChess(IEnumerable<ChessPlacement> source)
         {
             (int red, int blue) num = (0, 0);
 

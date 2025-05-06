@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -476,10 +475,9 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
-            var placements = new Collection<ChessPlacement>(chessPieces.Select(p => p.BeatmapID)
-                                                                       .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
-                                                                       .Where(i => i != null)
-                                                                       .ToList()!);
+            var placements = chessPieces.Select(p => p.BeatmapID)
+                                        .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
+                                        .OfType<ChessPlacement>();
             var shiro = boardMapList.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
 
             if (shiro == null)
@@ -503,7 +501,7 @@ namespace osu.Game.Tournament.Screens.Board
             TeamColour targetTeam = placements.GroupBy(p => p.OwnerTeam).Single().Key;
             int coupletCount = targetTeam == TeamColour.Red ? couplets.red : couplets.blue;
 
-            if (coupletCount == 3 || (coupletCount == 2 && placements.Count - coupletCount == 2))
+            if (coupletCount == 3 || (coupletCount == 2 && placements.Count() - coupletCount == 2))
             {
                 shiro.OwnerTeam = targetTeam;
                 shiro.CurrentType = targetTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
