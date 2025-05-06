@@ -35,7 +35,7 @@ namespace osu.Game.Tournament.Components
         public const float WIDTH = 80;
         public const float HEIGHT = 60;
 
-        public const float INNER_BORDER = 3;
+        public const float INNER_BORDER = 6;
 
         /// <summary>
         /// Whether this panel is in a selected state.
@@ -281,7 +281,7 @@ namespace osu.Game.Tournament.Components
 
             if (selected)
             {
-                beatmapInfoContainer.ResizeTo(new Vector2(WIDTH - 6, HEIGHT - 6), 500, Easing.OutQuint);
+                beatmapInfoContainer.ResizeTo(new Vector2(WIDTH - INNER_BORDER, HEIGHT - INNER_BORDER), 500, Easing.OutQuint);
                 backgroundAddition.FlashColour(Color4.White.Opacity(0.9f), 1000, Easing.OutQuint);
             }
             else
