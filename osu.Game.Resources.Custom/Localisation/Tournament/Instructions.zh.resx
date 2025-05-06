@@ -72,4 +72,10 @@
     <data name="halt_description" xml:space="preserve">
         <value>等待裁判响应...</value>
     </data>
+    <data name="shiro_placing_name" xml:space="preserve">
+        <value>放置白子</value>
+    </data>
+    <data name="shiro_placing_description" xml:space="preserve">
+        <value>在棋盘上放一个空白子。</value>
+    </data>
 </root>

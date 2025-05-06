@@ -68,6 +68,18 @@ namespace osu.Game.Tournament.Localisation
             @"Consume couplets to deploy one.");
 
         /// <summary>
+        /// "Place Shiro"
+        /// </summary>
+        public static LocalisableString ShiroPlacingName => new TranslatableString(getKey(@"shiro_placing_name"),
+            @"Place Shiro");
+
+        /// <summary>
+        /// "Place an empty Shiro chess piece."
+        /// </summary>
+        public static LocalisableString ShiroPlacingDescription => new TranslatableString(getKey(@"shiro_placing_description"),
+            @"Place an empty Shiro chess piece.");
+
+        /// <summary>
         /// "Entering TB Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),

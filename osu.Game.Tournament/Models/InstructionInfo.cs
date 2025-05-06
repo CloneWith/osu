@@ -73,10 +73,10 @@ namespace osu.Game.Tournament.Models
                     break;
 
                 case RoundStep.Shiro:
-                    Name = InstructionsStrings.ShiroName(shortTeamPrompt);
-                    Description = InstructionsStrings.ShiroDescription;
+                    Name = Team == TeamColour.None ? InstructionsStrings.ShiroPlacingName : InstructionsStrings.ShiroName(shortTeamPrompt);
+                    Description = Team == TeamColour.None ? InstructionsStrings.ShiroPlacingDescription : InstructionsStrings.ShiroDescription;
                     Icon = FontAwesome.Regular.Circle;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
+                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
                     break;
 
                 case RoundStep.TieBreaker:
