@@ -47,6 +47,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString EnableDeployment => new TranslatableString(getKey(@"enable_deployment"), @"Deployment Mode");
 
         /// <summary>
+        /// "Place"
+        /// </summary>
+        public static LocalisableString PlaceShiro => new TranslatableString(getKey(@"place_shiro"), @"Place");
+
+        /// <summary>
         /// "Activate"
         /// </summary>
         public static LocalisableString ActivateShiro => new TranslatableString(getKey(@"activate_shiro"), @"Activate");
@@ -80,10 +85,16 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"Invalid combination for updating Shiro.");
 
         /// <summary>
-        /// "Cannot find an existing shiro chess piece."
+        /// "Cannot find an existing Shiro chess piece."
         /// </summary>
         public static LocalisableString ShiroMissingPrompt => new TranslatableString(getKey(@"shiro_missing_prompt"),
-            @"Cannot find an existing shiro chess piece.");
+            @"Cannot find an existing Shiro chess piece.");
+
+        /// <summary>
+        /// "A Shiro chess piece already exists."
+        /// </summary>
+        public static LocalisableString ShiroExistsPrompt => new TranslatableString(getKey(@"shiro_exists_prompt"),
+            @"A Shiro chess piece already exists.");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
