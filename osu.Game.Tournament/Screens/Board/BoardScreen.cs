@@ -312,7 +312,7 @@ namespace osu.Game.Tournament.Screens.Board
                         {
                             RelativeSizeAxes = Axes.X,
                             Text = BaseStrings.Reset,
-                            BackgroundColour = Color4.DeepPink,
+                            BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = () =>
                             {
                                 dialogOverlay.Push(new ResetBoardDialog(reset));

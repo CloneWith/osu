@@ -102,6 +102,30 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString ShiroSelectedPrompt => new TranslatableString(getKey(@"shiro_selected_prompt"),
             @"The Shiro chess piece cannot be consumed.");
 
+        /// <summary>
+        /// "Warning: Board Reset"
+        /// </summary>
+        public static LocalisableString ResetBoardTitle => new TranslatableString(getKey(@"reset_board_title"),
+            @"Warning: Board Reset");
+
+        /// <summary>
+        /// "This would reset the board to the initial state, and you will lose all chess placements and ban / pick data in this match. Are you sure?"
+        /// </summary>
+        public static LocalisableString ResetBoardDescription => new TranslatableString(getKey(@"reset_board_description"),
+            @"This would reset the board to the initial state, and you will lose all chess placements and ban / pick data in this match. Are you sure?");
+
+        /// <summary>
+        /// "Yes, reset to the initial state."
+        /// </summary>
+        public static LocalisableString AgreeReset => new TranslatableString(getKey(@"agree_reset"),
+            @"Yes, reset to the initial state.");
+
+        /// <summary>
+        /// "I'd rather stay the same."
+        /// </summary>
+        public static LocalisableString KeepCurrentState => new TranslatableString(getKey(@"keep_current_state"),
+            @"I'd rather stay the same.");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

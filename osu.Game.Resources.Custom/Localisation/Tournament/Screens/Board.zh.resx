@@ -69,4 +69,16 @@
     <data name="shiro_selected_prompt" xml:space="preserve">
         <value>不可消耗白子。</value>
     </data>
+    <data name="reset_board_title" xml:space="preserve">
+        <value>警告：棋盘重置</value>
+    </data>
+    <data name="reset_board_description" xml:space="preserve">
+        <value>棋盘将被重置到初始状态，该回合比赛内的所有落子与 Ban / Pick 数据均会丢失。你确定吗？</value>
+    </data>
+    <data name="agree_reset" xml:space="preserve">
+        <value>是的，请重置。</value>
+    </data>
+    <data name="keep_current_state" xml:space="preserve">
+        <value>还是算了吧...</value>
+    </data>
 </root>
