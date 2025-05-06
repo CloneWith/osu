@@ -96,6 +96,12 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString ShiroExistsPrompt => new TranslatableString(getKey(@"shiro_exists_prompt"),
             @"A Shiro chess piece already exists.");
 
+        /// <summary>
+        /// "The Shiro chess piece cannot be consumed."
+        /// </summary>
+        public static LocalisableString ShiroSelectedPrompt => new TranslatableString(getKey(@"shiro_selected_prompt"),
+            @"The Shiro chess piece cannot be consumed.");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

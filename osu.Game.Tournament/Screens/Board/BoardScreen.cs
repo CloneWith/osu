@@ -491,6 +491,12 @@ namespace osu.Game.Tournament.Screens.Board
             if (!checkSelected(chessPieces))
                 return;
 
+            if (chessPieces.Contains(shiro))
+            {
+                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroSelectedPrompt));
+                return;
+            }
+
             (int red, int blue) couplets = TournamentMatch.GetMaximumSuccessiveChess(placements);
 
             // Have checked in checkSelected, guaranteed to have exactly one group

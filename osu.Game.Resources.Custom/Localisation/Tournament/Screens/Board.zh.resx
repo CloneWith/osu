@@ -66,4 +66,7 @@
     <data name="shiro_exists_prompt" xml:space="preserve">
         <value>棋盘上已有放置的白子。</value>
     </data>
+    <data name="shiro_selected_prompt" xml:space="preserve">
+        <value>不可消耗白子。</value>
+    </data>
 </root>
