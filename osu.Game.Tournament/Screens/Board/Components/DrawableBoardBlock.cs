@@ -83,7 +83,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         /// <param name="colour">the <see cref="Color4"/> to fade to.</param>
         /// <param name="duration">the length of the animation.</param>
         /// <remarks>the colour of the flash would be dimmed by 25%.</remarks>
-        public void FadeBackgroundColour(Color4? colour = null!, int duration = transform_duration)
+        public void FadeBackgroundColour(Color4? colour = null, int duration = transform_duration)
         {
             backgroundLayer.FinishTransforms();
             backgroundLayer.TransformTo(nameof(backgroundLayer.BoxColour), colour?.Opacity(0.75f) ?? Color4.White.Opacity(0), duration, Easing.OutQuint);
