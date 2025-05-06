@@ -168,23 +168,19 @@ namespace osu.Game.Tournament.Models
             {
                 // Step 1: Boundary check
                 if (row <= 0 || row > 4 || column <= 0 || column > 4)
-                    goto EndRecursion;
+                    return endRecursion();
 
                 // Step 2: Find the next chess; Return if not found or not desired type
                 var nextChess = source.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
                     // Edge case: Dismiss dual diagonal matches
-                    goto EndRecursion;
+                    return endRecursion();
 
                 // Step 3: Search forwards
                 return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
 
-#pragma warning disable format
-                // This is EXACTLY the code format we expected.
-                EndRecursion:
-                return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
-#pragma warning restore format
+                int endRecursion() => rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
             }
         }
 
