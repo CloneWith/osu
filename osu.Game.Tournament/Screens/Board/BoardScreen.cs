@@ -635,6 +635,8 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         case TeamColour.None:
                                             succeeded |= addPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
+                                            pickType = RoundStep.Default;
+                                            instructionDisplay.Step = RoundStep.Default;
                                             break;
 
                                         default:
