@@ -360,8 +360,6 @@ namespace osu.Game.Tournament.Components
         {
             LocalisableString choiceText = TournamentGame.GetTeamString(placement.OwnerTeam, true, @"Map");
 
-            instructText.Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold);
-
             // Initialize animation
             switch (placement.CurrentType)
             {
@@ -373,7 +371,6 @@ namespace osu.Game.Tournament.Components
                 case ChoiceType.Ban:
                     instructText.Text = $"{choiceText} banned!";
                     statusIcon.Icon = FontAwesome.Solid.Ban;
-                    instructText.Font = OsuFont.Torus.With(size: 14, weight: FontWeight.SemiBold);
                     break;
 
                 case ChoiceType.RedWin:
