@@ -97,12 +97,6 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"A Shiro chess piece already exists.");
 
         /// <summary>
-        /// "The Shiro chess piece cannot be consumed."
-        /// </summary>
-        public static LocalisableString ShiroSelectedPrompt => new TranslatableString(getKey(@"shiro_selected_prompt"),
-            @"The Shiro chess piece cannot be consumed.");
-
-        /// <summary>
         /// "Warning: Board Reset"
         /// </summary>
         public static LocalisableString ResetBoardTitle => new TranslatableString(getKey(@"reset_board_title"),

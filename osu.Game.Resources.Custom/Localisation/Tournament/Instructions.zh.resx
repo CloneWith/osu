@@ -78,4 +78,10 @@
     <data name="shiro_placing_description" xml:space="preserve">
         <value>在棋盘上放一个空白子。</value>
     </data>
+    <data name="update_owner_name" xml:space="preserve">
+        <value>连对夺棋·{0}</value>
+    </data>
+    <data name="update_owner_description" xml:space="preserve">
+        <value>消耗连对来夺取对方赢棋。</value>
+    </data>
 </root>

@@ -80,6 +80,18 @@ namespace osu.Game.Tournament.Localisation
             @"Place an empty Shiro chess piece.");
 
         /// <summary>
+        /// "Get Owner ({0})"
+        /// </summary>
+        public static LocalisableString UpdateOwnerName(LocalisableString team) => new TranslatableString(getKey(@"update_owner_name"),
+            @"Get Owner ({0})", team);
+
+        /// <summary>
+        /// "Consume couplets to take a win chess."
+        /// </summary>
+        public static LocalisableString UpdateOwnerDescription => new TranslatableString(getKey(@"update_owner_description"),
+            @"Consume couplets to take a win chess.");
+
+        /// <summary>
         /// "Entering TB Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),

@@ -34,7 +34,7 @@
         <value>当前模式</value>
     </data>
     <data name="shiro_deployment" xml:space="preserve">
-        <value>白子部署</value>
+        <value>白子与夺棋</value>
     </data>
     <data name="enable_deployment" xml:space="preserve">
         <value>部署模式</value>
@@ -65,9 +65,6 @@
     </data>
     <data name="shiro_exists_prompt" xml:space="preserve">
         <value>棋盘上已有放置的白子。</value>
-    </data>
-    <data name="shiro_selected_prompt" xml:space="preserve">
-        <value>不可消耗白子。</value>
     </data>
     <data name="reset_board_title" xml:space="preserve">
         <value>警告：棋盘重置</value>

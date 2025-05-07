@@ -351,7 +351,7 @@ namespace osu.Game.Tournament.Screens.Board
                             RelativeSizeAxes = Axes.X,
                             Text = BoardStrings.UpdateShiroOwner,
                             BackgroundColour = FumoColours.SunshineYellow.Darker,
-                            Action = updateShiro,
+                            Action = updateWin,
                         },
                         new TourneyButton
                         {
@@ -469,7 +469,7 @@ namespace osu.Game.Tournament.Screens.Board
             clearShiroSelection();
         }
 
-        private void updateShiro()
+        private void updateWin()
         {
             if (CurrentMatch.Value == null || !CurrentMatch.Value.ChessPlacements.Any())
                 return;
@@ -478,22 +478,9 @@ namespace osu.Game.Tournament.Screens.Board
             var placements = chessPieces.Select(p => p.BeatmapID)
                                         .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
                                         .OfType<ChessPlacement>();
-            var shiro = boardMapList.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
-
-            if (shiro == null)
-            {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroMissingPrompt));
-                return;
-            }
 
             if (!checkSelected(chessPieces))
                 return;
-
-            if (chessPieces.Contains(shiro))
-            {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroSelectedPrompt));
-                return;
-            }
 
             (int red, int blue) couplets = TournamentMatch.GetMaximumSuccessiveChess(placements);
 
@@ -503,17 +490,11 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (coupletCount == 3 || (coupletCount == 2 && placements.Count() - coupletCount == 2))
             {
-                shiro.OwnerTeam = targetTeam;
-                shiro.CurrentType = targetTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
-
                 pickTeam = targetTeam;
-                pickType = RoundStep.Shiro;
+                pickType = RoundStep.UpdateOwner;
 
                 instructionDisplay.Team = targetTeam;
-                instructionDisplay.Step = RoundStep.Shiro;
-
-                consumeSelected();
-                clearShiroSelection();
+                instructionDisplay.Step = RoundStep.UpdateOwner;
             }
             else
             {
@@ -604,9 +585,37 @@ namespace osu.Game.Tournament.Screens.Board
                     {
                         switch (pickType)
                         {
+                            case RoundStep.UpdateOwner:
+                                if (target != null)
+                                {
+                                    var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+
+                                    if (chessPieces.Contains(target))
+                                        break;
+
+                                    succeeded |= addWinPlacement(target.BeatmapID, block);
+
+                                    pickType = RoundStep.Default;
+                                    instructionDisplay.Step = RoundStep.Default;
+
+                                    consumeSelected();
+                                    clearShiroSelection();
+                                }
+
+                                break;
+
                             case RoundStep.Win:
                                 if (target != null)
+                                {
+                                    // Disallow multiple win states
+                                    if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == target.BeatmapID
+                                                                                     && p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                                        != false)
+                                        break;
+
                                     succeeded |= addWinPlacement(target.BeatmapID, block);
+                                }
+
                                 break;
 
                             case RoundStep.Pick:
