@@ -18,7 +18,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
-using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Beatmaps.Drawables.Cards;
@@ -36,7 +35,6 @@ using osu.Game.Overlays.BeatmapSet;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
-using osu.Game.Screens.Ranking;
 using osu.Game.Screens.SelectV2;
 using osu.Game.Users.Drawables;
 using osuTK;
@@ -143,7 +141,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = item.BeatmapGuid }, true);
 
-                if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
+                if (workingBeatmap?.BeatmapInfo.BeatmapSet == null || ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
                 {
                     beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
                 }
@@ -284,9 +282,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
             recordScoreContainer.Child = item.ShowcaseScore != null
                 ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
-                {
-                    ActionOnClick = () => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(item.ShowcaseScore)), [typeof(ShowcaseConfigScreen)])
-                }
                 : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
 
             modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
@@ -451,10 +446,10 @@ namespace osu.Game.Screens.TournamentShowcase
                             },
                             recordScoreContainer = new Container
                             {
-                                RelativePositionAxes = Axes.Both,
-                                RelativeSizeAxes = Axes.Both,
-                                Height = 0.5f,
-                                Y = 0.5f,
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
                                 Child = item.ShowcaseScore != null
                                     ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
                                     : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt),
@@ -467,7 +462,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private IEnumerable<Drawable> createButtons() => new[]
         {
-            beatmapInfo == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
+            beatmapInfo?.BeatmapSet == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
             editButton = new PlaylistEditButton
             {
                 Size = new Vector2(30, 30),
