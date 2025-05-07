@@ -36,14 +36,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         {
             base.LoadComplete();
 
-            ladder.CurrentMatch.BindValueChanged(matchChanged);
-            ladder.CurrentMatch.Value?.Round.BindValueChanged(_ => updateCounter());
-            ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.BindCollectionChanged((_, _) => updateCounter());
-
-            if (ladder.CurrentMatch.Value != null)
-                ladder.CurrentMatch.Value.ChessPlacements.CollectionChanged += placementChanged;
-
-            updateCounter();
+            ladder.CurrentMatch.BindValueChanged(matchChanged, true);
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> e)
