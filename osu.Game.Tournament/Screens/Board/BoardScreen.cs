@@ -383,6 +383,11 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     setMode(TeamColour.Neutral, RoundStep.Shiro);
                 }
+                else
+                {
+                    pickType = RoundStep.Default;
+                    clearShiroSelection();
+                }
             });
         }
 
@@ -464,9 +469,9 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
-            addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
+            addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID);
             consumeSelected();
-            clearShiroSelection();
+            shiroModeActivated.Value = false;
         }
 
         private void updateWin()
@@ -547,7 +552,7 @@ namespace osu.Game.Tournament.Screens.Board
                                 break;
 
                             case RoundStep.Win:
-                                succeeded |= addWinPlacement(target.Beatmap.ID, chessBlock);
+                                succeeded |= addWinPlacement(target.Beatmap.ID);
                                 break;
 
                             default:
@@ -593,13 +598,13 @@ namespace osu.Game.Tournament.Screens.Board
                                     if (chessPieces.Contains(target))
                                         break;
 
-                                    succeeded |= addWinPlacement(target.BeatmapID, block);
+                                    succeeded |= addWinPlacement(target.BeatmapID);
 
-                                    pickType = RoundStep.Default;
-                                    instructionDisplay.Step = RoundStep.Default;
-
-                                    consumeSelected();
-                                    clearShiroSelection();
+                                    if (succeeded)
+                                    {
+                                        consumeSelected();
+                                        shiroModeActivated.Value = false;
+                                    }
                                 }
 
                                 break;
@@ -613,7 +618,7 @@ namespace osu.Game.Tournament.Screens.Board
                                         != false)
                                         break;
 
-                                    succeeded |= addWinPlacement(target.BeatmapID, block);
+                                    succeeded |= addWinPlacement(target.BeatmapID);
                                 }
 
                                 break;
@@ -635,8 +640,8 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         case TeamColour.None:
                                             succeeded |= addPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
-                                            pickType = RoundStep.Default;
-                                            instructionDisplay.Step = RoundStep.Default;
+                                            if (succeeded)
+                                                shiroModeActivated.Value = false;
                                             break;
 
                                         default:
@@ -807,10 +812,10 @@ namespace osu.Game.Tournament.Screens.Board
             flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
         }
 
-        private bool addWinPlacement(int beatmapId, DrawableBoardBlock? block)
+        private bool addWinPlacement(int beatmapId)
         {
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
-                p.BeatmapID == beatmapId && p.CurrentType is ChoiceType.Pick or ChoiceType.Ban);
+                p.BeatmapID == beatmapId && p.CurrentType is not ChoiceType.Neutral);
             var chess = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
 
             // Updating winning status without existing placement entries is not allowed now.
@@ -820,7 +825,7 @@ namespace osu.Game.Tournament.Screens.Board
                 return false;
             }
 
-            if (existing.CurrentType is ChoiceType.Ban)
+            if (existing.CurrentType is ChoiceType.Ban or ChoiceType.Consumed)
             {
                 dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.WinOnBanNotAllowed));
                 return false;

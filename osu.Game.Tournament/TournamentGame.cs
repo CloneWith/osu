@@ -112,7 +112,7 @@ namespace osu.Game.Tournament
             {
                 RoundStep.Ban => ChoiceType.Ban,
                 RoundStep.Pick => ChoiceType.Pick,
-                RoundStep.Win or RoundStep.Shiro => colour switch
+                RoundStep.Win or RoundStep.Shiro or RoundStep.UpdateOwner => colour switch
                 {
                     TeamColour.Red => ChoiceType.RedWin,
                     TeamColour.Blue => ChoiceType.BlueWin,
