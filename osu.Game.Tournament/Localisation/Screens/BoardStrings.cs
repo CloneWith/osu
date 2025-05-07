@@ -97,6 +97,18 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"A Shiro chess piece already exists.");
 
         /// <summary>
+        /// "The Shiro chess piece has already been activated. Use Update Owner instead."
+        /// </summary>
+        public static LocalisableString ShiroActivatedPrompt => new TranslatableString(getKey(@"shiro_activated_prompt"),
+            @"The Shiro chess piece has already been activated. Use Update Owner instead.");
+
+        /// <summary>
+        /// "Information about the selected action would be displayed here."
+        /// </summary>
+        public static LocalisableString ActionPlaceholder => new TranslatableString(getKey(@"action_placeholder"),
+            @"Information about the selected action would be displayed here.");
+
+        /// <summary>
         /// "Warning: Board Reset"
         /// </summary>
         public static LocalisableString ResetBoardTitle => new TranslatableString(getKey(@"reset_board_title"),

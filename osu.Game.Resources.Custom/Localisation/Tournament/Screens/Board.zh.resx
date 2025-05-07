@@ -78,4 +78,10 @@
     <data name="keep_current_state" xml:space="preserve">
         <value>还是算了吧...</value>
     </data>
+    <data name="shiro_activated_prompt" xml:space="preserve">
+        <value>白子已被激活，请使用“更新持有队”。</value>
+    </data>
+    <data name="action_placeholder" xml:space="preserve">
+        <value>此处将会显示所选操作的信息。</value>
+    </data>
 </root>

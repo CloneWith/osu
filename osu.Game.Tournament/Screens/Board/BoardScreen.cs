@@ -12,7 +12,9 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Framework.Threading;
+using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
@@ -62,6 +64,8 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonBlueWin = null!;
 
         private OsuButton buttonIndicator = null!;
+
+        private TournamentSpriteText actionStateText = null!;
 
         private DialogOverlay dialogOverlay = null!;
 
@@ -318,6 +322,15 @@ namespace osu.Game.Tournament.Screens.Board
                             },
                         },
                         new SectionHeader(BoardStrings.ShiroDeployment),
+                        actionStateText = new TournamentSpriteText
+                        {
+                            Name = @"Action information display",
+                            RelativeSizeAxes = Axes.X,
+                            AllowMultiline = true,
+                            Text = BoardStrings.ActionPlaceholder,
+                            Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold),
+                            Padding = new MarginPadding { Horizontal = 5 },
+                        },
                         new LabelledSwitchButton
                         {
                             Label = BoardStrings.EnableDeployment,
@@ -332,7 +345,7 @@ namespace osu.Game.Tournament.Screens.Board
                             {
                                 if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID) != false)
                                 {
-                                    dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroExistsPrompt));
+                                    updateActionText(BoardStrings.ShiroExistsPrompt, true);
                                     return;
                                 }
 
@@ -397,6 +410,13 @@ namespace osu.Game.Tournament.Screens.Board
             initializeBoard();
         }
 
+        private void updateActionText(LocalisableString text, bool failing = false)
+        {
+            actionStateText.Text = text;
+            actionStateText.Colour = failing ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Regular;
+            actionStateText.FlashColour(Color4.White, 900, Easing.OutQuint);
+        }
+
         private void setMode(TeamColour colour, RoundStep stepType)
         {
             pickTeam = colour;
@@ -427,7 +447,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             if (source.GroupBy(b => b.OwnerTeam).Count() != 1)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.SingleColourPrompt));
+                updateActionText(BoardStrings.SingleColourPrompt, true);
                 return false;
             }
 
@@ -449,19 +469,24 @@ namespace osu.Game.Tournament.Screens.Board
         private void activateShiro()
         {
             var shiro = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
-            var block = blocks.FirstOrDefault(b => positionEquals(shiro, b));
 
+            // Don't activate if a Shiro is not found or already in a Win state.
             if (shiro == null)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroMissingPrompt));
+                updateActionText(BoardStrings.ShiroMissingPrompt, true);
                 return;
+            }
+
+            if (shiro.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+            {
+                updateActionText(BoardStrings.ShiroActivatedPrompt, true);
             }
 
             var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
 
             if (chessPieces.Count() != 2)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroActivationPrompt));
+                updateActionText(BoardStrings.ShiroActivationPrompt, true);
                 return;
             }
 
@@ -503,7 +528,7 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.ShiroOwnerUpdatePrompt));
+                updateActionText(BoardStrings.ShiroOwnerUpdatePrompt, true);
             }
         }
 
@@ -640,8 +665,13 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         case TeamColour.None:
                                             succeeded |= addPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
+
                                             if (succeeded)
-                                                shiroModeActivated.Value = false;
+                                            {
+                                                pickType = RoundStep.Default;
+                                                instructionDisplay.Step = RoundStep.Default;
+                                            }
+
                                             break;
 
                                         default:
@@ -821,15 +851,12 @@ namespace osu.Game.Tournament.Screens.Board
             // Updating winning status without existing placement entries is not allowed now.
             if (existing == null)
             {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.PicksUnavailable));
+                updateActionText(BoardStrings.PicksUnavailable, true);
                 return false;
             }
 
             if (existing.CurrentType is ChoiceType.Ban or ChoiceType.Consumed)
-            {
-                dialogOverlay.Push(new ActionNotPermittedDialog(BoardStrings.WinOnBanNotAllowed));
                 return false;
-            }
 
             CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
                 pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
