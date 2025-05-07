@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -122,32 +121,19 @@ namespace osu.Game.Tournament.Screens.Board.Components
         {
             base.LoadComplete();
 
-            ladder.CurrentMatch.BindValueChanged(matchChanged);
-            ladder.CurrentMatch.Value?.Round.BindValueChanged(_ => updateList());
-            ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.BindCollectionChanged((_, _) => updateList());
-
-            updateList();
+            ladder.CurrentMatch.BindValueChanged(matchChanged, true);
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> e)
         {
-            if (e.OldValue != null)
-            {
-                e.OldValue.ChessPlacements.CollectionChanged -= placementChanged;
-            }
-
             if (e.NewValue != null)
             {
-                e.NewValue.ChessPlacements.CollectionChanged += placementChanged;
                 e.NewValue.Round.BindValueChanged(_ => updateList());
                 e.NewValue.Round.Value?.Beatmaps.BindCollectionChanged((_, _) => updateList());
             }
 
             updateList();
         }
-
-        private void placementChanged(object? _, NotifyCollectionChangedEventArgs __)
-            => Scheduler.AddOnce(updateList);
 
         private void updateList()
         {
