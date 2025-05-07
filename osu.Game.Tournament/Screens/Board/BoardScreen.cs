@@ -853,7 +853,7 @@ namespace osu.Game.Tournament.Screens.Board
                 return true;
             }
 
-            bool isCommonType = pickType is RoundStep.Pick or RoundStep.Ban or RoundStep.Win or RoundStep.Shiro;
+            bool isCommonType = pickType is RoundStep.Pick or RoundStep.Ban or RoundStep.Win;
 
             if (pickType == RoundStep.Default || pickTeam == TeamColour.None || CurrentMatch.Value?.Round.Value == null)
                 return false;
