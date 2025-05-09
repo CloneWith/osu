@@ -39,6 +39,12 @@ namespace osu.Game.Tournament.Models
             MaxValue = 4,
         };
 
+        public Bindable<int> MainBoardSize = new BindableInt(570)
+        {
+            MinValue = 300,
+            MaxValue = 570,
+        };
+
         public Bindable<bool> UseUtcTime = new BindableBool();
 
         public Bindable<bool> AutoProgressScreens = new BindableBool(true);

@@ -200,7 +200,7 @@ namespace osu.Game.Tournament.Components
 
             if (init)
             {
-                timerFlow.Clear();
+                timerFlow.Clear(false);
 
                 countdownHourPart = new CountdownSpriteText();
                 countdownMinutePart = new CountdownSpriteText();
@@ -353,7 +353,7 @@ namespace osu.Game.Tournament.Components
             contentFlow.Anchor = Anchor.Centre;
             contentFlow.Origin = Anchor.Centre;
 
-            contentFlow.Clear();
+            contentFlow.Clear(false);
 
             contentFlow.Add(iconContainer);
 

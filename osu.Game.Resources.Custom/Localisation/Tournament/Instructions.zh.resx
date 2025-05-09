@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="default_name" xml:space="preserve">
+        <value>欢迎来到 OFFC！</value>
+    </data>
+    <data name="default_description" xml:space="preserve">
+        <value>祝游玩愉快~</value>
+    </data>
+    <data name="ban_name" xml:space="preserve">
+        <value>标记禁图·{0}</value>
+    </data>
+    <data name="ban_description" xml:space="preserve">
+        <value>被禁止的图无法被选。</value>
+    </data>
+    <data name="pick_name" xml:space="preserve">
+        <value>标记选图·{0}</value>
+    </data>
+    <data name="pick_description" xml:space="preserve">
+        <value>选择该轮要游玩的图。</value>
+    </data>
+    <data name="shiro_name" xml:space="preserve">
+        <value>激活白子·{0}</value>
+    </data>
+    <data name="shiro_description" xml:space="preserve">
+        <value>消耗连对来激活白子。</value>
+    </data>
+    <data name="win_name" xml:space="preserve">
+        <value>胜方赢棋·{0}</value>
+    </data>
+    <data name="win_description" xml:space="preserve">
+        <value>此图对应棋子将变为获胜方赢棋。</value>
+    </data>
+    <data name="tie_breaker_name" xml:space="preserve">
+        <value>即将进入 TB 模式</value>
+    </data>
+    <data name="tie_breaker_description" xml:space="preserve">
+        <value>决胜局来了，一局定胜负！</value>
+    </data>
+    <data name="final_win_name" xml:space="preserve">
+        <value>{0}获胜！</value>
+    </data>
+    <data name="final_win_description" xml:space="preserve">
+        <value>恭喜你获得最终胜利！</value>
+    </data>
+    <data name="on_fire_name" xml:space="preserve">
+        <value>Do you want smoke?</value>
+    </data>
+    <data name="on_fire_description" xml:space="preserve">
+        <value>来看看礼堂顶针？</value>
+    </data>
+    <data name="halt_name" xml:space="preserve">
+        <value>请稍候...</value>
+    </data>
+    <data name="halt_description" xml:space="preserve">
+        <value>等待裁判响应...</value>
+    </data>
+    <data name="shiro_placing_name" xml:space="preserve">
+        <value>放置白子</value>
+    </data>
+    <data name="shiro_placing_description" xml:space="preserve">
+        <value>在棋盘上放一个空白子。</value>
+    </data>
+    <data name="update_owner_name" xml:space="preserve">
+        <value>连对夺棋·{0}</value>
+    </data>
+    <data name="update_owner_description" xml:space="preserve">
+        <value>消耗连对来夺取对方赢棋。</value>
+    </data>
+</root>

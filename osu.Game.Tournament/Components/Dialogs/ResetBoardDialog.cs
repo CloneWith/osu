@@ -4,6 +4,7 @@
 using System;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Overlays.Dialog;
+using osu.Game.Tournament.Localisation.Screens;
 
 namespace osu.Game.Tournament.Components.Dialogs
 {
@@ -11,19 +12,19 @@ namespace osu.Game.Tournament.Components.Dialogs
     {
         public ResetBoardDialog(Action resetAction)
         {
-            HeaderText = @"Warning: Reset";
-            BodyText = @"This would reset the board to the initial state. Are you sure?";
+            HeaderText = BoardStrings.ResetBoardTitle;
+            BodyText = BoardStrings.ResetBoardDescription;
             Icon = FontAwesome.Solid.Undo;
             Buttons = new PopupDialogButton[]
             {
                 new PopupDialogDangerousButton
                 {
-                    Text = @"Yes, reset to the initial state.",
+                    Text = BoardStrings.AgreeReset,
                     Action = resetAction,
                 },
                 new PopupDialogCancelButton
                 {
-                    Text = @"I'd rather stay the same.",
+                    Text = BoardStrings.KeepCurrentState,
                 },
             };
         }

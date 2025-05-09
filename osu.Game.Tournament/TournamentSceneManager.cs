@@ -260,6 +260,7 @@ namespace osu.Game.Tournament
             currentScreen = null;
 
             screens.Add(temporaryScreen = screen);
+            temporaryScreen.Show();
         }
 
         public void SetScreen(Type screenType)

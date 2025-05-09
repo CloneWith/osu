@@ -1,4 +1,4 @@
-﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics.Sprites;
@@ -8,12 +8,12 @@ using osu.Game.Tournament.Localisation;
 
 namespace osu.Game.Tournament.Components.Dialogs
 {
-    public partial class IPCErrorDialog : PopupDialog
+    public partial class ActionNotPermittedDialog : PopupDialog
     {
-        public IPCErrorDialog(LocalisableString headerText, LocalisableString bodyText)
+        public ActionNotPermittedDialog(LocalisableString bodyText)
         {
-            Icon = FontAwesome.Regular.SadTear;
-            HeaderText = headerText;
+            Icon = FontAwesome.Solid.Ban;
+            HeaderText = BaseStrings.ActionNotPermitted;
             BodyText = bodyText;
             Buttons = new PopupDialogButton[]
             {

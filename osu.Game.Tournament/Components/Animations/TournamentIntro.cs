@@ -295,7 +295,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                 },
                                                 new TruncatingSpriteText
                                                 {
-                                                    Text = $"{(colour == TeamColour.Red ? "Red" : colour == TeamColour.Blue ? "Blue" : "Smoke")} Team Picked",
+                                                    Text = $"{TournamentGame.GetTeamString(colour, true, @"Smoke")} Team Picked",
                                                     Font = OsuFont.GetFont(size: 16, italics: true),
                                                     MaxWidth = horizontal_info_size,
                                                     Colour = themeColour,

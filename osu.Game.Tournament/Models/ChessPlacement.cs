@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Logging;
 
@@ -17,84 +16,50 @@ namespace osu.Game.Tournament.Models
         /// <summary>
         /// The team holding the chess right now, representing by a <see cref="TeamColour"/>.
         /// </summary>
-        /// <remarks>This property isn't supposed to set directly. Use <see cref="Update"/> and <see cref="Undo"/> instead.</remarks>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public TeamColour OwnerTeam { get; private set; }
+        public readonly TeamColour OwnerTeam;
 
         /// <summary>
         /// The current <see cref="ChoiceType"/> of the chess.
         /// </summary>
-        /// <remarks>This property isn't supposed to set directly. Use <see cref="Update"/> and <see cref="Undo"/> instead.</remarks>
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
-        public ChoiceType CurrentType { get; private set; }
+        public readonly ChoiceType CurrentType;
 
         /// <summary>
         /// The ID of the beatmap the chess is associated with. Zero if it isn't associated with one.
         /// </summary>
         public readonly int BeatmapID;
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public readonly int BoardRow;
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public readonly int BoardColumn;
 
-        /// <summary>
-        /// A list of changes of this chess piece for easier backtracking.
-        /// </summary>
-        public readonly List<ChessRecord> Records = new List<ChessRecord>();
-
-        public ChessPlacement(int boardRow, int boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral, int beatmapID = 0)
+        public ChessPlacement(int? boardRow, int? boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral,
+                              int beatmapID = TournamentGame.RESERVED_BEATMAP_ID)
         {
             BeatmapID = beatmapID;
             OwnerTeam = ownerTeam;
             CurrentType = type;
 
-            if (boardRow <= 0 || boardRow > 4 || boardColumn <= 0 || boardColumn > 4)
+            if (boardRow <= -1 || boardRow > 4 || boardColumn <= -1 || boardColumn > 4)
             {
                 Logger.Log($"The position of the chess ({boardRow}, {boardColumn}) is out of range. Please check the bracket file.",
                     level: LogLevel.Important);
             }
 
-            BoardRow = boardRow;
-            BoardColumn = boardColumn;
-
-            Records.Add(new ChessRecord(OwnerTeam, CurrentType));
+            BoardRow = boardRow ?? -1;
+            BoardColumn = boardColumn ?? -1;
         }
 
         /// <summary>
-        /// Update the chess's status and record it to the <see cref="Records"/> list.
+        /// Get an independent instance of <see cref="ChessPlacement"/> based on given new owner and type.
         /// </summary>
         /// <param name="newOwner">the new <see cref="TeamColour"/> of the team holding the chess.</param>
         /// <param name="newType">the new <see cref="ChoiceType"/> of the chess.</param>
-        public void Update(TeamColour? newOwner, ChoiceType? newType)
-        {
-            if (newOwner == null && newType == null) return;
-
-            if (newOwner != null)
-                OwnerTeam = newOwner.Value;
-
-            if (newType != null)
-                CurrentType = newType.Value;
-
-            Records.Add(new ChessRecord(OwnerTeam, CurrentType));
-        }
-
-        /// <summary>
-        /// Restore the last status of the chess from the <see cref="Records"/> list.
-        /// </summary>
-        /// <returns>true if succeeded, false otherwise (no status to restore from)</returns>
-        public bool Undo()
-        {
-            // Don't undo when only one record is found.
-            if (Records.Count <= 1) return false;
-
-            // Get and restore the last state.
-            var lastRecord = Records[^2];
-
-            OwnerTeam = lastRecord.Colour;
-            CurrentType = lastRecord.NewType;
-
-            // We don't need the latest record anymore.
-            Records.RemoveAt(Records.Count - 1);
-            return true;
-        }
+        /// <returns>a <see cref="ChessPlacement"/> instance representing the updated chess.</returns>
+        public ChessPlacement CreateUpdate(TeamColour? newOwner, ChoiceType? newType)
+            => new ChessPlacement(BoardRow, BoardColumn, newOwner ?? OwnerTeam, newType ?? CurrentType, BeatmapID);
     }
 }

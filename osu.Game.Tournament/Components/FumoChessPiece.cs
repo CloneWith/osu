@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -15,7 +16,6 @@ using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
-using osuTK.Input;
 
 namespace osu.Game.Tournament.Components
 {
@@ -27,12 +27,17 @@ namespace osu.Game.Tournament.Components
         /// <summary>
         /// The name of the chess's mod.
         /// </summary>
-        public readonly string ModName;
+        public string ModName { get; private set; } = string.Empty;
 
         /// <summary>
         /// The index of the chess in its mod category.
         /// </summary>
-        public readonly string ModIndex;
+        public string ModIndex { get; private set; } = string.Empty;
+
+        /// <summary>
+        /// The ID of the beatmap.
+        /// </summary>
+        public readonly int BeatmapID;
 
         /// <inheritdoc cref="ChessPlacement.OwnerTeam"/>
         /// <remarks>Changing this will trigger an update of the chess.</remarks>
@@ -67,13 +72,6 @@ namespace osu.Game.Tournament.Components
         private TeamColour ownerTeam;
         private ChoiceType currentType;
 
-        /// <summary>
-        /// Triggered when the chess piece is requested to be removed (typically via user interaction).
-        /// </summary>
-        public event ChessRemovalHandler? OnRemovalRequested;
-
-        public delegate void ChessRemovalHandler(string mod, string index);
-
         [Resolved]
         private TextureStore textures { get; set; } = null!;
 
@@ -86,6 +84,22 @@ namespace osu.Game.Tournament.Components
         private Triangles triangles = null!;
         private Box dimMask = null!;
 
+        private readonly bool requireFetch;
+
+        public FumoChessPiece(int beatmapId)
+        {
+            BeatmapID = beatmapId;
+            requireFetch = true;
+        }
+
+        public FumoChessPiece(ChessPlacement placement)
+        {
+            BeatmapID = placement.BeatmapID;
+            ownerTeam = placement.OwnerTeam;
+            currentType = placement.CurrentType;
+            requireFetch = true;
+        }
+
         /// <summary>
         /// Constructs a chess piece.
         /// </summary>
@@ -96,6 +110,7 @@ namespace osu.Game.Tournament.Components
         {
             ModName = mod;
             ModIndex = index;
+            BeatmapID = target?.BeatmapID ?? TournamentGame.RESERVED_BEATMAP_ID;
             ownerTeam = target?.OwnerTeam ?? TeamColour.Neutral;
             currentType = target?.CurrentType ?? ChoiceType.Neutral;
 
@@ -112,8 +127,19 @@ namespace osu.Game.Tournament.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(LadderInfo ladder)
         {
+            if (requireFetch)
+            {
+                var beatmap = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == BeatmapID);
+
+                if (beatmap != null)
+                {
+                    ModName = beatmap.Mods;
+                    ModIndex = beatmap.ModIndex;
+                }
+            }
+
             colourScheme = ModColours.FromModString(ModName);
 
             Texture? borderTexture = textures.Get(@"Board/chess-border");
@@ -223,8 +249,6 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public void Remove()
         {
-            OnRemovalRequested?.Invoke(ModName, ModIndex);
-
             this.ScaleTo(1.5f, 500, Easing.OutQuint);
             this.FadeOut(400, Easing.OutQuint);
             Expire();
@@ -274,15 +298,6 @@ namespace osu.Game.Tournament.Components
             topIcon.ScaleTo(1.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
         }
 
-        protected override bool OnMouseDown(MouseDownEvent e)
-        {
-            if (e.Button == MouseButton.Right)
-            {
-                Remove();
-                return true;
-            }
-
-            return base.OnMouseDown(e);
-        }
+        protected override bool OnMouseDown(MouseDownEvent e) => false;
     }
 }

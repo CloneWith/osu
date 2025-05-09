@@ -1,23 +1,28 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Framework.Threading;
+using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
-using osu.Game.Overlays.Toolbar;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
@@ -29,50 +34,47 @@ namespace osu.Game.Tournament.Screens.Board
 {
     public partial class BoardScreen : TournamentMatchScreen
     {
-        private Container boardContainer = null!;
-        private readonly List<BoardBeatmapPanel> boardMapList = new List<BoardBeatmapPanel>();
+        private const float board_size = 570;
+
+        private readonly List<FumoChessPiece> boardMapList = new List<FumoChessPiece>();
+        private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
+        private readonly List<DrawableBoardBlock> selectedBlocks = new List<DrawableBoardBlock>();
+
+        private readonly BindableBool shiroModeActivated = new BindableBool();
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        private Container warningContainer = null!;
-
-        private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
-
         private TeamColour pickTeam;
-        private ChoiceType pickType;
+        private RoundStep pickType;
 
-        private TeamColour teamWinner = TeamColour.None;
+        private Container mainContainer = null!;
+        private Container informationContainer = null!;
+        private Container chatContainer = null!;
+        private Container boardContainer = null!;
+        private ChessMapPool mapPool = null!;
+        private InstructionDisplay instructionDisplay = null!;
+        private FillFlowContainer<DrawableBoardBlock> boardBlockArea = null!;
 
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
         private OsuButton buttonRedPick = null!;
         private OsuButton buttonBluePick = null!;
-
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
 
         private OsuButton buttonIndicator = null!;
 
-        private bool isInTieBreaker;
-
-        private Container informationDisplayContainer = null!;
-
-        private DrawableTeamPlayerList team1List = null!;
-        private DrawableTeamPlayerList team2List = null!;
-        private EmptyBox extCommentBox = null!;
+        private TournamentSpriteText actionStateText = null!;
 
         private DialogOverlay dialogOverlay = null!;
-
-        private const int side_list_height = 660;
 
         private ScheduledDelegate? scheduledScreenChange;
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            currentMatch.BindValueChanged(matchChanged);
-            currentMatch.BindTo(LadderInfo.CurrentMatch);
+            var boardTexture = textures.Get("Board/board");
 
             InternalChildren = new Drawable[]
             {
@@ -83,111 +85,143 @@ namespace osu.Game.Tournament.Screens.Board
                 },
                 new FumoMatchHeader(),
 
-                // Box for trap type / display of other info.
-                new EmptyBox(cornerRadius: 10)
+                mainContainer = new Container
                 {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
-                    RelativeSizeAxes = Axes.None,
-                    Width = 650,
-                    Height = 100,
-                    Margin = new MarginPadding { Bottom = 12 },
-                    Colour = Color4.Black,
-                    Alpha = 0.7f,
-                },
-                new FillFlowContainer
-                {
-                    Anchor = Anchor.TopLeft,
-                    Origin = Anchor.TopLeft,
-                    RelativeSizeAxes = Axes.None,
-                    Position = new Vector2(40, 100),
-                    Width = 320,
-                    Height = side_list_height,
-                    Direction = FillDirection.Vertical,
+                    Name = "Main container", // without header
+                    Padding = new MarginPadding { Top = 100, Left = 30, Bottom = 10, Right = 30 },
+                    RelativeSizeAxes = Axes.Both,
+                    Masking = true,
                     Children = new Drawable[]
                     {
-                        team1List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team1.Value)
+                        new Container
                         {
-                            RelativeSizeAxes = Axes.None,
-                            Width = 300,
+                            Name = "Left side",
                             Anchor = Anchor.TopLeft,
                             Origin = Anchor.TopLeft,
+                            Width = 350,
+                            RelativeSizeAxes = Axes.Y,
+                            Children = new Drawable[]
+                            {
+                                informationContainer = new Container
+                                {
+                                    Name = "Top-left information area",
+                                    Anchor = Anchor.TopLeft,
+                                    Origin = Anchor.TopLeft,
+                                    RelativeSizeAxes = Axes.Both,
+                                    RelativePositionAxes = Axes.Both,
+                                    Height = 0.7f,
+                                    Padding = new MarginPadding { Bottom = 5f },
+                                    Child = new EmptyBox(10)
+                                    {
+                                        Colour = Color4Extensions.FromHex("#454545"),
+                                        Alpha = 0.74f,
+                                        RelativeSizeAxes = Axes.Both,
+                                    },
+                                },
+                                chatContainer = new Container
+                                {
+                                    Name = "Chat area",
+                                    Anchor = Anchor.BottomLeft,
+                                    Origin = Anchor.BottomLeft,
+                                    RelativeSizeAxes = Axes.Both,
+                                    RelativePositionAxes = Axes.Both,
+                                    Height = 0.3f,
+                                    Padding = new MarginPadding { Top = 5f },
+                                    Child = new EmptyBox(10)
+                                    {
+                                        Colour = Color4Extensions.FromHex("#454545"),
+                                        Alpha = 0.74f,
+                                        RelativeSizeAxes = Axes.Both,
+                                    },
+                                },
+                            },
                         },
-                    },
-                },
-                new FillFlowContainer
-                {
-                    Anchor = Anchor.TopRight,
-                    Origin = Anchor.TopRight,
-                    RelativeSizeAxes = Axes.None,
-                    Position = new Vector2(-40, 100),
-                    Width = 320,
-                    Height = side_list_height,
-                    Direction = FillDirection.Vertical,
-                    Children = new Drawable[]
-                    {
-                        team2List = new DrawableTeamPlayerList(LadderInfo.CurrentMatch.Value?.Team2.Value)
+                        new Container
                         {
-                            RelativeSizeAxes = Axes.None,
-                            Width = 300,
+                            Name = "Centre",
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativeSizeAxes = Axes.Y,
+                            Width = board_size,
+                            Children = new Drawable[]
+                            {
+                                boardContainer = new Container
+                                {
+                                    Name = "Board container",
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    RelativePositionAxes = Axes.Both,
+                                    Height = board_size,
+                                    Children = new Drawable[]
+                                    {
+                                        boardTexture != null
+                                            ? new Sprite
+                                            {
+                                                Name = @"Board texture",
+                                                Anchor = Anchor.Centre,
+                                                Origin = Anchor.Centre,
+                                                RelativeSizeAxes = Axes.Both,
+                                                FillMode = FillMode.Fit,
+                                                Texture = textures.Get(@"Board/board"),
+                                            }
+                                            : new EmptyBox(10)
+                                            {
+                                                Colour = Color4Extensions.FromHex("#454545"),
+                                                Alpha = 0.74f,
+                                                RelativeSizeAxes = Axes.Both,
+                                            },
+                                        boardBlockArea = new FillFlowContainer<DrawableBoardBlock>
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Direction = FillDirection.Full,
+                                            Width = LadderInfo.MainBoardSize.Value,
+                                            Height = LadderInfo.MainBoardSize.Value,
+                                            ChildrenEnumerable = blocks =
+                                                (from row in Enumerable.Range(1, 4)
+                                                 from column in Enumerable.Range(1, 4)
+                                                 select new DrawableBoardBlock(row, column)
+                                                 {
+                                                     Anchor = Anchor.Centre,
+                                                     Origin = Anchor.Centre,
+                                                     RelativeSizeAxes = Axes.Both,
+                                                     Width = 0.25f,
+                                                     Height = 0.25f,
+                                                 })
+                                                .ToList(),
+                                        },
+                                    },
+                                },
+                                instructionDisplay = new InstructionDisplay
+                                {
+                                    Name = @"Instruction area",
+                                    Anchor = Anchor.BottomCentre,
+                                    Origin = Anchor.BottomCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                    RelativePositionAxes = Axes.Both,
+                                    Width = 1,
+                                    Height = 80,
+                                    InnerPadding = new MarginPadding { Horizontal = 20 },
+                                },
+                            },
+                        },
+                        mapPool = new ChessMapPool
+                        {
+                            Name = @"Chess piece pool",
                             Anchor = Anchor.TopRight,
                             Origin = Anchor.TopRight,
-                        },
-                        // A single Box for livestream comments.
-                        // Wrapped in a container for round corners.
-                        extCommentBox = new EmptyBox(cornerRadius: 10)
-                        {
-                            Anchor = Anchor.TopRight,
-                            Origin = Anchor.TopRight,
-                            RelativeSizeAxes = Axes.None,
-                            Width = 300,
-                            Height = side_list_height - team2List.GetHeight() - 5,
-                            Colour = Color4.Black,
-                            Alpha = 0.7f,
+                            RelativeSizeAxes = Axes.Y,
+                            RelativePositionAxes = Axes.Both,
+                            Width = 350,
                         },
                     },
-                },
-                boardContainer = new Container
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    CornerRadius = 10,
-                },
-                informationDisplayContainer = new Container
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomLeft,
-                    Position = new Vector2(-300, 7),
-                    Height = 100,
-                    Width = 500,
-                    Child = new InstructionDisplay(),
-                },
-                new Sprite
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomRight,
-                    Position = new Vector2(300, -20),
-                    Size = new Vector2(85),
-                    Texture = textures.Get("Icons/additional-icon"),
-                },
-                new ToolbarClock
-                {
-                    Anchor = Anchor.BottomRight,
-                    Origin = Anchor.BottomRight,
-                    RelativeSizeAxes = Axes.None,
-                    Height = 50,
-                    Position = new Vector2(-40, -10),
-                },
-                warningContainer = new Container
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativeSizeAxes = Axes.Both,
                 },
                 new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {
+                        new SectionHeader(BoardStrings.CurrentMode),
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.X,
@@ -201,16 +235,16 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Ban",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Ban)
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Ban),
                                     },
                                     buttonBlueBan = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Ban",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Ban)
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Ban),
                                     },
-                                }
+                                },
                             },
                         },
                         new GridContainer
@@ -226,16 +260,16 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Pick",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.Pick)
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Pick),
                                     },
                                     buttonBluePick = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Pick",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.Pick)
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Pick),
                                     },
-                                }
+                                },
                             },
                         },
                         new GridContainer
@@ -251,17 +285,22 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Win",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Action = () => setMode(TeamColour.Red, ChoiceType.RedWin)
+                                        Action = () => setMode(TeamColour.Red, RoundStep.Win),
                                     },
                                     buttonBlueWin = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Win",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Action = () => setMode(TeamColour.Blue, ChoiceType.BlueWin)
+                                        Action = () => setMode(TeamColour.Blue, RoundStep.Win),
                                     },
-                                }
+                                },
                             },
+                        },
+                        new FormSliderBar<int>
+                        {
+                            Current = LadderInfo.MainBoardSize,
+                            Caption = BoardStrings.MainBoardAreaSize,
                         },
                         new ControlPanel.Spacer(),
                         buttonIndicator = new TourneyButton
@@ -270,24 +309,69 @@ namespace osu.Game.Tournament.Screens.Board
                             Text = "TB Indicator",
                             BackgroundColour = Color4.Purple,
                             Colour = Color4.Gray,
-                            Action = () => setMode(TeamColour.Neutral, ChoiceType.Neutral)
-                        },
-                        new TourneyButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Text = BaseStrings.Refresh,
-                            BackgroundColour = Color4.Orange,
-                            Action = updateDisplay
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
                         },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
                             Text = BaseStrings.Reset,
-                            BackgroundColour = Color4.DeepPink,
+                            BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = () =>
                             {
                                 dialogOverlay.Push(new ResetBoardDialog(reset));
                             },
+                        },
+                        new SectionHeader(BoardStrings.ShiroDeployment),
+                        actionStateText = new TournamentSpriteText
+                        {
+                            Name = @"Action information display",
+                            RelativeSizeAxes = Axes.X,
+                            AllowMultiline = true,
+                            Text = BoardStrings.ActionPlaceholder,
+                            Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold),
+                            Padding = new MarginPadding { Horizontal = 5 },
+                        },
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.EnableDeployment,
+                            Current = shiroModeActivated,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.PlaceShiro,
+                            BackgroundColour = FumoColours.DeepPurple.Regular,
+                            Action = () =>
+                            {
+                                if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID) != false)
+                                {
+                                    updateActionText(BoardStrings.ShiroExistsPrompt, true);
+                                    return;
+                                }
+
+                                setMode(TeamColour.None, RoundStep.Shiro);
+                            },
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.ActivateShiro,
+                            BackgroundColour = FumoColours.SeaBlue.Regular,
+                            Action = activateShiro,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.UpdateShiroOwner,
+                            BackgroundColour = FumoColours.SunshineYellow.Darker,
+                            Action = updateWin,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.ClearSelection,
+                            BackgroundColour = FumoColours.FlandreRed.Regular,
+                            Action = clearShiroSelection,
                         },
                     },
                 },
@@ -295,161 +379,442 @@ namespace osu.Game.Tournament.Screens.Board
             };
         }
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            initializeBoard();
+
+            CurrentMatch.BindValueChanged(matchChanged);
+
+            LadderInfo.MainBoardSize.BindValueChanged(e =>
+                boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
+
+            shiroModeActivated.BindValueChanged(e =>
+            {
+                // Only handle enabled cases to prevent infinite loops
+                if (e.NewValue)
+                {
+                    setMode(TeamColour.Neutral, RoundStep.Shiro);
+                }
+                else
+                {
+                    pickType = RoundStep.Default;
+                    clearShiroSelection();
+                }
+            });
+        }
+
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            if (match.NewValue != null)
-            {
-                if (!IsLoaded)
-                    return;
-
-                if (match.NewValue.Team1.Value != null) team1List.ReloadWithTeam(match.NewValue.Team1.Value);
-
-                if (match.NewValue.Team2.Value != null)
-                {
-                    team2List.ReloadWithTeam(match.NewValue.Team2.Value);
-                    extCommentBox.ResizeHeightTo(Height = side_list_height - team2List.GetHeight() - 5, 500, Easing.OutCubic);
-                }
-            }
+            ResetSelectStatus();
+            initializeBoard();
         }
 
-        private void setMode(TeamColour colour, ChoiceType choiceType)
+        private void updateActionText(LocalisableString text, bool failing = false)
+        {
+            actionStateText.Text = text;
+            actionStateText.Colour = failing ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Regular;
+            actionStateText.FlashColour(Color4.White, 900, Easing.OutQuint);
+        }
+
+        private void setMode(TeamColour colour, RoundStep stepType)
         {
             pickTeam = colour;
-            pickType = choiceType;
+            pickType = stepType;
 
-            buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Ban);
-            buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Ban);
-            buttonRedPick.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.Pick);
-            buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.Pick);
-            buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == ChoiceType.RedWin);
-            buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == ChoiceType.BlueWin);
+            if (instructionDisplay.Team != colour || instructionDisplay.Step != stepType)
+            {
+                instructionDisplay.Team = colour;
+                instructionDisplay.Step = stepType;
+            }
+
+            if (stepType != RoundStep.Shiro)
+                shiroModeActivated.Value = false;
+
+            buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
+            buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
+            buttonRedPick.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Pick);
+            buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Pick);
+            buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Win);
+            buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Win);
+
+            return;
 
             static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
-            updateBottomDisplay();
         }
 
-        private void updateBottomDisplay(ValueChangedEvent<bool>? _ = null, bool bottomOnly = true, bool refresh = true)
+        private bool checkSelected(IEnumerable<FumoChessPiece> source)
         {
-            if (CurrentMatch.Value == null) return;
-
-            Drawable oldDisplay = informationDisplayContainer.Child;
-
-            var color = pickTeam;
-            RoundStep state = RoundStep.Default;
-
-            if (DetectTieBreaker())
+            if (source.GroupBy(b => b.OwnerTeam).Count() != 1)
             {
-                state = RoundStep.TieBreaker;
+                updateActionText(BoardStrings.SingleColourPrompt, true);
+                return false;
             }
-            else if (DetectWin())
+
+            return true;
+        }
+
+        private void consumeSelected()
+        {
+            foreach (var b in selectedBlocks)
             {
-                state = RoundStep.FinalWin;
-                color = teamWinner;
+                b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
+                var record = CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b));
+
+                if (record != null)
+                    CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
+            }
+        }
+
+        private void activateShiro()
+        {
+            var shiro = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
+
+            // Don't activate if a Shiro is not found or already in a Win state.
+            if (shiro == null)
+            {
+                updateActionText(BoardStrings.ShiroMissingPrompt, true);
+                return;
+            }
+
+            if (shiro.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+            {
+                updateActionText(BoardStrings.ShiroActivatedPrompt, true);
+            }
+
+            var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+
+            if (chessPieces.Count() != 2)
+            {
+                updateActionText(BoardStrings.ShiroActivationPrompt, true);
+                return;
+            }
+
+            if (!checkSelected(chessPieces))
+                return;
+
+            setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
+            addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID);
+            consumeSelected();
+            shiroModeActivated.Value = false;
+        }
+
+        private void updateWin()
+        {
+            if (CurrentMatch.Value == null || !CurrentMatch.Value.ChessPlacements.Any())
+                return;
+
+            var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+            var placements = chessPieces.Select(p => p.BeatmapID)
+                                        .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
+                                        .OfType<ChessPlacement>();
+
+            if (!checkSelected(chessPieces))
+                return;
+
+            (int red, int blue) couplets = TournamentMatch.GetMaximumSuccessiveChess(placements);
+
+            // Have checked in checkSelected, guaranteed to have exactly one group
+            TeamColour targetTeam = placements.GroupBy(p => p.OwnerTeam).Single().Key;
+            int coupletCount = targetTeam == TeamColour.Red ? couplets.red : couplets.blue;
+
+            if (coupletCount == 3 || (coupletCount == 2 && placements.Count() - coupletCount == 2))
+            {
+                pickTeam = targetTeam;
+                pickType = RoundStep.UpdateOwner;
+
+                instructionDisplay.Team = targetTeam;
+                instructionDisplay.Step = RoundStep.UpdateOwner;
             }
             else
             {
-                switch (pickType)
-                {
-                    case ChoiceType.Pick:
-                        state = RoundStep.Pick;
-                        break;
-
-                    case ChoiceType.Ban:
-                        state = RoundStep.Ban;
-                        break;
-
-                    case ChoiceType.RedWin or ChoiceType.BlueWin:
-                        state = RoundStep.Win;
-                        break;
-                }
+                updateActionText(BoardStrings.ShiroOwnerUpdatePrompt, true);
             }
+        }
 
-            Drawable newDisplay = new InstructionDisplay(team: color, roundStep: state);
+        private void detectWin()
+        {
+            if (CurrentMatch.Value == null)
+                return;
 
-            if (oldDisplay != newDisplay && refresh)
+            (int red, int blue) couplets = CurrentMatch.Value.GetMaximumSuccessiveChess();
+
+            if (couplets.red == 4 && couplets.blue == 4)
             {
-                informationDisplayContainer.Child = newDisplay;
-                informationDisplayContainer.FadeInFromZero(duration: 200, easing: Easing.InCubic);
-                CurrentMatch.Value.Round.Value?.IsFinalStage.BindTo(new BindableBool(color == TeamColour.Neutral));
-
-                if (state == RoundStep.FinalWin && !bottomOnly)
-                {
-                    sceneManager?.ShowWinAnimation(teamWinner == TeamColour.Red ? CurrentMatch.Value.Team1.Value
-                        : teamWinner == TeamColour.Blue ? CurrentMatch.Value.Team2.Value
-                        : null, teamWinner);
-                }
+                setMode(TeamColour.Neutral, RoundStep.TieBreaker);
             }
-            else
+            else if (couplets.blue == 4 || couplets.red == 4)
             {
-                CurrentMatch.Value.Round.Value?.IsFinalStage.BindTo(new BindableBool());
+                setMode(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue, RoundStep.FinalWin);
             }
         }
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {
-            var map = boardMapList.FirstOrDefault(m => m.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+            var block = blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+            var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
 
-            if (map != null)
+            bool succeeded = false;
+
+            // 1. Map pool interaction
+            if (mapPool.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
             {
-                if (e.Button == MouseButton.Left && map.Beatmap?.OnlineID > 0)
+                var target = mapPool.MapPanels.FirstOrDefault(p => p.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+
+                if (target == null)
+                    return true;
+
+                var existingPlacement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(c => c.BeatmapID == target.Beatmap.ID);
+                var chessBlock = blocks.FirstOrDefault(b => positionEquals(existingPlacement, b));
+
+                switch (e.Button)
                 {
-                    // Handle updating status to Red/Blue Win
-                    if (isPickWin)
+                    case MouseButton.Left:
+                        switch (pickType)
+                        {
+                            case RoundStep.Ban:
+                                succeeded |= addPlacement(target.Beatmap.ID, chessBlock);
+                                break;
+
+                            case RoundStep.Win:
+                                succeeded |= addWinPlacement(target.Beatmap.ID);
+                                break;
+
+                            default:
+                                // Unselect itself
+                                if (lastSelected == target)
+                                {
+                                    target.Selected = false;
+                                }
+                                else
+                                {
+                                    if (lastSelected != null)
+                                        lastSelected.Selected = false;
+                                    target.Selected = true;
+                                }
+
+                                break;
+                        }
+
+                        break;
+
+                    case MouseButton.Right:
+                        removeLatestPlacement(target.Beatmap.ID);
+                        break;
+                }
+            }
+            else if (boardBlockArea.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
+            {
+                // 2. Chess board interaction or no special handling needed
+                var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => positionEquals(p, block));
+                var target = boardMapList.FirstOrDefault(c => c.BeatmapID == placement?.BeatmapID);
+
+                switch (e.Button)
+                {
+                    case MouseButton.Left:
                     {
-                        updateWinStatusForBeatmap(map.Beatmap.OnlineID);
+                        switch (pickType)
+                        {
+                            case RoundStep.UpdateOwner:
+                                if (target != null)
+                                {
+                                    var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+
+                                    if (chessPieces.Contains(target))
+                                        break;
+
+                                    succeeded |= addWinPlacement(target.BeatmapID);
+
+                                    if (succeeded)
+                                    {
+                                        consumeSelected();
+                                        shiroModeActivated.Value = false;
+                                    }
+                                }
+
+                                break;
+
+                            case RoundStep.Win:
+                                if (target != null)
+                                {
+                                    // Disallow multiple win states
+                                    if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == target.BeatmapID
+                                                                                     && p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                                        != false)
+                                        break;
+
+                                    succeeded |= addWinPlacement(target.BeatmapID);
+                                }
+
+                                break;
+
+                            case RoundStep.Pick:
+                                if (lastSelected == null)
+                                {
+                                    showFail(block);
+                                    break;
+                                }
+
+                                succeeded |= addPlacement(lastSelected.Beatmap.ID, block);
+                                break;
+
+                            case RoundStep.Shiro:
+                                if (block != null)
+                                {
+                                    switch (pickTeam)
+                                    {
+                                        case TeamColour.None:
+                                            succeeded |= addPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
+
+                                            if (succeeded)
+                                            {
+                                                pickType = RoundStep.Default;
+                                                instructionDisplay.Step = RoundStep.Default;
+                                            }
+
+                                            break;
+
+                                        default:
+                                            if (!shiroModeActivated.Value)
+                                                break;
+
+                                            var matches = CurrentMatch.Value?.ChessPlacements.Where(p => positionEquals(p, block));
+
+                                            if (matches?.Any(p => p.CurrentType is ChoiceType.Consumed) == true
+                                                || matches?.Any(p => p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin) != true)
+                                                break;
+
+                                            succeeded = true;
+                                            bool exists = selectedBlocks.Contains(block);
+
+                                            block.FadeBackgroundColour(!exists ? FumoColours.SeaBlue.Regular : null);
+
+                                            if (exists)
+                                            {
+                                                selectedBlocks.Remove(block);
+                                            }
+                                            else
+                                            {
+                                                selectedBlocks.Add(block);
+                                            }
+
+                                            break;
+                                    }
+                                }
+
+                                break;
+                        }
+
+                        break;
                     }
-                    else
+
+                    case MouseButton.Right:
                     {
-                        addForBeatmap(map.Beatmap.OnlineID);
+                        if (target != null)
+                            succeeded |= removeLatestPlacement(target.BeatmapID);
+                        break;
                     }
                 }
-                else if (e.Button == MouseButton.Right)
-                {
-                    var existing = CurrentMatch.Value?.PicksBans.LastOrDefault(p => p.BeatmapID == map.Beatmap?.OnlineID);
-
-                    if (existing != null)
-                    {
-                        CurrentMatch.Value?.PicksBans.Remove(existing);
-                    }
-                }
-
-                // Automatically detect special conditions
-                if (CurrentMatch.Value != null)
-                {
-                    buttonIndicator.Colour = DetectWin() ? Color4.Orange : (DetectTieBreaker() ? Color4.White : Color4.Gray);
-
-                    // Restore to the last state
-                    updateBottomDisplay(bottomOnly: e.Button != MouseButton.Left);
-                }
-
-                return true;
             }
 
-            return base.OnMouseDown(e);
+            switch (succeeded)
+            {
+                case true:
+                    detectWin();
+                    if (lastSelected != null)
+                        lastSelected.Selected = false;
+                    break;
+
+                case false:
+                    showFail(block);
+                    break;
+            }
+
+            return true;
         }
 
-        private void updateWinStatusForBeatmap(int beatmapId)
-        {
-            var existing = CurrentMatch.Value?.PicksBans.FirstOrDefault(p => p.BeatmapID == beatmapId && (p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin));
+        private bool positionEquals(ChessPlacement? placement, DrawableBoardBlock? block)
+            => placement != null && block != null && placement.BoardRow == block.BoardRow && placement.BoardColumn == block.BoardColumn;
 
-            if (existing != null)
+        private void clearShiroSelection()
+        {
+            // Get back to normal route to avoid accidentally adding win states.
+            shiroModeActivated.Value = false;
+
+            selectedBlocks.ForEach(b => b.FadeBackgroundColour());
+            selectedBlocks.Clear();
+        }
+
+        private bool removeLatestPlacement(int beatmapId)
+        {
+            var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+            if (placement == null)
+                return false;
+
+            CurrentMatch.Value?.ChessPlacements.Remove(placement);
+
+            var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
+
+            if (chessPiece == null)
+                return true;
+
+            placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+            if (placement != null)
             {
-                CurrentMatch.Value?.PicksBans.Remove(existing);
+                chessPiece.OwnerTeam = placement.OwnerTeam;
+                chessPiece.CurrentType = placement.CurrentType;
+            }
+            else
+            {
+                chessPiece.Remove();
             }
 
-            CurrentMatch.Value?.PicksBans.Add(new BeatmapChoice
+            return true;
+        }
+
+        protected override void OnFirstSelected()
+        {
+            base.OnFirstSelected();
+
+            // Padding cannot be changed partially, moving the container instead.
+            mainContainer.MoveToY(10);
+            informationContainer.MoveToY(1.5f);
+            chatContainer.MoveToY(1.75f);
+            boardContainer.MoveToY(1.5f);
+            instructionDisplay.MoveToY(1.75f);
+            mapPool.MoveToY(1.5f);
+
+            // All containers start moving into the screen in order.
+            using (BeginDelayedSequence(1000))
             {
-                Team = pickType == ChoiceType.RedWin ? TeamColour.Red : TeamColour.Blue,
-                Type = pickType,
-                BeatmapID = beatmapId,
-            });
+                boardContainer.MoveToY(0, 900, Easing.OutQuint);
+
+                using (BeginDelayedSequence(300))
+                {
+                    informationContainer.MoveToY(0, 900, Easing.OutQuint);
+                    chatContainer.Delay(100).MoveToY(0, 900, Easing.OutQuint);
+                    mapPool.MoveToY(0, 900, Easing.OutQuint);
+                    instructionDisplay.MoveToY(0, 900, Easing.OutQuint);
+                }
+            }
+
+            using (BeginDelayedSequence(500))
+            {
+                mainContainer.MoveToY(0, 1000, Easing.OutQuint);
+            }
         }
 
         private void reset()
         {
             // Clear map marking lists
             CurrentMatch.Value?.PicksBans.Clear();
+            CurrentMatch.Value?.ChessPlacements.Clear();
             CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
+
+            boardMapList.Clear();
+            boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
 
             if (CurrentMatch.Value != null)
             {
@@ -457,9 +822,6 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Team1Score.Value = 0;
                 CurrentMatch.Value.Team2Score.Value = 0;
             }
-
-            // Reset bottom display
-            informationDisplayContainer.Child = new InstructionDisplay();
 
             // Reset button group
             buttonBlueBan.Colour = Color4.White;
@@ -471,373 +833,173 @@ namespace osu.Game.Tournament.Screens.Board
             buttonIndicator.Colour = Color4.Gray;
 
             pickTeam = TeamColour.None;
-            pickType = ChoiceType.Neutral;
+            pickType = RoundStep.Default;
         }
 
-        private bool isPickWin => pickType == ChoiceType.RedWin || pickType == ChoiceType.BlueWin;
-
-        private void addForBeatmap(string modId)
+        private void showFail(DrawableBoardBlock? flashBlock)
         {
-            var map = CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.Mods + b.ModIndex == modId);
-
-            if (map != null)
-                addForBeatmap(map.ID);
+            flashBlock?.FlashIcon(FontAwesome.Solid.Times);
+            flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
         }
 
-        private void addForBeatmap(int beatmapId)
+        private bool addWinPlacement(int beatmapId)
         {
-            bool isPickBan = pickType == ChoiceType.Pick || pickType == ChoiceType.Ban || isPickWin;
+            var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
+                p.BeatmapID == beatmapId && p.CurrentType is not ChoiceType.Neutral);
+            var chess = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
 
-            if (pickType == ChoiceType.Neutral || pickTeam == TeamColour.None || pickTeam == TeamColour.None)
-                return;
-
-            if (CurrentMatch.Value?.Round.Value == null)
-                return;
-
-            if (CurrentMatch.Value.Round.Value.Beatmaps.All(b => b.Beatmap?.OnlineID != beatmapId))
-                // don't attempt to add if the beatmap isn't in our pool
-                return;
-
-            if (!isPickWin && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
-                                                                    && (p.Type == ChoiceType.Ban || p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)))
-                // don't attempt to add if already banned / won, and it's not a win type.
-                return;
-
-            // Remove the latest win state for Reverse Trap
-            if (pickType == ChoiceType.Pick && CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId
-                                                                                     && (p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)))
+            // Updating winning status without existing placement entries is not allowed now.
+            if (existing == null)
             {
-                var latestWin = CurrentMatch.Value.PicksBans.LastOrDefault(p => p.BeatmapID == beatmapId && (p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin));
-                if (latestWin != null) CurrentMatch.Value.PicksBans.Remove(latestWin);
+                updateActionText(BoardStrings.PicksUnavailable, true);
+                return false;
             }
 
-            if (pickType == ChoiceType.Pick)
+            if (existing.CurrentType is ChoiceType.Ban or ChoiceType.Consumed)
+                return false;
+
+            CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
+                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
+
+            if (chess != null)
             {
+                chess.OwnerTeam = pickTeam;
+                chess.CurrentType = TournamentGame.ToChoiceType(pickType, pickTeam);
+            }
+
+            return true;
+        }
+
+        private bool addPlacement(int beatmapId, DrawableBoardBlock? block)
+        {
+            if (pickType == RoundStep.Shiro)
+            {
+                if (block == null)
+                    return false;
+
+                CurrentMatch.Value?.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
+                    pickTeam, ChoiceType.Pick));
+
+                addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
+
+                return true;
+            }
+
+            bool isCommonType = pickType is RoundStep.Pick or RoundStep.Ban or RoundStep.Win;
+
+            if (pickType == RoundStep.Default || pickTeam == TeamColour.None || CurrentMatch.Value?.Round.Value == null)
+                return false;
+
+            if (CurrentMatch.Value.Round.Value.Beatmaps.All(b => b.Beatmap?.OnlineID != beatmapId) && pickType != RoundStep.Shiro)
+                // don't attempt to add if the beatmap isn't in our pool
+                return false;
+
+            if (pickType != RoundStep.Win
+                && CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId
+                                                               && p.CurrentType is ChoiceType.Ban or ChoiceType.RedWin or ChoiceType.BlueWin))
+                // don't attempt to add if already banned / won, and it's not a win type.
+                return false;
+
+            if (pickType == RoundStep.Pick)
+            {
+                // Multiple pick records are not allowed
+                if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && p.CurrentType == ChoiceType.Pick))
+                    return false;
+
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
                 if (introMap != null)
                     sceneManager?.ShowMapIntro(introMap, pickTeam);
             }
 
-            if (isPickBan && !CurrentMatch.Value.PicksBans.Any(p => p.BeatmapID == beatmapId && p.Type == pickType))
+            if (isCommonType
+                && !CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && isSameStep(p.CurrentType, pickType)))
             {
-                CurrentMatch.Value.PicksBans.Add(new BeatmapChoice
+                if (block != null)
                 {
-                    Team = pickTeam,
-                    Type = pickType,
-                    BeatmapID = beatmapId,
-                });
+                    addSingleChess(beatmapId, block.BoardRow, block.BoardColumn);
+                }
+
+                CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block?.BoardRow, block?.BoardColumn,
+                    pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
             }
 
             // setNextMode(); // Uncomment if you still want to automatically set the next mode
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
-                if (pickType == ChoiceType.Pick && CurrentMatch.Value.PicksBans.Any(i => i.Type == ChoiceType.Pick))
+                if (pickType == RoundStep.Pick && CurrentMatch.Value.PicksBans.Any(i => i.Type == ChoiceType.Pick))
                 {
                     scheduledScreenChange?.Cancel();
                     scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(GameplayScreen)); }, 10000);
                 }
             }
+
+            return true;
         }
+
+        private void addSingleChess(int beatmapId, int row, int column,
+                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral)
+        {
+            var block = blocks.FirstOrDefault(b => b.BoardRow == row && b.BoardColumn == column);
+
+            // Add chess piece only when a block exists
+            if (block == null)
+                return;
+
+            var newPiece = new FumoChessPiece(beatmapId)
+            {
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Width = 1,
+                Height = 1,
+                Alpha = 0,
+                OwnerTeam = ownerTeam,
+                CurrentType = choiceType,
+            };
+
+            block.ChessLayer.Add(newPiece);
+            boardMapList.Add(newPiece);
+
+            newPiece.FadeIn(500, Easing.OutQuint);
+            newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
+        }
+
+        private void initializeBoard()
+        {
+            if (!IsLoaded)
+                return;
+
+            boardMapList.Clear();
+            boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
+
+            for (int i = 1; i <= 4; i++)
+            {
+                for (int j = 1; j <= 4; j++)
+                {
+                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
+                        p.BoardRow == i && p.BoardColumn == j);
+
+                    if (placement != null)
+                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType);
+                }
+            }
+        }
+
+        private bool isSameStep(ChoiceType choiceType, RoundStep step)
+            => step switch
+            {
+                RoundStep.Pick => choiceType == ChoiceType.Pick,
+                RoundStep.Ban => choiceType == ChoiceType.Ban,
+                RoundStep.Win => choiceType is ChoiceType.RedWin or ChoiceType.BlueWin,
+                _ => false,
+            };
 
         public override void Hide()
         {
             scheduledScreenChange?.Cancel();
             base.Hide();
-        }
-
-        protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
-        {
-            base.CurrentMatchChanged(match);
-            updateDisplay();
-        }
-
-        /// <summary>
-        /// Calculate the corresponding angle from two board blocks.
-        /// </summary>
-        /// <param name="x1">The X value of the first block.</param>
-        /// <param name="x2">The X value of the first block.</param>
-        /// <param name="y1">The Y value of the second block.</param>
-        /// <param name="y2">The Y value of the second block.</param>
-        /// <returns>An angle in degree.</returns>
-        protected static float GetAngle(double x1, double x2, double y1, double y2)
-        {
-            if (x1 == x2) return y1 > y2 ? 90 : -90;
-
-            return (float)(Math.Atan((y2 - y1) / (x2 - x1)) * 180 / Math.PI);
-        }
-
-        /// <summary>
-        /// Detects if someone has won the match.
-        /// </summary>
-        /// <returns>true if someone has, otherwise false</returns>
-        public bool DetectWin()
-        {
-            // Don't detect if not defining board coordinates
-            if (CurrentMatch.Value?.Round.Value?.Beatmaps == null) return false;
-            if (!CurrentMatch.Value.Round.Value.UseBoard.Value) return false;
-
-            List<TeamColour> winColours =
-            [
-                isWin(1, 1, 1, 4),
-                isWin(2, 1, 2, 4),
-                isWin(3, 1, 3, 4),
-                isWin(4, 1, 4, 4),
-                isWin(1, 1, 4, 1),
-                isWin(1, 2, 4, 2),
-                isWin(1, 3, 4, 3),
-                isWin(1, 4, 4, 4),
-                isWin(1, 1, 4, 4),
-                isWin(1, 4, 4, 1)
-            ];
-
-            TeamColour winner = winColours.Contains(TeamColour.Red)
-                ? winColours.Contains(TeamColour.Blue)
-                    ? TeamColour.Neutral
-                    : TeamColour.Red
-                : winColours.Contains(TeamColour.Blue)
-                    ? TeamColour.Blue
-                    : TeamColour.None;
-
-            teamWinner = winner;
-
-            if (winner == TeamColour.Neutral || winner == TeamColour.None)
-            {
-                // Reset team scores
-                CurrentMatch.Value.Team1Score.Value = 0;
-                CurrentMatch.Value.Team2Score.Value = 0;
-
-                return winner == TeamColour.Neutral;
-            }
-            else
-            {
-                CurrentMatch.Value.Team1Score.Value = winner == TeamColour.Red ? 6 : 0;
-                CurrentMatch.Value.Team2Score.Value = winner == TeamColour.Blue ? 6 : 0;
-
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Get all beatmaps on a specified line.
-        /// </summary>
-        /// <param name="startX">The start point of the line, X value.</param>
-        /// <param name="startY">The start point of the line, Y value.</param>
-        /// <param name="endX">The end point of the line, X value.</param>
-        /// <param name="endY">The end point of the line, Y value.</param>
-        /// <returns>A <see langword="List"/> of <see cref="RoundBeatmap"/>.</returns>
-        private List<RoundBeatmap> getMapLine(int startX, int startY, int endX, int endY)
-        {
-            List<RoundBeatmap> mapLine = new List<RoundBeatmap>();
-
-            // Reject null matches
-            if (CurrentMatch.Value == null) return mapLine;
-
-            // Vertical Lines
-            if (startX == endX)
-            {
-                for (int i = startY; i <= endY; i++)
-                {
-                    var map = getBoardMap(startX, i);
-                    if (map != null) mapLine.Add(map);
-                }
-            }
-            // Horizontal line
-            else if (startY == endY)
-            {
-                for (int i = startX; i <= endX; i++)
-                {
-                    var map = getBoardMap(i, startY);
-                    if (map != null) mapLine.Add(map);
-                }
-            }
-            // Diagonal line
-            else
-            {
-                int stepX = endX > startX ? 1 : -1;
-                int stepY = endY > startY ? 1 : -1;
-
-                for (int i = 0; i <= 3; i++)
-                {
-                    var map = getBoardMap(startX + i * stepX, startY + i * stepY);
-                    if (map != null) mapLine.Add(map);
-                }
-            }
-
-            return mapLine;
-        }
-
-        /// <summary>
-        /// Detects if either team has won.
-        ///
-        /// <br></br>The given line should be either a straight line or a diagonal line.
-        /// </summary>
-        /// <param name="startX">The start point of the line, X value.</param>
-        /// <param name="startY">The start point of the line, Y value.</param>
-        /// <param name="endX">The end point of the line, X value.</param>
-        /// <param name="endY">The end point of the line, Y value.</param>
-        /// <returns>the winner team's colour, or <see cref="TeamColour.Neutral"/> if there isn't one</returns>
-        private TeamColour isWin(int startY, int startX, int endY, int endX)
-        {
-            // Currently limited to 4x4 use only
-            if ((endX - startX) % 3 != 0 || (endY - startY) % 3 != 0) return TeamColour.None;
-
-            // Reject null matches
-            if (CurrentMatch.Value == null) return TeamColour.None;
-
-            var mapLine = getMapLine(startY, startX, endY, endX);
-
-            var result = mapLine.Select(m => CurrentMatch.Value.PicksBans.FirstOrDefault(p => p.BeatmapID == m.Beatmap?.OnlineID && p.Type != ChoiceType.Pick))
-                                .GroupBy(p => p?.Type);
-
-            if (result.FirstOrDefault(g => g.Key == ChoiceType.BlueWin)?.Count() == mapLine.Count)
-            {
-                return TeamColour.Blue;
-            }
-
-            if (result.FirstOrDefault(g => g.Key == ChoiceType.RedWin)?.Count() == mapLine.Count)
-            {
-                return TeamColour.Red;
-            }
-
-            return TeamColour.None;
-        }
-
-        /// <summary>
-        /// Detects if the board satisfies the conditions to enter the EX stage.
-        /// </summary>
-        /// <returns>true if satisfies, otherwise false.</returns>
-        public bool DetectTieBreaker()
-        {
-            if (CurrentMatch.Value?.Round.Value?.Beatmaps == null) return false;
-            if (!CurrentMatch.Value.Round.Value.UseBoard.Value) return false;
-
-            // Manba out
-            // TODO: Rewrite based on new rules
-            bool isRowAvailable = canWin(1, 1, 1, 4) || canWin(2, 1, 2, 4) || canWin(3, 1, 3, 4) || canWin(4, 1, 4, 4);
-            bool isColumnAvailable = canWin(1, 1, 4, 1) || canWin(1, 2, 4, 2) || canWin(1, 3, 4, 3) || canWin(1, 4, 4, 4);
-            bool isDiagonalAvailable = canWin(1, 1, 4, 4) || canWin(1, 4, 4, 1);
-
-            isInTieBreaker = !isDiagonalAvailable && !isRowAvailable && !isColumnAvailable;
-            return isInTieBreaker;
-        }
-
-        /// <summary>
-        /// Detects if either team could use the given line to win.
-        ///
-        /// <br></br>The given line should be either a straight line or a diagonal line.
-        /// </summary>
-        /// <param name="startX">The start point of the line, X value.</param>
-        /// <param name="startY">The start point of the line, Y value.</param>
-        /// <param name="endX">The end point of the line, X value.</param>
-        /// <param name="endY">The end point of the line, Y value.</param>
-        /// <returns>true if either team can, otherwise false</returns>
-        private bool canWin(int startY, int startX, int endY, int endX)
-        {
-            // Currently limited to 4x4 use only
-            if ((endX - startX) % 3 != 0 || (endY - startY) % 3 != 0) return false;
-
-            // Reject null matches
-            if (CurrentMatch.Value == null) return false;
-
-            List<RoundBeatmap> mapLine = getMapLine(startX, startY, endX, endY);
-            TeamColour thisColour = TeamColour.Neutral;
-
-            foreach (RoundBeatmap b in mapLine)
-            {
-                // Get the coloured map
-                var pickedMap = CurrentMatch.Value.PicksBans.FirstOrDefault(p =>
-                    (p.BeatmapID == b.Beatmap?.OnlineID && (p.Type == ChoiceType.RedWin || p.Type == ChoiceType.BlueWin)));
-
-                // Have banned maps: Cannot win
-                if (CurrentMatch.Value.PicksBans.Any(p => (p.BeatmapID == b.Beatmap?.OnlineID && p.Type == ChoiceType.Ban))) return false;
-
-                if (pickedMap != null)
-                {
-                    // Set the default colour
-                    if (thisColour == TeamColour.Neutral) { thisColour = pickedMap.Team; }
-                    // Different mark colour: Cannot win
-                    else
-                    {
-                        if (thisColour != pickedMap.Team) return false;
-                    }
-                }
-            }
-
-            // Finally: Can win
-            return true;
-        }
-
-        /// <summary>
-        /// Get a beatmap placed on a specific point on the board.
-        /// </summary>
-        /// <param name="x">The X coordinate value of the beatmap.</param>
-        /// <param name="y">The Y coordinate value of the beatmap.</param>
-        /// <returns>A <see cref="RoundBeatmap"/>, pointing to the corresponding beatmap.</returns>
-        private RoundBeatmap? getBoardMap(int x, int y)
-        {
-            BoardBeatmapPanel? dMap = boardMapList.FirstOrDefault(p => p.RealX == x && p.RealY == y && p.Mod != "TB");
-            return CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(p => p.Beatmap?.OnlineID == dMap?.Beatmap?.OnlineID && p.Mods != "TB");
-        }
-
-        private Vector2 getBlockPosition(int x, int y)
-        {
-            return new Vector2(-400 + x * 160, -450 + y * 160);
-        }
-
-        private void updateDisplay()
-        {
-            boardContainer.Clear();
-            boardMapList.Clear();
-            sceneManager?.ReloadChat();
-
-            if (CurrentMatch.Value == null)
-            {
-                warningContainer.Child = new WarningBox(BaseStrings.MatchUnavailableWarning);
-                warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
-                return;
-            }
-
-            if (CurrentMatch.Value.Round.Value != null)
-            {
-                // Use predefined Board coordinate
-                if (CurrentMatch.Value.Round.Value.UseBoard.Value)
-                {
-                    warningContainer.FadeOut(duration: 200, easing: Easing.OutCubic);
-
-                    for (int i = 1; i <= 4; i++)
-                    {
-                        for (int j = 1; j <= 4; j++)
-                        {
-                            var nextMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(p => p.Mods != "TB" && p.BoardX == j && p.BoardY == i);
-
-                            if (nextMap != null)
-                            {
-                                Vector2 position = getBlockPosition(j, i);
-                                var mapDrawable = new BoardBeatmapPanel(nextMap.Beatmap, nextMap.Mods, nextMap.ModIndex, j, i)
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    X = position.X,
-                                    Y = position.Y,
-                                };
-                                boardContainer.Add(mapDrawable);
-                                boardMapList.Add(mapDrawable);
-                            }
-                            else
-                            {
-                                // TODO: Do we need to add a placeholder here?
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    warningContainer.Child = new WarningBox(BaseStrings.BoardModeUnsetWarning);
-                    warningContainer.FadeIn(duration: 200, easing: Easing.OutCubic);
-                }
-            }
         }
     }
 }

@@ -77,6 +77,16 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString FetchData => new TranslatableString(getKey(@"fetch_data"), @"Fetch Data");
 
         /// <summary>
+        /// "Okay"
+        /// </summary>
+        public static LocalisableString Okay => new TranslatableString(getKey(@"okay"), @"Okay");
+
+        /// <summary>
+        /// "Unknown"
+        /// </summary>
+        public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
+
+        /// <summary>
         /// "Add New"
         /// </summary>
         public static LocalisableString AddNew => new TranslatableString(getKey(@"add_new"), @"Add New");
@@ -137,6 +147,16 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString TeamBlue => new TranslatableString(getKey(@"team_blue"), @"Team Blue");
 
         /// <summary>
+        /// "Red"
+        /// </summary>
+        public static LocalisableString TeamRedShort => new TranslatableString(getKey(@"team_red_short"), @"Red");
+
+        /// <summary>
+        /// "Blue"
+        /// </summary>
+        public static LocalisableString TeamBlueShort => new TranslatableString(getKey(@"team_blue_short"), @"Blue");
+
+        /// <summary>
         /// "Seeding Mod"
         /// </summary>
         public static LocalisableString BeatmapMod => new TranslatableString(getKey(@"beatmap_mod"), @"Mod");
@@ -175,6 +195,16 @@ namespace osu.Game.Tournament.Localisation
         /// "Fetching data from server, please wait..."
         /// </summary>
         public static LocalisableString FetchingDescription => new TranslatableString(getKey(@"fetching_description"), @"Fetching data from server, please wait...");
+
+        /// <summary>
+        /// "Action not permitted"
+        /// </summary>
+        public static LocalisableString ActionNotPermitted => new TranslatableString(getKey(@"action_not_permitted"), @"Action not permitted");
+
+        /// <summary>
+        /// "No beatmap available!"
+        /// </summary>
+        public static LocalisableString NoBeatmapAvailable => new TranslatableString(getKey(@"no_beatmap_available"), @"No beatmap available!");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
