@@ -25,6 +25,10 @@ fi
 versionPattern="<Version>0\.0\.0</Version>"
 newPattern="<Version>$newVersion</Version>"
 
+# Escape the slash with backslash!
+sedVersionPattern="<Version>0\.0\.0<\/Version>"
+sedNewPattern="<Version>$newVersion<\/Version>"
+
 # Find matching project configuration files
 projectFiles=$(find . -name "osu.*.csproj")
 
@@ -36,7 +40,7 @@ for file in $projectFiles; do
     if grep -q "$versionPattern" "$file"; then
         echo "[i] Updating file: $file"
         # Use sed to replace the version pattern with the new pattern
-        sed -i "s/$versionPattern/$newPattern/g" "$file"
+        sed -i "s/$sedVersionPattern/$sedNewPattern/g" "$file"
         updatedCount=$((updatedCount+1))
     fi
 done
