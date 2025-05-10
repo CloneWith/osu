@@ -271,7 +271,7 @@ namespace osu.Game.Tournament.Components
 
                 backgroundCircle.FadeColour(specialScheme.Background, 500, Easing.OutQuint);
                 specialMask.FadeColour(specialScheme.Accent.Opacity(0.3f));
-                specialMask.FadeTo(currentType is ChoiceType.RedWin or ChoiceType.BlueWin ? 1 : 0, 500, Easing.OutQuint);
+                specialMask.FadeTo(currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed ? 1 : 0, 500, Easing.OutQuint);
                 topIcon.FadeColour(specialScheme.Accent, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourLight), specialScheme.TriangleLight, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourDark), specialScheme.TriangleDark, 500, Easing.OutQuint);
@@ -288,12 +288,9 @@ namespace osu.Game.Tournament.Components
                 dimMask.FadeOut(500, Easing.OutQuint);
             }
 
-            topIcon.Texture = currentType switch
-            {
-                ChoiceType.RedWin or ChoiceType.BlueWin => textures.Get(@"Board/chess-win"),
-                ChoiceType.Consumed => textures.Get(@"Board/chess-consumed"),
-                _ => chessIcon,
-            };
+            topIcon.Texture = currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed
+                ? textures.Get(@"Board/chess-win")
+                : chessIcon;
 
             topIcon.ScaleTo(1.5f).Then().ScaleTo(1, 500, Easing.OutQuint);
         }
