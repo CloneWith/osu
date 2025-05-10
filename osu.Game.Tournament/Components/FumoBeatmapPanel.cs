@@ -64,8 +64,9 @@ namespace osu.Game.Tournament.Components
         private TournamentSpriteText instructText = null!;
         private CircularContainer banPill = null!;
         private Box pillBg = null!;
-        private CircularContainer trophyIcon = null!;
+        private CircularContainer trophyBadge = null!;
         private Box trophyBg = null!;
+        private SpriteIcon trophyIcon = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -221,7 +222,7 @@ namespace osu.Game.Tournament.Components
                         }
                     }
                 },
-                trophyIcon = new CircularContainer
+                trophyBadge = new CircularContainer
                 {
                     Name = @"Win Circle",
                     Anchor = Anchor.BottomRight,
@@ -236,7 +237,7 @@ namespace osu.Game.Tournament.Components
                         {
                             RelativeSizeAxes = Axes.Both,
                         },
-                        new SpriteIcon
+                        trophyIcon = new SpriteIcon
                         {
                             Icon = FontAwesome.Solid.Trophy,
                             Size = new Vector2(14),
@@ -297,7 +298,7 @@ namespace osu.Game.Tournament.Components
             {
                 FinishTransforms(true);
                 banPill.FadeOut(300, Easing.OutQuint);
-                trophyIcon.FadeOut(300, Easing.OutQuint);
+                trophyBadge.FadeOut(300, Easing.OutQuint);
                 lastPlacement = null;
                 return;
             }
@@ -325,7 +326,7 @@ namespace osu.Game.Tournament.Components
             topMask.FadeTo(newPlacement != null && newPlacement.CurrentType != ChoiceType.Pick ? 0.5f : 0,
                 300, Easing.OutQuint);
             banPill.FadeTo(!playFullAnimation && newPlacement?.CurrentType == ChoiceType.Ban ? 1 : 0, 300, Easing.OutQuint);
-            trophyIcon.FadeTo(!playFullAnimation && newPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin ? 1 : 0,
+            trophyBadge.FadeTo(!playFullAnimation && newPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed ? 1 : 0,
                 300, Easing.OutQuint);
 
             if (newPlacement != null)
@@ -337,8 +338,10 @@ namespace osu.Game.Tournament.Components
                         pillBg.FadeColour(TournamentGame.GetTeamColour(newPlacement.OwnerTeam), 300, Easing.OutQuint);
                         break;
 
-                    case ChoiceType.RedWin or ChoiceType.BlueWin:
+                    case ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed:
                         trophyBg.FadeColour(TournamentGame.GetTypeColour(newPlacement.CurrentType), 300, Easing.OutQuint);
+                        trophyIcon.FadeColour(newPlacement.CurrentType is ChoiceType.Consumed ? TournamentGame.GetTeamColour(newPlacement.OwnerTeam) : Color4.White,
+                            300, Easing.OutQuint);
                         break;
                 }
 
@@ -379,6 +382,11 @@ namespace osu.Game.Tournament.Components
                     instructText.Text = placement.CurrentType == ChoiceType.RedWin ? "Red wins!" : "Blue wins!";
                     break;
 
+                case ChoiceType.Consumed:
+                    statusIcon.Icon = FontAwesome.Solid.Times;
+                    instructText.Text = "Consumed!";
+                    break;
+
                 default:
                     // don't do anything
                     return;
@@ -387,13 +395,13 @@ namespace osu.Game.Tournament.Components
             banPill.FadeOut(300, Easing.OutQuint);
             banPill.MoveToY(0, 300, Easing.OutQuint);
 
-            trophyIcon.FadeOut(300, Easing.OutQuint);
-            trophyIcon.MoveToY(0, 300, Easing.OutQuint);
+            trophyBadge.FadeOut(300, Easing.OutQuint);
+            trophyBadge.MoveToY(0, 300, Easing.OutQuint);
 
             ColourInfo useColour = placement.CurrentType switch
             {
                 ChoiceType.Pick => Color4.White,
-                ChoiceType.Ban => Color4.Gray,
+                ChoiceType.Ban or ChoiceType.Consumed => Color4.Gray,
                 ChoiceType.RedWin => TournamentGame.GetTeamColour(TeamColour.Red),
                 ChoiceType.BlueWin => TournamentGame.GetTeamColour(TeamColour.Blue),
                 _ => Color4.White,
@@ -441,11 +449,11 @@ namespace osu.Game.Tournament.Components
                     banPill.MoveToY(15)
                            .Then().MoveToY(0, 600, Easing.OutExpo);
                 }
-                else if (placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                else if (placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed)
                 {
-                    trophyIcon.FadeIn(600, Easing.OutExpo);
-                    trophyIcon.MoveToY(15)
-                              .Then().MoveToY(0, 600, Easing.OutExpo);
+                    trophyBadge.FadeIn(600, Easing.OutExpo);
+                    trophyBadge.MoveToY(15)
+                               .Then().MoveToY(0, 600, Easing.OutExpo);
                 }
             }
 

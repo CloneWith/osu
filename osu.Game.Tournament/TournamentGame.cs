@@ -63,6 +63,7 @@ namespace osu.Game.Tournament
                 ChoiceType.Pick => new OsuColour().Green,
                 ChoiceType.RedWin => COLOUR_RED,
                 ChoiceType.BlueWin => COLOUR_BLUE,
+                ChoiceType.Consumed => Color4.Gray,
                 _ => fallback ?? COLOUR_CHOICES,
             };
 
