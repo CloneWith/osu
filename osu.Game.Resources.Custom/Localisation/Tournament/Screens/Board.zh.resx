@@ -21,9 +21,6 @@
     <data name="pick_unavailable" xml:space="preserve">
         <value>找不到该谱面对应的 Pick 记录。</value>
     </data>
-    <data name="win_on_ban_not_allowed" xml:space="preserve">
-        <value>不可向已被 Ban 的图添加 Win 状态。</value>
-    </data>
     <data name="remaining_header" xml:space="preserve">
         <value>剩余：</value>
     </data>
@@ -83,5 +80,8 @@
     </data>
     <data name="action_placeholder" xml:space="preserve">
         <value>此处将会显示所选操作信息。</value>
+    </data>
+    <data name="round_counter" xml:space="preserve">
+        <value>回合计数器</value>
     </data>
 </root>

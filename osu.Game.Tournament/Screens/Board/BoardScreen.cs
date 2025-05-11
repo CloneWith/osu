@@ -49,6 +49,12 @@ namespace osu.Game.Tournament.Screens.Board
         private TeamColour pickTeam;
         private RoundStep pickType;
 
+        private BindableInt currentRoundIndex = new BindableInt(1)
+        {
+            MinValue = 1,
+            MaxValue = 32,
+        };
+
         private Container mainContainer = null!;
         private Container informationContainer = null!;
         private Container chatContainer = null!;
@@ -56,6 +62,10 @@ namespace osu.Game.Tournament.Screens.Board
         private ChessMapPool mapPool = null!;
         private InstructionDisplay instructionDisplay = null!;
         private FillFlowContainer<DrawableBoardBlock> boardBlockArea = null!;
+
+        private OsuNumberBox roundNumberBox = null!;
+        private GrayButton roundMinusButton = null!;
+        private GrayButton roundPlusButton = null!;
 
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
@@ -222,6 +232,40 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     Children = new Drawable[]
                     {
+                        new SectionHeader(BoardStrings.RoundCounter),
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            ColumnDimensions =
+                            [
+                                new Dimension(GridSizeMode.Absolute, 40),
+                                new Dimension(),
+                                new Dimension(GridSizeMode.Absolute, 40),
+                            ],
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    roundMinusButton = new GrayButton(FontAwesome.Solid.Minus)
+                                    {
+                                        RelativeSizeAxes = Axes.Both,
+                                        Action = () => currentRoundIndex.Value--,
+                                        Padding = new MarginPadding { Right = 5 },
+                                    },
+                                    roundNumberBox = new OsuNumberBox
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                    },
+                                    roundPlusButton = new GrayButton(FontAwesome.Solid.Plus)
+                                    {
+                                        RelativeSizeAxes = Axes.Both,
+                                        Action = () => currentRoundIndex.Value++,
+                                        Padding = new MarginPadding { Left = 5 },
+                                    },
+                                }
+                            },
+                        },
                         new SectionHeader(BoardStrings.CurrentMode),
                         new GridContainer
                         {
@@ -397,6 +441,7 @@ namespace osu.Game.Tournament.Screens.Board
             base.LoadComplete();
             initializeBoard();
 
+            currentRoundIndex.BindTo(CurrentMatch.Value?.CurrentRoundIndex);
             CurrentMatch.BindValueChanged(matchChanged);
 
             LadderInfo.MainBoardSize.BindValueChanged(e =>
@@ -415,10 +460,34 @@ namespace osu.Game.Tournament.Screens.Board
                     clearShiroSelection();
                 }
             });
+
+            currentRoundIndex.BindValueChanged(e =>
+            {
+                roundMinusButton.Enabled.Value = e.NewValue > currentRoundIndex.MinValue;
+                roundPlusButton.Enabled.Value = e.NewValue < currentRoundIndex.MaxValue;
+                roundNumberBox.Text = e.NewValue.ToString();
+            }, true);
+
+            roundNumberBox.OnCommit += (_, newText) =>
+            {
+                if (!newText)
+                    return;
+
+                if (int.TryParse(roundNumberBox.Text, out int newIndex))
+                {
+                    currentRoundIndex.Value = newIndex;
+                }
+                else
+                {
+                    roundNumberBox.Text = currentRoundIndex.Value.ToString();
+                }
+            };
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
+            currentRoundIndex.BindTo(match.NewValue?.CurrentRoundIndex);
+
             ResetSelectStatus();
             initializeBoard();
         }

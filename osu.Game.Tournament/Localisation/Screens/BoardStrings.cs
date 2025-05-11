@@ -15,16 +15,15 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString CurrentMode => new TranslatableString(getKey(@"current_mode"), @"Current Mode");
 
         /// <summary>
+        /// "Round Counter"
+        /// </summary>
+        public static LocalisableString RoundCounter => new TranslatableString(getKey(@"round_counter"), @"Round Counter");
+
+        /// <summary>
         /// "Cannot find a Pick record associated with the selected beatmap."
         /// </summary>
         public static LocalisableString PicksUnavailable => new TranslatableString(getKey(@"pick_unavailable"),
             @"Cannot find a Pick record associated with the selected beatmap.");
-
-        /// <summary>
-        /// "Cannot add a Win status to a banned beatmap."
-        /// </summary>
-        public static LocalisableString WinOnBanNotAllowed => new TranslatableString(getKey(@"win_on_ban_not_allowed"),
-            @"Cannot add a Win status to a banned beatmap.");
 
         /// <summary>
         /// "Remaining:"
