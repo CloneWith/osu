@@ -20,6 +20,7 @@ using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Animations;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Localisation.Screens;
@@ -377,6 +378,18 @@ namespace osu.Game.Tournament.Screens.Board
                 },
                 dialogOverlay = new DialogOverlay(),
             };
+
+            animationQueue.BindCollectionChanged((_, arg) =>
+            {
+                if (!animationQueue.Any())
+                    return;
+
+                if (currentAnimation == null || currentAnimation.Status == AnimationStatus.Complete)
+                {
+                    var animation = animationQueue.First();
+                    startAnimation(animation);
+                }
+            });
         }
 
         protected override void LoadComplete()
@@ -909,7 +922,7 @@ namespace osu.Game.Tournament.Screens.Board
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
                 if (introMap != null)
-                    sceneManager?.ShowMapIntro(introMap, pickTeam);
+                    ShowMapIntro(introMap, pickTeam);
             }
 
             if (isCommonType
@@ -996,10 +1009,53 @@ namespace osu.Game.Tournament.Screens.Board
                 _ => false,
             };
 
+        public override void Show()
+        {
+            sceneManager?.ProxyChatToContainer(chatContainer);
+            base.Show();
+        }
+
         public override void Hide()
         {
+            sceneManager?.ReturnProxyChat();
             scheduledScreenChange?.Cancel();
             base.Hide();
         }
+
+        #region Animation
+
+        private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
+
+        private IAnimation? currentAnimation;
+
+        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral) => queueAnimation(new TournamentIntro(map, colour)
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+        });
+
+        public void ShowWinAnimation(TournamentTeam? team, TeamColour colour = TeamColour.Neutral) => queueAnimation(new RoundAnimation(team, colour)
+        {
+            Anchor = Anchor.Centre,
+            Origin = Anchor.Centre,
+        });
+
+        private void startAnimation(IAnimation animation)
+        {
+            AddInternal((Drawable)(currentAnimation = animation));
+
+            animation.Fire();
+            animation.OnAnimationComplete += () =>
+            {
+                animationQueue.Remove(animation);
+            };
+        }
+
+        private void queueAnimation(IAnimation d)
+        {
+            animationQueue.Add(d);
+        }
+
+        #endregion
     }
 }

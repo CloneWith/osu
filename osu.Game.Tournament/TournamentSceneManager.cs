@@ -29,12 +29,10 @@ using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
-using osu.Framework.Bindables;
 using osu.Game.Graphics.Containers;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osu.Game.Overlays.Toolbar;
-using osu.Game.Tournament.Components.Animations;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Screens.Countdown;
 
@@ -45,9 +43,6 @@ namespace osu.Game.Tournament
     {
         private Container<TournamentScreen> screens = null!;
         private TourneyBackground background = null!;
-        private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();
-
-        private IAnimation? currentAnimation;
 
         public const int CONTROL_AREA_WIDTH = 200;
 
@@ -85,18 +80,6 @@ namespace osu.Game.Tournament
         public TournamentSceneManager()
         {
             RelativeSizeAxes = Axes.Both;
-
-            animationQueue.BindCollectionChanged((_, arg) =>
-            {
-                if (!animationQueue.Any())
-                    return;
-
-                if (currentAnimation == null || currentAnimation.Status == AnimationStatus.Complete)
-                {
-                    var animation = animationQueue.First();
-                    startAnimation(animation);
-                }
-            });
         }
 
         [BackgroundDependencyLoader]
@@ -149,15 +132,19 @@ namespace osu.Game.Tournament
                                 new BoardScreen(),
                             }
                         },
-                        chatContainer = new Container
+                        defaultProxyChatContainer = new Container
                         {
-                            Anchor = Anchor.TopLeft,
-                            Origin = Anchor.TopLeft,
-                            RelativeSizeAxes = Axes.None,
-                            Width = STREAM_AREA_WIDTH,
-                            Height = 480,
-                            Child = chat
-                        },
+                            RelativeSizeAxes = Axes.Both,
+                            Child = chatContainer = new Container
+                            {
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
+                                RelativeSizeAxes = Axes.None,
+                                Width = STREAM_AREA_WIDTH,
+                                Height = 480,
+                                Child = chat
+                            },
+                        }
                     }
                 },
                 new Container
@@ -245,6 +232,8 @@ namespace osu.Game.Tournament
                 drawable.Hide();
 
             SetScreen(typeof(SetupScreen));
+
+            defaultProxyChatContainer.Add(proxyChatContainer = chatContainer.CreateProxy());
         }
 
         private float depth;
@@ -253,6 +242,33 @@ namespace osu.Game.Tournament
         private ScheduledDelegate? scheduledHide;
 
         private TournamentScreen? temporaryScreen;
+
+        private Container defaultProxyChatContainer = null!;
+        private Container? currentProxyChatContainer;
+        private Drawable proxyChatContainer = null!;
+
+        public Drawable ProxyChatToContainer(Container c)
+        {
+            if (currentProxyChatContainer != null)
+                throw new InvalidOperationException("Previous proxy usage was not returned");
+
+            currentProxyChatContainer = c;
+
+            defaultProxyChatContainer.Remove(proxyChatContainer, false);
+            currentProxyChatContainer.Add(proxyChatContainer);
+            return proxyChatContainer;
+        }
+
+        public void ReturnProxyChat()
+        {
+            if (currentProxyChatContainer == null)
+                return;
+
+            currentProxyChatContainer.Remove(proxyChatContainer, false);
+            currentProxyChatContainer = null;
+
+            defaultProxyChatContainer.Add(proxyChatContainer);
+        }
 
         public void SetScreen(TournamentScreen screen)
         {
@@ -416,35 +432,6 @@ namespace osu.Game.Tournament
             }
 
             public Action<Type>? RequestSelection;
-        }
-
-        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral) => queueAnimation(new TournamentIntro(map, colour)
-        {
-            Anchor = Anchor.CentreLeft,
-            Origin = Anchor.CentreLeft,
-            X = CONTROL_AREA_WIDTH + STREAM_AREA_WIDTH / 2f,
-        });
-
-        public void ShowWinAnimation(TournamentTeam? team, TeamColour colour = TeamColour.Neutral) => queueAnimation(new RoundAnimation(team, colour)
-        {
-            Anchor = Anchor.CentreLeft,
-            Origin = Anchor.CentreLeft,
-        });
-
-        private void startAnimation(IAnimation animation)
-        {
-            AddInternal((Drawable)(currentAnimation = animation));
-
-            animation.Fire();
-            animation.OnAnimationComplete += () =>
-            {
-                animationQueue.Remove(animation);
-            };
-        }
-
-        private void queueAnimation(IAnimation d)
-        {
-            animationQueue.Add(d);
         }
 
         public void MoveChatTo(Vector2 pos, int duration, Easing easing) =>
