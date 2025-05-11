@@ -440,6 +440,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             base.LoadComplete();
             initializeBoard();
+            detectWin();
 
             currentRoundIndex.BindTo(CurrentMatch.Value?.CurrentRoundIndex);
             CurrentMatch.BindValueChanged(matchChanged);
@@ -490,6 +491,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             ResetSelectStatus();
             initializeBoard();
+            detectWin();
         }
 
         private void updateActionText(LocalisableString text, bool failing = false)
@@ -623,11 +625,26 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (couplets.red == 4 && couplets.blue == 4)
             {
+                // TieBreaker: TODO
                 setMode(TeamColour.Neutral, RoundStep.TieBreaker);
             }
-            else if (couplets.blue == 4 || couplets.red == 4)
+            else if (couplets.red == 4 || couplets.blue == 4)
             {
+                // Winner detected: Set winner and completion
+                int targetScore = CurrentMatch.Value.PointsToWin;
+
+                CurrentMatch.Value.Completed.Value = true;
                 setMode(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue, RoundStep.FinalWin);
+
+                CurrentMatch.Value.Team1Score.Value = couplets.red == 4 ? targetScore : 0;
+                CurrentMatch.Value.Team2Score.Value = couplets.blue == 4 ? targetScore : 0;
+            }
+            else
+            {
+                // No condition met: Reset status and clear scores
+                CurrentMatch.Value.Completed.Value = false;
+                CurrentMatch.Value.Team1Score.Value = 0;
+                CurrentMatch.Value.Team2Score.Value = 0;
             }
         }
 
