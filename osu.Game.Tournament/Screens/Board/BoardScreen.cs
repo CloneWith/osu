@@ -49,7 +49,7 @@ namespace osu.Game.Tournament.Screens.Board
         private TeamColour pickTeam;
         private RoundStep pickType;
 
-        private BindableInt currentRoundIndex = new BindableInt(1)
+        private readonly BindableInt currentRoundIndex = new BindableInt(1)
         {
             MinValue = 1,
             MaxValue = 32,
