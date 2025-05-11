@@ -76,6 +76,8 @@ namespace osu.Game.Tournament.Models
             MaxValue = 32,
         };
 
+        public TeamColour CurrentTeam => CurrentRoundIndex.Value % 2 == 1 ? TeamColour.Red : TeamColour.Blue;
+
         [JsonProperty]
         public readonly BindableList<ConditionalTournamentMatch> ConditionalMatches = new BindableList<ConditionalTournamentMatch>();
 
