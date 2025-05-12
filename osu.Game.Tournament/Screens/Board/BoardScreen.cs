@@ -1008,8 +1008,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (pickType == RoundStep.Pick)
             {
-                // Multiple pick records are not allowed
-                if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && p.CurrentType == ChoiceType.Pick))
+                // Pick records on existing ones are not allowed
+                if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId
+                                                                || (p.BoardRow == block?.BoardRow && p.BoardColumn == block.BoardColumn)))
                     return false;
 
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
