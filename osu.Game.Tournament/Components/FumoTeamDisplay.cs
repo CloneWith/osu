@@ -197,16 +197,16 @@ namespace osu.Game.Tournament.Components
             teamNameText.FlashColour(Color4.White, 1000, Easing.OutQuint);
             colourMask.FadeTo(0.75f, 300, Easing.OutQuint);
             activeIcon.FadeIn(300, Easing.OutQuint)
-                      .ScaleTo(1, 300, Easing.OutQuint)
-                      .RotateTo(15, 500, Easing.OutQuint);
+                      .ScaleTo(1, 300, Easing.OutCubic)
+                      .RotateTo(15, 500, Easing.OutCubic);
 
             // Looped animation
             using (BeginDelayedSequence(1500))
             {
-                colourMask.FadeTo(0.75f, loop_anim_duration, Easing.OutQuint).Delay(loop_delay)
-                          .FadeOut(loop_anim_duration, Easing.OutQuint).Delay(loop_delay).Loop();
-                activeIcon.FadeIn(loop_anim_duration, Easing.OutQuint).Delay(loop_delay)
-                          .FadeOut(loop_anim_duration, Easing.OutQuint).Delay(loop_delay).Loop();
+                colourMask.FadeTo(0.75f, loop_anim_duration, Easing.InOutCubic).Delay(loop_delay)
+                          .FadeOut(loop_anim_duration, Easing.InOutCubic).Delay(loop_delay).Loop();
+                activeIcon.FadeIn(loop_anim_duration, Easing.InOutCubic).Delay(loop_delay)
+                          .FadeOut(loop_anim_duration, Easing.InOutCubic).Delay(loop_delay).Loop();
             }
         }
 
