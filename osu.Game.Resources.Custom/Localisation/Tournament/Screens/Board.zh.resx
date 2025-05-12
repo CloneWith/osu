@@ -87,4 +87,7 @@
     <data name="preparation_mode" xml:space="preserve">
         <value>预备模式</value>
     </data>
+    <data name="enable_intro_animation" xml:space="preserve">
+        <value>选图入场动画</value>
+    </data>
 </root>

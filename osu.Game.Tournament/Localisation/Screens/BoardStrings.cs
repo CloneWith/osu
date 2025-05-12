@@ -71,6 +71,12 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString ClearSelection => new TranslatableString(getKey(@"clear_selection"), @"Clear Selection");
 
         /// <summary>
+        /// "Intro Animation"
+        /// </summary>
+        public static LocalisableString EnableIntroAnimation => new TranslatableString(getKey(@"enable_intro_animation"),
+            @"Intro Animation");
+
+        /// <summary>
         /// "The selected chess pieces must be in the same colour."
         /// </summary>
         public static LocalisableString SingleColourPrompt => new TranslatableString(getKey(@"single_colour_prompt"),

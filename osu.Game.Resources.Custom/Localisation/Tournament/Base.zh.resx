@@ -132,4 +132,7 @@
     <data name="no_beatmap_available" xml:space="preserve">
         <value>没有可用的谱面！</value>
     </data>
+    <data name="debug_settings" xml:space="preserve">
+        <value>调试设置</value>
+    </data>
 </root>

@@ -206,6 +206,11 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString NoBeatmapAvailable => new TranslatableString(getKey(@"no_beatmap_available"), @"No beatmap available!");
 
+        /// <summary>
+        /// "Debug Settings"
+        /// </summary>
+        public static LocalisableString DebugSettings => new TranslatableString(getKey(@"debug_settings"), @"Debug Settings");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

@@ -44,6 +44,8 @@ namespace osu.Game.Tournament.Screens.Board
         private readonly BindableBool preparationMode = new BindableBool(true);
         private readonly BindableBool shiroModeActivated = new BindableBool();
 
+        private readonly BindableBool enableIntroAnimation = new BindableBool(true);
+
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
@@ -423,6 +425,12 @@ namespace osu.Game.Tournament.Screens.Board
                             Text = BoardStrings.ClearSelection,
                             BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = clearShiroSelection,
+                        },
+                        new SectionHeader(BaseStrings.DebugSettings),
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.EnableIntroAnimation,
+                            Current = enableIntroAnimation,
                         },
                     },
                 },
@@ -1015,7 +1023,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
-                if (introMap != null)
+                if (enableIntroAnimation.Value && introMap != null)
                     ShowMapIntro(introMap, pickTeam);
             }
 
