@@ -344,6 +344,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     private readonly Bindable<string> mods = new Bindable<string>(string.Empty);
 
                     private readonly Bindable<string> difficultyField = new Bindable<string>(string.Empty);
+                    private readonly Bindable<double?> fixedStarDifficulty = new Bindable<double?>();
 
                     private readonly Container drawableContainer;
 
@@ -369,7 +370,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             new FillFlowContainer
                             {
                                 Margin = new MarginPadding(5),
-                                Spacing = new Vector2(5),
+                                Spacing = new Vector2(-10),
                                 Direction = FillDirection.Horizontal,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
@@ -400,6 +401,13 @@ namespace osu.Game.Tournament.Screens.Editors
                                         RelativeSizeAxes = Axes.None,
                                         Width = 250,
                                         Current = difficultyField,
+                                    },
+                                    new SettingsDecimalBox
+                                    {
+                                        LabelText = RoundEditorStrings.StarRatingOverride,
+                                        TooltipText = RoundEditorStrings.StarRatingOverrideTooltip,
+                                        Width = 0.1f,
+                                        Current = fixedStarDifficulty,
                                     },
                                     drawableContainer = new Container
                                     {
@@ -466,6 +474,9 @@ namespace osu.Game.Tournament.Screens.Editors
 
                         difficultyField.Default = difficultyField.Value = Model.DifficultyField;
                         difficultyField.BindValueChanged(field => Model.DifficultyField = field.NewValue);
+
+                        fixedStarDifficulty.Default = fixedStarDifficulty.Value = Model.FixedStarDifficulty;
+                        fixedStarDifficulty.BindValueChanged(field => Model.FixedStarDifficulty = field.NewValue);
                     }
 
                     private void updatePanel() => Schedule(() =>
@@ -478,7 +489,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Width = 500
+                                Width = 450,
                             };
                         }
                     });

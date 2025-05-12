@@ -74,6 +74,17 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// </summary>
         public static LocalisableString ModIndex => new TranslatableString(getKey(@"mod_index"), @"Mod Index");
 
+        /// <summary>
+        /// "Star Rating Override"
+        /// </summary>
+        public static LocalisableString StarRatingOverride => new TranslatableString(getKey(@"star_rating_override"), @"Star Rating Override");
+
+        /// <summary>
+        /// "Leave this field empty if you need to use the calculated star rating instead."
+        /// </summary>
+        public static LocalisableString StarRatingOverrideTooltip => new TranslatableString(getKey(@"star_rating_override_tooltip"),
+            @"Leave this field empty if you need to use the calculated star rating instead.");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

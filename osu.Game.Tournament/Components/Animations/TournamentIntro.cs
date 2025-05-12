@@ -264,7 +264,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                 },
-                                                new StarRatingDisplay(new StarDifficulty(map.Beatmap?.StarRating ?? 0, 0))
+                                                new StarRatingDisplay(new StarDifficulty(map.FixedStarDifficulty ?? map.Beatmap?.StarRating ?? 0, 0))
                                                 {
                                                     Shear = -OsuGame.SHEAR,
                                                     Margin = new MarginPadding(5),

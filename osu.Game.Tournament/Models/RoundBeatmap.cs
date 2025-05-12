@@ -13,6 +13,8 @@ namespace osu.Game.Tournament.Models
 
         public string DifficultyField = string.Empty;
 
+        public double? FixedStarDifficulty;
+
         // Board view specific
         public int BoardX = -1;
         public int BoardY = -1;

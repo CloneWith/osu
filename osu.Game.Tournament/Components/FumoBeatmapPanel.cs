@@ -189,7 +189,8 @@ namespace osu.Game.Tournament.Components
                         }
                     }
                 },
-                new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap.Beatmap?.StarRating ?? 0, 0), animated: true)
+                new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap.FixedStarDifficulty ?? Beatmap.Beatmap?.StarRating ?? 0, 0)
+                    , animated: true)
                 {
                     Name = @"Star rating pill",
                     Anchor = Anchor.BottomLeft,
