@@ -41,6 +41,7 @@ namespace osu.Game.Tournament.Screens.Board
         private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
         private readonly List<DrawableBoardBlock> selectedBlocks = new List<DrawableBoardBlock>();
 
+        private readonly BindableBool preparationMode = new BindableBool(true);
         private readonly BindableBool shiroModeActivated = new BindableBool();
 
         [Resolved]
@@ -266,6 +267,11 @@ namespace osu.Game.Tournament.Screens.Board
                                 }
                             },
                         },
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.PreparationMode,
+                            Current = preparationMode,
+                        },
                         new SectionHeader(BoardStrings.CurrentMode),
                         new GridContainer
                         {
@@ -439,11 +445,8 @@ namespace osu.Game.Tournament.Screens.Board
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            initializeBoard();
-            detectWin();
 
-            currentRoundIndex.BindTo(CurrentMatch.Value?.CurrentRoundIndex);
-            CurrentMatch.BindValueChanged(matchChanged);
+            CurrentMatch.BindValueChanged(matchChanged, true);
 
             LadderInfo.MainBoardSize.BindValueChanged(e =>
                 boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
@@ -487,7 +490,11 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
-            currentRoundIndex.BindTo(match.NewValue?.CurrentRoundIndex);
+            if (match.NewValue != null)
+            {
+                currentRoundIndex.BindTo(match.NewValue.CurrentRoundIndex);
+                preparationMode.BindTo(match.NewValue.PreparationMode);
+            }
 
             ResetSelectStatus();
             initializeBoard();

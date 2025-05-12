@@ -70,6 +70,8 @@ namespace osu.Game.Tournament.Models
 
         public readonly Bindable<DateTimeOffset> Date = new Bindable<DateTimeOffset>(DateTimeOffset.Now);
 
+        public readonly BindableBool PreparationMode = new BindableBool(true);
+
         public readonly BindableInt CurrentRoundIndex = new BindableInt(1)
         {
             MinValue = 1,

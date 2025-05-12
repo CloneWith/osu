@@ -84,4 +84,7 @@
     <data name="round_counter" xml:space="preserve">
         <value>回合计数器</value>
     </data>
+    <data name="preparation_mode" xml:space="preserve">
+        <value>预备模式</value>
+    </data>
 </root>

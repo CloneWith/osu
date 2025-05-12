@@ -167,8 +167,10 @@ namespace osu.Game.Tournament.Components
             };
         }
 
-        private void roundIndexChanged(ValueChangedEvent<int> index)
-            => IsActive = currentMatch.Value?.Completed.Value == false && currentMatch.Value.CurrentTeam == colour;
+        private void updateActiveState()
+            => IsActive = currentMatch.Value?.PreparationMode.Value == false
+                          && currentMatch.Value?.Completed.Value == false
+                          && currentMatch.Value.CurrentTeam == colour;
 
         private void updateMatch()
         {
@@ -177,7 +179,9 @@ namespace osu.Game.Tournament.Components
             if (match != null)
             {
                 match.StartMatch();
-                match.CurrentRoundIndex.BindValueChanged(roundIndexChanged, true);
+                match.CurrentRoundIndex.BindValueChanged(_ => updateActiveState(), true);
+                match.PreparationMode.BindValueChanged(_ => updateActiveState());
+                match.Completed.BindValueChanged(_ => updateActiveState());
                 currentTeam.BindTo(colour == TeamColour.Red ? match.Team1 : match.Team2);
             }
 

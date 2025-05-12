@@ -20,6 +20,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString RoundCounter => new TranslatableString(getKey(@"round_counter"), @"Round Counter");
 
         /// <summary>
+        /// "Preparation Mode"
+        /// </summary>
+        public static LocalisableString PreparationMode => new TranslatableString(getKey(@"preparation_mode"), @"Preparation Mode");
+
+        /// <summary>
         /// "Cannot find a Pick record associated with the selected beatmap."
         /// </summary>
         public static LocalisableString PicksUnavailable => new TranslatableString(getKey(@"pick_unavailable"),
