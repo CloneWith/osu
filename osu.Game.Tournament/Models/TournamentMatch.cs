@@ -72,10 +72,10 @@ namespace osu.Game.Tournament.Models
 
         public readonly BindableBool PreparationMode = new BindableBool(true);
 
-        public readonly BindableInt CurrentRoundIndex = new BindableInt(1)
+        public readonly BindableInt CurrentRoundIndex = new BindableInt(-1)
         {
-            MinValue = 1,
-            MaxValue = 32,
+            MinValue = -1,
+            MaxValue = 128,
         };
 
         public TeamColour CurrentTeam => CurrentRoundIndex.Value % 2 == 1 ? TeamColour.Red : TeamColour.Blue;

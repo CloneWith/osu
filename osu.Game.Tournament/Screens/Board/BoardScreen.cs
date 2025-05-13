@@ -52,10 +52,10 @@ namespace osu.Game.Tournament.Screens.Board
         private TeamColour pickTeam;
         private RoundStep pickType;
 
-        private readonly BindableInt currentRoundIndex = new BindableInt(1)
+        private readonly BindableInt currentRoundIndex = new BindableInt(-1)
         {
-            MinValue = 1,
-            MaxValue = 32,
+            MinValue = -1,
+            MaxValue = 128,
         };
 
         private Container mainContainer = null!;
@@ -256,7 +256,7 @@ namespace osu.Game.Tournament.Screens.Board
                                         Action = () => currentRoundIndex.Value--,
                                         Padding = new MarginPadding { Right = 5 },
                                     },
-                                    roundNumberBox = new OsuNumberBox
+                                    roundNumberBox = new OsuNumberBox(allowNegative: true)
                                     {
                                         RelativeSizeAxes = Axes.X,
                                     },
