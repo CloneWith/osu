@@ -84,4 +84,10 @@
     <data name="update_owner_description" xml:space="preserve">
         <value>消耗连对来夺取对方赢棋。</value>
     </data>
+    <data name="ban_short" xml:space="preserve">
+        <value>禁图</value>
+    </data>
+    <data name="pick_short" xml:space="preserve">
+        <value>选图</value>
+    </data>
 </root>

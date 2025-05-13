@@ -125,11 +125,21 @@ namespace osu.Game.Tournament.Screens.Board
                                     RelativePositionAxes = Axes.Both,
                                     Height = 0.7f,
                                     Padding = new MarginPadding { Bottom = 5f },
-                                    Child = new EmptyBox(10)
+                                    Children = new Drawable[]
                                     {
-                                        Colour = Color4Extensions.FromHex("#454545"),
-                                        Alpha = 0.74f,
-                                        RelativeSizeAxes = Axes.Both,
+                                        new EmptyBox(10)
+                                        {
+                                            Colour = Color4Extensions.FromHex("#454545"),
+                                            Alpha = 0.74f,
+                                            RelativeSizeAxes = Axes.Both,
+                                        },
+                                        new RoundCounterLine
+                                        {
+                                            Anchor = Anchor.BottomCentre,
+                                            Origin = Anchor.BottomCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            Margin = new MarginPadding { Bottom = 5 },
+                                        },
                                     },
                                 },
                                 chatContainer = new Container

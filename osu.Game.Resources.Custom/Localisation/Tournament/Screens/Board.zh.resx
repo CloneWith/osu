@@ -90,4 +90,10 @@
     <data name="enable_intro_animation" xml:space="preserve">
         <value>选图入场动画</value>
     </data>
+    <data name="current_round" xml:space="preserve">
+        <value>当前回合</value>
+    </data>
+    <data name="round_action_prompt" xml:space="preserve">
+        <value>{0}{1}</value>
+    </data>
 </root>

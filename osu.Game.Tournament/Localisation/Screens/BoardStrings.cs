@@ -142,6 +142,18 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString KeepCurrentState => new TranslatableString(getKey(@"keep_current_state"),
             @"I'd rather stay the same.");
 
+        /// <summary>
+        /// "Current Round"
+        /// </summary>
+        public static LocalisableString CurrentRound => new TranslatableString(getKey(@"current_round"),
+            @"Current Round");
+
+        /// <summary>
+        /// "{0} {1}"
+        /// </summary>
+        public static LocalisableString RoundActionPrompt(LocalisableString team, LocalisableString action)
+            => new TranslatableString(getKey(@"round_action_prompt"), @"{0} {1}", team, action);
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
