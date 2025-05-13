@@ -5,12 +5,17 @@ namespace osu.Game.Graphics.UserInterface
 {
     public partial class OsuDecimalBox : OsuTextBox
     {
-        public OsuDecimalBox()
+        private readonly bool allowNegative;
+
+        public OsuDecimalBox(bool allowNegative = false)
         {
+            this.allowNegative = allowNegative;
             SelectAllOnFocus = true;
         }
 
         protected override bool CanAddCharacter(char character)
-            => char.IsAsciiDigit(character) || (character == '.' && !Text.Contains('.'));
+            => char.IsAsciiDigit(character)
+               || (character == '.' && !Text.Contains('.'))
+               || (allowNegative && character == '-' && !Text.Contains('-'));
     }
 }

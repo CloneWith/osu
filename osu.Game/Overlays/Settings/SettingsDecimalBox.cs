@@ -10,7 +10,11 @@ namespace osu.Game.Overlays.Settings
 {
     public partial class SettingsDecimalBox : SettingsItem<double?>
     {
-        protected override Drawable CreateControl() => new DecimalControl
+        private readonly bool allowNegative;
+
+        public SettingsDecimalBox(bool allowNegative = false) => this.allowNegative = allowNegative;
+
+        protected override Drawable CreateControl() => new DecimalControl(allowNegative)
         {
             RelativeSizeAxes = Axes.X,
         };
@@ -25,7 +29,7 @@ namespace osu.Game.Overlays.Settings
                 set => current.Current = value;
             }
 
-            public DecimalControl()
+            public DecimalControl(bool allowNegative = false)
             {
                 AutoSizeAxes = Axes.Y;
 
@@ -33,7 +37,7 @@ namespace osu.Game.Overlays.Settings
 
                 InternalChildren = new[]
                 {
-                    numberBox = new OutlinedDecimalBox
+                    numberBox = new OutlinedDecimalBox(allowNegative)
                     {
                         RelativeSizeAxes = Axes.X,
                         CommitOnFocusLost = true
@@ -48,8 +52,8 @@ namespace osu.Game.Overlays.Settings
                         return;
                     }
 
-                    if (double.TryParse(textBox.Text, out double intVal))
-                        Current.Value = intVal;
+                    if (double.TryParse(textBox.Text, out double doubleVal))
+                        Current.Value = doubleVal;
                     else
                         numberBox.NotifyInputError();
 
@@ -66,8 +70,14 @@ namespace osu.Game.Overlays.Settings
 
         private partial class OutlinedDecimalBox : OutlinedTextBox
         {
+            private readonly bool allowNegative;
+
+            public OutlinedDecimalBox(bool allowNegative = false) => this.allowNegative = allowNegative;
+
             protected override bool CanAddCharacter(char character)
-                => char.IsAsciiDigit(character) || (character == '.' && !Text.Contains('.'));
+                => char.IsAsciiDigit(character)
+                   || (character == '.' && !Text.Contains('.'))
+                   || (allowNegative && character == '-' && !Text.Contains('-'));
 
             public new void NotifyInputError() => base.NotifyInputError();
         }
