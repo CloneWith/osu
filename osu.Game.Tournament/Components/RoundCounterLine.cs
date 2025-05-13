@@ -124,21 +124,14 @@ namespace osu.Game.Tournament.Components
             }
 
             int index = currentMatch.CurrentRoundIndex.Value;
+            LocalisableString teamString = TournamentGame.GetTeamString(currentMatch.CurrentTeam);
 
-            TeamColour team = index switch
-            {
-                -1 => TeamColour.Red,
-                0 => TeamColour.Blue,
-                _ => currentMatch.CurrentTeam,
-            };
-            LocalisableString teamString = TournamentGame.GetTeamString(team);
-
-            counterBackground.FadeColour(TournamentGame.GetTeamColour(team), 500, Easing.OutQuint);
+            counterBackground.FadeColour(TournamentGame.GetTeamColour(currentMatch.CurrentTeam), 500, Easing.OutQuint);
             roundIndexText.Text = index <= 0 ? @"..." : index.ToString();
             actionText.Text = BoardStrings.RoundActionPrompt(teamString,
                 index <= 0 ? InstructionsStrings.BanShort : InstructionsStrings.PickShort);
 
-            actionText.Colour = TournamentGame.GetTeamColour(team);
+            actionText.Colour = TournamentGame.GetTeamColour(currentMatch.CurrentTeam);
             actionText.FlashColour(Color4.White, 600, Easing.OutQuint);
         }
     }
