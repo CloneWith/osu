@@ -436,6 +436,17 @@ namespace osu.Game.Tournament.Screens.Board
                             BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = clearShiroSelection,
                         },
+                        new SectionHeader(SetupStrings.AutomationHeader),
+                        new LabelledSwitchButton
+                        {
+                            Label = SetupStrings.AutoUpdateRound,
+                            Current = LadderInfo.AutoProgressRound,
+                        },
+                        new LabelledSwitchButton
+                        {
+                            Label = SetupStrings.AutoAdvanceScreens,
+                            Current = LadderInfo.AutoProgressScreens,
+                        },
                         new SectionHeader(BaseStrings.DebugSettings),
                         new LabelledSwitchButton
                         {

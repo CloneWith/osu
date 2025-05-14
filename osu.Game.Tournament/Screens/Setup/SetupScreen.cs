@@ -164,10 +164,16 @@ namespace osu.Game.Tournament.Screens.Setup
                 new SectionHeader(SetupStrings.AutomationHeader),
                 new LabelledSwitchButton
                 {
-                    Label = SetupStrings.AutoAdvance,
-                    Description = SetupStrings.AutoAdvanceDescription,
+                    Label = SetupStrings.AutoUpdateRound,
+                    Description = SetupStrings.AutoUpdateRoundDescription,
+                    Current = LadderInfo.AutoProgressRound,
+                },
+                new LabelledSwitchButton
+                {
+                    Label = SetupStrings.AutoAdvanceScreens,
+                    Description = SetupStrings.AutoAdvanceScreensDescription,
                     Current = LadderInfo.AutoProgressScreens,
-                }
+                },
             };
         }
 

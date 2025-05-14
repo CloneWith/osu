@@ -84,10 +84,10 @@
     <data name="automation_header" xml:space="preserve">
         <value>自动化</value>
     </data>
-    <data name="auto_advance" xml:space="preserve">
+    <data name="auto_advance_screens" xml:space="preserve">
         <value>自动推进屏幕</value>
     </data>
-    <data name="auto_advance_description" xml:space="preserve">
+    <data name="auto_advance_screens_description" xml:space="preserve">
         <value>将按流程条件自动切换屏幕，如游玩展示-&gt;结果展示-&gt;图池。</value>
     </data>
     <data name="close_osu" xml:space="preserve">
@@ -95,5 +95,11 @@
     </data>
     <data name="open_folder" xml:space="preserve">
         <value>打开目录</value>
+    </data>
+    <data name="auto_update_round" xml:space="preserve">
+        <value>自动更新回合数</value>
+    </data>
+    <data name="auto_update_round_description" xml:space="preserve">
+        <value>回合数将在每次成功操作后更新。</value>
     </data>
 </root>

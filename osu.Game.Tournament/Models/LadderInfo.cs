@@ -47,6 +47,8 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> UseUtcTime = new BindableBool();
 
+        public Bindable<bool> AutoProgressRound = new BindableBool();
+
         public Bindable<bool> AutoProgressScreens = new BindableBool(true);
 
         public Bindable<bool> SplitMapPoolByMods = new BindableBool(true);

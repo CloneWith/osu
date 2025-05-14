@@ -127,14 +127,25 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString AutomationHeader => new TranslatableString(getKey(@"automation_header"), @"Automation");
 
         /// <summary>
+        /// "Auto update round count"
+        /// </summary>
+        public static LocalisableString AutoUpdateRound => new TranslatableString(getKey(@"auto_update_round"), @"Auto advance round count");
+
+        /// <summary>
+        /// "The round count will update each round upon successful actions."
+        /// </summary>
+        public static LocalisableString AutoUpdateRoundDescription => new TranslatableString(getKey(@"auto_update_round_description"),
+            @"The round count will update each round upon successful actions.");
+
+        /// <summary>
         /// "Auto advance screens"
         /// </summary>
-        public static LocalisableString AutoAdvance => new TranslatableString(getKey(@"auto_advance"), @"Auto advance screens");
+        public static LocalisableString AutoAdvanceScreens => new TranslatableString(getKey(@"auto_advance_screens"), @"Auto advance screens");
 
         /// <summary>
         /// "Screens will progress automatically from gameplay -> results -> map pool"
         /// </summary>
-        public static LocalisableString AutoAdvanceDescription => new TranslatableString(getKey(@"auto_advance_description"),
+        public static LocalisableString AutoAdvanceScreensDescription => new TranslatableString(getKey(@"auto_advance_screens_description"),
             @"Screens will progress automatically from gameplay -> results -> map pool");
 
         /// <summary>
