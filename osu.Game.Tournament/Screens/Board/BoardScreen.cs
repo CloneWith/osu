@@ -893,21 +893,22 @@ namespace osu.Game.Tournament.Screens.Board
 
             var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
 
-            if (chessPiece == null)
-                return true;
-
-            placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
-
-            if (placement != null)
+            if (chessPiece != null)
             {
-                chessPiece.OwnerTeam = placement.OwnerTeam;
-                chessPiece.CurrentType = placement.CurrentType;
-            }
-            else
-            {
-                chessPiece.Remove();
+                placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+                if (placement != null)
+                {
+                    chessPiece.OwnerTeam = placement.OwnerTeam;
+                    chessPiece.CurrentType = placement.CurrentType;
+                }
+                else
+                {
+                    chessPiece.Remove();
+                }
             }
 
+            setNextMode(undo: true);
             return true;
         }
 
@@ -973,6 +974,19 @@ namespace osu.Game.Tournament.Screens.Board
             pickType = RoundStep.Default;
         }
 
+        private void setNextMode(bool undo = false)
+        {
+            if (CurrentMatch.Value == null || !LadderInfo.AutoProgressRound.Value)
+                return;
+
+            if (undo)
+                CurrentMatch.Value.CurrentRoundIndex.Value--;
+            else
+                CurrentMatch.Value.CurrentRoundIndex.Value++;
+
+            setMode(CurrentMatch.Value.CurrentTeam, CurrentMatch.Value.CurrentRoundIndex.Value <= 0 ? RoundStep.Ban : RoundStep.Pick);
+        }
+
         private void showFail(DrawableBoardBlock? flashBlock)
         {
             flashBlock?.FlashIcon(FontAwesome.Solid.Times);
@@ -1003,6 +1017,8 @@ namespace osu.Game.Tournament.Screens.Board
                 chess.OwnerTeam = pickTeam;
                 chess.CurrentType = TournamentGame.ToChoiceType(pickType, pickTeam);
             }
+
+            setNextMode();
 
             return true;
         }
@@ -1068,7 +1084,8 @@ namespace osu.Game.Tournament.Screens.Board
                     pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
             }
 
-            // setNextMode(); // Uncomment if you still want to automatically set the next mode
+            if (pickType is RoundStep.Ban)
+                setNextMode();
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
