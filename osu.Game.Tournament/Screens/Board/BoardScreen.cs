@@ -1026,14 +1026,20 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (pickType == RoundStep.Pick)
             {
+                if (block == null)
+                    return false;
+
                 // Pick records on existing ones are not allowed
                 if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId
-                                                                || (p.BoardRow == block?.BoardRow && p.BoardColumn == block.BoardColumn)))
+                                                                || (p.BoardRow == block.BoardRow && p.BoardColumn == block.BoardColumn)))
                     return false;
 
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
-                if (enableIntroAnimation.Value && introMap != null)
+                if (introMap == null || !isValidArea(introMap.Mods, block.BoardRow, block.BoardColumn))
+                    return false;
+
+                if (enableIntroAnimation.Value)
                     ShowMapIntro(introMap, pickTeam);
             }
 
@@ -1111,6 +1117,14 @@ namespace osu.Game.Tournament.Screens.Board
                 }
             }
         }
+
+        private bool isValidArea(string acronym, int row, int column) => acronym.ToUpperInvariant() switch
+        {
+            @"HR" => row > 2 && column <= 2,
+            @"HD" => row <= 2 && column > 2,
+            @"DT" => (row <= 2 && column <= 2) || (row > 2 && column > 2),
+            _ => true,
+        };
 
         private bool isSameStep(ChoiceType choiceType, RoundStep step)
             => step switch
