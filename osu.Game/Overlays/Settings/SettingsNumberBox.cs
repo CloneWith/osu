@@ -12,6 +12,11 @@ namespace osu.Game.Overlays.Settings
     {
         private readonly bool allowNegative;
 
+        public SettingsNumberBox()
+            : this(false)
+        {
+        }
+
         public SettingsNumberBox(bool allowNegative = false) => this.allowNegative = allowNegative;
 
         protected override Drawable CreateControl() => new NumberControl(allowNegative)

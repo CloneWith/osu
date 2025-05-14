@@ -12,6 +12,11 @@ namespace osu.Game.Overlays.Settings
     {
         private readonly bool allowNegative;
 
+        public SettingsDecimalBox()
+            : this(false)
+        {
+        }
+
         public SettingsDecimalBox(bool allowNegative = false) => this.allowNegative = allowNegative;
 
         protected override Drawable CreateControl() => new DecimalControl(allowNegative)
