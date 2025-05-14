@@ -956,6 +956,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value != null)
             {
+                CurrentMatch.Value.PreparationMode.Value = true;
+                CurrentMatch.Value.CurrentRoundIndex.Value = -1;
+
                 CurrentMatch.Value.Completed.Value = false;
                 CurrentMatch.Value.Team1Score.Value = 0;
                 CurrentMatch.Value.Team2Score.Value = 0;
