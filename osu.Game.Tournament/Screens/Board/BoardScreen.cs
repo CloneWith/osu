@@ -626,8 +626,10 @@ namespace osu.Game.Tournament.Screens.Board
             // Have checked in checkSelected, guaranteed to have exactly one group
             TeamColour targetTeam = placements.GroupBy(p => p.OwnerTeam).Single().Key;
             int coupletCount = targetTeam == TeamColour.Red ? couplets.red : couplets.blue;
+            (int remainRed, int remainBlue) = TournamentMatch.GetMaximumSuccessiveChess(placements.Skip(2));
+            int remainCount = targetTeam == TeamColour.Red ? remainRed : remainBlue;
 
-            if (coupletCount == 3 || (coupletCount == 2 && placements.Count() - coupletCount == 2))
+            if (coupletCount == 3 || (coupletCount == 2 && remainCount == 2))
             {
                 pickTeam = targetTeam;
                 pickType = RoundStep.UpdateOwner;
