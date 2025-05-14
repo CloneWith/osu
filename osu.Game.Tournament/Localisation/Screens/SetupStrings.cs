@@ -132,10 +132,10 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString AutoUpdateRound => new TranslatableString(getKey(@"auto_update_round"), @"Auto advance round count");
 
         /// <summary>
-        /// "The round count will update each round upon successful actions."
+        /// "The round count and the current mode will be updated each round upon successful actions."
         /// </summary>
         public static LocalisableString AutoUpdateRoundDescription => new TranslatableString(getKey(@"auto_update_round_description"),
-            @"The round count will update each round upon successful actions.");
+            @"The round count and the current mode will be updated each round upon successful actions.");
 
         /// <summary>
         /// "Auto advance screens"

@@ -100,6 +100,6 @@
         <value>自动更新回合数</value>
     </data>
     <data name="auto_update_round_description" xml:space="preserve">
-        <value>回合数将在每次成功操作后更新。</value>
+        <value>回合数与当前操作将在每次成功操作后更新。</value>
     </data>
 </root>
