@@ -75,7 +75,7 @@ namespace osu.Game.Tournament.Models
         public readonly BindableInt CurrentRoundIndex = new BindableInt(-1)
         {
             MinValue = -1,
-            MaxValue = 128,
+            MaxValue = 17,
         };
 
         public TeamColour CurrentTeam => CurrentRoundIndex.Value switch

@@ -55,7 +55,7 @@ namespace osu.Game.Tournament.Screens.Board
         private readonly BindableInt currentRoundIndex = new BindableInt(-1)
         {
             MinValue = -1,
-            MaxValue = 128,
+            MaxValue = 17,
         };
 
         private Container mainContainer = null!;
