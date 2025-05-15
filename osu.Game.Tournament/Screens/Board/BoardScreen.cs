@@ -461,16 +461,16 @@ namespace osu.Game.Tournament.Screens.Board
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Win",
                                         BackgroundColour = TournamentGame.COLOUR_RED,
-                                        Enabled = { Value = false },
                                         Action = () => setWin(TeamColour.Red),
+                                        Enabled = { Value = false },
                                     },
                                     buttonTiebreakerBlueWin = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Win",
                                         BackgroundColour = TournamentGame.COLOUR_BLUE,
-                                        Enabled = { Value = false },
                                         Action = () => setWin(TeamColour.Blue),
+                                        Enabled = { Value = false },
                                     },
                                 },
                             },
