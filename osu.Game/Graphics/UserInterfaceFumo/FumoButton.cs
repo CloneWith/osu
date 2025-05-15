@@ -60,8 +60,6 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         public FumoButton(FillDirection direction = FillDirection.Horizontal)
         {
             Content.Name = "Content of FumoButton";
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
             LayoutDirection = direction;
             AutoSizeAxes = Axes.Both;
 
