@@ -25,6 +25,21 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString PreparationMode => new TranslatableString(getKey(@"preparation_mode"), @"Preparation Mode");
 
         /// <summary>
+        /// "Tiebreaker Control"
+        /// </summary>
+        public static LocalisableString TiebreakerControl => new TranslatableString(getKey(@"tiebreaker_control"), @"Tiebreaker Control");
+
+        /// <summary>
+        /// "TB Status"
+        /// </summary>
+        public static LocalisableString TiebreakerIndicator => new TranslatableString(getKey(@"tiebreaker_indicator"), @"TB Status");
+
+        /// <summary>
+        /// "Enter TB"
+        /// </summary>
+        public static LocalisableString EnterTiebreaker => new TranslatableString(getKey(@"enter_tiebreaker"), @"Enter TB");
+
+        /// <summary>
         /// "Cannot find a Pick record associated with the selected beatmap."
         /// </summary>
         public static LocalisableString PicksUnavailable => new TranslatableString(getKey(@"pick_unavailable"),

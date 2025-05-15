@@ -77,7 +77,10 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
 
+        private ClickTwiceButton buttonEnterTiebreaker = null!;
         private OsuButton buttonIndicator = null!;
+        private OsuButton buttonTiebreakerRedWin = null!;
+        private OsuButton buttonTiebreakerBlueWin = null!;
 
         private TournamentSpriteText actionStateText = null!;
 
@@ -365,15 +368,6 @@ namespace osu.Game.Tournament.Screens.Board
                             Current = LadderInfo.MainBoardSize,
                             Caption = BoardStrings.MainBoardAreaSize,
                         },
-                        new ControlPanel.Spacer(),
-                        buttonIndicator = new TourneyButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Text = "TB Indicator",
-                            BackgroundColour = Color4.Purple,
-                            Colour = Color4.Gray,
-                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
-                        },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
@@ -435,6 +429,51 @@ namespace osu.Game.Tournament.Screens.Board
                             Text = BoardStrings.ClearSelection,
                             BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = clearShiroSelection,
+                        },
+                        new SectionHeader(BoardStrings.TiebreakerControl),
+                        buttonIndicator = new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.TiebreakerIndicator,
+                            BackgroundColour = Color4.Purple,
+                            Colour = Color4.Gray,
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
+                        },
+                        buttonEnterTiebreaker = new ClickTwiceButton
+                        {
+                            AutoSizeAxes = Axes.None,
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            IdleIcon = FontAwesome.Solid.ArrowRight,
+                            Text = BoardStrings.EnterTiebreaker,
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.TieBreaker),
+                        },
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    buttonTiebreakerRedWin = new TourneyButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = "Red Win",
+                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        Enabled = { Value = false },
+                                        Action = () => setWin(TeamColour.Red),
+                                    },
+                                    buttonTiebreakerBlueWin = new TourneyButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = "Blue Win",
+                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        Enabled = { Value = false },
+                                        Action = () => setWin(TeamColour.Blue),
+                                    },
+                                },
+                            },
                         },
                         new SectionHeader(SetupStrings.AutomationHeader),
                         new LabelledSwitchButton
@@ -499,6 +538,11 @@ namespace osu.Game.Tournament.Screens.Board
                 roundMinusButton.Enabled.Value = e.NewValue > currentRoundIndex.MinValue;
                 roundPlusButton.Enabled.Value = e.NewValue < currentRoundIndex.MaxValue;
                 roundNumberBox.Text = e.NewValue.ToString();
+
+                if (e.NewValue == 17)
+                    setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+
+                buttonEnterTiebreaker.Enabled.Value = e.NewValue == 13;
             }, true);
 
             roundNumberBox.OnCommit += (_, newText) =>
@@ -550,6 +594,10 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (stepType != RoundStep.Shiro)
                 shiroModeActivated.Value = false;
+
+            buttonEnterTiebreaker.Enabled.Value = !(pickType is RoundStep.TieBreaker or RoundStep.FinalWin);
+            buttonTiebreakerRedWin.Enabled.Value = pickType == RoundStep.TieBreaker;
+            buttonTiebreakerBlueWin.Enabled.Value = pickType == RoundStep.TieBreaker;
 
             buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
@@ -669,13 +717,7 @@ namespace osu.Game.Tournament.Screens.Board
             else if (couplets.red == 4 || couplets.blue == 4)
             {
                 // Winner detected: Set winner and completion
-                int targetScore = CurrentMatch.Value.PointsToWin;
-
-                CurrentMatch.Value.Completed.Value = true;
-                setMode(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue, RoundStep.FinalWin);
-
-                CurrentMatch.Value.Team1Score.Value = couplets.red == 4 ? targetScore : 0;
-                CurrentMatch.Value.Team2Score.Value = couplets.blue == 4 ? targetScore : 0;
+                setWin(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue);
             }
             else
             {
@@ -684,6 +726,19 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Team1Score.Value = 0;
                 CurrentMatch.Value.Team2Score.Value = 0;
             }
+        }
+
+        private void setWin(TeamColour colour)
+        {
+            if (!(colour is TeamColour.Blue or TeamColour.Red))
+                return;
+
+            int targetScore = CurrentMatch.Value.PointsToWin;
+
+            setMode(colour, RoundStep.FinalWin);
+
+            CurrentMatch.Value.Team1Score.Value = colour == TeamColour.Red ? targetScore : 0;
+            CurrentMatch.Value.Team2Score.Value = colour == TeamColour.Blue ? targetScore : 0;
         }
 
         protected override bool OnMouseDown(MouseDownEvent e)

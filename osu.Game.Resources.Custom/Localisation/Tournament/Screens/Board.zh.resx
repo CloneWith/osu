@@ -96,4 +96,13 @@
     <data name="round_action_prompt" xml:space="preserve">
         <value>{0}{1}</value>
     </data>
+    <data name="tiebreaker_control" xml:space="preserve">
+        <value>TB 控制</value>
+    </data>
+    <data name="tiebreaker_indicator" xml:space="preserve">
+        <value>TB 状态</value>
+    </data>
+    <data name="enter_tiebreaker" xml:space="preserve">
+        <value>进入 TB 阶段</value>
+    </data>
 </root>
