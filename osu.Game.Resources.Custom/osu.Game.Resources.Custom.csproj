@@ -13,6 +13,5 @@
     <Folder Include="Properties\" />
     <Folder Include="Textures\" />
     <Folder Include="Shaders\" />
-    <Folder Include="Samples\" />
   </ItemGroup>
 </Project>

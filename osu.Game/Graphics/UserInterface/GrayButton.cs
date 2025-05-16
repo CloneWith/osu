@@ -22,12 +22,14 @@ namespace osu.Game.Graphics.UserInterface
         [Resolved]
         private OsuColour colours { get; set; }
 
-        public GrayButton(IconUsage icon)
+        public GrayButton(IconUsage icon, HoverSampleSet sampleSet = HoverSampleSet.Button)
+            : base(sampleSet)
         {
             this.icon = icon;
         }
 
-        public GrayButton(IconUsage icon, Vector2 iconSize)
+        public GrayButton(IconUsage icon, Vector2 iconSize, HoverSampleSet sampleSet = HoverSampleSet.Button)
+            : base(sampleSet)
         {
             this.icon = icon;
             this.iconSize = iconSize;
