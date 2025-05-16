@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Audio;
+using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -88,10 +90,18 @@ namespace osu.Game.Tournament.Screens.Board
 
         private ScheduledDelegate? scheduledScreenChange;
 
+        private Sample? placeChessSample;
+        private Sample? updateOwnerSample;
+        private Sample? unavailableSample;
+
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load(TextureStore textures, AudioManager audio)
         {
             var boardTexture = textures.Get("Board/board");
+
+            placeChessSample = audio.Samples.Get("Board/place");
+            updateOwnerSample = audio.Samples.Get("Board/update");
+            unavailableSample = audio.Samples.Get("unavailable");
 
             InternalChildren = new Drawable[]
             {
@@ -263,7 +273,7 @@ namespace osu.Game.Tournament.Screens.Board
                             {
                                 new Drawable[]
                                 {
-                                    roundMinusButton = new GrayButton(FontAwesome.Solid.Minus)
+                                    roundMinusButton = new GrayButton(FontAwesome.Solid.Minus, HoverSampleSet.ButtonSidebar)
                                     {
                                         RelativeSizeAxes = Axes.Both,
                                         Action = () => currentRoundIndex.Value--,
@@ -273,7 +283,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         RelativeSizeAxes = Axes.X,
                                     },
-                                    roundPlusButton = new GrayButton(FontAwesome.Solid.Plus)
+                                    roundPlusButton = new GrayButton(FontAwesome.Solid.Plus, HoverSampleSet.ButtonSidebar)
                                     {
                                         RelativeSizeAxes = Axes.Both,
                                         Action = () => currentRoundIndex.Value++,
@@ -730,7 +740,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void setWin(TeamColour colour)
         {
-            if (!(colour is TeamColour.Blue or TeamColour.Red))
+            if (CurrentMatch.Value == null || !(colour is TeamColour.Blue or TeamColour.Red))
                 return;
 
             int targetScore = CurrentMatch.Value.PointsToWin;
@@ -919,6 +929,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                 case false:
                     showFail(block);
+                    unavailableSample?.Play();
                     break;
             }
 
@@ -1076,6 +1087,7 @@ namespace osu.Game.Tournament.Screens.Board
                 chess.CurrentType = TournamentGame.ToChoiceType(pickType, pickTeam);
             }
 
+            updateOwnerSample?.Play();
             setNextMode();
 
             return true;
@@ -1092,6 +1104,7 @@ namespace osu.Game.Tournament.Screens.Board
                     pickTeam, ChoiceType.Pick));
 
                 addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
+                placeChessSample?.Play();
 
                 return true;
             }
