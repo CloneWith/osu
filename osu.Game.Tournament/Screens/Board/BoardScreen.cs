@@ -1112,8 +1112,6 @@ namespace osu.Game.Tournament.Screens.Board
                     pickTeam, ChoiceType.Pick));
 
                 addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
-                placeChessSample?.Play();
-
                 return true;
             }
 
@@ -1178,7 +1176,8 @@ namespace osu.Game.Tournament.Screens.Board
         }
 
         private void addSingleChess(int beatmapId, int row, int column,
-                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral)
+                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral,
+                                    bool omitSound = false)
         {
             var block = blocks.FirstOrDefault(b => b.BoardRow == row && b.BoardColumn == column);
 
@@ -1203,6 +1202,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             newPiece.FadeIn(500, Easing.OutQuint);
             newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
+
+            if (!omitSound)
+                placeChessSample?.Play();
         }
 
         private void initializeBoard()
@@ -1221,7 +1223,7 @@ namespace osu.Game.Tournament.Screens.Board
                         p.BoardRow == i && p.BoardColumn == j);
 
                     if (placement != null)
-                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType);
+                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType, true);
                 }
             }
         }
