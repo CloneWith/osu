@@ -918,6 +918,11 @@ namespace osu.Game.Tournament.Screens.Board
                     }
                 }
             }
+            else
+            {
+                // Immediately return without playing samples when nothing notable is clicked
+                return true;
+            }
 
             switch (succeeded)
             {
