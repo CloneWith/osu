@@ -28,6 +28,7 @@ using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
+using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.TeamWin;
 using osuTK;
 using osuTK.Graphics;
@@ -108,7 +109,7 @@ namespace osu.Game.Tournament.Screens.Board
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 },
-                new FumoMatchHeader(),
+                new FumoMatchHeader(false),
 
                 mainContainer = new Container
                 {
@@ -143,6 +144,13 @@ namespace osu.Game.Tournament.Screens.Board
                                             Colour = Color4Extensions.FromHex("#454545"),
                                             Alpha = 0.74f,
                                             RelativeSizeAxes = Axes.Both,
+                                        },
+                                        new MatchRoundDisplay
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            Y = 5,
+                                            Scale = new Vector2(0.45f),
                                         },
                                         new RoundCounterLine
                                         {

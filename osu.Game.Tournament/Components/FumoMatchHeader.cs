@@ -12,6 +12,13 @@ namespace osu.Game.Tournament.Components
 {
     public partial class FumoMatchHeader : Container
     {
+        private readonly bool showRoundDisplay;
+
+        public FumoMatchHeader(bool showRoundDisplay = true)
+        {
+            this.showRoundDisplay = showRoundDisplay;
+        }
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -37,6 +44,7 @@ namespace osu.Game.Tournament.Components
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Scale = new Vector2(0.4f),
+                            Alpha = showRoundDisplay ? 1 : 0,
                         },
                     },
                 },
