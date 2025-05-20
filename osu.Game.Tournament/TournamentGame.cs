@@ -124,6 +124,8 @@ namespace osu.Game.Tournament
 
         public const int RESERVED_BEATMAP_ID = -1;
 
+        public const int TIE_BREAKER_ROUND = 17;
+
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
         public static readonly Color4 COLOUR_CHOICES = Color4.Orange;

@@ -170,6 +170,7 @@ namespace osu.Game.Tournament.Components
         private void updateActiveState()
             => IsActive = currentMatch.Value?.PreparationMode.Value == false
                           && currentMatch.Value?.Completed.Value == false
+                          && currentMatch.Value.CurrentRoundIndex.Value != TournamentGame.TIE_BREAKER_ROUND
                           && currentMatch.Value.CurrentTeam == colour;
 
         private void updateMatch()
