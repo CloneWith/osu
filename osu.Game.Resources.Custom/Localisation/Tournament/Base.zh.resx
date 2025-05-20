@@ -135,4 +135,13 @@
     <data name="debug_settings" xml:space="preserve">
         <value>调试设置</value>
     </data>
+    <data name="cancel" xml:space="preserve">
+        <value>取消</value>
+    </data>
+    <data name="idle_screen_timer" xml:space="preserve">
+        <value>没有待切换屏幕！</value>
+    </data>
+    <data name="screen_changed" xml:space="preserve">
+        <value>屏幕已切换</value>
+    </data>
 </root>

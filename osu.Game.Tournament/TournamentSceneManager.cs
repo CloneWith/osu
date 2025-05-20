@@ -67,6 +67,8 @@ namespace osu.Game.Tournament
 
         private bool showChat = true;
 
+        private ScheduledDelegate? scheduledScreenChange;
+
         [Cached]
         private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
 
@@ -76,6 +78,7 @@ namespace osu.Game.Tournament
         private Container chatContainer = null!;
 
         private FillFlowContainer buttons = null!;
+        private SidebarTimer timer = null!;
 
         public TournamentSceneManager()
         {
@@ -183,6 +186,13 @@ namespace osu.Game.Tournament
                                         Height = 50,
                                         Scale = new Vector2(1.25f),
                                     },
+                                    timer = new SidebarTimer
+                                    {
+                                        Anchor = Anchor.TopCentre,
+                                        Origin = Anchor.TopCentre,
+                                        RelativeSizeAxes = Axes.X,
+                                    },
+                                    new Separator(),
                                     new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
                                     new Separator(),
                                     new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
@@ -234,6 +244,7 @@ namespace osu.Game.Tournament
             SetScreen(typeof(SetupScreen));
 
             defaultProxyChatContainer.Add(proxyChatContainer = chatContainer.CreateProxy());
+            timer.OnCancel += () => scheduledScreenChange?.Cancel();
         }
 
         private float depth;
@@ -268,6 +279,15 @@ namespace osu.Game.Tournament
             currentProxyChatContainer = null;
 
             defaultProxyChatContainer.Add(proxyChatContainer);
+        }
+
+        public void ScheduleScreenChange(Type screenType, int time)
+        {
+            scheduledScreenChange?.Cancel();
+            scheduledScreenChange = Scheduler.AddDelayed(() => { SetScreen(screenType); }, time);
+            timer.TimerTime = time;
+            timer.ActiveText = $"-> {screenType.Name}";
+            timer.Start();
         }
 
         public void SetScreen(TournamentScreen screen)

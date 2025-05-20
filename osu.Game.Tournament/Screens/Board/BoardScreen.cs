@@ -15,7 +15,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using osu.Framework.Threading;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
@@ -29,6 +28,7 @@ using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
+using osu.Game.Tournament.Screens.TeamWin;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
@@ -87,8 +87,6 @@ namespace osu.Game.Tournament.Screens.Board
         private TournamentSpriteText actionStateText = null!;
 
         private DialogOverlay dialogOverlay = null!;
-
-        private ScheduledDelegate? scheduledScreenChange;
 
         private Sample? placeChessSample;
         private Sample? updateOwnerSample;
@@ -509,14 +507,14 @@ namespace osu.Game.Tournament.Screens.Board
 
             animationQueue.BindCollectionChanged((_, arg) =>
             {
-                if (!animationQueue.Any())
+                if (animationQueue.Count == 0)
                     return;
 
-                if (currentAnimation == null || currentAnimation.Status == AnimationStatus.Complete)
-                {
-                    var animation = animationQueue.First();
-                    startAnimation(animation);
-                }
+                if (currentAnimation != null && currentAnimation.Status != AnimationStatus.Complete)
+                    return;
+
+                var animation = animationQueue.First();
+                startAnimation(animation);
             });
         }
 
@@ -605,7 +603,7 @@ namespace osu.Game.Tournament.Screens.Board
             if (stepType != RoundStep.Shiro)
                 shiroModeActivated.Value = false;
 
-            buttonEnterTiebreaker.Enabled.Value = !(pickType is RoundStep.TieBreaker or RoundStep.FinalWin);
+            buttonEnterTiebreaker.Enabled.Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin);
             buttonTiebreakerRedWin.Enabled.Value = pickType == RoundStep.TieBreaker;
             buttonTiebreakerBlueWin.Enabled.Value = pickType == RoundStep.TieBreaker;
 
@@ -740,7 +738,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void setWin(TeamColour colour)
         {
-            if (CurrentMatch.Value == null || !(colour is TeamColour.Blue or TeamColour.Red))
+            if (CurrentMatch.Value == null || colour is not (TeamColour.Blue or TeamColour.Red))
                 return;
 
             int targetScore = CurrentMatch.Value.PointsToWin;
@@ -749,6 +747,11 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.Value.Team1Score.Value = colour == TeamColour.Red ? targetScore : 0;
             CurrentMatch.Value.Team2Score.Value = colour == TeamColour.Blue ? targetScore : 0;
+
+            if (LadderInfo.AutoProgressScreens.Value)
+            {
+                SceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), 10000);
+            }
         }
 
         protected override bool OnMouseDown(MouseDownEvent e)
@@ -1165,10 +1168,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
-                if (pickType == RoundStep.Pick && CurrentMatch.Value.PicksBans.Any(i => i.Type == ChoiceType.Pick))
+                if (pickType == RoundStep.Pick && CurrentMatch.Value.ChessPlacements.Any(i => i.CurrentType == ChoiceType.Pick))
                 {
-                    scheduledScreenChange?.Cancel();
-                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(GameplayScreen)); }, 10000);
+                    SceneManager?.ScheduleScreenChange(typeof(GameplayScreen), 10000);
                 }
             }
 
@@ -1250,7 +1252,6 @@ namespace osu.Game.Tournament.Screens.Board
         public override void Hide()
         {
             sceneManager?.ReturnProxyChat();
-            scheduledScreenChange?.Cancel();
             base.Hide();
         }
 
