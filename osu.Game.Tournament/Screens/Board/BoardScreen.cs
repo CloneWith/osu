@@ -991,6 +991,8 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             setNextMode(undo: true);
+            // Disable auto progressing after the first undo action to prevent inaccurate results
+            LadderInfo.AutoProgressRound.Value = false;
             return true;
         }
 
