@@ -725,22 +725,23 @@ namespace osu.Game.Tournament.Screens.Board
 
             (int red, int blue) couplets = CurrentMatch.Value.GetMaximumSuccessiveChess();
 
-            if (couplets.red == 4 && couplets.blue == 4)
-            {
-                // TieBreaker: TODO
-                setMode(TeamColour.Neutral, RoundStep.TieBreaker);
-            }
-            else if (couplets.red == 4 || couplets.blue == 4)
+            if (couplets.red == 4 ^ couplets.blue == 4)
             {
                 // Winner detected: Set winner and completion
                 setWin(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue);
             }
             else
             {
+                if (couplets.red == 4 && couplets.blue == 4)
+                {
+                    // TieBreaker: TODO
+                    setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+                }
+
                 // No condition met: Reset status and clear scores
                 CurrentMatch.Value.Completed.Value = false;
-                CurrentMatch.Value.Team1Score.Value = 0;
-                CurrentMatch.Value.Team2Score.Value = 0;
+                CurrentMatch.Value.Team1Score.Value = couplets.red;
+                CurrentMatch.Value.Team2Score.Value = couplets.blue;
             }
         }
 

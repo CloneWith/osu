@@ -157,6 +157,18 @@ namespace osu.Game.Tournament.Screens.Editors
 
                 RelativeSizeAxes = Axes.X;
                 AutoSizeAxes = Axes.Y;
+
+                Model.UseBoard.BindValueChanged(e =>
+                {
+                    if (e.NewValue)
+                    {
+                        Model.BanCount.Value = 1;
+                        Model.BestOf.Value = TournamentGame.BOARD_BEST_OF;
+                    }
+
+                    Model.BanCount.Disabled = e.NewValue;
+                    Model.BestOf.Disabled = e.NewValue;
+                });
             }
 
             public partial class RoundRefereeEditor : CompositeDrawable
