@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -12,9 +11,8 @@ using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Localisation;
-using osu.Game.Overlays.Mods;
-using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Menu;
+using osu.Game.Screens.SelectV2;
 using osuTK;
 using osuTK.Graphics;
 
@@ -27,7 +25,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public OsuScreenStack ScreenStack { get; private set; }
 
-        public readonly BeatmapAttributesDisplay BeatmapAttributes;
+        public readonly BeatmapTitleWedge.DifficultyDisplay DifficultyDisplay;
         public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
 
         private readonly PlayerContainer playerContainer;
@@ -63,16 +61,13 @@ namespace osu.Game.Screens.TournamentShowcase
                         RelativeSizeAxes = Axes.Both,
                     }
                 },
-                BeatmapAttributes = new BeatmapAttributesDisplay
+                DifficultyDisplay = new BeatmapTitleWedge.DifficultyDisplay
                 {
                     RelativePositionAxes = Axes.Both,
+                    Width = 0.35f,
                     Alpha = 0,
-                    Anchor = Anchor.BottomRight,
-                    Origin = Anchor.BottomRight,
                     X = -0.01f,
-                    Y = -0.1f,
-                    Mods = { Value = new List<Mod>() },
-                    Collapsed = { Value = false }
+                    Y = 0.2f,
                 },
                 BeatmapInfoDisplay = new ShowcaseBeatmapInfoArea
                 {
@@ -81,7 +76,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     Width = 0.16f,
                     Alpha = 0,
                     X = 0.01f,
-                    Y = 0.2f
+                    Y = 0.2f,
                 }
             };
 
@@ -298,7 +293,6 @@ namespace osu.Game.Screens.TournamentShowcase
             state.Value = ShowcaseState.Ending;
 
             BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
-            BeatmapAttributes.FadeOut(500, Easing.OutQuint);
             playerContainer.BlurTo(new Vector2(10), 1500, Easing.OutQuint);
 
             Container outroContainer = new Container
