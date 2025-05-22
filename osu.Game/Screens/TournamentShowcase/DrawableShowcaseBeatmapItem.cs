@@ -18,7 +18,6 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
-using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Beatmaps.Drawables.Cards;
@@ -36,7 +35,6 @@ using osu.Game.Overlays.BeatmapSet;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
-using osu.Game.Screens.Ranking;
 using osu.Game.Screens.SelectV2;
 using osu.Game.Users.Drawables;
 using osuTK;
@@ -119,9 +117,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private BeatmapSetOverlay? beatmapOverlay { get; set; }
-
-        [Resolved]
-        private IPerformFromScreenRunner? performer { get; set; }
 
         public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
             : base(item)
@@ -284,9 +279,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
             recordScoreContainer.Child = item.ShowcaseScore != null
                 ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
-                {
-                    ActionOnClick = () => performer?.PerformFromScreen(s => s.Push(new SoloResultsScreen(item.ShowcaseScore)), [typeof(ShowcaseConfigScreen)])
-                }
                 : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
 
             modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
