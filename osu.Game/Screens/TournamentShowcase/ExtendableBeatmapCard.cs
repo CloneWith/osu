@@ -121,7 +121,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     AutoSizeAxes = Axes.Y,
                     Width = 0.88f,
                     X = 0.14f,
-                    Y = 0.9f
+                    Y = 0.9f,
+                    ParagraphSpacing = 0,
                 }
             };
         }
