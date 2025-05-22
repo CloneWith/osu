@@ -782,17 +782,20 @@ namespace osu.Game.Tournament.Screens.Board
                 return false;
 
             // 2. Available space check per specific area
-            // TODO: Auto refactoring made this part of code messy. Rewriting is proposed.
-            bool stepsAvailable = TournamentGame.MODS.Select(m => m.Key)
-                                                .Select(k => blocks.Where(b => k switch
-                                                                               {
-                                                                                   @"HR" => b.BoardRow > 2 && b.BoardColumn > 2,
-                                                                                   @"HD" => b.BoardRow <= 2 && b.BoardColumn > 2,
-                                                                                   @"DT" => (b.BoardRow <= 2 && b.BoardColumn <= 2) || (b.BoardRow > 2 && b.BoardColumn > 2),
-                                                                                   _ => true,
-                                                                               }
-                                                                               && b.ChessLayer.Count == 0))
-                                                .Aggregate(false, (current, availableBlocks) => current | availableBlocks.Any());
+            bool stepsAvailable = false;
+
+            foreach (string k in TournamentGame.MODS.Select(m => m.Key))
+            {
+                bool condition(DrawableBoardBlock b) => k switch
+                {
+                    @"HR" => b.BoardRow > 2 && b.BoardColumn > 2,
+                    @"HD" => b.BoardRow <= 2 && b.BoardColumn > 2,
+                    @"DT" => (b.BoardRow <= 2 && b.BoardColumn <= 2) || (b.BoardRow > 2 && b.BoardColumn > 2),
+                    _ => true,
+                };
+
+                stepsAvailable |= blocks.Any(b => condition(b) && b.ChessLayer.Count == 0);
+            }
 
             return !stepsAvailable;
 
