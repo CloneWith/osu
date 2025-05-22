@@ -244,6 +244,8 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             var mapList = config.Beatmaps.ToList();
+            // Adjust the width of each card based on real flow width
+            float targetWidth = (mapPoolFlow.DrawWidth - 5 * 2) / 3;
 
             for (int i = 0; i * 3 < mapList.Count; i++)
             {
@@ -256,12 +258,15 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         var card = new ExtendableBeatmapCard(activeMaps[j1], config)
                         {
-                            Alpha = 0
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Width = targetWidth,
+                            Alpha = 0,
                         };
 
                         mapPoolFlow.Add(card);
                         card.MoveToY(card.Y + 100).Then().MoveToY(card.Y - 100, 500, Easing.OutQuint);
-                        card.Delay(100).FadeIn(500, Easing.OutQuint);
+                        card.Delay(250).FadeIn(500, Easing.OutQuint);
 
                         using (BeginDelayedSequence(2000 - j1 * 200))
                         {

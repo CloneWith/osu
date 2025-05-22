@@ -55,6 +55,11 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ExtendableBeatmapCard(ShowcaseBeatmap beatmap, ShowcaseConfig config)
         {
+            Width = 400;
+            Height = 300;
+            CornerRadius = 10;
+            Masking = true;
+
             this.beatmap = beatmap;
             iconBaseDir = config.TournamentName.Value;
         }
@@ -62,11 +67,6 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(TextureStore textureStore)
         {
-            Width = 400;
-            Height = 300;
-            CornerRadius = 10;
-            Masking = true;
-
             InternalChildren = new Drawable[]
             {
                 new Box
