@@ -79,6 +79,8 @@ namespace osu.Game.Tests.Skins
             "Archives/modified-argon-20250219.osk",
             // Covers strain graph display
             "Archives/modified-argon-20250326.osk",
+            // Covers skinnable leaderboard
+            "Archives/modified-argon-20250424.osk",
         };
 
         /// <summary>

@@ -1,12 +1,13 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using osu.Framework.Utils;
 using osu.Game.Beatmaps;
-using osu.Game.Screens.Select;
 using osu.Game.Screens.Select.Filter;
 using osu.Game.Tests.Resources;
 
@@ -34,9 +35,9 @@ namespace osu.Game.Tests.Visual.SongSelectV2
         [Explicit]
         public void TestSorting()
         {
-            SortBy(new FilterCriteria { Sort = SortMode.Artist });
-            SortBy(new FilterCriteria { Group = GroupMode.Difficulty, Sort = SortMode.Difficulty });
-            SortBy(new FilterCriteria { Group = GroupMode.Artist, Sort = SortMode.Artist });
+            SortAndGroupBy(SortMode.Artist, GroupMode.All);
+            SortAndGroupBy(SortMode.Difficulty, GroupMode.Difficulty);
+            SortAndGroupBy(SortMode.Artist, GroupMode.Artist);
         }
 
         [Test]
@@ -61,6 +62,26 @@ namespace osu.Game.Tests.Visual.SongSelectV2
         {
             AddStep("disable masking", () => Scroll.Masking = false);
             AddStep("enable masking", () => Scroll.Masking = true);
+        }
+
+        [Test]
+        [Explicit]
+        public void TestRandomStatus()
+        {
+            SortBy(SortMode.Title);
+            AddStep("add beatmaps", () =>
+            {
+                for (int i = 0; i < 50; i++)
+                {
+                    var set = TestResources.CreateTestBeatmapSetInfo();
+                    set.Status = Enum.GetValues<BeatmapOnlineStatus>().MinBy(_ => RNG.Next());
+
+                    if (i % 2 == 0)
+                        set.Status = BeatmapOnlineStatus.None;
+
+                    BeatmapSets.Add(set);
+                }
+            });
         }
 
         [Test]
