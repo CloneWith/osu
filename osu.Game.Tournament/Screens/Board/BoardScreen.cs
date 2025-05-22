@@ -304,6 +304,13 @@ namespace osu.Game.Tournament.Screens.Board
                             Current = preparationMode,
                         },
                         new SectionHeader(BoardStrings.CurrentMode),
+                        buttonIndicator = new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.TiebreakerIndicator,
+                            BackgroundColour = FumoColours.DeepPurple.Regular,
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
+                        },
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.X,
@@ -447,14 +454,6 @@ namespace osu.Game.Tournament.Screens.Board
                             Action = clearShiroSelection,
                         },
                         new SectionHeader(BoardStrings.TiebreakerControl),
-                        buttonIndicator = new TourneyButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Text = BoardStrings.TiebreakerIndicator,
-                            BackgroundColour = Color4.Purple,
-                            Colour = Color4.Gray,
-                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
-                        },
                         buttonEnterTiebreaker = new ClickTwiceButton
                         {
                             AutoSizeAxes = Axes.None,
@@ -463,6 +462,7 @@ namespace osu.Game.Tournament.Screens.Board
                             IdleIcon = FontAwesome.Solid.ArrowRight,
                             Text = BoardStrings.EnterTiebreaker,
                             Action = () => setMode(TeamColour.Neutral, RoundStep.TieBreaker),
+                            Enabled = { Value = false },
                         },
                         new GridContainer
                         {
@@ -557,8 +557,6 @@ namespace osu.Game.Tournament.Screens.Board
 
                 if (e.NewValue == 17)
                     setMode(TeamColour.Neutral, RoundStep.TieBreaker);
-
-                buttonEnterTiebreaker.Enabled.Value = e.NewValue == 13;
             }, true);
 
             roundNumberBox.OnCommit += (_, newText) =>
@@ -732,10 +730,22 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                if (couplets.red == 4 && couplets.blue == 4)
+                if ((couplets.red == 4 && couplets.blue == 4))
                 {
-                    // TieBreaker: TODO
+                    // TieBreaker detected
                     setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+                }
+
+                // TieBreaker detection might not be so accurate.
+                // The final decision should be made by referees and streamers.
+                if (isTieBreaker())
+                {
+                    buttonIndicator.BackgroundColour = FumoColours.SunshineYellow.Lighter;
+                    buttonIndicator.FlashColour(Color4.White, 1000, Easing.OutQuint);
+                }
+                else
+                {
+                    buttonIndicator.BackgroundColour = FumoColours.DeepPurple.Regular;
                 }
 
                 // No condition met: Reset status and clear scores
@@ -743,6 +753,57 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Team1Score.Value = couplets.red;
                 CurrentMatch.Value.Team2Score.Value = couplets.blue;
             }
+        }
+
+        private bool isTieBreaker()
+        {
+            if (CurrentMatch.Value == null)
+                return false;
+
+            var occupiedBlocks = blocks.Where(b => b.ChessLayer.Count == 1).ToList();
+
+            // 1. Row / Column / Diagonal line chess check
+            // Win chess pieces must have the same colour and not consumed
+            for (int i = 1; i <= 4; i++)
+            {
+                // ReSharper disable AccessToModifiedClosure
+                var rowWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardRow == i));
+                var colWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardColumn == i));
+                // ReSharper restore AccessToModifiedClosure
+
+                if (isSameWinTeam(rowWinPieces) || isSameWinTeam(colWinPieces))
+                    return false;
+            }
+
+            var mainDiagonalWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardRow == b.BoardColumn));
+            var subDiagonalWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardRow + b.BoardColumn == 5));
+
+            if (isSameWinTeam(mainDiagonalWinPieces) || isSameWinTeam(subDiagonalWinPieces))
+                return false;
+
+            // 2. Available space check per specific area
+            // TODO: Auto refactoring made this part of code messy. Rewriting is proposed.
+            bool stepsAvailable = TournamentGame.MODS.Select(m => m.Key)
+                                                .Select(k => blocks.Where(b => k switch
+                                                                               {
+                                                                                   @"HR" => b.BoardRow > 2 && b.BoardColumn > 2,
+                                                                                   @"HD" => b.BoardRow <= 2 && b.BoardColumn > 2,
+                                                                                   @"DT" => (b.BoardRow <= 2 && b.BoardColumn <= 2) || (b.BoardRow > 2 && b.BoardColumn > 2),
+                                                                                   _ => true,
+                                                                               }
+                                                                               && b.ChessLayer.Count == 0))
+                                                .Aggregate(false, (current, availableBlocks) => current | availableBlocks.Any());
+
+            return !stepsAvailable;
+
+            List<FumoChessPiece> takeWinPieces(IEnumerable<DrawableBoardBlock> blk) =>
+                blk.Select(b => b.ChessLayer.Child)
+                   .Where(c => c.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed)
+                   .ToList();
+
+            bool isSameWinTeam(List<FumoChessPiece> cs) => cs.Count == 0
+                                                           || !cs.Any(c => c.CurrentType is ChoiceType.Consumed)
+                                                           && cs.GroupBy(c => c.CurrentType).Count() == 1;
         }
 
         private void setWin(TeamColour colour)
