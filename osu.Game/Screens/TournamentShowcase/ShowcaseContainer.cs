@@ -252,7 +252,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 for (int j = 0; j < activeMaps.Count; j++)
                 {
                     int j1 = j;
-                    Scheduler.AddDelayed(_ =>
+                    Scheduler.AddDelayed(() =>
                     {
                         var card = new ExtendableBeatmapCard(activeMaps[j1], config)
                         {
@@ -267,7 +267,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         {
                             card.Shrink();
                         }
-                    }, false, i * 1000 + j * 200 + 800);
+                    }, i * 1000 + j * 200 + 800);
                 }
             }
 
@@ -279,10 +279,10 @@ namespace osu.Game.Screens.TournamentShowcase
                 playerContainer.BlurTo(Vector2.Zero, 1500, Easing.OutQuint);
             }
 
-            Scheduler.AddDelayed(_ =>
+            Scheduler.AddDelayed(() =>
             {
                 state.Value = ShowcaseState.BeatmapTransition;
-            }, false, totalTime + 2000);
+            }, totalTime + 2000);
         }
 
         /// <summary>
