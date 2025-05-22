@@ -118,9 +118,6 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private BeatmapSetOverlay? beatmapOverlay { get; set; }
 
-        [Resolved]
-        private IPerformFromScreenRunner? performer { get; set; }
-
         public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
             : base(item)
         {

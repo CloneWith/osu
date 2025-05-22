@@ -4,6 +4,7 @@
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Overlays.Dialog;
+using osu.Game.Tournament.Localisation;
 
 namespace osu.Game.Tournament.Components.Dialogs
 {
@@ -18,8 +19,8 @@ namespace osu.Game.Tournament.Components.Dialogs
             {
                 new PopupDialogOkButton
                 {
-                    Text = @"Alright.",
-                }
+                    Text = BaseStrings.Okay,
+                },
             };
         }
     }

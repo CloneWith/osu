@@ -287,8 +287,7 @@ namespace osu.Game.Tournament.Components
 
             var newChoice = currentMatch.Value.PicksBans.FirstOrDefault(p => p.BeatmapID == Beatmap?.OnlineID);
 
-            string choiceText = newChoice?.Team == TeamColour.Red ? "Red" :
-                newChoice?.Team == TeamColour.Blue ? "Blue" : "Map";
+            LocalisableString choiceText = TournamentGame.GetTeamString(newChoice?.Team, true, @"Map");
             bool shouldFlash = newChoice != choice;
 
             if (newChoice != null)

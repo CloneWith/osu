@@ -44,6 +44,7 @@ using osu.Game.Screens.TournamentShowcase;
 using osuTK;
 using osuTK.Graphics;
 using osu.Game.Localisation;
+using osu.Game.Screens.SelectV2;
 
 namespace osu.Game.Screens.Menu
 {
@@ -241,7 +242,13 @@ namespace osu.Game.Screens.Menu
 
         public void ReturnToOsuLogo() => Buttons.State = ButtonSystemState.Initial;
 
-        private void loadSoloSongSelect() => this.Push(new PlaySongSelect());
+        private void loadSoloSongSelect()
+        {
+            if (GetContainingInputManager()!.CurrentState.Keyboard.ControlPressed)
+                this.Push(new SoloSongSelect());
+            else
+                this.Push(new PlaySongSelect());
+        }
 
         public override void OnEntering(ScreenTransitionEvent e)
         {

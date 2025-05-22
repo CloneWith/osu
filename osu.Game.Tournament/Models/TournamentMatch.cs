@@ -126,7 +126,11 @@ namespace osu.Game.Tournament.Models
         /// Search for the maximum successive chess pieces on the board for two teams.
         /// </summary>
         /// <returns>A tuple containing the number of successive chess for the red and blue team.</returns>
-        public (int redNum, int blueNum) GetMaximumSuccessiveChess()
+        public (int redNum, int blueNum) GetMaximumSuccessiveChess() => GetMaximumSuccessiveChess(ChessPlacements);
+
+        /// <inheritdoc cref="GetMaximumSuccessiveChess()"/>
+        /// <param name="source">the data source providing <see cref="ChessPlacement"/> information.</param>
+        public static (int redNum, int blueNum) GetMaximumSuccessiveChess(IEnumerable<ChessPlacement> source)
         {
             (int red, int blue) num = (0, 0);
 
@@ -136,7 +140,9 @@ namespace osu.Game.Tournament.Models
             {
                 // The modification of i won't affect these lines.
                 // ReSharper disable once AccessToModifiedClosure
-                var rowChess = ChessPlacements.Where(c => c.BoardRow == i);
+                var rowChess = source.Where(c => c.BoardRow == i)
+                                     .GroupBy(c => c.BoardColumn)
+                                     .Select(g => g.Last());
 
                 foreach (var chess in rowChess)
                 {
@@ -162,23 +168,19 @@ namespace osu.Game.Tournament.Models
             {
                 // Step 1: Boundary check
                 if (row <= 0 || row > 4 || column <= 0 || column > 4)
-                    goto EndRecursion;
+                    return endRecursion();
 
                 // Step 2: Find the next chess; Return if not found or not desired type
-                var nextChess = ChessPlacements.FirstOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+                var nextChess = source.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
                     // Edge case: Dismiss dual diagonal matches
-                    goto EndRecursion;
+                    return endRecursion();
 
                 // Step 3: Search forwards
                 return progress(rowDelta, columnDelta, targetType, row + rowDelta, column + columnDelta, ++current);
 
-#pragma warning disable format
-                // This is EXACTLY the code format we expected.
-                EndRecursion:
-                return rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
-#pragma warning restore format
+                int endRecursion() => rowDelta == 1 && columnDelta != 0 && current <= 2 ? 0 : current;
             }
         }
 

@@ -84,6 +84,12 @@
     <data name="team_blue" xml:space="preserve">
         <value>蓝队</value>
     </data>
+    <data name="team_red_short" xml:space="preserve">
+        <value>红队</value>
+    </data>
+    <data name="team_blue_short" xml:space="preserve">
+        <value>蓝队</value>
+    </data>
     <data name="no_match_warning" xml:space="preserve">
         <value>请先从对阵图选择比赛</value>
     </data>
@@ -113,5 +119,17 @@
     </data>
     <data name="fetch_data" xml:space="preserve">
         <value>获取数据</value>
+    </data>
+    <data name="unknown" xml:space="preserve">
+        <value>未知</value>
+    </data>
+    <data name="okay" xml:space="preserve">
+        <value>好</value>
+    </data>
+    <data name="action_not_permitted" xml:space="preserve">
+        <value>不允许的操作</value>
+    </data>
+    <data name="no_beatmap_available" xml:space="preserve">
+        <value>没有可用的谱面！</value>
     </data>
 </root>

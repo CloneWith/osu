@@ -155,9 +155,50 @@ namespace osu.Game.Tournament.Tests
             },
             Round =
             {
-                Value = new TournamentRound { Name = { Value = "Quarterfinals" } },
-            }
+                Value = new TournamentRound
+                {
+                    Name = { Value = "Quarterfinals" },
+                    Beatmaps =
+                    {
+                        CreateSampleRoundBeatmap(@"HR"),
+                        CreateSampleRoundBeatmap(@"HR"),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                        CreateSampleRoundBeatmap(),
+                    },
+                },
+            },
         };
+
+        public static RoundBeatmap CreateSampleRoundBeatmap(string? fixedMod = null)
+        {
+            string[] mods = [@"NM", @"HR", @"HD", @"DT", @"FM"];
+            int id = RNG.Next(0, 1000000);
+
+            return new RoundBeatmap
+            {
+                ID = id,
+                BoardX = RNG.Next(-1, 4),
+                BoardY = RNG.Next(-1, 4),
+                Mods = fixedMod ?? mods[RNG.Next(0, mods.Length)],
+                ModIndex = RNG.Next(1, 7).ToString(),
+                DifficultyField = @"Test",
+                Beatmap = new TournamentBeatmap
+                {
+                    Metadata = new BeatmapMetadata
+                    {
+                        Title = @"Test Title",
+                        Artist = @"Test Artist",
+                    },
+                    OnlineID = id,
+                },
+            };
+        }
 
         public static TournamentBeatmap CreateSampleBeatmap() =>
             new TournamentBeatmap

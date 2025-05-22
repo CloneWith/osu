@@ -4,11 +4,12 @@
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class EmptyBox : CompositeDrawable
+    public partial class EmptyBox : Container
     {
         private readonly Box box;
 
@@ -20,12 +21,9 @@ namespace osu.Game.Tournament.Components
 
         public EmptyBox(int cornerRadius = 0)
         {
-            Width = 250;
-            Height = 250;
-
+            Size = Vector2.One;
             Masking = true;
             CornerRadius = cornerRadius;
-            // CornerExponent = 5;
 
             InternalChildren = new Drawable[]
             {

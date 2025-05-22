@@ -52,16 +52,8 @@ jobs:
       - name: Compile
         run: dotnet build -c ${{inputs.profile}} osu.Desktop.slnf
 
-      - name: Compress build output (Linux)
-        if: ${{ matrix.os.fullname == 'ubuntu-latest' }}
-        run: zip -r build-output.zip ./osu.Desktop/bin/${{ inputs.profile }}/
-
-      - name: Compress build output (Windows)
-        if: ${{ matrix.os.fullname == 'windows-latest' }}
-        run: pwsh -Command "Compress-Archive -Path ./osu.Desktop/bin/${{ inputs.profile }}/ -DestinationPath build-output.zip"
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: osu-build-${{inputs.profile}}-${{inputs.version}}@${{matrix.os.fullname}}
-          path: build-output.zip
+          path: ./osu.Desktop/bin/${{ inputs.profile }}/*

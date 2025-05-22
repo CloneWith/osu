@@ -28,9 +28,11 @@ namespace osu.Game.Tournament.Screens
         /// <summary>
         /// Called when the screen is selected the first time in this session.
         /// </summary>
-        protected virtual void FirstSelected()
+        protected virtual void OnFirstSelected()
         {
         }
+
+        public void ResetSelectStatus() => HadBeenSelected = false;
 
         public override void Hide() => this.FadeOut(FADE_DELAY);
 
@@ -40,7 +42,7 @@ namespace osu.Game.Tournament.Screens
             if (HadBeenSelected) return;
 
             HadBeenSelected = true;
-            FirstSelected();
+            OnFirstSelected();
         }
     }
 }

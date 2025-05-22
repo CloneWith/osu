@@ -525,6 +525,7 @@ namespace osu.Game.Tournament
             AddFont(Resources, @"Fonts/Noto/Noto-Thai");
 
             Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
+            Fonts.AddStore(new FumoIcon.FumoIconStore(Textures));
         }
 
         protected override UserInputManager CreateUserInputManager() => new TournamentInputManager();
