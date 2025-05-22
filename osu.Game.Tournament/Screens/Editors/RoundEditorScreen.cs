@@ -50,6 +50,9 @@ namespace osu.Game.Tournament.Screens.Editors
             [Resolved]
             private IDialogOverlay? dialogOverlay { get; set; }
 
+            private readonly FormSliderBar<int> numOfBansSlider;
+            private readonly FormSliderBar<int> bestOfSlider;
+
             public RoundRow(TournamentRound round)
             {
                 Model = round;
@@ -109,17 +112,19 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.32f,
                                 Current = Model.StartDate,
                             },
-                            new FormSliderBar<int>
+                            numOfBansSlider = new FormSliderBar<int>
                             {
                                 Caption = RoundEditorStrings.NumOfBans,
                                 Width = 0.48f,
                                 Current = Model.BanCount,
+                                Alpha = Model.UseBoard.Value ? 0 : 1,
                             },
-                            new FormSliderBar<int>
+                            bestOfSlider = new FormSliderBar<int>
                             {
                                 Caption = RoundEditorStrings.BestOf,
                                 Width = 0.48f,
                                 Current = Model.BestOf,
+                                Alpha = Model.UseBoard.Value ? 0 : 1,
                             },
                             new FormCheckBox
                             {
@@ -157,6 +162,11 @@ namespace osu.Game.Tournament.Screens.Editors
 
                 RelativeSizeAxes = Axes.X;
                 AutoSizeAxes = Axes.Y;
+            }
+
+            protected override void LoadComplete()
+            {
+                base.LoadComplete();
 
                 Model.UseBoard.BindValueChanged(e =>
                 {
@@ -166,9 +176,9 @@ namespace osu.Game.Tournament.Screens.Editors
                         Model.BestOf.Value = TournamentGame.BOARD_BEST_OF;
                     }
 
-                    Model.BanCount.Disabled = e.NewValue;
-                    Model.BestOf.Disabled = e.NewValue;
-                });
+                    numOfBansSlider.FadeTo(e.NewValue ? 0 : 1);
+                    bestOfSlider.FadeTo(e.NewValue ? 0 : 1);
+                }, true);
             }
 
             public partial class RoundRefereeEditor : CompositeDrawable
