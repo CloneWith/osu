@@ -36,7 +36,7 @@ namespace osu.Game.Tests.Visual.Gameplay
             AddStep("toggle expanded", () =>
             {
                 if (leaderboard.IsNotNull())
-                    leaderboard.Expanded.Value = !leaderboard.Expanded.Value;
+                    leaderboard.ForceExpand.Value = !leaderboard.ForceExpand.Value;
             });
 
             AddSliderStep("set player score", 50, 5000000, 1222333, v => playerScore.Value = v);
@@ -50,11 +50,11 @@ namespace osu.Game.Tests.Visual.Gameplay
             AddStep("add many scores in one go", () =>
             {
                 for (int i = 0; i < 32; i++)
-                    createRandomScore(new APIUser { Username = $"Player {i + 1}" });
+                    leaderboardProvider.CreateRandomScore(new APIUser { Username = $"Player {i + 1}" });
 
                 // Add player at end to force an animation down the whole list.
                 playerScore.Value = 0;
-                createLeaderboardScore(playerScore, new APIUser { Username = "You", Id = 3 }, true);
+                leaderboardProvider.CreateLeaderboardScore(playerScore, new APIUser { Username = "You", Id = 3 }, true);
             });
 
             // Gameplay leaderboard has custom scroll logic, which when coupled with LayoutDuration
@@ -78,40 +78,13 @@ namespace osu.Game.Tests.Visual.Gameplay
         }
 
         [Test]
-        public void TestPlayerScore()
-        {
-            createLeaderboard();
-            addLocalPlayer();
-
-            var player2Score = new BindableLong(1234567);
-            var player3Score = new BindableLong(1111111);
-
-            AddStep("add player 2", () => createLeaderboardScore(player2Score, new APIUser { Username = "Player 2" }));
-            AddStep("add player 3", () => createLeaderboardScore(player3Score, new APIUser { Username = "Player 3" }));
-
-            AddUntilStep("is player 2 position #1", () => leaderboard.CheckPositionByUsername("Player 2", 1));
-            AddUntilStep("is player position #2", () => leaderboard.CheckPositionByUsername("You", 2));
-            AddUntilStep("is player 3 position #3", () => leaderboard.CheckPositionByUsername("Player 3", 3));
-
-            AddStep("set score above player 3", () => player2Score.Value = playerScore.Value - 500);
-            AddUntilStep("is player position #1", () => leaderboard.CheckPositionByUsername("You", 1));
-            AddUntilStep("is player 2 position #2", () => leaderboard.CheckPositionByUsername("Player 2", 2));
-            AddUntilStep("is player 3 position #3", () => leaderboard.CheckPositionByUsername("Player 3", 3));
-
-            AddStep("set score below players", () => player2Score.Value = playerScore.Value - 123456);
-            AddUntilStep("is player position #1", () => leaderboard.CheckPositionByUsername("You", 1));
-            AddUntilStep("is player 3 position #2", () => leaderboard.CheckPositionByUsername("Player 3", 2));
-            AddUntilStep("is player 2 position #3", () => leaderboard.CheckPositionByUsername("Player 2", 3));
-        }
-
-        [Test]
         public void TestRandomScores()
         {
             createLeaderboard();
             addLocalPlayer();
 
             int playerNumber = 1;
-            AddRepeatStep("add player with random score", () => createRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 10);
+            AddRepeatStep("add player with random score", () => leaderboardProvider.CreateRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 10);
         }
 
         [Test]
@@ -120,30 +93,10 @@ namespace osu.Game.Tests.Visual.Gameplay
             createLeaderboard();
             addLocalPlayer();
 
-            AddStep("add peppy", () => createRandomScore(new APIUser { Username = "peppy", Id = 2 }));
-            AddStep("add smoogipoo", () => createRandomScore(new APIUser { Username = "smoogipoo", Id = 1040328 }));
-            AddStep("add flyte", () => createRandomScore(new APIUser { Username = "flyte", Id = 3103765 }));
-            AddStep("add frenzibyte", () => createRandomScore(new APIUser { Username = "frenzibyte", Id = 14210502 }));
-        }
-
-        [Test]
-        public void TestMaxHeight()
-        {
-            createLeaderboard();
-            addLocalPlayer();
-
-            int playerNumber = 1;
-            AddRepeatStep("add 3 other players", () => createRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 3);
-            checkHeight(4);
-
-            AddRepeatStep("add 4 other players", () => createRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 4);
-            checkHeight(8);
-
-            AddRepeatStep("add 4 other players", () => createRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 4);
-            checkHeight(8);
-
-            void checkHeight(int panelCount)
-                => AddAssert($"leaderboard height is {panelCount} panels high", () => leaderboard.DrawHeight == (DrawableGameplayLeaderboardScore.PANEL_HEIGHT + leaderboard.Spacing) * panelCount);
+            AddStep("add peppy", () => leaderboardProvider.CreateRandomScore(new APIUser { Username = "peppy", Id = 2 }));
+            AddStep("add smoogipoo", () => leaderboardProvider.CreateRandomScore(new APIUser { Username = "smoogipoo", Id = 1040328 }));
+            AddStep("add flyte", () => leaderboardProvider.CreateRandomScore(new APIUser { Username = "flyte", Id = 3103765 }));
+            AddStep("add frenzibyte", () => leaderboardProvider.CreateRandomScore(new APIUser { Username = "frenzibyte", Id = 14210502 }));
         }
 
         [Test]
@@ -170,12 +123,12 @@ namespace osu.Game.Tests.Visual.Gameplay
 
             int playerNumber = 1;
 
-            AddRepeatStep("add 3 other players", () => createRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 3);
+            AddRepeatStep("add 3 other players", () => leaderboardProvider.CreateRandomScore(new APIUser { Username = $"Player {playerNumber++}" }), 3);
             AddUntilStep("no pink color scores",
                 () => leaderboard.ChildrenOfType<Box>().Select(b => ((Colour4)b.Colour).ToHex()),
                 () => Does.Not.Contain("#FF549A"));
 
-            AddRepeatStep("add 3 friend score", () => createRandomScore(friend), 3);
+            AddRepeatStep("add 3 friend score", () => leaderboardProvider.CreateRandomScore(friend), 3);
             AddUntilStep("at least one friend score is pink",
                 () => leaderboard.GetAllScoresForUsername("my friend")
                                  .SelectMany(score => score.ChildrenOfType<Box>())
@@ -183,45 +136,20 @@ namespace osu.Game.Tests.Visual.Gameplay
                 () => Does.Contain("#FF549A"));
         }
 
-        [Test]
-        public void TestTrackedScorePosition([Values] bool partial)
-        {
-            createLeaderboard(partial);
-
-            AddStep("add many scores in one go", () =>
-            {
-                for (int i = 0; i < 49; i++)
-                    createRandomScore(new APIUser { Username = $"Player {i + 1}" });
-
-                // Add player at end to force an animation down the whole list.
-                playerScore.Value = 0;
-                createLeaderboardScore(playerScore, new APIUser { Username = "You", Id = 3 }, true);
-            });
-
-            if (partial)
-                AddUntilStep("tracked player has null position", () => leaderboard.TrackedScore?.ScorePosition, () => Is.Null);
-            else
-                AddUntilStep("tracked player is #50", () => leaderboard.TrackedScore?.ScorePosition, () => Is.EqualTo(50));
-
-            AddStep("move tracked player to top", () => leaderboard.TrackedScore!.TotalScore.Value = 8_000_000);
-            AddUntilStep("all players have non-null position", () => leaderboard.AllScores.Select(s => s.ScorePosition), () => Does.Not.Contain(null));
-        }
-
         private void addLocalPlayer()
         {
             AddStep("add local player", () =>
             {
                 playerScore.Value = 1222333;
-                createLeaderboardScore(playerScore, new APIUser { Username = "You", Id = 3 }, true);
+                leaderboardProvider.CreateLeaderboardScore(playerScore, new APIUser { Username = "You", Id = 3 }, true);
             });
         }
 
-        private void createLeaderboard(bool partial = false)
+        private void createLeaderboard()
         {
             AddStep("create leaderboard", () =>
             {
                 leaderboardProvider.Scores.Clear();
-                leaderboardProvider.IsPartial = partial;
                 Child = leaderboard = new TestDrawableGameplayLeaderboard
                 {
                     Anchor = Anchor.Centre,
@@ -231,36 +159,28 @@ namespace osu.Game.Tests.Visual.Gameplay
             });
         }
 
-        private void createRandomScore(APIUser user) => createLeaderboardScore(new BindableLong(RNG.Next(0, 5_000_000)), user);
-
-        private void createLeaderboardScore(BindableLong score, APIUser user, bool isTracked = false)
-        {
-            var leaderboardScore = new GameplayLeaderboardScore(user, isTracked, score);
-            leaderboardProvider.Scores.Add(leaderboardScore);
-        }
-
         private partial class TestDrawableGameplayLeaderboard : DrawableGameplayLeaderboard
         {
             public float Spacing => Flow.Spacing.Y;
 
-            public bool CheckPositionByUsername(string username, int? expectedPosition)
-            {
-                var scoreItem = Flow.FirstOrDefault(i => i.User?.Username == username);
-
-                return scoreItem != null && scoreItem.ScorePosition == expectedPosition;
-            }
-
             public IEnumerable<DrawableGameplayLeaderboardScore> GetAllScoresForUsername(string username)
                 => Flow.Where(i => i.User?.Username == username);
-
-            public IEnumerable<DrawableGameplayLeaderboardScore> AllScores => Flow;
         }
 
-        private class TestGameplayLeaderboardProvider : IGameplayLeaderboardProvider
+        public class TestGameplayLeaderboardProvider : IGameplayLeaderboardProvider
         {
-            IBindableList<GameplayLeaderboardScore> IGameplayLeaderboardProvider.Scores => Scores;
             public BindableList<GameplayLeaderboardScore> Scores { get; } = new BindableList<GameplayLeaderboardScore>();
-            public bool IsPartial { get; set; }
+
+            public GameplayLeaderboardScore CreateRandomScore(APIUser user) => CreateLeaderboardScore(new BindableLong(RNG.Next(0, 5_000_000)), user);
+
+            public GameplayLeaderboardScore CreateLeaderboardScore(BindableLong totalScore, APIUser user, bool isTracked = false)
+            {
+                var score = new GameplayLeaderboardScore(user, isTracked, totalScore);
+                Scores.Add(score);
+                return score;
+            }
+
+            IBindableList<GameplayLeaderboardScore> IGameplayLeaderboardProvider.Scores => Scores;
         }
     }
 }

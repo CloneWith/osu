@@ -170,7 +170,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             warmupToggle.Current.BindValueChanged(_ => updateWarmup(), true);
 
             State.BindTo(ipc.State);
-            State.BindValueChanged(updateState, true);
+            State.BindValueChanged(_ => updateState(), true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
