@@ -154,7 +154,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (!status.NewValue && state.Value == ShowcaseState.BeatmapShow)
                 {
                     showcaseContainer.DifficultyDisplay.MoveToX(-0.75f, 800, Easing.InQuint);
-                    showcaseContainer.Delay(250).FadeOut(500, Easing.OutQuint);
+                    showcaseContainer.DifficultyDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
 
                     showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f, 800, Easing.OutQuint);
                     showcaseContainer.BeatmapInfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
