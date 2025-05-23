@@ -56,6 +56,32 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString MainBoardAreaSize => new TranslatableString(getKey(@"main_board_area_size"), @"Chess area size");
 
         /// <summary>
+        /// "Shiro Status"
+        /// </summary>
+        public static LocalisableString ShiroStatus => new TranslatableString(getKey(@"shiro_status"), @"Shiro Status");
+
+        /// <summary>
+        /// "Available"
+        /// </summary>
+        public static LocalisableString ShiroAvailable => new TranslatableString(getKey(@"shiro_available"), @"Available");
+
+        /// <summary>
+        /// "Needs Activation"
+        /// </summary>
+        public static LocalisableString ShiroNeedsActivation => new TranslatableString(getKey(@"shiro_needs_activation"), @"Needs Activation");
+
+        /// <summary>
+        /// "Held by {0}"
+        /// </summary>
+        public static LocalisableString ShiroHeldBy(LocalisableString team) => new TranslatableString(getKey(@"shiro_held_by"),
+            @"Held by {0}", team);
+
+        /// <summary>
+        /// "Consumed"
+        /// </summary>
+        public static LocalisableString ShiroConsumed => new TranslatableString(getKey(@"shiro_consumed"), @"Consumed");
+
+        /// <summary>
         /// "Shiro Deployment"
         /// </summary>
         public static LocalisableString ShiroDeployment => new TranslatableString(getKey(@"shiro_deployment"), @"Shiro Deployment");

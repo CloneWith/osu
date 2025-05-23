@@ -105,4 +105,19 @@
     <data name="enter_tiebreaker" xml:space="preserve">
         <value>进入 TB 阶段</value>
     </data>
+    <data name="shiro_status" xml:space="preserve">
+        <value>白子状态</value>
+    </data>
+    <data name="shiro_available" xml:space="preserve">
+        <value>可部署</value>
+    </data>
+    <data name="shiro_consumed" xml:space="preserve">
+        <value>已消耗</value>
+    </data>
+    <data name="shiro_needs_activation" xml:space="preserve">
+        <value>待激活</value>
+    </data>
+    <data name="shiro_held_by" xml:space="preserve">
+        <value>{0}持有</value>
+    </data>
 </root>
