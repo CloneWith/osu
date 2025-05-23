@@ -20,9 +20,9 @@ namespace osu.Game.Tournament.Components
             this.team = team;
             Background.Alpha = noBackground ? 0 : 1;
 
-            Text.Text = "#?";
-            Text.Font = Text.Font.With(size: 36);
-            Text.Colour = colour switch
+            InnerText.Text = "#?";
+            InnerText.Font = InnerText.Font.With(size: 36);
+            InnerText.Colour = colour switch
             {
                 TeamColour.Red => TournamentGame.COLOUR_RED,
                 TeamColour.Blue => TournamentGame.COLOUR_BLUE,
@@ -41,7 +41,7 @@ namespace osu.Game.Tournament.Components
                 return;
 
             seed = team.Seed.GetBoundCopy();
-            seed.BindValueChanged(s => Text.Text = s.NewValue, true);
+            seed.BindValueChanged(s => InnerText.Text = s.NewValue, true);
 
             displaySeed = ladder.DisplayTeamSeeds.GetBoundCopy();
             displaySeed.BindValueChanged(v => Alpha = v.NewValue ? 1 : 0, true);

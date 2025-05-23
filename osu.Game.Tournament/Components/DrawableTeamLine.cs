@@ -49,9 +49,9 @@ namespace osu.Game.Tournament.Components
             {
                 Anchor = anchor;
                 Origin = anchor;
-                Text.Padding = new MarginPadding();
-                Text.Shadow = false;
-                Text.Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold);
+                InnerText.Padding = new MarginPadding();
+                InnerText.Shadow = false;
+                InnerText.Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold);
             }
         }
 
@@ -66,9 +66,9 @@ namespace osu.Game.Tournament.Components
                 AutoSizeAxes = Axes.Both;
                 Masking = true;
                 CornerRadius = 5;
-                Text.Padding = new MarginPadding(3);
-                Text.Shadow = false;
-                Text.Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold);
+                InnerText.Padding = new MarginPadding(3);
+                InnerText.Shadow = false;
+                InnerText.Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold);
             }
         }
     }

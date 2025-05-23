@@ -76,10 +76,11 @@ namespace osu.Game.Tournament.Screens.Schedule
                                                         Colour = Color4.White,
                                                         Size = new Vector2(50, 10),
                                                     },
-                                                    new TournamentSpriteTextWithBackground("Schedule")
+                                                    new TournamentSpriteTextWithBackground()
                                                     {
                                                         X = 60,
-                                                        Scale = new Vector2(0.8f)
+                                                        Text = "Schedule",
+                                                        Scale = new Vector2(0.8f),
                                                     }
                                                 }
                                             },
@@ -188,19 +189,20 @@ namespace osu.Game.Tournament.Screens.Schedule
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
                         },
-                        new TournamentSpriteTextWithBackground(currentMatch.Value.Round.Value?.Name.Value ?? string.Empty)
+                        new TournamentSpriteTextWithBackground
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Scale = new Vector2(0.5f)
+                            Text = currentMatch.Value.Round.Value?.Name.Value ?? string.Empty,
+                            Scale = new Vector2(0.5f),
                         },
-                        new TournamentSpriteTextWithBackground(text: currentMatch.Value.Team1.Value?.FullName.Value ?? string.Empty,
-                            backgroundColor: TournamentGame.COLOUR_RED, textColor: Color4.White,
-                            fontSize: 30, textWeight: FontWeight.SemiBold
-                        )
+                        new TournamentSpriteTextWithBackground(fontSize: 30, textWeight: FontWeight.SemiBold)
                         {
                             Anchor = Anchor.CentreLeft,
-                            Origin = Anchor.CentreLeft
+                            Origin = Anchor.CentreLeft,
+                            Text = currentMatch.Value.Team1.Value?.FullName.Value ?? string.Empty,
+                            BackgroundColour = TournamentGame.COLOUR_RED,
+                            TextColour = Color4.White,
                         },
                         new TournamentSpriteText
                         {
@@ -209,13 +211,13 @@ namespace osu.Game.Tournament.Screens.Schedule
                             Text = "vs",
                             Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold)
                         },
-                        new TournamentSpriteTextWithBackground(text: currentMatch.Value.Team2.Value?.FullName.Value ?? string.Empty,
-                            backgroundColor: TournamentGame.COLOUR_BLUE, textColor: Color4.White,
-                            fontSize: 30, textWeight: FontWeight.SemiBold
-                        )
+                        new TournamentSpriteTextWithBackground(fontSize: 30, textWeight: FontWeight.SemiBold)
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
+                            Text = currentMatch.Value.Team2.Value?.FullName.Value ?? string.Empty,
+                            BackgroundColour = TournamentGame.COLOUR_BLUE,
+                            TextColour = Color4.White,
                         },
                         new FillFlowContainer
                         {
@@ -330,11 +332,12 @@ namespace osu.Game.Tournament.Screens.Schedule
                         Direction = FillDirection.Vertical,
                         Children = new Drawable[]
                         {
-                            new TournamentSpriteTextWithBackground(text: title.ToUpperInvariant(),
-                                backgroundColor: Color4.White.Opacity(0), textColor: Color4.White
-                            )
+                            new TournamentSpriteTextWithBackground
                             {
-                                Scale = new Vector2(0.5f)
+                                Text = title.ToUpperInvariant(),
+                                BackgroundColour = Color4.White.Opacity(0),
+                                TextColour = Color4.White,
+                                Scale = new Vector2(0.5f),
                             },
                             content = new FillFlowContainer
                             {
