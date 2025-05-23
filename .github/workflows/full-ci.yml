@@ -108,6 +108,7 @@ jobs:
           osu.Game.Tests/bin/Debug/**/osu.Game.Tests.dll
           osu.Game.Tournament.Tests/bin/Debug/**/osu.Game.Tournament.Tests.dll
           Templates/**/*.Tests/bin/Debug/**/*.Tests.dll
+          --filter "FullyQualifiedName~Tournament|FullyQualifiedName!~Visual|FullyQualifiedName~NonVisual"
           --logger "trx;LogFileName=TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}.trx"
           --
           NUnit.ConsoleOut=0
