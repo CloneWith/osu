@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -103,9 +104,14 @@ namespace osu.Game.Tournament.Components
         {
             base.LoadComplete();
 
-            ladder.CurrentMatch.BindValueChanged(_ => updateDisplay(), true);
-            ladder.CurrentMatch.Value?.CurrentRoundIndex.BindValueChanged(_ => updateDisplay());
-            ladder.CurrentMatch.Value?.PreparationMode.BindValueChanged(_ => updateDisplay());
+            ladder.CurrentMatch.BindValueChanged(matchChanged, true);
+        }
+
+        private void matchChanged(ValueChangedEvent<TournamentMatch?> e)
+        {
+            updateDisplay();
+            e.NewValue?.CurrentRoundIndex.BindValueChanged(_ => updateDisplay());
+            e.NewValue?.PreparationMode.BindValueChanged(_ => updateDisplay());
         }
 
         private void updateDisplay()
