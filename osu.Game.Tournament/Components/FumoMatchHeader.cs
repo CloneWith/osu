@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Models;
@@ -10,21 +9,14 @@ using osuTK;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class FumoMatchHeader : Container
+    public partial class FumoMatchHeader : CompositeDrawable
     {
-        private readonly bool showRoundDisplay;
-
         public FumoMatchHeader(bool showRoundDisplay = true)
-        {
-            this.showRoundDisplay = showRoundDisplay;
-        }
-
-        [BackgroundDependencyLoader]
-        private void load()
         {
             RelativeSizeAxes = Axes.X;
             Height = 95;
-            Children = new Drawable[]
+
+            InternalChildren = new Drawable[]
             {
                 new FillFlowContainer
                 {
