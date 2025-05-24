@@ -136,7 +136,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     Schedule(() => ownerAvatar.User = foundUser);
                 }
 
-                workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = item.BeatmapGuid }, true);
+                workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { Hash = item.BeatmapHash }, true);
 
                 if (workingBeatmap?.BeatmapInfo.BeatmapSet == null || ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
                 {

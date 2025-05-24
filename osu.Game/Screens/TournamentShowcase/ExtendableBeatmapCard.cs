@@ -135,7 +135,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 try
                 {
-                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = beatmap.BeatmapGuid }, true);
+                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { Hash = beatmap.BeatmapHash }, true);
 
                     if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
                     {

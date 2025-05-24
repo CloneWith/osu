@@ -285,8 +285,8 @@ namespace osu.Game.Screens.TournamentShowcase
             beatmapInfoBindable.BindValueChanged(info =>
             {
                 Beatmap.BeatmapInfo = info.NewValue;
-                Beatmap.BeatmapGuid = info.NewValue.ID;
                 Beatmap.BeatmapId = info.NewValue.OnlineID;
+                Beatmap.BeatmapHash = info.NewValue.Hash;
 
                 // Reset the score to avoid conflict.
                 Beatmap.ShowcaseScore = null;

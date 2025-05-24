@@ -247,8 +247,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
             beatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo
             {
-                ID = selected.BeatmapGuid,
-                OnlineID = selected.BeatmapId
+                OnlineID = selected.BeatmapId,
+                Hash = selected.BeatmapHash,
             }, true);
 
             var ruleset = (rulesetStore.GetRuleset(selected.RulesetId) ?? config.FallbackRuleset.Value).CreateInstance();
