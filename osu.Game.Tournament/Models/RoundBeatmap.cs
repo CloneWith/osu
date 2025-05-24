@@ -15,6 +15,9 @@ namespace osu.Game.Tournament.Models
 
         public double? FixedStarDifficulty;
 
+        [JsonIgnore]
+        public double? StarDifficulty => FixedStarDifficulty ?? Beatmap?.StarRating;
+
         // Board view specific
         public int BoardX = -1;
         public int BoardY = -1;
