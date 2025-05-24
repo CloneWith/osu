@@ -5,6 +5,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input;
 
 namespace osu.Game.Overlays.Settings
 {
@@ -60,10 +61,10 @@ namespace osu.Game.Overlays.Settings
                     if (double.TryParse(textBox.Text, out double doubleVal))
                         Current.Value = doubleVal;
                     else
+                    {
                         numberBox.NotifyInputError();
-
-                    // trigger Current again to either restore the previous text box value, or to reformat the new value via .ToString().
-                    Current.TriggerChange();
+                        numberBox.Text = Current.Value?.ToString();
+                    }
                 };
 
                 Current.BindValueChanged(e =>
@@ -77,12 +78,16 @@ namespace osu.Game.Overlays.Settings
         {
             private readonly bool allowNegative;
 
-            public OutlinedDecimalBox(bool allowNegative = false) => this.allowNegative = allowNegative;
+            public OutlinedDecimalBox(bool allowNegative = false)
+            {
+                this.allowNegative = allowNegative;
+                InputProperties = new TextInputProperties(allowNegative ? TextInputType.Text : TextInputType.Decimal, false);
+            }
 
             protected override bool CanAddCharacter(char character)
                 => char.IsAsciiDigit(character)
-                   || (character == '.' && !Text.Contains('.'))
-                   || (allowNegative && character == '-' && !Text.Contains('-'));
+                   || character == '.'
+                   || (allowNegative && character == '-');
 
             public new void NotifyInputError() => base.NotifyInputError();
         }
