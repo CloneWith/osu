@@ -1038,6 +1038,11 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.Value?.ChessPlacements.Remove(placement);
 
+            // Decrement round when the revoked placement is a Shiro, or in a Win status.
+            if (placement.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID
+                || placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                setNextMode(undo: true);
+
             var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
 
             if (chessPiece != null)
@@ -1055,9 +1060,6 @@ namespace osu.Game.Tournament.Screens.Board
                 }
             }
 
-            setNextMode(undo: true);
-            // Disable auto progressing after the first undo action to prevent inaccurate results
-            LadderInfo.AutoProgressRound.Value = false;
             return true;
         }
 
@@ -1187,6 +1189,7 @@ namespace osu.Game.Tournament.Screens.Board
                     pickTeam, ChoiceType.Pick));
 
                 addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
+                setNextMode();
                 return true;
             }
 
