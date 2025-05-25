@@ -122,6 +122,11 @@ namespace osu.Game.Tournament
                 _ => ChoiceType.Neutral,
             };
 
+        /// <summary>
+        /// The maximum allowable penalty points. Users with points more than this would be disqualified.
+        /// </summary>
+        public const int PUNISHMENT_THRESHOLD = 3;
+
         public const int RESERVED_BEATMAP_ID = -1;
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;

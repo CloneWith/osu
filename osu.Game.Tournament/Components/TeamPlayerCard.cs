@@ -39,7 +39,7 @@ namespace osu.Game.Tournament.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures, LadderInfo ladderinfo)
+        private void load(TextureStore textures, LadderInfo ladderInfo)
         {
             AltBackground.Texture = textures.Get("Icons/usercard-default");
             AltBackground.Colour = ColourInfo.GradientHorizontal(Color4Extensions.FromHex("#43C7DE").Opacity(0.5f), Color4.White.Opacity(0.5f));
@@ -50,7 +50,7 @@ namespace osu.Game.Tournament.Components
             Background.Anchor = Anchor.CentreRight;
             Background.Colour = Color4.Gray;
 
-            var request = new GetUserRequest(userId: User.Id, ruleset: ladderinfo.Ruleset.Value);
+            var request = new GetUserRequest(userId: User.Id, ruleset: ladderInfo.Ruleset.Value);
 
             request.Success += user =>
             {
