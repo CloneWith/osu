@@ -30,6 +30,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString BracketEditor => new TranslatableString(getKey(@"bracket_editor"), @"Bracket Editor");
 
         /// <summary>
+        /// "Punishment Editor"
+        /// </summary>
+        public static LocalisableString PunishmentEditor => new TranslatableString(getKey(@"punishment_editor"), @"Punishment Editor");
+
+        /// <summary>
         /// "Schedule"
         /// </summary>
         public static LocalisableString Schedule => new TranslatableString(getKey(@"schedule"), @"Schedule");
