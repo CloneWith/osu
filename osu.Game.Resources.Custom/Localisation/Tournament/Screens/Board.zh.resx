@@ -120,4 +120,10 @@
     <data name="shiro_held_by" xml:space="preserve">
         <value>{0}持有</value>
     </data>
+    <data name="auto_advance_rounds" xml:space="preserve">
+        <value>自动更新回合数</value>
+    </data>
+    <data name="auto_advance_screens" xml:space="preserve">
+        <value>自动推进屏幕</value>
+    </data>
 </root>

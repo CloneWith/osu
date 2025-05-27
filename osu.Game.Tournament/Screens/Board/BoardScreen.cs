@@ -494,12 +494,12 @@ namespace osu.Game.Tournament.Screens.Board
                         new SectionHeader(SetupStrings.AutomationHeader),
                         new LabelledSwitchButton
                         {
-                            Label = SetupStrings.AutoUpdateRound,
+                            Label = BoardStrings.AutoAdvanceRounds,
                             Current = LadderInfo.AutoProgressRound,
                         },
                         new LabelledSwitchButton
                         {
-                            Label = SetupStrings.AutoAdvanceScreens,
+                            Label = BoardStrings.AutoAdvanceScreens,
                             Current = LadderInfo.AutoProgressScreens,
                         },
                         new SectionHeader(BaseStrings.DebugSettings),

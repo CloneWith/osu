@@ -184,10 +184,19 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"I'd rather stay the same.");
 
         /// <summary>
-        /// "Current Round"
+        /// "Current"
         /// </summary>
-        public static LocalisableString CurrentRound => new TranslatableString(getKey(@"current_round"),
-            @"Current Round");
+        public static LocalisableString CurrentRound => new TranslatableString(getKey(@"current_round"), @"Current");
+
+        /// <summary>
+        /// "Advance rounds"
+        /// </summary>
+        public static LocalisableString AutoAdvanceRounds => new TranslatableString(getKey(@"auto_advance_rounds"), @"Advance rounds");
+
+        /// <summary>
+        /// "Advance screens"
+        /// </summary>
+        public static LocalisableString AutoAdvanceScreens => new TranslatableString(getKey(@"auto_advance_screens"), @"Advance screens");
 
         /// <summary>
         /// "{0} {1}"
