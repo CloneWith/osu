@@ -537,16 +537,10 @@ namespace osu.Game.Tournament.Screens.Board
 
             shiroModeActivated.BindValueChanged(e =>
             {
-                // Only handle enabled cases to prevent infinite loops
                 if (e.NewValue)
-                {
                     setMode(TeamColour.Neutral, RoundStep.Shiro);
-                }
                 else
-                {
                     pickType = RoundStep.Default;
-                    clearShiroSelection();
-                }
             });
 
             currentRoundIndex.BindValueChanged(e =>
@@ -646,6 +640,8 @@ namespace osu.Game.Tournament.Screens.Board
                 if (record != null)
                     CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
             }
+
+            clearShiroSelection();
         }
 
         private void activateShiro()
