@@ -406,8 +406,9 @@ namespace osu.Game.Screens.TournamentShowcase
                 outroContainer.FadeOut(1000, Easing.InQuint);
 
                 topMask.Delay(2500).FadeIn(1500, Easing.OutQuint);
-                state.Value = ShowcaseState.Ended;
             }
+
+            Scheduler.AddDelayed(() => state.Value = ShowcaseState.Ended, 10000);
         }
 
         private partial class PlayerContainer : BufferedContainer

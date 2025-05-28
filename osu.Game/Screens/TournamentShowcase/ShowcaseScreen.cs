@@ -12,6 +12,7 @@ using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Models;
+using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
@@ -40,6 +41,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private RulesetStore rulesetStore { get; set; } = null!;
+
+        [Resolved]
+        private MusicController music { get; set; } = null!;
 
         private WorkingBeatmap beatmap = null!;
         private ShowcasePlayer? player;
@@ -169,6 +173,10 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
+            // Pause the music if playing.
+            if (music.IsPlaying)
+                music.TogglePause();
+
             // Switch the ruleset beforehand to avoid cast exception.
             Ruleset.Value = config.FallbackRuleset.Value;
 
@@ -190,6 +198,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
 
                 case ShowcaseState.Ended:
+                    if (music.IsPlaying)
+                        music.TogglePause();
+
                     if (config.Layout.Value == ShowcaseLayout.Immersive)
                         Scheduler.AddDelayed(this.Exit, 5000);
                     return;
