@@ -25,6 +25,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
 
         private readonly PlayerContainer playerContainer;
+        private readonly Box backgroundMask;
         private readonly Box topMask;
 
         private readonly ShowcaseConfig config;
@@ -49,6 +50,12 @@ namespace osu.Game.Screens.TournamentShowcase
 
             InternalChildren = new Drawable[]
             {
+                backgroundMask = new Box
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Colour = Color4.Black,
+                    Alpha = 0,
+                },
                 playerContainer = new PlayerContainer
                 {
                     Masking = true,
@@ -97,6 +104,10 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             switch (state.NewValue)
             {
+                case ShowcaseState.BeatmapTransition:
+                    showTransition();
+                    break;
+
                 case ShowcaseState.Ending:
                     showOutro();
                     return;
@@ -114,6 +125,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private void showIntro()
         {
             state.Value = ShowcaseState.Intro;
+            backgroundMask.FadeIn(500, Easing.OutQuint);
 
             OsuLogo logo;
             OsuSpriteText titleText;
@@ -309,6 +321,14 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 state.Value = ShowcaseState.BeatmapTransition;
             }, totalTime + 3000);
+        }
+
+        /// <summary>
+        /// Show the transformation animation between replays.
+        /// </summary>
+        private void showTransition()
+        {
+            // TODO: May come in use in the future.
         }
 
         /// <summary>
