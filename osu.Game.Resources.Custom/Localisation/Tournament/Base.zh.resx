@@ -132,4 +132,10 @@
     <data name="no_beatmap_available" xml:space="preserve">
         <value>没有可用的谱面！</value>
     </data>
+    <data name="disqualified" xml:space="preserve">
+        <value>取消资格</value>
+    </data>
+    <data name="punishment" xml:space="preserve">
+        <value>行为处罚</value>
+    </data>
 </root>
