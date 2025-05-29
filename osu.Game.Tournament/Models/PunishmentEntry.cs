@@ -54,8 +54,8 @@ namespace osu.Game.Tournament.Models
         /// Whether the punishment is expired now.
         /// </summary>
         [JsonIgnore]
-        public bool IsExpired => Type.Value != PunishmentType.Permanent
-                                 && ExpireTime.Value >= DateTimeOffset.Now;
+        public bool IsExpired => Type.Value is not (PunishmentType.Permanent or PunishmentType.Fatal)
+                                 && ExpireTime.Value <= DateTimeOffset.Now;
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
