@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
@@ -98,6 +99,13 @@ namespace osu.Game.Graphics.Containers
                 ShowIndex(index ?? Layers.Count - 1);
             }
         }
+
+        /// <summary>
+        /// Add a set of <see cref="Drawable"/>s in order to the display sequence.
+        /// </summary>
+        /// <param name="drawables">The <see cref="Drawable"/>s to he added.</param>
+        public void AddLayers(IEnumerable<Drawable> drawables)
+            => drawables.ForEach(d => AddLayer(d));
 
         /// <summary>
         /// Show the next layer if possible.
