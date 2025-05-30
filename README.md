@@ -4,6 +4,7 @@
 
 # osu!
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/34bb21832a79490fa2e88e5d92febfb7)](https://app.codacy.com/gh/CloneWith/osu?utm_source=github.com&utm_medium=referral&utm_content=CloneWith/osu&utm_campaign=Badge_Grade)
 [![Build status](https://github.com/ppy/osu/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/ppy/osu/actions/workflows/ci.yml)
 [![GitHub release](https://img.shields.io/github/release/ppy/osu.svg)](https://github.com/ppy/osu/releases/latest)
 [![CodeFactor](https://www.codefactor.io/repository/github/ppy/osu/badge)](https://www.codefactor.io/repository/github/ppy/osu)
