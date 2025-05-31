@@ -18,7 +18,7 @@ namespace osu.Game.Tournament.Screens
         public LadderInfo LadderInfo { get; private set; } = null!;
 
         [Resolved]
-        public TournamentSceneManager? SceneManager { get; private set; }
+        protected TournamentSceneManager? SceneManager { get; private set; }
 
         protected TournamentScreen()
         {
