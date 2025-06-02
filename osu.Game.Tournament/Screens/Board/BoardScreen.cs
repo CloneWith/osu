@@ -571,6 +571,12 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
+            if (match.OldValue != null)
+            {
+                currentRoundIndex.UnbindFrom(match.OldValue.CurrentRoundIndex);
+                preparationMode.UnbindFrom(match.OldValue.PreparationMode);
+            }
+
             if (match.NewValue != null)
             {
                 currentRoundIndex.BindTo(match.NewValue.CurrentRoundIndex);
