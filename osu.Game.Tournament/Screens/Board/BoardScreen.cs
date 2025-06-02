@@ -1325,12 +1325,6 @@ namespace osu.Game.Tournament.Screens.Board
             base.Show();
         }
 
-        public override void Hide()
-        {
-            sceneManager?.ReturnProxyChat();
-            base.Hide();
-        }
-
         #region Animation
 
         private readonly BindableList<IAnimation> animationQueue = new BindableList<IAnimation>();

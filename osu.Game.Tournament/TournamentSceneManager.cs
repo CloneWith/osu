@@ -302,6 +302,7 @@ namespace osu.Game.Tournament
         public void SetScreen(Type screenType)
         {
             temporaryScreen?.Expire();
+            ReturnProxyChat();
 
             var target = screens.FirstOrDefault(s => s.GetType() == screenType);
 
