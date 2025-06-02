@@ -164,7 +164,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     showcaseContainer.BeatmapInfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
 
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
-                    Scheduler.AddDelayed(pushNextBeatmap, 4500);
+                    Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 4500);
                 }
             });
         }
@@ -194,7 +194,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
 
                 case ShowcaseState.BeatmapTransition:
-                    pushNextBeatmap();
+                    Scheduler.AddDelayed(pushNextBeatmap, 500);
                     return;
 
                 case ShowcaseState.Ended:

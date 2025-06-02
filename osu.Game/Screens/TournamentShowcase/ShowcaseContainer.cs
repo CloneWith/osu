@@ -3,12 +3,17 @@
 
 using System;
 using System.Linq;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
+using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Localisation;
 using osu.Game.Screens.Menu;
 using osu.Game.Screens.SelectV2;
@@ -27,6 +32,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly PlayerContainer playerContainer;
         private readonly Box backgroundMask;
         private readonly Box topMask;
+        private readonly WaveContainer transitionMask;
+        private readonly Sprite transitionBackground;
 
         private readonly ShowcaseConfig config;
         private readonly float yPositionScale;
@@ -82,6 +89,31 @@ namespace osu.Game.Screens.TournamentShowcase
                     X = 0.01f,
                     Y = 0.2f,
                 },
+                transitionMask = new WaveContainer
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    FirstWaveColour = FumoColours.SeaBlue.Lighter,
+                    SecondWaveColour = FumoColours.SeaBlue.Light,
+                    ThirdWaveColour = FumoColours.SeaBlue.Dark,
+                    FourthWaveColour = FumoColours.SeaBlue.Darker,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = FumoColours.SeaBlue.Regular,
+                        },
+                        transitionBackground = new Sprite
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            FillMode = FillMode.Fill,
+                        }
+                    }
+                },
                 topMask = new Box
                 {
                     RelativeSizeAxes = Axes.Both,
@@ -92,6 +124,12 @@ namespace osu.Game.Screens.TournamentShowcase
 
             state.BindValueChanged(stateChanged);
             this.playerLoaded.BindValueChanged(loadStateChanged);
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(TextureStore textures)
+        {
+            transitionBackground.Texture = textures.Get($"{config.TournamentName}/transition");
         }
 
         private void loadStateChanged(ValueChangedEvent<bool> state)
@@ -328,7 +366,15 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void showTransition()
         {
-            // TODO: May come in use in the future.
+            transitionMask.Show();
+            Scheduler.AddDelayed(() =>
+            {
+                transitionMask.RotateTo(180);
+                transitionBackground.RotateTo(180);
+                transitionMask.Hide();
+                transitionMask.Delay(600).RotateTo(0);
+                transitionBackground.Delay(600).RotateTo(0);
+            }, 600);
         }
 
         /// <summary>
