@@ -72,9 +72,9 @@ namespace osu.Game.Tournament.Models
 
         public readonly BindableBool PreparationMode = new BindableBool(true);
 
-        public readonly BindableInt CurrentRoundIndex = new BindableInt(-1)
+        public readonly BindableInt CurrentRoundIndex = new BindableInt(-3)
         {
-            MinValue = -1,
+            MinValue = -3,
             MaxValue = 17,
         };
 
@@ -89,6 +89,11 @@ namespace osu.Game.Tournament.Models
         {
             Team1.BindValueChanged(t => Team1Acronym = t.NewValue?.Acronym.Value, true);
             Team2.BindValueChanged(t => Team2Acronym = t.NewValue?.Acronym.Value, true);
+            Round.BindValueChanged(r =>
+            {
+                if (r.NewValue != null)
+                    CurrentRoundIndex.MinValue = -(r.NewValue.BanCount.Value * 2 - 1);
+            });
         }
 
         public TournamentMatch(TournamentTeam? team1 = null, TournamentTeam? team2 = null)

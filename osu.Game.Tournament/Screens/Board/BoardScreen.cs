@@ -55,9 +55,9 @@ namespace osu.Game.Tournament.Screens.Board
         private TeamColour pickTeam;
         private RoundStep pickType;
 
-        private readonly BindableInt currentRoundIndex = new BindableInt(-1)
+        private readonly BindableInt currentRoundIndex = new BindableInt(-3)
         {
-            MinValue = -1,
+            MinValue = -3,
             MaxValue = 17,
         };
 
@@ -580,6 +580,8 @@ namespace osu.Game.Tournament.Screens.Board
             if (match.NewValue != null)
             {
                 currentRoundIndex.BindTo(match.NewValue.CurrentRoundIndex);
+                currentRoundIndex.MinValue = match.NewValue.CurrentRoundIndex.MinValue;
+                currentRoundIndex.MaxValue = match.NewValue.CurrentRoundIndex.MaxValue;
                 preparationMode.BindTo(match.NewValue.PreparationMode);
             }
 

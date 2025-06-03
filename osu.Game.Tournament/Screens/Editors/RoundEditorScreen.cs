@@ -50,7 +50,6 @@ namespace osu.Game.Tournament.Screens.Editors
             [Resolved]
             private IDialogOverlay? dialogOverlay { get; set; }
 
-            private readonly FormSliderBar<int> numOfBansSlider;
             private readonly FormSliderBar<int> bestOfSlider;
 
             public RoundRow(TournamentRound round)
@@ -112,12 +111,11 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.32f,
                                 Current = Model.StartDate,
                             },
-                            numOfBansSlider = new FormSliderBar<int>
+                            new FormSliderBar<int>
                             {
                                 Caption = RoundEditorStrings.NumOfBans,
                                 Width = 0.48f,
                                 Current = Model.BanCount,
-                                Alpha = Model.UseBoard.Value ? 0 : 1,
                             },
                             bestOfSlider = new FormSliderBar<int>
                             {
@@ -176,7 +174,6 @@ namespace osu.Game.Tournament.Screens.Editors
                         Model.BestOf.Value = TournamentGame.BOARD_BEST_OF;
                     }
 
-                    numOfBansSlider.FadeTo(e.NewValue ? 0 : 1);
                     bestOfSlider.FadeTo(e.NewValue ? 0 : 1);
                 }, true);
             }
