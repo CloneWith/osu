@@ -46,7 +46,7 @@
         <value>胜方赢棋·{0}</value>
     </data>
     <data name="win_description" xml:space="preserve">
-        <value>此图对应棋子将变为获胜方赢棋。</value>
+        <value>获胜方将持有更多棋子。</value>
     </data>
     <data name="tie_breaker_name" xml:space="preserve">
         <value>即将进入 TB 模式</value>
