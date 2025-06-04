@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Specialized;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -16,6 +17,8 @@ using osu.Framework.Threading;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -27,6 +30,9 @@ namespace osu.Game.Tournament.Components
     /// </summary>
     public partial class FumoBeatmapPanel : CompositeDrawable
     {
+        [Resolved]
+        private IAPIProvider api { get; set; } = null!;
+
         /// <summary>
         /// The relevant <see cref="RoundBeatmap"/> of the beatmap panel.
         /// </summary>
@@ -67,12 +73,14 @@ namespace osu.Game.Tournament.Components
         private CircularContainer trophyBadge = null!;
         private Box trophyBg = null!;
         private SpriteIcon trophyIcon = null!;
+        private StarRatingDisplay starRatingDisplay = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         public FumoBeatmapPanel(RoundBeatmap beatmap)
         {
             Beatmap = beatmap;
+
             AutoSizeAxes = Axes.Both;
         }
 
@@ -189,8 +197,8 @@ namespace osu.Game.Tournament.Components
                         }
                     }
                 },
-                new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap.StarDifficulty ?? 0, 0)
-                    , animated: true)
+                starRatingDisplay = new StarRatingDisplay(starDifficulty: new StarDifficulty(Beatmap.StarRatingWithMod ?? Beatmap.Beatmap?.StarRating ?? 0,
+                    Beatmap.MaxCombo), animated: true)
                 {
                     Name = @"Star rating pill",
                     Anchor = Anchor.BottomLeft,
@@ -257,6 +265,20 @@ namespace osu.Game.Tournament.Components
 
             updateBorder();
             updateState(false);
+
+            if (Beatmap.StarRatingWithMod == null && Beatmap.Beatmap != null && TournamentGame.SpecialMods.Contains(Beatmap.Mods))
+            {
+                var request = new GetBeatmapAttributesRequest(Beatmap.Beatmap.OnlineID, TournamentGame.ToModEnum(Beatmap.Mods));
+
+                request.Success += result =>
+                {
+                    Beatmap.StarRatingWithMod = Math.Round(result.Attributes.StarRating, 2);
+                    Beatmap.MaxCombo = result.Attributes.MaxCombo;
+                    starRatingDisplay.Current.Value = new StarDifficulty(Beatmap.StarRatingWithMod.Value, Beatmap.MaxCombo);
+                };
+
+                api.Queue(request);
+            }
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)

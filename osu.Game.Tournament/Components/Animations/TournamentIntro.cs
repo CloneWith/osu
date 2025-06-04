@@ -36,6 +36,7 @@ namespace osu.Game.Tournament.Components.Animations
         private Box flash = null!;
         private EmptyBox dummyBackground = null!;
         private OsuSpriteText modText = null!;
+        private StarRatingDisplay starRatingDisplay = null!;
 
         private FillFlowContainer beatmapContent = null!;
 
@@ -264,7 +265,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                 },
-                                                new StarRatingDisplay(new StarDifficulty(map.StarDifficulty ?? 0, 0))
+                                                starRatingDisplay = new StarRatingDisplay(new StarDifficulty(map.Beatmap?.StarRating ?? 0, map.MaxCombo), animated: true)
                                                 {
                                                     Shear = -OsuGame.SHEAR,
                                                     Margin = new MarginPadding(5),
@@ -340,6 +341,14 @@ namespace osu.Game.Tournament.Components.Animations
         private void beginAnimation()
         {
             this.FadeInFromZero(500, Easing.OutExpo);
+
+            Scheduler.AddDelayed(() =>
+            {
+                if (map.StarRatingWithMod != null)
+                {
+                    starRatingDisplay.Current.Value = new StarDifficulty(map.StarRatingWithMod.Value, map.MaxCombo);
+                }
+            }, 4000);
 
             using (BeginDelayedSequence(1500))
             {

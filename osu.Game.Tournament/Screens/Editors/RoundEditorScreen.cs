@@ -494,8 +494,8 @@ namespace osu.Game.Tournament.Screens.Editors
                         difficultyField.Default = difficultyField.Value = Model.DifficultyField;
                         difficultyField.BindValueChanged(field => Model.DifficultyField = field.NewValue);
 
-                        fixedStarDifficulty.Default = fixedStarDifficulty.Value = Model.FixedStarDifficulty;
-                        fixedStarDifficulty.BindValueChanged(field => Model.FixedStarDifficulty = field.NewValue);
+                        fixedStarDifficulty.Default = fixedStarDifficulty.Value = Model.StarRatingWithMod;
+                        fixedStarDifficulty.BindValueChanged(field => Model.StarRatingWithMod = field.NewValue);
                     }
 
                     private void updatePanel() => Schedule(() =>
