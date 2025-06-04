@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
@@ -32,6 +33,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly PlayerContainer playerContainer;
         private readonly Box backgroundMask;
         private readonly Box topMask;
+        private readonly TrianglesV2 triangles;
         private readonly WaveContainer transitionMask;
         private readonly Sprite transitionBackground;
 
@@ -71,6 +73,13 @@ namespace osu.Game.Screens.TournamentShowcase
                     {
                         RelativeSizeAxes = Axes.Both,
                     }
+                },
+                triangles = new TrianglesV2
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    ScaleAdjust = 1.5f,
+                    SpawnRatio = 1.75f,
+                    Alpha = 0,
                 },
                 DifficultyDisplay = new BeatmapTitleWedge.DifficultyDisplay
                 {
@@ -217,6 +226,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 playerContainer.BlurTo(new Vector2(10), 1500, Easing.OutQuint);
                 topMask.FadeTo(0.25f, 1500, Easing.OutQuint);
+                triangles.FadeIn(1500, Easing.OutQuint);
                 introContainer.FadeIn(1000, Easing.OutQuint);
             }
 
@@ -352,6 +362,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 mapPoolContainer.FadeOut(1000, Easing.InQuint);
 
                 topMask.Delay(1000).FadeOut(1000, Easing.InQuint);
+                triangles.Delay(1000).FadeOut(1500, Easing.OutQuint);
                 playerContainer.Delay(1000).BlurTo(Vector2.Zero, 1500, Easing.OutQuint);
             }
 
@@ -439,6 +450,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 playerContainer.BlurTo(new Vector2(10), 1500, Easing.OutQuint);
                 topMask.FadeTo(0.25f, 1500, Easing.OutQuint);
+                triangles.FadeIn(1500, Easing.OutQuint);
                 outroContainer.FadeIn(1500, Easing.OutQuint);
                 outroContainer.MoveToY(0, 1000, Easing.OutQuint);
             }
@@ -450,6 +462,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 outroContainer.MoveToY(-1f, 1500, Easing.InQuint);
                 outroContainer.FadeOut(1000, Easing.InQuint);
+                triangles.FadeOut(1500, Easing.OutQuint);
 
                 topMask.Delay(2500).FadeIn(1500, Easing.OutQuint);
             }
