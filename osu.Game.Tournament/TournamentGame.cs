@@ -142,6 +142,8 @@ namespace osu.Game.Tournament
         public const int BOARD_BEST_OF = 9;
         public const int TIE_BREAKER_ROUND = 17;
 
+        public static readonly List<string> SpecialMods = ["HR", "HD", "DT", "FL"];
+
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
         public static readonly Color4 COLOUR_CHOICES = Color4.Orange;
@@ -149,8 +151,8 @@ namespace osu.Game.Tournament
 
         public static readonly Color4 ELEMENT_BACKGROUND_COLOUR = Color4Extensions.FromHex("#fff");
         public static readonly Color4 ELEMENT_FOREGROUND_COLOUR = Color4Extensions.FromHex("#000");
-
         public static readonly Color4 TEXT_COLOUR = Color4Extensions.FromHex("#fff");
+
         private Drawable heightWarning = null!;
 
         private Bindable<WindowMode> windowMode = null!;
