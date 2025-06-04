@@ -15,6 +15,7 @@ using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osu.Game.Beatmaps.Legacy;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
@@ -120,6 +121,20 @@ namespace osu.Game.Tournament
                     _ => throw new ArgumentException(@$"The {nameof(RoundStep.Win)} and {nameof(RoundStep.Shiro)} cannot be converted to {nameof(ChoiceType)} without a valid {nameof(TeamColour)}."),
                 },
                 _ => ChoiceType.Neutral,
+            };
+
+        /// <summary>
+        /// Turn a mod acronym into the form of <see cref="LegacyMods"/>.
+        /// </summary>
+        /// <param name="acronym">the acronym of a mod</param>
+        /// <returns>the corresponding <see cref="LegacyMods"/>. When not found, returns None.</returns>
+        public static LegacyMods ToModEnum(string acronym) =>
+            acronym.ToUpperInvariant() switch
+            {
+                @"HR" => LegacyMods.HardRock,
+                @"HD" => LegacyMods.Hidden,
+                @"DT" => LegacyMods.DoubleTime,
+                _ => LegacyMods.None,
             };
 
         public const int RESERVED_BEATMAP_ID = -1;
