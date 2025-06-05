@@ -5,11 +5,15 @@ namespace osu.Game.Graphics.UserInterface
 {
     public partial class OsuNumberBox : OsuTextBox
     {
-        public OsuNumberBox()
+        private readonly bool allowNegative;
+
+        public OsuNumberBox(bool allowNegative = false)
         {
+            this.allowNegative = allowNegative;
             SelectAllOnFocus = true;
         }
 
-        protected override bool CanAddCharacter(char character) => char.IsAsciiDigit(character);
+        protected override bool CanAddCharacter(char character)
+            => char.IsAsciiDigit(character) || (allowNegative && character == '-' && !Text.Contains('-'));
     }
 }

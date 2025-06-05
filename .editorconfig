@@ -2,7 +2,7 @@
 root = true
 
 [*.{csproj,props,targets}]
-charset = utf-8-bom
+charset = utf-8
 end_of_line = crlf
 insert_final_newline = true
 indent_style = space
@@ -143,6 +143,7 @@ dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
 csharp_preferred_modifier_order = public,private,protected,internal,new,abstract,virtual,sealed,override,static,readonly,extern,unsafe,volatile,async:warning
 
 #Style - parentheses
+dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary
 # Skipped because roslyn cannot separate +-*/ with << >>
 
 #Style - expression bodies

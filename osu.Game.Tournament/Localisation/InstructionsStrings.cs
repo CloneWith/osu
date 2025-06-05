@@ -137,6 +137,16 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString HaltDescription => new TranslatableString(getKey(@"halt_description"),
             @"Waiting for referees' reply...");
 
+        /// <summary>
+        /// "Ban"
+        /// </summary>
+        public static LocalisableString BanShort => new TranslatableString(getKey(@"ban_short"), @"Ban");
+
+        /// <summary>
+        /// "Pick"
+        /// </summary>
+        public static LocalisableString PickShort => new TranslatableString(getKey(@"pick_short"), @"Pick");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

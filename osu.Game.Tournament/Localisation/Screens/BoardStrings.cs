@@ -15,16 +15,35 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString CurrentMode => new TranslatableString(getKey(@"current_mode"), @"Current Mode");
 
         /// <summary>
+        /// "Round Counter"
+        /// </summary>
+        public static LocalisableString RoundCounter => new TranslatableString(getKey(@"round_counter"), @"Round Counter");
+
+        /// <summary>
+        /// "Preparation Mode"
+        /// </summary>
+        public static LocalisableString PreparationMode => new TranslatableString(getKey(@"preparation_mode"), @"Preparation Mode");
+
+        /// <summary>
+        /// "Tiebreaker Control"
+        /// </summary>
+        public static LocalisableString TiebreakerControl => new TranslatableString(getKey(@"tiebreaker_control"), @"Tiebreaker Control");
+
+        /// <summary>
+        /// "TB Status"
+        /// </summary>
+        public static LocalisableString TiebreakerIndicator => new TranslatableString(getKey(@"tiebreaker_indicator"), @"TB Status");
+
+        /// <summary>
+        /// "Enter TB"
+        /// </summary>
+        public static LocalisableString EnterTiebreaker => new TranslatableString(getKey(@"enter_tiebreaker"), @"Enter TB");
+
+        /// <summary>
         /// "Cannot find a Pick record associated with the selected beatmap."
         /// </summary>
         public static LocalisableString PicksUnavailable => new TranslatableString(getKey(@"pick_unavailable"),
             @"Cannot find a Pick record associated with the selected beatmap.");
-
-        /// <summary>
-        /// "Cannot add a Win status to a banned beatmap."
-        /// </summary>
-        public static LocalisableString WinOnBanNotAllowed => new TranslatableString(getKey(@"win_on_ban_not_allowed"),
-            @"Cannot add a Win status to a banned beatmap.");
 
         /// <summary>
         /// "Remaining:"
@@ -35,6 +54,32 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// "Chess area size"
         /// </summary>
         public static LocalisableString MainBoardAreaSize => new TranslatableString(getKey(@"main_board_area_size"), @"Chess area size");
+
+        /// <summary>
+        /// "Shiro Status"
+        /// </summary>
+        public static LocalisableString ShiroStatus => new TranslatableString(getKey(@"shiro_status"), @"Shiro Status");
+
+        /// <summary>
+        /// "Available"
+        /// </summary>
+        public static LocalisableString ShiroAvailable => new TranslatableString(getKey(@"shiro_available"), @"Available");
+
+        /// <summary>
+        /// "Needs Activation"
+        /// </summary>
+        public static LocalisableString ShiroNeedsActivation => new TranslatableString(getKey(@"shiro_needs_activation"), @"Needs Activation");
+
+        /// <summary>
+        /// "Held by {0}"
+        /// </summary>
+        public static LocalisableString ShiroHeldBy(LocalisableString team) => new TranslatableString(getKey(@"shiro_held_by"),
+            @"Held by {0}", team);
+
+        /// <summary>
+        /// "Consumed"
+        /// </summary>
+        public static LocalisableString ShiroConsumed => new TranslatableString(getKey(@"shiro_consumed"), @"Consumed");
 
         /// <summary>
         /// "Shiro Deployment"
@@ -65,6 +110,12 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// "Clear Selection"
         /// </summary>
         public static LocalisableString ClearSelection => new TranslatableString(getKey(@"clear_selection"), @"Clear Selection");
+
+        /// <summary>
+        /// "Intro Animation"
+        /// </summary>
+        public static LocalisableString EnableIntroAnimation => new TranslatableString(getKey(@"enable_intro_animation"),
+            @"Intro Animation");
 
         /// <summary>
         /// "The selected chess pieces must be in the same colour."
@@ -131,6 +182,27 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// </summary>
         public static LocalisableString KeepCurrentState => new TranslatableString(getKey(@"keep_current_state"),
             @"I'd rather stay the same.");
+
+        /// <summary>
+        /// "Current"
+        /// </summary>
+        public static LocalisableString CurrentRound => new TranslatableString(getKey(@"current_round"), @"Current");
+
+        /// <summary>
+        /// "Advance rounds"
+        /// </summary>
+        public static LocalisableString AutoAdvanceRounds => new TranslatableString(getKey(@"auto_advance_rounds"), @"Advance rounds");
+
+        /// <summary>
+        /// "Advance screens"
+        /// </summary>
+        public static LocalisableString AutoAdvanceScreens => new TranslatableString(getKey(@"auto_advance_screens"), @"Advance screens");
+
+        /// <summary>
+        /// "{0} {1}"
+        /// </summary>
+        public static LocalisableString RoundActionPrompt(LocalisableString team, LocalisableString action)
+            => new TranslatableString(getKey(@"round_action_prompt"), @"{0} {1}", team, action);
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

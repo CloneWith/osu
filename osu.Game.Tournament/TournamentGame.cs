@@ -15,6 +15,7 @@ using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
+using osu.Game.Beatmaps.Legacy;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
@@ -122,7 +123,26 @@ namespace osu.Game.Tournament
                 _ => ChoiceType.Neutral,
             };
 
+        /// <summary>
+        /// Turn a mod acronym into the form of <see cref="LegacyMods"/>.
+        /// </summary>
+        /// <param name="acronym">the acronym of a mod</param>
+        /// <returns>the corresponding <see cref="LegacyMods"/>. When not found, returns None.</returns>
+        public static LegacyMods ToModEnum(string acronym) =>
+            acronym.ToUpperInvariant() switch
+            {
+                @"HR" => LegacyMods.HardRock,
+                @"HD" => LegacyMods.Hidden,
+                @"DT" => LegacyMods.DoubleTime,
+                _ => LegacyMods.None,
+            };
+
         public const int RESERVED_BEATMAP_ID = -1;
+
+        public const int BOARD_BEST_OF = 9;
+        public const int TIE_BREAKER_ROUND = 17;
+
+        public static readonly List<string> SPECIAL_MODS = ["HR", "HD", "DT", "FL"];
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
@@ -131,8 +151,8 @@ namespace osu.Game.Tournament
 
         public static readonly Color4 ELEMENT_BACKGROUND_COLOUR = Color4Extensions.FromHex("#fff");
         public static readonly Color4 ELEMENT_FOREGROUND_COLOUR = Color4Extensions.FromHex("#000");
-
         public static readonly Color4 TEXT_COLOUR = Color4Extensions.FromHex("#fff");
+
         private Drawable heightWarning = null!;
 
         private Bindable<WindowMode> windowMode = null!;

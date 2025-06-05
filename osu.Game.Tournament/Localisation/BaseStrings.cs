@@ -82,6 +82,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString Okay => new TranslatableString(getKey(@"okay"), @"Okay");
 
         /// <summary>
+        /// "Cancel"
+        /// </summary>
+        public static LocalisableString Cancel => new TranslatableString(getKey(@"cancel"), @"Cancel");
+
+        /// <summary>
         /// "Unknown"
         /// </summary>
         public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
@@ -205,6 +210,21 @@ namespace osu.Game.Tournament.Localisation
         /// "No beatmap available!"
         /// </summary>
         public static LocalisableString NoBeatmapAvailable => new TranslatableString(getKey(@"no_beatmap_available"), @"No beatmap available!");
+
+        /// <summary>
+        /// "Debug Settings"
+        /// </summary>
+        public static LocalisableString DebugSettings => new TranslatableString(getKey(@"debug_settings"), @"Debug Settings");
+
+        /// <summary>
+        /// "No pending screens!"
+        /// </summary>
+        public static LocalisableString IdleScreenTimer => new TranslatableString(getKey(@"idle_screen_timer"), @"No pending screens!");
+
+        /// <summary>
+        /// "Screen Changed"
+        /// </summary>
+        public static LocalisableString ScreenChanged => new TranslatableString(getKey(@"screen_changed"), @"Screen changed");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

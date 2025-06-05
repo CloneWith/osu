@@ -26,8 +26,8 @@ namespace osu.Game.Tournament.Components
             this.truncate = truncate;
             Background.Alpha = noBackground ? 0 : 1;
 
-            Text.Text = "???";
-            Text.Colour = colour switch
+            InnerText.Text = "???";
+            InnerText.Colour = colour switch
             {
                 TeamColour.Red => TournamentGame.COLOUR_RED,
                 TeamColour.Blue => TournamentGame.COLOUR_BLUE,
@@ -42,9 +42,9 @@ namespace osu.Game.Tournament.Components
 
             (acronym = team.Acronym.GetBoundCopy()).BindValueChanged(_ =>
             {
-                Text.Text = team?.FullName.Value ?? "???";
+                InnerText.Text = team?.FullName.Value ?? "???";
                 if (truncate)
-                    Text.Text = Text.Text.ToString().TruncateWithEllipsis(10);
+                    InnerText.Text = InnerText.Text.ToString().TruncateWithEllipsis(10);
             }, true);
         }
     }
