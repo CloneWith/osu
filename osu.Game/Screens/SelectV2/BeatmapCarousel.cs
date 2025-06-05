@@ -7,14 +7,20 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
+using osu.Framework.Audio;
+using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Pooling;
 using osu.Framework.Threading;
 using osu.Framework.Utils;
 using osu.Game.Beatmaps;
+using osu.Game.Configuration;
 using osu.Game.Database;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Carousel;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Screens.Select;
@@ -25,6 +31,16 @@ namespace osu.Game.Screens.SelectV2
     public partial class BeatmapCarousel : Carousel<BeatmapInfo>
     {
         public Action<BeatmapInfo>? RequestPresentBeatmap { private get; init; }
+
+        /// <summary>
+        /// From the provided beatmaps, select the most appropriate one for the user's skill.
+        /// </summary>
+        public required Action<IEnumerable<BeatmapInfo>> RequestRecommendedSelection { private get; init; }
+
+        /// <summary>
+        /// Selection requested for the provided beatmap.
+        /// </summary>
+        public required Action<BeatmapInfo> RequestSelection { private get; init; }
 
         public const float SPACING = 3f;
 
@@ -46,9 +62,26 @@ namespace osu.Game.Screens.SelectV2
             if ((top.Model is GroupDefinition) ^ (bottom.Model is GroupDefinition))
                 return SPACING * 2;
 
-            // Beatmap difficulty panels do not overlap with themselves or any other panel.
-            if (grouping.BeatmapSetsGroupedTogether && (top.Model is BeatmapInfo || bottom.Model is BeatmapInfo))
-                return SPACING;
+            if (grouping.BeatmapSetsGroupedTogether)
+            {
+                // Give some space around the expanded beatmap set, at the top..
+                if (bottom.Model is BeatmapSetInfo && bottom.IsExpanded)
+                    return SPACING * 2;
+
+                // ..and the bottom.
+                if (top.Model is BeatmapInfo && bottom.Model is BeatmapSetInfo)
+                    return SPACING * 2;
+
+                // Beatmap difficulty panels do not overlap with themselves or any other panel.
+                if (top.Model is BeatmapInfo || bottom.Model is BeatmapInfo)
+                    return SPACING;
+            }
+            else
+            {
+                // `CurrentSelectionItem` cannot be used here because it may not be correctly set yet.
+                if (CurrentSelection != null && (CheckModelEquality(top.Model, CurrentSelection) || CheckModelEquality(bottom.Model, CurrentSelection)))
+                    return SPACING * 2;
+            }
 
             return -SPACING;
         }
@@ -60,28 +93,31 @@ namespace osu.Game.Screens.SelectV2
 
             Filters = new ICarouselFilter[]
             {
-                matching = new BeatmapCarouselFilterMatching(() => Criteria),
-                new BeatmapCarouselFilterSorting(() => Criteria),
-                grouping = new BeatmapCarouselFilterGrouping(() => Criteria),
+                matching = new BeatmapCarouselFilterMatching(() => Criteria!),
+                new BeatmapCarouselFilterSorting(() => Criteria!),
+                grouping = new BeatmapCarouselFilterGrouping(() => Criteria!),
             };
 
-            AddInternal(loading = new LoadingLayer(dimBackground: true));
+            AddInternal(loading = new LoadingLayer());
         }
 
         [BackgroundDependencyLoader]
-        private void load(BeatmapStore beatmapStore, CancellationToken? cancellationToken)
+        private void load(BeatmapStore beatmapStore, AudioManager audio, OsuConfigManager config, CancellationToken? cancellationToken)
         {
             setupPools();
-            setupBeatmaps(beatmapStore, cancellationToken);
+            detachedBeatmaps = beatmapStore.GetBeatmapSets(cancellationToken);
+            loadSamples(audio);
+
+            config.BindWith(OsuSetting.RandomSelectAlgorithm, randomAlgorithm);
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            detachedBeatmaps.BindCollectionChanged(beatmapSetsChanged, true);
         }
 
         #region Beatmap source hookup
-
-        private void setupBeatmaps(BeatmapStore beatmapStore, CancellationToken? cancellationToken)
-        {
-            detachedBeatmaps = beatmapStore.GetBeatmapSets(cancellationToken);
-            detachedBeatmaps.BindCollectionChanged(beatmapSetsChanged, true);
-        }
 
         private void beatmapSetsChanged(object? beatmaps, NotifyCollectionChangedEventArgs changed)
         {
@@ -134,7 +170,7 @@ namespace osu.Game.Screens.SelectV2
                             // TODO: should this exist in song select instead of here?
                             // we need to ensure the global beatmap is also updated alongside changes.
                             if (CurrentSelection != null && CheckModelEquality(beatmap, CurrentSelection))
-                                CurrentSelection = matchingNewBeatmap;
+                                RequestSelection(matchingNewBeatmap);
 
                             Items.ReplaceRange(previousIndex, 1, [matchingNewBeatmap]);
                             newSetBeatmaps.Remove(matchingNewBeatmap);
@@ -161,41 +197,46 @@ namespace osu.Game.Screens.SelectV2
 
         #region Selection handling
 
-        private GroupDefinition? lastSelectedGroup;
-        private BeatmapInfo? lastSelectedBeatmap;
+        protected GroupDefinition? ExpandedGroup { get; private set; }
+
+        protected BeatmapSetInfo? ExpandedBeatmapSet { get; private set; }
 
         protected override void HandleItemActivated(CarouselItem item)
         {
-            switch (item.Model)
+            try
             {
-                case GroupDefinition group:
-                    // Special case – collapsing an open group.
-                    if (lastSelectedGroup == group)
-                    {
-                        setExpansionStateOfGroup(lastSelectedGroup, false);
-                        lastSelectedGroup = null;
+                switch (item.Model)
+                {
+                    case GroupDefinition group:
+                        // Special case – collapsing an open group.
+                        if (ExpandedGroup == group)
+                        {
+                            setExpansionStateOfGroup(ExpandedGroup, false);
+                            ExpandedGroup = null;
+                            return;
+                        }
+
+                        setExpandedGroup(group);
                         return;
-                    }
 
-                    setExpandedGroup(group);
-                    return;
-
-                case BeatmapSetInfo setInfo:
-                    // Selecting a set isn't valid – let's re-select the first visible difficulty.
-                    if (grouping.SetItems.TryGetValue(setInfo, out var items))
-                        CurrentSelection = items.Select(i => i.Model).OfType<BeatmapInfo>().First();
-
-                    return;
-
-                case BeatmapInfo beatmapInfo:
-                    if (CurrentSelection != null && CheckModelEquality(CurrentSelection, beatmapInfo))
-                    {
-                        RequestPresentBeatmap?.Invoke(beatmapInfo);
+                    case BeatmapSetInfo setInfo:
+                        selectRecommendedDifficultyForBeatmapSet(setInfo);
                         return;
-                    }
 
-                    CurrentSelection = beatmapInfo;
-                    return;
+                    case BeatmapInfo beatmapInfo:
+                        if (CurrentSelection != null && CheckModelEquality(CurrentSelection, beatmapInfo))
+                        {
+                            RequestPresentBeatmap?.Invoke(beatmapInfo);
+                            return;
+                        }
+
+                        RequestSelection(beatmapInfo);
+                        return;
+                }
+            }
+            finally
+            {
+                playActivationSound(item);
             }
         }
 
@@ -215,9 +256,74 @@ namespace osu.Game.Screens.SelectV2
 
                     if (containingGroup != null)
                         setExpandedGroup(containingGroup);
-                    setExpandedSet(beatmapInfo);
+
+                    if (grouping.BeatmapSetsGroupedTogether)
+                        setExpandedSet(beatmapInfo);
                     break;
             }
+        }
+
+        protected override void HandleFilterCompleted()
+        {
+            base.HandleFilterCompleted();
+
+            attemptSelectSingleFilteredResult();
+
+            // Store selected group before handling selection (it may implicitly change the expanded group).
+            var groupForReselection = ExpandedGroup;
+
+            // Ensure correct post-selection logic is handled on the new items list.
+            // This will update the visual state of the selected item.
+            HandleItemSelected(CurrentSelection);
+
+            // If a group was selected that is not the one containing the selection, reselect it.
+            if (groupForReselection != null)
+                setExpandedGroup(groupForReselection);
+        }
+
+        private void selectRecommendedDifficultyForBeatmapSet(BeatmapSetInfo beatmapSet)
+        {
+            // Selecting a set isn't valid – let's re-select the first visible difficulty.
+            if (grouping.SetItems.TryGetValue(beatmapSet, out var items))
+            {
+                var beatmaps = items.Select(i => i.Model).OfType<BeatmapInfo>();
+                RequestRecommendedSelection(beatmaps);
+            }
+        }
+
+        /// <summary>
+        /// If we don't have a selection and there's a single beatmap set returned, select it for the user.
+        /// </summary>
+        private void attemptSelectSingleFilteredResult()
+        {
+            var items = GetCarouselItems();
+
+            if (items == null || items.Count == 0) return;
+
+            BeatmapSetInfo? beatmapSetInfo = null;
+
+            foreach (var item in items)
+            {
+                if (item.Model is BeatmapInfo beatmapInfo)
+                {
+                    if (beatmapSetInfo == null)
+                    {
+                        beatmapSetInfo = beatmapInfo.BeatmapSet!;
+                        continue;
+                    }
+
+                    // Found a beatmap with a different beatmap set, abort.
+                    if (!beatmapSetInfo.Equals(beatmapInfo.BeatmapSet))
+                        return;
+                }
+            }
+
+            var beatmaps = items.Select(i => i.Model).OfType<BeatmapInfo>();
+
+            if (beatmaps.Any(b => b.Equals(CurrentSelection as BeatmapInfo)))
+                return;
+
+            RequestRecommendedSelection(beatmaps);
         }
 
         protected override bool CheckValidForGroupSelection(CarouselItem item)
@@ -240,9 +346,9 @@ namespace osu.Game.Screens.SelectV2
 
         private void setExpandedGroup(GroupDefinition group)
         {
-            if (lastSelectedGroup != null)
-                setExpansionStateOfGroup(lastSelectedGroup, false);
-            lastSelectedGroup = group;
+            if (ExpandedGroup != null)
+                setExpansionStateOfGroup(ExpandedGroup, false);
+            ExpandedGroup = group;
             setExpansionStateOfGroup(group, true);
         }
 
@@ -296,10 +402,10 @@ namespace osu.Game.Screens.SelectV2
 
         private void setExpandedSet(BeatmapInfo beatmapInfo)
         {
-            if (lastSelectedBeatmap != null)
-                setExpansionStateOfSetItems(lastSelectedBeatmap.BeatmapSet!, false);
-            lastSelectedBeatmap = beatmapInfo;
-            setExpansionStateOfSetItems(beatmapInfo.BeatmapSet!, true);
+            if (ExpandedBeatmapSet != null)
+                setExpansionStateOfSetItems(ExpandedBeatmapSet, false);
+            ExpandedBeatmapSet = beatmapInfo.BeatmapSet!;
+            setExpansionStateOfSetItems(ExpandedBeatmapSet, true);
         }
 
         private void setExpansionStateOfSetItems(BeatmapSetInfo set, bool expanded)
@@ -313,6 +419,54 @@ namespace osu.Game.Screens.SelectV2
                     else
                         i.IsVisible = expanded;
                 }
+            }
+        }
+
+        #endregion
+
+        #region Audio
+
+        private Sample? sampleChangeDifficulty;
+        private Sample? sampleChangeSet;
+        private Sample? sampleOpen;
+        private Sample? sampleClose;
+
+        private double audioFeedbackLastPlaybackTime;
+
+        private void loadSamples(AudioManager audio)
+        {
+            sampleChangeDifficulty = audio.Samples.Get(@"SongSelect/select-difficulty");
+            sampleChangeSet = audio.Samples.Get(@"SongSelect/select-expand");
+            sampleOpen = audio.Samples.Get(@"UI/menu-open");
+            sampleClose = audio.Samples.Get(@"UI/menu-close");
+
+            spinSample = audio.Samples.Get("SongSelect/random-spin");
+            randomSelectSample = audio.Samples.Get(@"SongSelect/select-random");
+        }
+
+        private void playActivationSound(CarouselItem item)
+        {
+            if (Time.Current - audioFeedbackLastPlaybackTime >= OsuGameBase.SAMPLE_DEBOUNCE_TIME)
+            {
+                switch (item.Model)
+                {
+                    case GroupDefinition:
+                        if (item.IsExpanded)
+                            sampleOpen?.Play();
+                        else
+                            sampleClose?.Play();
+                        return;
+
+                    case BeatmapSetInfo:
+                        sampleChangeSet?.Play();
+                        return;
+
+                    case BeatmapInfo:
+                        sampleChangeDifficulty?.Play();
+                        return;
+                }
+
+                audioFeedbackLastPlaybackTime = Time.Current;
             }
         }
 
@@ -343,23 +497,41 @@ namespace osu.Game.Screens.SelectV2
 
         #region Filtering
 
-        public FilterCriteria Criteria { get; private set; } = new FilterCriteria();
+        public FilterCriteria? Criteria { get; private set; }
 
         private ScheduledDelegate? loadingDebounce;
 
-        public void Filter(FilterCriteria criteria)
+        public void Filter(FilterCriteria criteria, bool showLoadingImmediately = false)
         {
+            bool resetDisplay = grouping.BeatmapSetsGroupedTogether != BeatmapCarouselFilterGrouping.ShouldGroupBeatmapsTogether(criteria);
+
             Criteria = criteria;
 
-            loadingDebounce ??= Scheduler.AddDelayed(() => loading.Show(), 250);
+            loadingDebounce ??= Scheduler.AddDelayed(() =>
+            {
+                if (loading.State.Value == Visibility.Visible)
+                    return;
 
-            FilterAsync().ContinueWith(_ => Schedule(() =>
+                Scroll.FadeColour(OsuColour.Gray(0.5f), 1000, Easing.OutQuint);
+                loading.Show();
+            }, showLoadingImmediately ? 0 : 250);
+
+            FilterAsync(resetDisplay).ContinueWith(_ => Schedule(() =>
             {
                 loadingDebounce?.Cancel();
                 loadingDebounce = null;
 
+                Scroll.FadeColour(OsuColour.Gray(1f), 500, Easing.OutQuint);
                 loading.Hide();
             }));
+        }
+
+        protected override Task<IEnumerable<CarouselItem>> FilterAsync(bool clearExistingPanels = false)
+        {
+            if (Criteria == null)
+                return Task.FromResult(Enumerable.Empty<CarouselItem>());
+
+            return base.FilterAsync(clearExistingPanels);
         }
 
         #endregion
@@ -396,6 +568,12 @@ namespace osu.Game.Screens.SelectV2
             if (x is BeatmapInfo beatmapX && y is BeatmapInfo beatmapY)
                 return beatmapX.Equals(beatmapY);
 
+            if (x is GroupDefinition groupX && y is GroupDefinition groupY)
+                return groupX.Equals(groupY);
+
+            if (x is StarDifficultyGroupDefinition starX && y is StarDifficultyGroupDefinition starY)
+                return starX.Equals(starY);
+
             return base.CheckModelEquality(x, y);
         }
 
@@ -403,10 +581,10 @@ namespace osu.Game.Screens.SelectV2
         {
             switch (item.Model)
             {
-                case GroupDefinition group:
-                    if (group.Data is StarDifficulty)
-                        return starsGroupPanelPool.Get();
+                case StarDifficultyGroupDefinition:
+                    return starsGroupPanelPool.Get();
 
+                case GroupDefinition:
                     return groupPanelPool.Get();
 
                 case BeatmapInfo:
@@ -423,7 +601,118 @@ namespace osu.Game.Screens.SelectV2
         }
 
         #endregion
+
+        #region Random selection handling
+
+        private readonly Bindable<RandomSelectAlgorithm> randomAlgorithm = new Bindable<RandomSelectAlgorithm>();
+        private readonly List<BeatmapSetInfo> previouslyVisitedRandomSets = new List<BeatmapSetInfo>();
+        private readonly List<BeatmapInfo> randomSelectedBeatmaps = new List<BeatmapInfo>();
+
+        private Sample? spinSample;
+        private Sample? randomSelectSample;
+
+        public bool NextRandom()
+        {
+            var carouselItems = GetCarouselItems();
+
+            if (carouselItems?.Any() != true)
+                return false;
+
+            // This is the fastest way to retrieve sets for randomisation.
+            ICollection<BeatmapSetInfo> visibleSets = grouping.SetItems.Keys;
+
+            if (CurrentSelection is BeatmapInfo beatmapInfo)
+            {
+                randomSelectedBeatmaps.Add(beatmapInfo);
+
+                // when performing a random, we want to add the current set to the previously visited list
+                // else the user may be "randomised" to the existing selection.
+                if (previouslyVisitedRandomSets.LastOrDefault()?.Equals(beatmapInfo.BeatmapSet) != true)
+                    previouslyVisitedRandomSets.Add(beatmapInfo.BeatmapSet!);
+            }
+
+            BeatmapSetInfo set;
+
+            if (randomAlgorithm.Value == RandomSelectAlgorithm.RandomPermutation)
+            {
+                ICollection<BeatmapSetInfo> notYetVisitedSets = visibleSets.Except(previouslyVisitedRandomSets).ToList();
+
+                if (!notYetVisitedSets.Any())
+                {
+                    previouslyVisitedRandomSets.RemoveAll(s => visibleSets.Contains(s));
+                    notYetVisitedSets = visibleSets;
+                }
+
+                set = notYetVisitedSets.ElementAt(RNG.Next(notYetVisitedSets.Count));
+                previouslyVisitedRandomSets.Add(set);
+            }
+            else
+                set = visibleSets.ElementAt(RNG.Next(visibleSets.Count));
+
+            if (CurrentSelectionItem != null)
+                playSpinSample(distanceBetween(carouselItems.First(i => !ReferenceEquals(i.Model, set)), CurrentSelectionItem), visibleSets.Count);
+
+            selectRecommendedDifficultyForBeatmapSet(set);
+            return true;
+        }
+
+        public void PreviousRandom()
+        {
+            var carouselItems = GetCarouselItems();
+
+            if (carouselItems?.Any() != true)
+                return;
+
+            while (randomSelectedBeatmaps.Any())
+            {
+                var previousBeatmap = randomSelectedBeatmaps[^1];
+                randomSelectedBeatmaps.RemoveAt(randomSelectedBeatmaps.Count - 1);
+
+                var previousBeatmapItem = carouselItems.FirstOrDefault(i => i.Model is BeatmapInfo b && b.Equals(previousBeatmap));
+
+                if (previousBeatmapItem == null)
+                    return;
+
+                if (CurrentSelection is BeatmapInfo beatmapInfo)
+                {
+                    if (randomAlgorithm.Value == RandomSelectAlgorithm.RandomPermutation)
+                        previouslyVisitedRandomSets.Remove(beatmapInfo.BeatmapSet!);
+
+                    playSpinSample(distanceBetween(previousBeatmapItem, CurrentSelectionItem!), carouselItems.Count);
+                }
+
+                RequestSelection(previousBeatmap);
+                break;
+            }
+        }
+
+        private double distanceBetween(CarouselItem item1, CarouselItem item2) => Math.Ceiling(Math.Abs(item1.CarouselYPosition - item2.CarouselYPosition) / PanelBeatmapSet.HEIGHT);
+
+        private void playSpinSample(double distance, int count)
+        {
+            var chan = spinSample?.GetChannel();
+
+            if (chan != null)
+            {
+                chan.Frequency.Value = 1f + Math.Min(1f, distance / count);
+                chan.Play();
+            }
+
+            randomSelectSample?.Play();
+        }
+
+        #endregion
     }
 
-    public record GroupDefinition(object Data, string Title);
+    /// <summary>
+    /// Defines a grouping header for a set of carousel items.
+    /// </summary>
+    /// <param name="Order">The order of this group in the carousel, sorted using ascending order.</param>
+    /// <param name="Title">The title of this group.</param>
+    public record GroupDefinition(int Order, string Title);
+
+    /// <summary>
+    /// Defines a grouping header for a set of carousel items grouped by star difficulty.
+    /// </summary>
+    public record StarDifficultyGroupDefinition(int Order, string Title, StarDifficulty Difficulty) : GroupDefinition(Order, Title);
 }

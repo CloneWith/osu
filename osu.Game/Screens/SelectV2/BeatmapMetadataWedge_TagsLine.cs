@@ -165,7 +165,7 @@ namespace osu.Game.Screens.SelectV2
                             Colour = colourProvider.Background4,
                             Font = OsuFont.Style.Caption1.With(weight: FontWeight.Bold),
                         },
-                        new HoverClickSounds(HoverSampleSet.Button),
+                        new HoverClickSounds(),
                     };
                 }
 
@@ -194,7 +194,7 @@ namespace osu.Game.Screens.SelectV2
             public partial class TagsOverflowPopover : OsuPopover
             {
                 private readonly string[] tags;
-                private readonly SongSelect? songSelect;
+                private readonly ISongSelect? songSelect;
 
                 public TagsOverflowPopover(string[] tags, SongSelect? songSelect)
                 {
