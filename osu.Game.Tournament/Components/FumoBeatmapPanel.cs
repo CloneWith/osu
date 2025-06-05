@@ -266,7 +266,7 @@ namespace osu.Game.Tournament.Components
             updateBorder();
             updateState(false);
 
-            if (Beatmap.StarRatingWithMod == null && Beatmap.Beatmap != null && TournamentGame.SpecialMods.Contains(Beatmap.Mods))
+            if (Beatmap.StarRatingWithMod == null && Beatmap.Beatmap != null && TournamentGame.SPECIAL_MODS.Contains(Beatmap.Mods))
             {
                 var request = new GetBeatmapAttributesRequest(Beatmap.Beatmap.OnlineID, TournamentGame.ToModEnum(Beatmap.Mods));
 

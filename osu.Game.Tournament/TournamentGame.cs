@@ -142,7 +142,7 @@ namespace osu.Game.Tournament
         public const int BOARD_BEST_OF = 9;
         public const int TIE_BREAKER_ROUND = 17;
 
-        public static readonly List<string> SpecialMods = ["HR", "HD", "DT", "FL"];
+        public static readonly List<string> SPECIAL_MODS = ["HR", "HD", "DT", "FL"];
 
         public static readonly Color4 COLOUR_RED = FumoColours.FlandreRed.Regular;
         public static readonly Color4 COLOUR_BLUE = FumoColours.SeaBlue.Regular;
