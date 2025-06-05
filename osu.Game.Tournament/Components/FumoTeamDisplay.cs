@@ -167,6 +167,12 @@ namespace osu.Game.Tournament.Components
             };
         }
 
+        private void updateActiveState()
+            => IsActive = currentMatch.Value?.PreparationMode.Value == false
+                          && currentMatch.Value?.Completed.Value == false
+                          && currentMatch.Value.CurrentRoundIndex.Value != TournamentGame.TIE_BREAKER_ROUND
+                          && currentMatch.Value.CurrentTeam == colour;
+
         private void updateMatch()
         {
             var match = currentMatch.Value;
@@ -174,6 +180,9 @@ namespace osu.Game.Tournament.Components
             if (match != null)
             {
                 match.StartMatch();
+                match.CurrentRoundIndex.BindValueChanged(_ => updateActiveState(), true);
+                match.PreparationMode.BindValueChanged(_ => updateActiveState());
+                match.Completed.BindValueChanged(_ => updateActiveState());
                 currentTeam.BindTo(colour == TeamColour.Red ? match.Team1 : match.Team2);
             }
 
@@ -193,16 +202,16 @@ namespace osu.Game.Tournament.Components
             teamNameText.FlashColour(Color4.White, 1000, Easing.OutQuint);
             colourMask.FadeTo(0.75f, 300, Easing.OutQuint);
             activeIcon.FadeIn(300, Easing.OutQuint)
-                      .ScaleTo(1, 300, Easing.OutQuint)
-                      .RotateTo(15, 500, Easing.OutQuint);
+                      .ScaleTo(1, 300, Easing.OutCubic)
+                      .RotateTo(15, 500, Easing.OutCubic);
 
             // Looped animation
             using (BeginDelayedSequence(1500))
             {
-                colourMask.FadeTo(0.75f, loop_anim_duration, Easing.OutQuint).Delay(loop_delay)
-                          .FadeOut(loop_anim_duration, Easing.OutQuint).Delay(loop_delay).Loop();
-                activeIcon.FadeIn(loop_anim_duration, Easing.OutQuint).Delay(loop_delay)
-                          .FadeOut(loop_anim_duration, Easing.OutQuint).Delay(loop_delay).Loop();
+                colourMask.FadeTo(0.75f, loop_anim_duration, Easing.InOutCubic).Delay(loop_delay)
+                          .FadeOut(loop_anim_duration, Easing.InOutCubic).Delay(loop_delay).Loop();
+                activeIcon.FadeIn(loop_anim_duration, Easing.InOutCubic).Delay(loop_delay)
+                          .FadeOut(loop_anim_duration, Easing.InOutCubic).Delay(loop_delay).Loop();
             }
         }
 

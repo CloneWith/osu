@@ -57,4 +57,10 @@
     <data name="mod_index" xml:space="preserve">
         <value>类别序数</value>
     </data>
+    <data name="star_rating_override" xml:space="preserve">
+        <value>固定星数</value>
+    </data>
+    <data name="star_rating_override_tooltip" xml:space="preserve">
+        <value>若要使用计算的星数，请将此字段留空。</value>
+    </data>
 </root>

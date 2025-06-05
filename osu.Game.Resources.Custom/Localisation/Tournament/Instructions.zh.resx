@@ -46,7 +46,7 @@
         <value>胜方赢棋·{0}</value>
     </data>
     <data name="win_description" xml:space="preserve">
-        <value>此图对应棋子将变为获胜方赢棋。</value>
+        <value>获胜方将持有更多棋子。</value>
     </data>
     <data name="tie_breaker_name" xml:space="preserve">
         <value>即将进入 TB 模式</value>
@@ -83,5 +83,11 @@
     </data>
     <data name="update_owner_description" xml:space="preserve">
         <value>消耗连对来夺取对方赢棋。</value>
+    </data>
+    <data name="ban_short" xml:space="preserve">
+        <value>禁图</value>
+    </data>
+    <data name="pick_short" xml:space="preserve">
+        <value>选图</value>
     </data>
 </root>

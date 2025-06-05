@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Audio;
+using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Extensions.IEnumerableExtensions;
@@ -13,7 +15,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using osu.Framework.Threading;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
@@ -27,6 +28,8 @@ using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
+using osu.Game.Tournament.Screens.Gameplay.Components;
+using osu.Game.Tournament.Screens.TeamWin;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
@@ -41,13 +44,22 @@ namespace osu.Game.Tournament.Screens.Board
         private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
         private readonly List<DrawableBoardBlock> selectedBlocks = new List<DrawableBoardBlock>();
 
+        private readonly BindableBool preparationMode = new BindableBool(true);
         private readonly BindableBool shiroModeActivated = new BindableBool();
+
+        private readonly BindableBool enableIntroAnimation = new BindableBool(true);
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
         private TeamColour pickTeam;
         private RoundStep pickType;
+
+        private readonly BindableInt currentRoundIndex = new BindableInt(-3)
+        {
+            MinValue = -3,
+            MaxValue = 17,
+        };
 
         private Container mainContainer = null!;
         private Container informationContainer = null!;
@@ -57,6 +69,10 @@ namespace osu.Game.Tournament.Screens.Board
         private InstructionDisplay instructionDisplay = null!;
         private FillFlowContainer<DrawableBoardBlock> boardBlockArea = null!;
 
+        private OsuNumberBox roundNumberBox = null!;
+        private GrayButton roundMinusButton = null!;
+        private GrayButton roundPlusButton = null!;
+
         private OsuButton buttonRedBan = null!;
         private OsuButton buttonBlueBan = null!;
         private OsuButton buttonRedPick = null!;
@@ -64,18 +80,27 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonRedWin = null!;
         private OsuButton buttonBlueWin = null!;
 
+        private ClickTwiceButton buttonEnterTiebreaker = null!;
         private OsuButton buttonIndicator = null!;
+        private OsuButton buttonTiebreakerRedWin = null!;
+        private OsuButton buttonTiebreakerBlueWin = null!;
 
         private TournamentSpriteText actionStateText = null!;
 
         private DialogOverlay dialogOverlay = null!;
 
-        private ScheduledDelegate? scheduledScreenChange;
+        private Sample? placeChessSample;
+        private Sample? updateOwnerSample;
+        private Sample? unavailableSample;
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load(TextureStore textures, AudioManager audio)
         {
             var boardTexture = textures.Get("Board/board");
+
+            placeChessSample = audio.Samples.Get("Board/place");
+            updateOwnerSample = audio.Samples.Get("Board/update");
+            unavailableSample = audio.Samples.Get("unavailable");
 
             InternalChildren = new Drawable[]
             {
@@ -84,7 +109,7 @@ namespace osu.Game.Tournament.Screens.Board
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 },
-                new FumoMatchHeader(),
+                new FumoMatchHeader(false),
 
                 mainContainer = new Container
                 {
@@ -112,11 +137,28 @@ namespace osu.Game.Tournament.Screens.Board
                                     RelativePositionAxes = Axes.Both,
                                     Height = 0.7f,
                                     Padding = new MarginPadding { Bottom = 5f },
-                                    Child = new EmptyBox(10)
+                                    Children = new Drawable[]
                                     {
-                                        Colour = Color4Extensions.FromHex("#454545"),
-                                        Alpha = 0.74f,
-                                        RelativeSizeAxes = Axes.Both,
+                                        new EmptyBox(10)
+                                        {
+                                            Colour = Color4Extensions.FromHex("#454545"),
+                                            Alpha = 0.74f,
+                                            RelativeSizeAxes = Axes.Both,
+                                        },
+                                        new MatchRoundDisplay
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            Y = 5,
+                                            Scale = new Vector2(0.45f),
+                                        },
+                                        new RoundCounterLine
+                                        {
+                                            Anchor = Anchor.BottomCentre,
+                                            Origin = Anchor.BottomCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            Margin = new MarginPadding { Bottom = 5 },
+                                        },
                                     },
                                 },
                                 chatContainer = new Container
@@ -222,7 +264,53 @@ namespace osu.Game.Tournament.Screens.Board
                 {
                     Children = new Drawable[]
                     {
+                        new SectionHeader(BoardStrings.RoundCounter),
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            ColumnDimensions =
+                            [
+                                new Dimension(GridSizeMode.Absolute, 40),
+                                new Dimension(),
+                                new Dimension(GridSizeMode.Absolute, 40),
+                            ],
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    roundMinusButton = new GrayButton(FontAwesome.Solid.Minus, HoverSampleSet.ButtonSidebar)
+                                    {
+                                        RelativeSizeAxes = Axes.Both,
+                                        Action = () => currentRoundIndex.Value--,
+                                        Padding = new MarginPadding { Right = 5 },
+                                    },
+                                    roundNumberBox = new OsuNumberBox(allowNegative: true)
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                    },
+                                    roundPlusButton = new GrayButton(FontAwesome.Solid.Plus, HoverSampleSet.ButtonSidebar)
+                                    {
+                                        RelativeSizeAxes = Axes.Both,
+                                        Action = () => currentRoundIndex.Value++,
+                                        Padding = new MarginPadding { Left = 5 },
+                                    },
+                                }
+                            },
+                        },
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.PreparationMode,
+                            Current = preparationMode,
+                        },
                         new SectionHeader(BoardStrings.CurrentMode),
+                        buttonIndicator = new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BoardStrings.TiebreakerIndicator,
+                            BackgroundColour = FumoColours.DeepPurple.Regular,
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
+                        },
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.X,
@@ -303,15 +391,6 @@ namespace osu.Game.Tournament.Screens.Board
                             Current = LadderInfo.MainBoardSize,
                             Caption = BoardStrings.MainBoardAreaSize,
                         },
-                        new ControlPanel.Spacer(),
-                        buttonIndicator = new TourneyButton
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Text = "TB Indicator",
-                            BackgroundColour = Color4.Purple,
-                            Colour = Color4.Gray,
-                            Action = () => setMode(TeamColour.Neutral, RoundStep.Default),
-                        },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
@@ -374,6 +453,61 @@ namespace osu.Game.Tournament.Screens.Board
                             BackgroundColour = FumoColours.FlandreRed.Regular,
                             Action = clearShiroSelection,
                         },
+                        new SectionHeader(BoardStrings.TiebreakerControl),
+                        buttonEnterTiebreaker = new ClickTwiceButton
+                        {
+                            AutoSizeAxes = Axes.None,
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            IdleIcon = FontAwesome.Solid.ArrowRight,
+                            Text = BoardStrings.EnterTiebreaker,
+                            Action = () => setMode(TeamColour.Neutral, RoundStep.TieBreaker),
+                            Enabled = { Value = false },
+                        },
+                        new GridContainer
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            Content = new[]
+                            {
+                                new Drawable[]
+                                {
+                                    buttonTiebreakerRedWin = new TourneyButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = "Red Win",
+                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        Action = () => setWin(TeamColour.Red),
+                                        Enabled = { Value = false },
+                                    },
+                                    buttonTiebreakerBlueWin = new TourneyButton
+                                    {
+                                        RelativeSizeAxes = Axes.X,
+                                        Text = "Blue Win",
+                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        Action = () => setWin(TeamColour.Blue),
+                                        Enabled = { Value = false },
+                                    },
+                                },
+                            },
+                        },
+                        new SectionHeader(SetupStrings.AutomationHeader),
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.AutoAdvanceRounds,
+                            Current = LadderInfo.AutoProgressRound,
+                        },
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.AutoAdvanceScreens,
+                            Current = LadderInfo.AutoProgressScreens,
+                        },
+                        new SectionHeader(BaseStrings.DebugSettings),
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.EnableIntroAnimation,
+                            Current = enableIntroAnimation,
+                        },
                     },
                 },
                 dialogOverlay = new DialogOverlay(),
@@ -381,46 +515,79 @@ namespace osu.Game.Tournament.Screens.Board
 
             animationQueue.BindCollectionChanged((_, arg) =>
             {
-                if (!animationQueue.Any())
+                if (animationQueue.Count == 0)
                     return;
 
-                if (currentAnimation == null || currentAnimation.Status == AnimationStatus.Complete)
-                {
-                    var animation = animationQueue.First();
-                    startAnimation(animation);
-                }
+                if (currentAnimation != null && currentAnimation.Status != AnimationStatus.Complete)
+                    return;
+
+                var animation = animationQueue.First();
+                startAnimation(animation);
             });
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
-            initializeBoard();
 
-            CurrentMatch.BindValueChanged(matchChanged);
+            CurrentMatch.BindValueChanged(matchChanged, true);
 
             LadderInfo.MainBoardSize.BindValueChanged(e =>
                 boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
 
             shiroModeActivated.BindValueChanged(e =>
             {
-                // Only handle enabled cases to prevent infinite loops
                 if (e.NewValue)
-                {
                     setMode(TeamColour.Neutral, RoundStep.Shiro);
+                else
+                    pickType = RoundStep.Default;
+            });
+
+            currentRoundIndex.BindValueChanged(e =>
+            {
+                roundMinusButton.Enabled.Value = e.NewValue > currentRoundIndex.MinValue;
+                roundPlusButton.Enabled.Value = e.NewValue < currentRoundIndex.MaxValue;
+                roundNumberBox.Text = e.NewValue.ToString();
+
+                if (e.NewValue == 17)
+                    setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+            }, true);
+
+            roundNumberBox.OnCommit += (_, newText) =>
+            {
+                if (!newText)
+                    return;
+
+                if (int.TryParse(roundNumberBox.Text, out int newIndex))
+                {
+                    currentRoundIndex.Value = newIndex;
                 }
                 else
                 {
-                    pickType = RoundStep.Default;
-                    clearShiroSelection();
+                    roundNumberBox.Text = currentRoundIndex.Value.ToString();
                 }
-            });
+            };
         }
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
+            if (match.OldValue != null)
+            {
+                currentRoundIndex.UnbindFrom(match.OldValue.CurrentRoundIndex);
+                preparationMode.UnbindFrom(match.OldValue.PreparationMode);
+            }
+
+            if (match.NewValue != null)
+            {
+                currentRoundIndex.BindTo(match.NewValue.CurrentRoundIndex);
+                currentRoundIndex.MinValue = match.NewValue.CurrentRoundIndex.MinValue;
+                currentRoundIndex.MaxValue = match.NewValue.CurrentRoundIndex.MaxValue;
+                preparationMode.BindTo(match.NewValue.PreparationMode);
+            }
+
             ResetSelectStatus();
             initializeBoard();
+            detectWin();
         }
 
         private void updateActionText(LocalisableString text, bool failing = false)
@@ -443,6 +610,10 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (stepType != RoundStep.Shiro)
                 shiroModeActivated.Value = false;
+
+            buttonEnterTiebreaker.Enabled.Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin);
+            buttonTiebreakerRedWin.Enabled.Value = pickType == RoundStep.TieBreaker;
+            buttonTiebreakerBlueWin.Enabled.Value = pickType == RoundStep.TieBreaker;
 
             buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
@@ -477,6 +648,8 @@ namespace osu.Game.Tournament.Screens.Board
                 if (record != null)
                     CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
             }
+
+            clearShiroSelection();
         }
 
         private void activateShiro()
@@ -530,8 +703,10 @@ namespace osu.Game.Tournament.Screens.Board
             // Have checked in checkSelected, guaranteed to have exactly one group
             TeamColour targetTeam = placements.GroupBy(p => p.OwnerTeam).Single().Key;
             int coupletCount = targetTeam == TeamColour.Red ? couplets.red : couplets.blue;
+            (int remainRed, int remainBlue) = TournamentMatch.GetMaximumSuccessiveChess(placements.Skip(2));
+            int remainCount = targetTeam == TeamColour.Red ? remainRed : remainBlue;
 
-            if (coupletCount == 3 || (coupletCount == 2 && placements.Count() - coupletCount == 2))
+            if (coupletCount == 3 || (coupletCount == 2 && remainCount == 2))
             {
                 pickTeam = targetTeam;
                 pickType = RoundStep.UpdateOwner;
@@ -552,13 +727,107 @@ namespace osu.Game.Tournament.Screens.Board
 
             (int red, int blue) couplets = CurrentMatch.Value.GetMaximumSuccessiveChess();
 
-            if (couplets.red == 4 && couplets.blue == 4)
+            if (couplets.red == 4 ^ couplets.blue == 4)
             {
-                setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+                // Winner detected: Set winner and completion
+                setWin(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue);
             }
-            else if (couplets.blue == 4 || couplets.red == 4)
+            else
             {
-                setMode(couplets.red == 4 ? TeamColour.Red : TeamColour.Blue, RoundStep.FinalWin);
+                if ((couplets.red == 4 && couplets.blue == 4))
+                {
+                    // TieBreaker detected
+                    setMode(TeamColour.Neutral, RoundStep.TieBreaker);
+                }
+
+                // TieBreaker detection might not be so accurate.
+                // The final decision should be made by referees and streamers.
+                if (isTieBreaker())
+                {
+                    buttonIndicator.BackgroundColour = FumoColours.SunshineYellow.Lighter;
+                    buttonIndicator.FlashColour(Color4.White, 1000, Easing.OutQuint);
+                }
+                else
+                {
+                    buttonIndicator.BackgroundColour = FumoColours.DeepPurple.Regular;
+                }
+
+                // No condition met: Reset status and clear scores
+                CurrentMatch.Value.Completed.Value = false;
+                CurrentMatch.Value.Team1Score.Value = couplets.red;
+                CurrentMatch.Value.Team2Score.Value = couplets.blue;
+            }
+        }
+
+        private bool isTieBreaker()
+        {
+            if (CurrentMatch.Value == null)
+                return false;
+
+            var occupiedBlocks = blocks.Where(b => b.ChessLayer.Count == 1).ToList();
+
+            // 1. Row / Column / Diagonal line chess check
+            // Win chess pieces must have the same colour and not consumed
+            for (int i = 1; i <= 4; i++)
+            {
+                // ReSharper disable AccessToModifiedClosure
+                var rowWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardRow == i));
+                var colWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardColumn == i));
+                // ReSharper restore AccessToModifiedClosure
+
+                if (isSameWinTeam(rowWinPieces) || isSameWinTeam(colWinPieces))
+                    return false;
+            }
+
+            var mainDiagonalWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardRow == b.BoardColumn));
+            var subDiagonalWinPieces = takeWinPieces(occupiedBlocks.Where(b => b.BoardRow + b.BoardColumn == 5));
+
+            if (isSameWinTeam(mainDiagonalWinPieces) || isSameWinTeam(subDiagonalWinPieces))
+                return false;
+
+            // 2. Available space check per specific area
+            bool stepsAvailable = false;
+
+            foreach (string k in TournamentGame.MODS.Select(m => m.Key))
+            {
+                bool condition(DrawableBoardBlock b) => k switch
+                {
+                    @"HR" => b.BoardRow > 2 && b.BoardColumn > 2,
+                    @"HD" => b.BoardRow <= 2 && b.BoardColumn > 2,
+                    @"DT" => (b.BoardRow <= 2 && b.BoardColumn <= 2) || (b.BoardRow > 2 && b.BoardColumn > 2),
+                    _ => true,
+                };
+
+                stepsAvailable |= blocks.Any(b => condition(b) && b.ChessLayer.Count == 0);
+            }
+
+            return !stepsAvailable;
+
+            List<FumoChessPiece> takeWinPieces(IEnumerable<DrawableBoardBlock> blk) =>
+                blk.Select(b => b.ChessLayer.Child)
+                   .Where(c => c.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed)
+                   .ToList();
+
+            bool isSameWinTeam(List<FumoChessPiece> cs) => cs.Count == 0
+                                                           || !cs.Any(c => c.CurrentType is ChoiceType.Consumed)
+                                                           && cs.GroupBy(c => c.CurrentType).Count() == 1;
+        }
+
+        private void setWin(TeamColour colour)
+        {
+            if (CurrentMatch.Value == null || colour is not (TeamColour.Blue or TeamColour.Red))
+                return;
+
+            int targetScore = CurrentMatch.Value.PointsToWin;
+
+            setMode(colour, RoundStep.FinalWin);
+
+            CurrentMatch.Value.Team1Score.Value = colour == TeamColour.Red ? targetScore : 0;
+            CurrentMatch.Value.Team2Score.Value = colour == TeamColour.Blue ? targetScore : 0;
+
+            if (LadderInfo.AutoProgressScreens.Value)
+            {
+                SceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), 10000);
             }
         }
 
@@ -729,6 +998,11 @@ namespace osu.Game.Tournament.Screens.Board
                     }
                 }
             }
+            else
+            {
+                // Immediately return without playing samples when nothing notable is clicked
+                return true;
+            }
 
             switch (succeeded)
             {
@@ -740,6 +1014,7 @@ namespace osu.Game.Tournament.Screens.Board
 
                 case false:
                     showFail(block);
+                    unavailableSample?.Play();
                     break;
             }
 
@@ -767,21 +1042,26 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.Value?.ChessPlacements.Remove(placement);
 
+            // Decrement round when the revoked placement is a Shiro, or in a Win status.
+            if (placement.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID
+                || placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                setNextMode(undo: true);
+
             var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
 
-            if (chessPiece == null)
-                return true;
-
-            placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
-
-            if (placement != null)
+            if (chessPiece != null)
             {
-                chessPiece.OwnerTeam = placement.OwnerTeam;
-                chessPiece.CurrentType = placement.CurrentType;
-            }
-            else
-            {
-                chessPiece.Remove();
+                placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+                if (placement != null)
+                {
+                    chessPiece.OwnerTeam = placement.OwnerTeam;
+                    chessPiece.CurrentType = placement.CurrentType;
+                }
+                else
+                {
+                    chessPiece.Remove();
+                }
             }
 
             return true;
@@ -831,6 +1111,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (CurrentMatch.Value != null)
             {
+                CurrentMatch.Value.PreparationMode.Value = true;
+                CurrentMatch.Value.CurrentRoundIndex.Value = -1;
+
                 CurrentMatch.Value.Completed.Value = false;
                 CurrentMatch.Value.Team1Score.Value = 0;
                 CurrentMatch.Value.Team2Score.Value = 0;
@@ -847,6 +1130,19 @@ namespace osu.Game.Tournament.Screens.Board
 
             pickTeam = TeamColour.None;
             pickType = RoundStep.Default;
+        }
+
+        private void setNextMode(bool undo = false)
+        {
+            if (CurrentMatch.Value == null || !LadderInfo.AutoProgressRound.Value)
+                return;
+
+            if (undo)
+                CurrentMatch.Value.CurrentRoundIndex.Value--;
+            else
+                CurrentMatch.Value.CurrentRoundIndex.Value++;
+
+            setMode(CurrentMatch.Value.CurrentTeam, CurrentMatch.Value.CurrentRoundIndex.Value <= 0 ? RoundStep.Ban : RoundStep.Pick);
         }
 
         private void showFail(DrawableBoardBlock? flashBlock)
@@ -880,6 +1176,9 @@ namespace osu.Game.Tournament.Screens.Board
                 chess.CurrentType = TournamentGame.ToChoiceType(pickType, pickTeam);
             }
 
+            updateOwnerSample?.Play();
+            setNextMode();
+
             return true;
         }
 
@@ -894,7 +1193,7 @@ namespace osu.Game.Tournament.Screens.Board
                     pickTeam, ChoiceType.Pick));
 
                 addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
-
+                setNextMode();
                 return true;
             }
 
@@ -915,13 +1214,20 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (pickType == RoundStep.Pick)
             {
-                // Multiple pick records are not allowed
-                if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId && p.CurrentType == ChoiceType.Pick))
+                if (block == null)
+                    return false;
+
+                // Pick records on existing ones are not allowed
+                if (CurrentMatch.Value.ChessPlacements.Any(p => p.BeatmapID == beatmapId
+                                                                || (p.BoardRow == block.BoardRow && p.BoardColumn == block.BoardColumn)))
                     return false;
 
                 var introMap = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.Beatmap?.OnlineID == beatmapId);
 
-                if (introMap != null)
+                if (introMap == null || !isValidArea(introMap.Mods, block.BoardRow, block.BoardColumn))
+                    return false;
+
+                if (enableIntroAnimation.Value)
                     ShowMapIntro(introMap, pickTeam);
             }
 
@@ -937,14 +1243,14 @@ namespace osu.Game.Tournament.Screens.Board
                     pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
             }
 
-            // setNextMode(); // Uncomment if you still want to automatically set the next mode
+            if (pickType is RoundStep.Ban)
+                setNextMode();
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
-                if (pickType == RoundStep.Pick && CurrentMatch.Value.PicksBans.Any(i => i.Type == ChoiceType.Pick))
+                if (pickType == RoundStep.Pick && CurrentMatch.Value.ChessPlacements.Any(i => i.CurrentType == ChoiceType.Pick))
                 {
-                    scheduledScreenChange?.Cancel();
-                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(GameplayScreen)); }, 10000);
+                    SceneManager?.ScheduleScreenChange(typeof(GameplayScreen), 10000);
                 }
             }
 
@@ -952,7 +1258,8 @@ namespace osu.Game.Tournament.Screens.Board
         }
 
         private void addSingleChess(int beatmapId, int row, int column,
-                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral)
+                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral,
+                                    bool omitSound = false)
         {
             var block = blocks.FirstOrDefault(b => b.BoardRow == row && b.BoardColumn == column);
 
@@ -977,6 +1284,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             newPiece.FadeIn(500, Easing.OutQuint);
             newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
+
+            if (!omitSound)
+                placeChessSample?.Play();
         }
 
         private void initializeBoard()
@@ -995,10 +1305,18 @@ namespace osu.Game.Tournament.Screens.Board
                         p.BoardRow == i && p.BoardColumn == j);
 
                     if (placement != null)
-                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType);
+                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType, true);
                 }
             }
         }
+
+        private bool isValidArea(string acronym, int row, int column) => acronym.ToUpperInvariant() switch
+        {
+            @"HR" => row > 2 && column <= 2,
+            @"HD" => row <= 2 && column > 2,
+            @"DT" => (row <= 2 && column <= 2) || (row > 2 && column > 2),
+            _ => true,
+        };
 
         private bool isSameStep(ChoiceType choiceType, RoundStep step)
             => step switch
@@ -1013,13 +1331,6 @@ namespace osu.Game.Tournament.Screens.Board
         {
             sceneManager?.ProxyChatToContainer(chatContainer);
             base.Show();
-        }
-
-        public override void Hide()
-        {
-            sceneManager?.ReturnProxyChat();
-            scheduledScreenChange?.Cancel();
-            base.Hide();
         }
 
         #region Animation

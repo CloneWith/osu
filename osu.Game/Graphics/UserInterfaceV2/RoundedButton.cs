@@ -49,6 +49,11 @@ namespace osu.Game.Graphics.UserInterfaceV2
             }
         }
 
+        public RoundedButton(HoverSampleSet? hoverSounds = HoverSampleSet.Button)
+            : base(hoverSounds)
+        {
+        }
+
         [BackgroundDependencyLoader(true)]
         private void load(OverlayColourProvider? overlayColourProvider, OsuColour colours)
         {

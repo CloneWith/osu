@@ -26,7 +26,7 @@ namespace osu.Game.Tournament.Screens.Ladder
 
         protected override void OnDrag(DragEvent e)
         {
-            this.MoveTo(target += e.Delta, 1000, Easing.OutQuint);
+            this.MoveTo(target += e.Delta, 300, Easing.OutQuint);
         }
 
         private const float min_scale = 0.6f;
@@ -36,8 +36,8 @@ namespace osu.Game.Tournament.Screens.Ladder
         {
             float newScale = Math.Clamp(scale + e.ScrollDelta.Y / 15 * scale, min_scale, max_scale);
 
-            this.MoveTo(target -= e.MousePosition * (newScale - scale), 1000, Easing.OutQuint);
-            this.ScaleTo(scale = newScale, 1000, Easing.OutQuint);
+            this.MoveTo(target -= e.MousePosition * (newScale - scale), 300, Easing.OutQuint);
+            this.ScaleTo(scale = newScale, 300, Easing.OutQuint);
 
             return true;
         }

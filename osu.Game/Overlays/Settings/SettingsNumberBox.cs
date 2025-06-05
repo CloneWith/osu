@@ -10,7 +10,16 @@ namespace osu.Game.Overlays.Settings
 {
     public partial class SettingsNumberBox : SettingsItem<int?>
     {
-        protected override Drawable CreateControl() => new NumberControl
+        private readonly bool allowNegative;
+
+        public SettingsNumberBox()
+            : this(false)
+        {
+        }
+
+        public SettingsNumberBox(bool allowNegative = false) => this.allowNegative = allowNegative;
+
+        protected override Drawable CreateControl() => new NumberControl(allowNegative)
         {
             RelativeSizeAxes = Axes.X,
         };
@@ -25,7 +34,7 @@ namespace osu.Game.Overlays.Settings
                 set => current.Current = value;
             }
 
-            public NumberControl()
+            public NumberControl(bool allowNegative = false)
             {
                 AutoSizeAxes = Axes.Y;
 
@@ -33,7 +42,7 @@ namespace osu.Game.Overlays.Settings
 
                 InternalChildren = new[]
                 {
-                    numberBox = new OutlinedNumberBox
+                    numberBox = new OutlinedNumberBox(allowNegative)
                     {
                         RelativeSizeAxes = Axes.X,
                         CommitOnFocusLost = true
@@ -66,7 +75,12 @@ namespace osu.Game.Overlays.Settings
 
         private partial class OutlinedNumberBox : OutlinedTextBox
         {
-            protected override bool CanAddCharacter(char character) => char.IsAsciiDigit(character);
+            private readonly bool allowNegative;
+
+            public OutlinedNumberBox(bool allowNegative = false) => this.allowNegative = allowNegative;
+
+            protected override bool CanAddCharacter(char character)
+                => char.IsAsciiDigit(character) || (allowNegative && character == '-' && !Text.Contains('-'));
 
             public new void NotifyInputError() => base.NotifyInputError();
         }

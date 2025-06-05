@@ -351,8 +351,12 @@ namespace osu.Game.Tournament
                 var b = beatmapsRequiringPopulation[i];
 
                 var populated = await beatmapCache.GetBeatmapAsync(b.ID).ConfigureAwait(false);
+
                 if (populated != null)
+                {
                     b.Beatmap = new TournamentBeatmap(populated);
+                    b.MaxCombo = populated.MaxCombo ?? 0;
+                }
 
                 updateLoadProgressMessage(BaseStrings.PopulatingRoundBeatmaps,
                     LocalisableString.Interpolate($"{BaseStrings.BeatmapID} -> {b.ID}"), i + 1, beatmapsRequiringPopulation.Count);

@@ -203,10 +203,10 @@ namespace osu.Game.Tests.Visual.SongSelectV2
             ClickVisiblePanelWithOffset<PanelBeatmap>(0, new Vector2(0, -(CarouselItem.DEFAULT_HEIGHT / 2 + 1)));
             WaitForGroupSelection(0, 1);
 
-            ClickVisiblePanelWithOffset<PanelBeatmap>(1, new Vector2(0, (CarouselItem.DEFAULT_HEIGHT / 2 + 1)));
+            ClickVisiblePanelWithOffset<PanelBeatmap>(1, new Vector2(0, CarouselItem.DEFAULT_HEIGHT / 2 + 1));
             WaitForGroupSelection(0, 2);
 
-            ClickVisiblePanelWithOffset<PanelBeatmapSet>(1, new Vector2(0, (CarouselItem.DEFAULT_HEIGHT / 2 + 1)));
+            ClickVisiblePanelWithOffset<PanelBeatmapSet>(1, new Vector2(0, CarouselItem.DEFAULT_HEIGHT / 2 + 1));
             WaitForGroupSelection(0, 5);
         }
 
@@ -220,19 +220,18 @@ namespace osu.Game.Tests.Visual.SongSelectV2
             CheckDisplayedBeatmapSetsCount(1);
             CheckDisplayedBeatmapsCount(3);
 
-            CheckNoSelection();
+            CheckHasSelection();
+
             SelectNextPanel();
             Select();
-            SelectNextPanel();
-            Select();
-            WaitForGroupSelection(0, 1);
+            WaitForGroupSelection(0, 2);
 
             for (int i = 0; i < 6; i++)
                 SelectNextPanel();
 
             Select();
 
-            WaitForGroupSelection(0, 2);
+            WaitForGroupSelection(0, 3);
 
             ApplyToFilter("remove filter", c => c.SearchText = string.Empty);
             WaitForFiltering();

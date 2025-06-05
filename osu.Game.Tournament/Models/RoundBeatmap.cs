@@ -13,6 +13,9 @@ namespace osu.Game.Tournament.Models
 
         public string DifficultyField = string.Empty;
 
+        public double? StarRatingWithMod;
+        public int MaxCombo;
+
         // Board view specific
         public int BoardX = -1;
         public int BoardY = -1;

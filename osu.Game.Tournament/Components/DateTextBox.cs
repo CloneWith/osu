@@ -23,7 +23,7 @@ namespace osu.Game.Tournament.Components
             base.Current = new Bindable<string>(string.Empty);
 
             current.BindValueChanged(dto =>
-                base.Current.Value = dto.NewValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", DateTimeFormatInfo.InvariantInfo), true);
+                base.Current.Value = dto.NewValue.ToString("yyyy-MM-ddTHH:mm:sszzz", DateTimeFormatInfo.InvariantInfo), true);
 
             OnCommit += (sender, _) =>
             {

@@ -50,6 +50,8 @@ namespace osu.Game.Tournament.Screens.Editors
             [Resolved]
             private IDialogOverlay? dialogOverlay { get; set; }
 
+            private readonly FormSliderBar<int> bestOfSlider;
+
             public RoundRow(TournamentRound round)
             {
                 Model = round;
@@ -115,11 +117,12 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.48f,
                                 Current = Model.BanCount,
                             },
-                            new FormSliderBar<int>
+                            bestOfSlider = new FormSliderBar<int>
                             {
                                 Caption = RoundEditorStrings.BestOf,
                                 Width = 0.48f,
                                 Current = Model.BestOf,
+                                Alpha = Model.UseBoard.Value ? 0 : 1,
                             },
                             new FormCheckBox
                             {
@@ -157,6 +160,22 @@ namespace osu.Game.Tournament.Screens.Editors
 
                 RelativeSizeAxes = Axes.X;
                 AutoSizeAxes = Axes.Y;
+            }
+
+            protected override void LoadComplete()
+            {
+                base.LoadComplete();
+
+                Model.UseBoard.BindValueChanged(e =>
+                {
+                    if (e.NewValue)
+                    {
+                        Model.BanCount.Value = 1;
+                        Model.BestOf.Value = TournamentGame.BOARD_BEST_OF;
+                    }
+
+                    bestOfSlider.FadeTo(e.NewValue ? 0 : 1);
+                }, true);
             }
 
             public partial class RoundRefereeEditor : CompositeDrawable
@@ -344,6 +363,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     private readonly Bindable<string> mods = new Bindable<string>(string.Empty);
 
                     private readonly Bindable<string> difficultyField = new Bindable<string>(string.Empty);
+                    private readonly Bindable<double?> fixedStarDifficulty = new Bindable<double?>();
 
                     private readonly Container drawableContainer;
 
@@ -369,7 +389,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             new FillFlowContainer
                             {
                                 Margin = new MarginPadding(5),
-                                Spacing = new Vector2(5),
+                                Spacing = new Vector2(-10),
                                 Direction = FillDirection.Horizontal,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
@@ -400,6 +420,13 @@ namespace osu.Game.Tournament.Screens.Editors
                                         RelativeSizeAxes = Axes.None,
                                         Width = 250,
                                         Current = difficultyField,
+                                    },
+                                    new SettingsDecimalBox
+                                    {
+                                        LabelText = RoundEditorStrings.StarRatingOverride,
+                                        TooltipText = RoundEditorStrings.StarRatingOverrideTooltip,
+                                        Width = 0.1f,
+                                        Current = fixedStarDifficulty,
                                     },
                                     drawableContainer = new Container
                                     {
@@ -466,6 +493,9 @@ namespace osu.Game.Tournament.Screens.Editors
 
                         difficultyField.Default = difficultyField.Value = Model.DifficultyField;
                         difficultyField.BindValueChanged(field => Model.DifficultyField = field.NewValue);
+
+                        fixedStarDifficulty.Default = fixedStarDifficulty.Value = Model.StarRatingWithMod;
+                        fixedStarDifficulty.BindValueChanged(field => Model.StarRatingWithMod = field.NewValue);
                     }
 
                     private void updatePanel() => Schedule(() =>
@@ -478,7 +508,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Width = 500
+                                Width = 450,
                             };
                         }
                     });

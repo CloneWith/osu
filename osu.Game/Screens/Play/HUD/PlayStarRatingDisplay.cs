@@ -22,7 +22,7 @@ namespace osu.Game.Screens.Play.HUD
         [Resolved]
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
 
-        private IBindable<StarDifficulty?>? difficultyBindable;
+        private IBindable<StarDifficulty> difficultyBindable = new Bindable<StarDifficulty>();
         private CancellationTokenSource? difficultyCancellationSource;
         private StarRatingDisplay display = null!;
 
@@ -35,7 +35,7 @@ namespace osu.Game.Screens.Play.HUD
         private void load()
         {
             difficultyBindable = difficultyCache.GetBindableDifficulty(beatmap.Value.BeatmapInfo);
-            InternalChild = display = new StarRatingDisplay(difficultyBindable.Value ?? new StarDifficulty());
+            InternalChild = display = new StarRatingDisplay(difficultyBindable.Value);
         }
 
         protected override void LoadComplete()
@@ -47,11 +47,11 @@ namespace osu.Game.Screens.Play.HUD
                 difficultyCancellationSource?.Cancel();
                 difficultyCancellationSource = new CancellationTokenSource();
 
-                difficultyBindable?.UnbindAll();
+                difficultyBindable.UnbindAll();
                 difficultyBindable = difficultyCache.GetBindableDifficulty(b.NewValue.BeatmapInfo, difficultyCancellationSource.Token);
                 difficultyBindable.BindValueChanged(d =>
                 {
-                    display.Current.Value = d.NewValue ?? new StarDifficulty();
+                    display.Current.Value = d.NewValue;
                 });
             }, true);
         }

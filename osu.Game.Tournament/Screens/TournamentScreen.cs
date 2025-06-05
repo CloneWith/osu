@@ -15,7 +15,10 @@ namespace osu.Game.Tournament.Screens
         public bool HadBeenSelected { get; protected set; }
 
         [Resolved]
-        public LadderInfo LadderInfo { get; private set; } = null!;
+        protected LadderInfo LadderInfo { get; private set; } = null!;
+
+        [Resolved]
+        protected TournamentSceneManager? SceneManager { get; private set; }
 
         protected TournamentScreen()
         {

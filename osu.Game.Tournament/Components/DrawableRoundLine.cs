@@ -57,7 +57,7 @@ namespace osu.Game.Tournament.Components
             {
                 new Drawable[]
                 {
-                    dateTimeText = new DrawableDate(match?.Round.Value?.StartDate.Value ?? new DateTimeOffset(DateTime.Now))
+                    dateTimeText = new DrawableDate(match?.Date.Value ?? new DateTimeOffset(DateTime.Now))
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
@@ -72,7 +72,10 @@ namespace osu.Game.Tournament.Components
                         Shadow = false,
                         Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
                     },
-                    new DrawableTeamLine(match?.Team1.Value, TeamColour.Red, monochromeTitle, !fixedWidth),
+                    new DrawableTeamLine(match?.Team1.Value, TeamColour.Red, monochromeTitle, !fixedWidth)
+                    {
+                        Alpha = match?.Completed.Value == true && match.WinnerColour != TeamColour.Red ? 0.5f : 1f,
+                    },
                     new TournamentSpriteText
                     {
                         Anchor = Anchor.Centre,
@@ -85,7 +88,10 @@ namespace osu.Game.Tournament.Components
                             Horizontal = 20
                         },
                     },
-                    new DrawableTeamLine(match?.Team2.Value, TeamColour.Blue, monochromeTitle, !fixedWidth),
+                    new DrawableTeamLine(match?.Team2.Value, TeamColour.Blue, monochromeTitle, !fixedWidth)
+                    {
+                        Alpha = match?.Completed.Value == true && match.WinnerColour != TeamColour.Blue ? 0.5f : 1f,
+                    },
                 },
             };
         }

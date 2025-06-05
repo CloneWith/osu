@@ -125,7 +125,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             if (Team != null)
                 teamName.BindTo(Team.FullName);
 
-            teamName.BindValueChanged(name => teamNameText.Text.Text = name.NewValue, true);
+            teamName.BindValueChanged(name => teamNameText.InnerText.Text = name.NewValue, true);
         }
 
         private void updateDisplay()

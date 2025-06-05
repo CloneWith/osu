@@ -12,9 +12,9 @@ namespace osu.Game.Tournament.Components
         {
             Background.Colour = TournamentGame.GetTeamColour(colour);
 
-            Text.Colour = TournamentGame.TEXT_COLOUR;
-            Text.Text = $"Team {colour}".ToUpperInvariant();
-            Text.Scale = new Vector2(0.6f);
+            InnerText.Colour = TournamentGame.TEXT_COLOUR;
+            InnerText.Text = $"Team {colour}".ToUpperInvariant();
+            InnerText.Scale = new Vector2(0.6f);
         }
     }
 }
