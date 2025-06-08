@@ -454,7 +454,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Action = clearShiroSelection,
                         },
                         new SectionHeader(BoardStrings.TiebreakerControl),
-                        buttonEnterTiebreaker = new ClickTwiceButton
+                        buttonEnterTiebreaker = new ClickTwiceButton(sampleSet: null)
                         {
                             AutoSizeAxes = Axes.None,
                             RelativeSizeAxes = Axes.X,

@@ -14,7 +14,7 @@ namespace osu.Game.Graphics.Containers
 {
     public partial class OsuClickableContainer : ClickableContainer, IHasTooltip
     {
-        private readonly HoverSampleSet sampleSet;
+        private readonly HoverSampleSet? sampleSet;
 
         private readonly Container content = new Container { RelativeSizeAxes = Axes.Both };
 
@@ -28,7 +28,7 @@ namespace osu.Game.Graphics.Containers
 
         protected virtual HoverSounds CreateHoverSounds(HoverSampleSet sampleSet) => new HoverClickSounds(sampleSet) { Enabled = { BindTarget = Enabled } };
 
-        public OsuClickableContainer(HoverSampleSet sampleSet = HoverSampleSet.Default)
+        public OsuClickableContainer(HoverSampleSet? sampleSet = HoverSampleSet.Default)
         {
             this.sampleSet = sampleSet;
         }
@@ -44,9 +44,9 @@ namespace osu.Game.Graphics.Containers
                 content.AutoSizeAxes = AutoSizeAxes;
             }
 
-            AddRangeInternal(new Drawable[]
+            AddRangeInternal(new[]
             {
-                CreateHoverSounds(sampleSet),
+                sampleSet != null ? CreateHoverSounds(sampleSet.Value) : Empty(),
                 content,
             });
         }

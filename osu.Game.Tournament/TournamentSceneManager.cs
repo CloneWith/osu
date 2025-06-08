@@ -389,6 +389,7 @@ namespace osu.Game.Tournament
             private readonly CircularContainer? keyIndicator;
 
             public ScreenButton(Type type, Key? shortcutKey = null)
+                : base(null)
             {
                 Anchor = Anchor.TopCentre;
                 Origin = Anchor.TopCentre;

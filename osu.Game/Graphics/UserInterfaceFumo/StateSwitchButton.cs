@@ -7,6 +7,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osu.Game.Graphics.UserInterface;
 
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
@@ -30,8 +31,8 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             set => IdleText = ActiveText = value;
         }
 
-        public StateSwitchButton(FillDirection direction = FillDirection.Horizontal)
-            : base(direction)
+        public StateSwitchButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet? sampleSet = HoverSampleSet.Button)
+            : base(direction, sampleSet)
         {
         }
 
