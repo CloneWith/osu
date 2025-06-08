@@ -15,6 +15,7 @@ namespace osu.Game.Tournament
         private readonly Action<bool>? fetchAction;
 
         public FetchDataButton(Action<bool>? fetchAction = null)
+            : base(null)
         {
             RelativeSizeAxes = Axes.X;
             Height = 48;

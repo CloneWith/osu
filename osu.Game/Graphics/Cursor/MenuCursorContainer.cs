@@ -23,6 +23,11 @@ namespace osu.Game.Graphics.Cursor
         private readonly IBindable<bool> screenshotCursorVisibility = new Bindable<bool>(true);
         public override bool IsPresent => screenshotCursorVisibility.Value && base.IsPresent;
 
+        /// <summary>
+        /// Whether to play the tap sample of the cursor.
+        /// </summary>
+        public bool PlaySampleOnTap { get; set; } = true;
+
         private bool hideCursorOnNonMouseInput;
 
         public bool HideCursorOnNonMouseInput
@@ -234,6 +239,9 @@ namespace osu.Game.Graphics.Cursor
 
         private void playTapSample(double baseFrequency = 1f)
         {
+            if (!PlaySampleOnTap)
+                return;
+
             const float random_range = 0.02f;
             SampleChannel channel = tapSample.GetChannel();
 

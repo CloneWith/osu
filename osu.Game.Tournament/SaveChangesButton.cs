@@ -22,6 +22,7 @@ namespace osu.Game.Tournament
         private static bool ladderUnchanged = true;
 
         public SaveChangesButton()
+            : base(null)
         {
             RelativeSizeAxes = Axes.X;
             Height = 48;

@@ -13,7 +13,7 @@ namespace osu.Game.Tournament
     {
         public new Box Background => base.Background;
 
-        public TourneyButton(HoverSampleSet? hoverSounds = HoverSampleSet.Default)
+        public TourneyButton(HoverSampleSet? hoverSounds = null)
             : base(hoverSounds)
         {
         }

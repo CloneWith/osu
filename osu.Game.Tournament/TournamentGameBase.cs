@@ -112,6 +112,9 @@ namespace osu.Game.Tournament
             // we don't want to show the menu cursor as it would appear on stream output.
             GlobalCursorDisplay.MenuCursor.Alpha = 0;
 
+            // Don't play any sound of the cursor.
+            GlobalCursorDisplay.MenuCursor.PlaySampleOnTap = false;
+
             base.LoadComplete();
 
             // Use an initial title first.
