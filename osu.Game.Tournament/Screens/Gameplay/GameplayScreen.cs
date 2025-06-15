@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -16,7 +17,6 @@ using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.MapPool;
 using osu.Game.Tournament.Screens.TeamWin;
-using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Gameplay
 {
@@ -67,17 +67,18 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Height = 512,
+                            Width = 1366,
                             Children = new Drawable[]
                             {
-                                new ChromaArea
+                                new PlayerArea(TeamColour.Red)
                                 {
-                                    Name = "Left chroma",
+                                    Name = "Left PlayerArea",
                                     RelativeSizeAxes = Axes.Both,
                                     Width = 0.5f,
                                 },
-                                new ChromaArea
+                                new PlayerArea(TeamColour.Blue)
                                 {
-                                    Name = "Right chroma",
+                                    Name = "Right PlayerArea",
                                     RelativeSizeAxes = Axes.Both,
                                     Anchor = Anchor.TopRight,
                                     Origin = Anchor.TopRight,
@@ -148,7 +149,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 }
             });
 
-            LadderInfo.ChromaKeyWidth.BindValueChanged(width => chroma.Width = width.NewValue, true);
+            if (!OperatingSystem.IsWindows())
+                LadderInfo.ChromaKeyWidth.BindValueChanged(width => chroma.Width = width.NewValue, true);
 
             warmup.BindValueChanged(w =>
             {
@@ -301,28 +303,100 @@ namespace osu.Game.Tournament.Screens.Gameplay
             base.Show();
         }
 
-        private partial class ChromaArea : CompositeDrawable
+        private partial class PlayerArea : CompositeDrawable
         {
             [Resolved]
             private LadderInfo ladder { get; set; } = null!;
 
+            private TeamColour teamColour;
+
+            public PlayerArea(TeamColour teamColour)
+            {
+                this.teamColour = teamColour;
+            }
+
             [BackgroundDependencyLoader]
             private void load()
             {
-                // chroma key area for stable gameplay
-                Colour = new Color4(0, 255, 0, 255);
-
                 ladder.PlayersPerTeam.BindValueChanged(performLayout, true);
             }
 
             private void performLayout(ValueChangedEvent<int> playerCount)
             {
+                if (!OperatingSystem.IsWindows())
+                {
+                    switch (playerCount.NewValue)
+                    {
+                        case 3:
+                            InternalChildren = new Drawable[]
+                            {
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Width = 0.5f,
+                                    Height = 0.5f,
+                                    Anchor = Anchor.TopCentre,
+                                    Origin = Anchor.TopCentre,
+                                },
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Anchor = Anchor.BottomLeft,
+                                    Origin = Anchor.BottomLeft,
+                                    Height = 0.5f,
+                                },
+                            };
+                            break;
+
+                        default:
+                            InternalChild = new Box
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                            };
+                            break;
+                    }
+
+                    return;
+                }
+
+                int clientIndex = teamColour == TeamColour.Red ? 0 : playerCount.NewValue;
+
                 switch (playerCount.NewValue)
                 {
+                    case 1:
+                        InternalChildren = new Drawable[]
+                        {
+                            new CapturedWindowSprite($"Tournament Client {clientIndex}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                            }
+                        };
+                        break;
+
+                    case 2:
+                        InternalChildren = new Drawable[]
+                        {
+                            new CapturedWindowSprite($"Tournament Client {clientIndex++}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Height = 0.5f,
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                            },
+                            new CapturedWindowSprite($"Tournament Client {clientIndex}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Height = 0.5f,
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomCentre,
+                            }
+                        };
+                        break;
+
                     case 3:
                         InternalChildren = new Drawable[]
                         {
-                            new Box
+                            new CapturedWindowSprite($"Tournament Client {clientIndex++}")
                             {
                                 RelativeSizeAxes = Axes.Both,
                                 Width = 0.5f,
@@ -330,22 +404,65 @@ namespace osu.Game.Tournament.Screens.Gameplay
                                 Anchor = Anchor.TopCentre,
                                 Origin = Anchor.TopCentre,
                             },
-                            new Box
+                            new CapturedWindowSprite($"Tournament Client {clientIndex++}")
                             {
                                 RelativeSizeAxes = Axes.Both,
+                                Width = 0.5f,
+                                Height = 0.5f,
                                 Anchor = Anchor.BottomLeft,
                                 Origin = Anchor.BottomLeft,
+                            },
+                            new CapturedWindowSprite($"Tournament Client {clientIndex}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Width = 0.5f,
                                 Height = 0.5f,
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomRight,
+                            },
+                        };
+                        break;
+
+                    case 4:
+                        InternalChildren = new Drawable[]
+                        {
+                            new CapturedWindowSprite($"Tournament Client {clientIndex++}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Width = 0.5f,
+                                Height = 0.5f,
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
+                            },
+                            new CapturedWindowSprite($"Tournament Client {clientIndex++}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Width = 0.5f,
+                                Height = 0.5f,
+                                Anchor = Anchor.TopRight,
+                                Origin = Anchor.TopRight,
+                            },
+                            new CapturedWindowSprite($"Tournament Client {clientIndex++}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Width = 0.5f,
+                                Height = 0.5f,
+                                Anchor = Anchor.BottomLeft,
+                                Origin = Anchor.BottomLeft,
+                            },
+                            new CapturedWindowSprite($"Tournament Client {clientIndex}")
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Width = 0.5f,
+                                Height = 0.5f,
+                                Anchor = Anchor.BottomRight,
+                                Origin = Anchor.BottomRight,
                             },
                         };
                         break;
 
                     default:
-                        InternalChild = new Box
-                        {
-                            RelativeSizeAxes = Axes.Both,
-                        };
-                        break;
+                        throw new ArgumentException("Not Support this player count");
                 }
             }
         }
