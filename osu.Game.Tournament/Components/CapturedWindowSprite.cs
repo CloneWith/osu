@@ -56,6 +56,7 @@ namespace osu.Game.Tournament.Components
             AlwaysPresent = true;
             targetWindowTitle = windowTitle;
             RelativeSizeAxes = Axes.Both;
+            Alpha = 0;
         }
 
         [BackgroundDependencyLoader]
@@ -67,9 +68,9 @@ namespace osu.Game.Tournament.Components
                 FillMode = FillMode.Fit
             };
 
+            Name = $"WindowCapture<{targetWindowTitle}>";
+
             AddInternal(sprite);
-            texture = renderer.CreateTexture(1, 1);
-            sprite.Texture = texture;
 
             // 启动后台抓取线程
             running = true;
@@ -289,6 +290,8 @@ namespace osu.Game.Tournament.Components
             captureRequest.Set();
             captureThread?.Join();
             texture?.Dispose();
+            bitmapPool?.Dispose();
+            graphicsPool?.Dispose();
         }
 
         #region Windows API
