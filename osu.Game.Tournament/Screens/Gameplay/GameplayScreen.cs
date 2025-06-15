@@ -134,14 +134,12 @@ namespace osu.Game.Tournament.Screens.Gameplay
                                 }
                             }
                         },
-                        OperatingSystem.IsWindows()
-                            ? Empty()
-                            : new SettingsSlider<int>
-                            {
-                                LabelText = GameplayScreenStrings.ChromaWidth,
-                                Current = LadderInfo.ChromaKeyWidth,
-                                KeyboardStep = 1,
-                            },
+                        new SettingsSlider<int>
+                        {
+                            LabelText = $"{(OperatingSystem.IsWindows() ? "Player Area" : "Chroma")} width",
+                            Current = LadderInfo.ChromaKeyWidth,
+                            KeyboardStep = 1,
+                        },
                         OperatingSystem.IsWindows()
                             ? new SettingsSlider<int>
                             {
@@ -160,8 +158,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 }
             });
 
-            if (!OperatingSystem.IsWindows())
-                LadderInfo.ChromaKeyWidth.BindValueChanged(width => chroma.Width = width.NewValue, true);
+            LadderInfo.ChromaKeyWidth.BindValueChanged(width => chroma.Width = width.NewValue, true);
 
             warmup.BindValueChanged(w =>
             {
