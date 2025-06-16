@@ -31,6 +31,8 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public bool OnGoing { get; private set; }
 
+        public event Action? OnCompleted;
+
         public static Color4 NormalColour = Color4.White;
         public static Color4 AccentColour = FumoColours.SeaBlue.Regular;
         public static Color4 NormalContentColour = Color4.Black;
@@ -287,6 +289,7 @@ namespace osu.Game.Tournament.Components
             if (remainingTime.Value.NearlyEqualsZero())
             {
                 OnGoing = false;
+                OnCompleted?.Invoke();
                 fillDoneContent();
             }
             else updateTimerTextParts();
