@@ -290,6 +290,8 @@ namespace osu.Game.Tournament
             timer.Start();
         }
 
+        public void CancelScreenChange() => timer.Stop();
+
         public void SetScreen(TournamentScreen screen)
         {
             currentScreen?.Hide();

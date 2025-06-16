@@ -13,6 +13,7 @@ using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
+using osu.Game.Tournament.Screens.Board;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.MapPool;
 using osu.Game.Tournament.Screens.TeamWin;
@@ -31,6 +32,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
         private MatchIPCInfo ipc = null!;
         private bool chatEnforcing;
+
+        private bool isUsingBoard => CurrentMatch.Value?.Round.Value?.UseBoard.Value == true;
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -181,10 +184,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 return;
 
             warmup.Value = match.NewValue.Team1Score.Value + match.NewValue.Team2Score.Value == 0;
-            scheduledScreenChange?.Cancel();
+            sceneManager?.CancelScreenChange();
         }
 
-        private ScheduledDelegate? scheduledScreenChange;
         private ScheduledDelegate? scheduledContract;
 
         private TournamentMatchScoreDisplay scoreDisplay = null!;
@@ -230,11 +232,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
         {
             try
             {
-                scheduledScreenChange?.Cancel();
+                sceneManager?.CancelScreenChange();
 
                 if (State.Value == TourneyState.Ranking)
                 {
-                    if (warmup.Value || CurrentMatch.Value == null) return;
+                    if (warmup.Value || CurrentMatch.Value == null || isUsingBoard) return;
 
                     if (ipc.Score1.Value > ipc.Score2.Value)
                         CurrentMatch.Value.Team1Score.Value++;
@@ -254,16 +256,18 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
                         if (LadderInfo.AutoProgressScreens.Value)
                         {
-                            const float delay_before_progression = 4000;
+                            const int delay_before_progression = 4000;
 
                             // if we've returned to idle and the last screen was ranking
                             // we should automatically proceed after a short delay
                             if (lastState == TourneyState.Ranking && !warmup.Value)
                             {
                                 if (CurrentMatch.Value?.Completed.Value == true)
-                                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(TeamWinScreen)); }, delay_before_progression);
+                                    sceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), delay_before_progression);
                                 else if (CurrentMatch.Value?.Completed.Value == false)
-                                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(MapPoolScreen)); }, delay_before_progression);
+                                {
+                                    sceneManager?.ScheduleScreenChange(isUsingBoard ? typeof(BoardScreen) : typeof(MapPoolScreen), delay_before_progression);
+                                }
                             }
                         }
 
@@ -291,7 +295,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
         public override void Hide()
         {
-            scheduledScreenChange?.Cancel();
+            sceneManager?.CancelScreenChange();
             base.Hide();
         }
 
