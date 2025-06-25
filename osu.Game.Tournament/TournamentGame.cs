@@ -137,6 +137,11 @@ namespace osu.Game.Tournament
                 _ => LegacyMods.None,
             };
 
+        /// <summary>
+        /// The maximum allowable penalty points. Users with points more than this would be disqualified.
+        /// </summary>
+        public const int PUNISHMENT_THRESHOLD = 3;
+
         public const int RESERVED_BEATMAP_ID = -1;
 
         public const int BOARD_BEST_OF = 9;

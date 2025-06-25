@@ -20,6 +20,7 @@ namespace osu.Game.Tournament.Models
         public BindableList<TournamentMatch> Matches = new BindableList<TournamentMatch>();
         public BindableList<TournamentRound> Rounds = new BindableList<TournamentRound>();
         public BindableList<TournamentTeam> Teams = new BindableList<TournamentTeam>();
+        public BindableList<PunishmentEntry> Punishments = new BindableList<PunishmentEntry>();
 
         // only used for serialisation
         public List<TournamentProgression> Progressions = new List<TournamentProgression>();

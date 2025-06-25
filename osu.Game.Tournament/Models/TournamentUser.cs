@@ -40,11 +40,6 @@ namespace osu.Game.Tournament.Models
         /// </summary>
         public RatingInfo Ratings { get; set; } = new RatingInfo();
 
-        /// <summary>
-        /// The player's punishment information and status.
-        /// </summary>
-        public PunishmentInfo Punishments { get; set; } = new PunishmentInfo();
-
         public APIUser ToAPIUser()
         {
             var user = new APIUser

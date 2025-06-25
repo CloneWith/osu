@@ -226,6 +226,16 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString ScreenChanged => new TranslatableString(getKey(@"screen_changed"), @"Screen changed");
 
+        /// <summary>
+        /// "Punishments"
+        /// </summary>
+        public static LocalisableString Punishment => new TranslatableString(getKey(@"punishment"), @"Punishments");
+
+        /// <summary>
+        /// "Disqualified"
+        /// </summary>
+        public static LocalisableString Disqualified => new TranslatableString(getKey(@"disqualified"), @"Disqualified");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
