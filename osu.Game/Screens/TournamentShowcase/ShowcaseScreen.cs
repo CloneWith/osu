@@ -12,6 +12,7 @@ using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Models;
+using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
@@ -40,6 +41,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private RulesetStore rulesetStore { get; set; } = null!;
+
+        [Resolved]
+        private MusicController music { get; set; } = null!;
 
         private WorkingBeatmap beatmap = null!;
         private ShowcasePlayer? player;
@@ -146,17 +150,21 @@ namespace osu.Game.Screens.TournamentShowcase
                     break;
             }
 
-            showcaseContainer.BeatmapAttributes.Scale = new Vector2(priorityScale);
+            showcaseContainer.DifficultyDisplay.Scale = new Vector2(priorityScale);
             showcaseContainer.BeatmapInfoDisplay.Scale = new Vector2(priorityScale);
 
             replaying.BindValueChanged(status =>
             {
                 if (!status.NewValue && state.Value == ShowcaseState.BeatmapShow)
                 {
-                    showcaseContainer.BeatmapAttributes.FadeOut(500, Easing.OutQuint);
-                    showcaseContainer.BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
+                    showcaseContainer.DifficultyDisplay.MoveToX(-0.75f, 800, Easing.InQuint);
+                    showcaseContainer.DifficultyDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
+
+                    showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f, 800, Easing.OutQuint);
+                    showcaseContainer.BeatmapInfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
+
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
-                    Scheduler.AddDelayed(pushNextBeatmap, 4500);
+                    Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 4500);
                 }
             });
         }
@@ -164,6 +172,10 @@ namespace osu.Game.Screens.TournamentShowcase
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            // Pause the music if playing.
+            if (music.IsPlaying)
+                music.TogglePause();
 
             // Switch the ruleset beforehand to avoid cast exception.
             Ruleset.Value = config.FallbackRuleset.Value;
@@ -182,10 +194,13 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
 
                 case ShowcaseState.BeatmapTransition:
-                    pushNextBeatmap();
+                    Scheduler.AddDelayed(pushNextBeatmap, 500);
                     return;
 
                 case ShowcaseState.Ended:
+                    if (music.IsPlaying)
+                        music.TogglePause();
+
                     if (config.Layout.Value == ShowcaseLayout.Immersive)
                         Scheduler.AddDelayed(this.Exit, 5000);
                     return;
@@ -221,12 +236,15 @@ namespace osu.Game.Screens.TournamentShowcase
                 beatmapSets.Remove(beatmapSets.First());
 
                 showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f);
-                showcaseContainer.BeatmapAttributes.FadeOut();
+                showcaseContainer.DifficultyDisplay.MoveToX(-0.75f);
+
                 showcaseContainer.BeatmapInfoDisplay.FadeOut();
+                showcaseContainer.DifficultyDisplay.FadeOut();
 
                 using (BeginDelayedSequence(1000))
                 {
-                    showcaseContainer.BeatmapAttributes.FadeIn(500, Easing.OutQuint);
+                    showcaseContainer.DifficultyDisplay.FadeIn(500, Easing.OutQuint)
+                                     .MoveToX(-0.01f, 800, Easing.OutQuint);
 
                     showcaseContainer.BeatmapInfoDisplay.FadeIn(1000, Easing.OutQuint)
                                      .MoveToX(0.01f, 800, Easing.OutQuint);
@@ -240,8 +258,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
             beatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo
             {
-                ID = selected.BeatmapGuid,
-                OnlineID = selected.BeatmapId
+                OnlineID = selected.BeatmapId,
+                Hash = selected.BeatmapHash,
             }, true);
 
             var ruleset = (rulesetStore.GetRuleset(selected.RulesetId) ?? config.FallbackRuleset.Value).CreateInstance();
@@ -275,8 +293,6 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             Beatmap.Value = beatmap;
-            showcaseContainer.BeatmapAttributes.BeatmapInfo.Value = beatmap.BeatmapInfo;
-            showcaseContainer.BeatmapAttributes.Mods.Value = score.ScoreInfo.Mods.ToList();
             showcaseContainer.BeatmapInfoDisplay.Beatmap.Value = selected;
 
             Mods.Value = score.ScoreInfo.Mods;

@@ -26,9 +26,6 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ExtendableBeatmapCard : CompositeDrawable
     {
-        private const float star_rating_y_expanded = 0.075f;
-        private const float centre_offset = -0.1f;
-
         private readonly string iconBaseDir;
 
         private readonly ShowcaseBeatmap beatmap;
@@ -39,6 +36,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private Sprite modIcon = null!;
         private Container difficultyIconContainer = null!;
         private DifficultyIcon difficultyIcon = null!;
+        private GridContainer infoContainer = null!;
+        private FillFlowContainer rightFlow = null!;
         private OsuTextFlowContainer beatmapInfoFlow = null!;
 
         [Resolved]
@@ -55,6 +54,11 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ExtendableBeatmapCard(ShowcaseBeatmap beatmap, ShowcaseConfig config)
         {
+            Width = 400;
+            Height = 300;
+            CornerRadius = 10;
+            Masking = true;
+
             this.beatmap = beatmap;
             iconBaseDir = config.TournamentName.Value;
         }
@@ -62,67 +66,84 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(TextureStore textureStore)
         {
-            Width = 400;
-            Height = 300;
-            CornerRadius = 10;
-            Masking = true;
-
             InternalChildren = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black.Opacity(0.8f)
+                    Colour = Color4.Black.Opacity(0.5f)
                 },
                 setCover = new Sprite
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
-                    Y = centre_offset,
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.Both,
                     Height = 0.8f,
-                    FillMode = FillMode.Fill
+                    FillMode = FillMode.Fill,
                 },
-                modIcon = new Sprite
+                infoContainer = new GridContainer
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Padding = new MarginPadding { Horizontal = 10, Vertical = 5 },
                     RelativeSizeAxes = Axes.Both,
-                    Width = 0.25f,
-                    Y = -star_rating_y_expanded + centre_offset,
-                    FillMode = FillMode.Fit,
-                    Texture = textureStore.Get($"{iconBaseDir}/{beatmap.ModString}{beatmap.ModIndex.Value}")
+                    Height = 0.2f,
+                    ColumnDimensions = [
+                        new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.AutoSize),
+                    ],
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            difficultyIconContainer = new Container
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                AutoSizeAxes = Axes.Both,
+                                AutoSizeEasing = Easing.OutQuint,
+                                AutoSizeDuration = 100,
+                                Padding = new MarginPadding { Right = 10 },
+                            },
+                            beatmapInfoFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold))
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                ParagraphSpacing = 0,
+                            },
+                            rightFlow = new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.Y,
+                                AutoSizeAxes = Axes.X,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(2),
+                                Children = new Drawable[]
+                                {
+                                    // TODO: Problem with fill flow container
+                                    modIcon = new Sprite
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Y,
+                                        Height = 0.4f,
+                                        FillMode = FillMode.Fit,
+                                        Texture = textureStore.Get($"{iconBaseDir}/{beatmap.ModString}{beatmap.ModIndex.Value}"),
+                                    },
+                                    starRatingDisplay = new StarRatingDisplay(new StarDifficulty())
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                starRatingDisplay = new StarRatingDisplay(new StarDifficulty())
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
-                    Y = star_rating_y_expanded + centre_offset,
-                    Scale = new Vector2(1.75f)
-                },
-                difficultyIconContainer = new Container
-                {
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
-                    AutoSizeAxes = Axes.Both,
-                    AutoSizeEasing = Easing.OutQuint,
-                    AutoSizeDuration = 100,
-                    X = 0.07f,
-                    Y = 0.9f
-                },
-                beatmapInfoFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold))
-                {
-                    Origin = Anchor.CentreLeft,
-                    RelativePositionAxes = Axes.Both,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Width = 0.88f,
-                    X = 0.14f,
-                    Y = 0.9f
-                }
             };
         }
 
@@ -134,7 +155,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 try
                 {
-                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = beatmap.BeatmapGuid }, true);
+                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { Hash = beatmap.BeatmapHash }, true);
 
                     if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
                     {
@@ -188,30 +209,28 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public void Shrink(int duration = 800)
         {
-            setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
-            setCover.MoveToY(0, duration, Easing.OutQuint);
-            setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
             this.ResizeHeightTo(80, duration, Easing.OutQuint);
+            infoContainer.ResizeHeightTo(1f, duration, Easing.OutQuint);
+            setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
+            setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
+            rightFlow.Direction = FillDirection.Horizontal;
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.5f, duration, Easing.OutQuint);
-            modIcon.ResizeWidthTo(0.15f, duration, Easing.OutQuint);
-            modIcon.MoveTo(new Vector2(0.4f, -0.15f), duration, Easing.OutQuint);
-            starRatingDisplay.MoveTo(new Vector2(0.4f, 0.15f), duration, Easing.OutQuint);
+            modIcon.ScaleTo(0.75f, duration, Easing.OutQuint);
             starRatingDisplay.ScaleTo(1.05f, duration, Easing.OutQuint);
         }
 
         public void Expand(int duration = 800)
         {
-            setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
-            setCover.MoveToY(centre_offset, duration, Easing.OutQuint);
-            setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
             this.ResizeHeightTo(400, duration, Easing.OutQuint);
+            infoContainer.ResizeHeightTo(0.2f, duration, Easing.OutQuint);
+            setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
+            setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
+            rightFlow.Direction = FillDirection.Vertical;
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.9f, duration, Easing.OutQuint);
-            modIcon.ResizeWidthTo(0.25f, duration, Easing.OutQuint);
-            modIcon.MoveTo(new Vector2(0, -star_rating_y_expanded + centre_offset), duration, Easing.OutQuint);
-            starRatingDisplay.ScaleTo(1.75f, duration, Easing.OutQuint);
-            starRatingDisplay.MoveTo(new Vector2(0, star_rating_y_expanded + centre_offset), duration, Easing.OutQuint);
+            modIcon.ScaleTo(1f, duration, Easing.OutQuint);
+            starRatingDisplay.ScaleTo(1f, duration, Easing.OutQuint);
         }
     }
 }

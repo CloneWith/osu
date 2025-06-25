@@ -18,7 +18,6 @@ namespace osu.Game.Models
         public BeatmapInfo BeatmapInfo = new BeatmapInfo();
 
         public int BeatmapId;
-        public Guid BeatmapGuid = Guid.Empty;
         public int RulesetId;
         public Bindable<string> ModString = new Bindable<string>();
         public Bindable<string> ModIndex = new Bindable<string>();
@@ -34,6 +33,7 @@ namespace osu.Game.Models
         [JsonIgnore]
         public ScoreInfo? ShowcaseScore;
 
+        public string BeatmapHash = string.Empty;
         public string ScoreHash = string.Empty;
 
         public ShowcaseBeatmap()
@@ -44,12 +44,12 @@ namespace osu.Game.Models
         {
             BeatmapInfo = beatmapInfo ?? new BeatmapInfo();
             BeatmapId = BeatmapInfo.OnlineID;
-            BeatmapGuid = BeatmapInfo.ID;
+            BeatmapHash = BeatmapInfo.Hash;
         }
 
         public bool IsValid()
         {
-            return BeatmapGuid != Guid.Empty;
+            return BeatmapHash != string.Empty;
         }
     }
 }
