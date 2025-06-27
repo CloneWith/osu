@@ -9,7 +9,6 @@ using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
-using osu.Game.Screens.Ranking;
 using osu.Game.Screens.Select;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -34,9 +33,6 @@ namespace osu.Game.Screens.TournamentShowcase
             targetMods.BindTo(mods);
             targetRuleset.BindTo(rulesetInfo);
         }
-
-        protected void PresentScore(ScoreInfo score) =>
-            FinaliseSelection(score.BeatmapInfo, score.Ruleset, () => this.Push(new SoloResultsScreen(score)));
 
         protected override BeatmapDetailArea CreateBeatmapDetailArea()
         {
