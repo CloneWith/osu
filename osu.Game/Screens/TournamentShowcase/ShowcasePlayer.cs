@@ -2,9 +2,11 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Beatmaps;
+using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Play;
 using osu.Game.Screens.Ranking;
@@ -17,11 +19,13 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly Score score;
         private readonly double startTime;
         private readonly bool noHUD;
+        private readonly IReadOnlyList<Mod>? mods;
 
         private readonly float priorityScale;
         private readonly BindableBool replaying = new BindableBool();
 
-        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, BindableBool replaying, bool noHUD = false)
+        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, BindableBool replaying,
+                              IReadOnlyList<Mod>? mods = null, bool noHUD = false)
             : base(score, new PlayerConfiguration
             {
                 AllowUserInteraction = false,
@@ -30,6 +34,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.score = score;
             this.startTime = startTime;
+            this.mods = mods;
             this.replaying.BindTo(replaying);
             this.noHUD = noHUD;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
@@ -37,7 +42,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         protected override void LoadComplete()
         {
-            Mods.Value = score.ScoreInfo.Mods;
+            Mods.Value = mods ?? score.ScoreInfo.Mods;
             base.LoadComplete();
 
             if (noHUD)
