@@ -96,19 +96,9 @@ namespace osu.Game.Screens.TournamentShowcase
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
-                                }
-                            }
-                        },
-                        new HoldForMenuButton
-                        {
-                            Action = this.Exit,
-                            Padding = new MarginPadding
-                            {
-                                Bottom = 90
+                                },
                             },
-                            Anchor = Anchor.BottomRight,
-                            Origin = Anchor.BottomRight,
-                        }
+                        },
                     ];
                     break;
 
