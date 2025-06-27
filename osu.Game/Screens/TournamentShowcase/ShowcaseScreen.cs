@@ -267,6 +267,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
 
                 score = fetchedScore;
+                Mods.Value = score.ScoreInfo.Mods;
             }
             else
             {
@@ -279,13 +280,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
                 }
 
-                score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo), selected.RequiredMods);
+                score = autoplayMod.CreateScoreFromReplayData(beatmap.GetPlayableBeatmap(ruleset.RulesetInfo, selected.RequiredMods), selected.RequiredMods);
+                Mods.Value = selected.RequiredMods;
             }
 
             Beatmap.Value = beatmap;
             showcaseContainer.BeatmapInfoDisplay.Beatmap.Value = selected;
-
-            Mods.Value = score.ScoreInfo.Mods;
 
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();
