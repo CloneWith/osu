@@ -154,11 +154,19 @@ namespace osu.Game.Graphics.Containers
         /// <summary>
         /// Start the rotating display sequence.
         /// </summary>
+        /// <param name="startFromBeginning">whether to start from the first layer.</param>
         /// <remarks>This will always show the next layer when called.</remarks>
-        public void Start()
+        public void Start(bool startFromBeginning = false)
         {
             if (Layers.Count == 0)
                 return;
+
+            if (startFromBeginning)
+            {
+                if (CurrentIndex >= 0 && CurrentIndex < Layers.Count)
+                    OutAnimation.Invoke(Layers[CurrentIndex], TransformLength);
+                CurrentIndex = -1;
+            }
 
             Playing = true;
         }
