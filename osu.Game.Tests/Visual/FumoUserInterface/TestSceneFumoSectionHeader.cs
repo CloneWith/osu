@@ -10,7 +10,7 @@ using osu.Game.Graphics.UserInterfaceFumo;
 using osuTK;
 using osuTK.Graphics;
 
-namespace osu.Game.Tests.Visual.FumoInterface
+namespace osu.Game.Tests.Visual.FumoUserInterface
 {
     public partial class TestSceneFumoSectionHeader : OsuTestScene
     {
