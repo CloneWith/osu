@@ -47,7 +47,7 @@ namespace osu.Game.Graphics.Containers
 
         /// <summary>
         /// Whether to wait for the easing out animation to complete before the easing in animation begins.
-        /// True if not, otherwise false.
+        /// <c>true</c> if not, otherwise <c>false</c>.
         /// </summary>
         public bool CrossAnimation = false;
 
@@ -60,7 +60,7 @@ namespace osu.Game.Graphics.Containers
         /// Whether layers should be shown repeatedly.
         /// If not, the container would show the last layer at the end.
         /// </summary>
-        /// <remarks>This only works with <see cref="Random"/> set to false.</remarks>
+        /// <remarks>This only works with <see cref="Random"/> set to <c>false</c>.</remarks>
         public bool Looped = true;
 
         /// <summary>
@@ -72,6 +72,12 @@ namespace osu.Game.Graphics.Containers
         /// The easing out animation of a layer.
         /// </summary>
         public Action<Drawable, double> OutAnimation = (d, len) => d.FadeOut(len, Easing.OutQuint);
+
+        /// <summary>
+        /// The event triggered when the current display sequence is completed or stopped manually.
+        /// </summary>
+        /// <remarks>This event could be only triggered with <see cref="Looped"/> set to <c>false</c>.</remarks>
+        public event Action? OnComplete;
 
         private readonly Random random = new Random();
 
@@ -141,6 +147,11 @@ namespace osu.Game.Graphics.Containers
         }
 
         /// <summary>
+        /// Reset the <see cref="OnComplete"/> event trigger.
+        /// </summary>
+        public void ResetCompleteTrigger() => OnComplete = null;
+
+        /// <summary>
         /// Start the rotating display sequence.
         /// </summary>
         /// <remarks>This will always show the next layer when called.</remarks>
@@ -158,6 +169,7 @@ namespace osu.Game.Graphics.Containers
         public void Pause()
         {
             Playing = false;
+            OnComplete?.Invoke();
         }
 
         protected override void Update()
