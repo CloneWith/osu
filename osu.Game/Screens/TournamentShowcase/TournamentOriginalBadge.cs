@@ -21,7 +21,7 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class TournamentOriginalBadge : CompositeDrawable
     {
-        private const int width = 200;
+        private const int width = 175;
         private const int height = 50;
 
         private readonly RotatingDisplayContainer flashTextContainer;
@@ -29,8 +29,12 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly Sprite badgeIcon;
         private readonly FillFlowContainer textFlow;
 
-        public TournamentOriginalBadge()
+        private readonly string logoPath;
+
+        public TournamentOriginalBadge(string logoPath = "")
         {
+            this.logoPath = logoPath;
+
             Width = width;
             Height = height;
 
@@ -94,7 +98,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     Alpha = 0,
                     Padding = new MarginPadding { Horizontal = 5, Bottom = 5 },
                     ColumnDimensions = [
-                        new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(GridSizeMode.Relative, 0.25f),
                         new Dimension(),
                     ],
                     Content = new[]
@@ -160,11 +164,10 @@ namespace osu.Game.Screens.TournamentShowcase
             });
         }
 
-        [BackgroundDependencyLoader(permitNulls: true)]
-        private void load(TextureStore? textures, ShowcaseConfig? config)
+        [BackgroundDependencyLoader]
+        private void load(TextureStore textures)
         {
-            if (textures != null && config != null)
-                badgeIcon.Texture = textures.Get(@$"{config.TournamentName}/original-badge");
+            badgeIcon.Texture = textures.Get(logoPath);
         }
 
         public void Animate()
