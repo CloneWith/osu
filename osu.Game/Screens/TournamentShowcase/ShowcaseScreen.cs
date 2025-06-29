@@ -144,18 +144,14 @@ namespace osu.Game.Screens.TournamentShowcase
                     break;
             }
 
-            showcaseContainer.DifficultyDisplay.Scale = new Vector2(priorityScale);
-            showcaseContainer.BeatmapInfoDisplay.Scale = new Vector2(priorityScale);
+            showcaseContainer.InfoDisplay.Scale = new Vector2(priorityScale);
 
             replaying.BindValueChanged(status =>
             {
                 if (!status.NewValue && state.Value == ShowcaseState.BeatmapShow)
                 {
-                    showcaseContainer.DifficultyDisplay.MoveToX(-0.75f, 800, Easing.InQuint);
-                    showcaseContainer.DifficultyDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
-
-                    showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f, 800, Easing.OutQuint);
-                    showcaseContainer.BeatmapInfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
+                    showcaseContainer.InfoDisplay.MoveToX(-0.75f, 800, Easing.InQuint);
+                    showcaseContainer.InfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
 
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
                     Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 4500);
@@ -240,19 +236,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 selected = beatmapSets.First();
                 beatmapSets.Remove(beatmapSets.First());
 
-                showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f);
-                showcaseContainer.DifficultyDisplay.MoveToX(-0.75f);
-
-                showcaseContainer.BeatmapInfoDisplay.FadeOut();
-                showcaseContainer.DifficultyDisplay.FadeOut();
+                showcaseContainer.InfoDisplay.MoveToX(-0.75f);
+                showcaseContainer.InfoDisplay.FadeOut();
 
                 using (BeginDelayedSequence(1000))
                 {
-                    showcaseContainer.DifficultyDisplay.FadeIn(500, Easing.OutQuint)
+                    showcaseContainer.InfoDisplay.FadeIn(500, Easing.OutQuint)
                                      .MoveToX(-0.01f, 800, Easing.OutQuint);
-
-                    showcaseContainer.BeatmapInfoDisplay.FadeIn(1000, Easing.OutQuint)
-                                     .MoveToX(0.01f, 800, Easing.OutQuint);
                 }
             }
             else
@@ -300,7 +290,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             Beatmap.Value = beatmap;
-            showcaseContainer.BeatmapInfoDisplay.Beatmap.Value = selected;
+            showcaseContainer.InfoDisplay.Target.Value = selected;
 
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();

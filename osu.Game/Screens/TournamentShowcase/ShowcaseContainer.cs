@@ -17,7 +17,6 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Localisation;
 using osu.Game.Screens.Menu;
-using osu.Game.Screens.SelectV2;
 using osuTK;
 using osuTK.Graphics;
 
@@ -28,8 +27,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public OsuScreenStack ScreenStack { get; private set; }
         public OsuScreenStack ErrorStack { get; private set; }
 
-        public readonly BeatmapTitleWedge.DifficultyDisplay DifficultyDisplay;
-        public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
+        public readonly ShowcaseBeatmapInfoWedge InfoDisplay;
 
         private readonly PlayerContainer playerContainer;
         private readonly Box backgroundMask;
@@ -82,21 +80,13 @@ namespace osu.Game.Screens.TournamentShowcase
                     SpawnRatio = 1.75f,
                     Alpha = 0,
                 },
-                DifficultyDisplay = new BeatmapTitleWedge.DifficultyDisplay
+                InfoDisplay = new ShowcaseBeatmapInfoWedge
                 {
                     RelativePositionAxes = Axes.Both,
-                    Width = 0.35f,
+                    RelativeSizeAxes = Axes.None,
+                    Width = 400,
                     Alpha = 0,
                     X = -0.01f,
-                    Y = 0.2f,
-                },
-                BeatmapInfoDisplay = new ShowcaseBeatmapInfoArea
-                {
-                    RelativePositionAxes = Axes.Both,
-                    RelativeSizeAxes = Axes.Both,
-                    Width = 0.16f,
-                    Alpha = 0,
-                    X = 0.01f,
                     Y = 0.2f,
                 },
                 transitionMask = new WaveContainer
@@ -445,8 +435,6 @@ namespace osu.Game.Screens.TournamentShowcase
             };
 
             AddInternal(outroContainer);
-
-            BeatmapInfoDisplay.FadeOut(500, Easing.OutQuint);
 
             using (BeginDelayedSequence(1500))
             {
