@@ -321,6 +321,36 @@ namespace osu.Game.Localisation
         public static LocalisableString MapPoolHeader => new TranslatableString(getKey(@"map_pool_header"), @"Map Pool");
 
         /// <summary>
+        /// "Tournament Showcase Control"
+        /// </summary>
+        public static LocalisableString InputSettingHeader => new TranslatableString(getKey(@"input_setting_header"), @"Tournament Showcase Control");
+
+        /// <summary>
+        /// "Exit showcase"
+        /// </summary>
+        public static LocalisableString ForceQuit => new TranslatableString(getKey(@"force_quit"), @"Exit showcase");
+
+        /// <summary>
+        /// "Show previous"
+        /// </summary>
+        public static LocalisableString GoToPrevious => new TranslatableString(getKey(@"go_to_previous"), @"Show previous");
+
+        /// <summary>
+        /// "Show next"
+        /// </summary>
+        public static LocalisableString GoToNext => new TranslatableString(getKey(@"go_to_next"), @"Show next");
+
+        /// <summary>
+        /// "Replay current"
+        /// </summary>
+        public static LocalisableString ReplayCurrent => new TranslatableString(getKey(@"replay_current"), @"Replay current");
+
+        /// <summary>
+        /// "Pause / continue"
+        /// </summary>
+        public static LocalisableString PauseOrContinue => new TranslatableString(getKey(@"pause_or_continue"), @"Pause / continue");
+
+        /// <summary>
         /// "Oops..."
         /// </summary>
         public static LocalisableString ErrorScreenTitle => new TranslatableString(getKey(@"error_screen_title"), @"Oops...");

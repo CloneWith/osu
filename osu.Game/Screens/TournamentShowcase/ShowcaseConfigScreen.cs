@@ -9,6 +9,8 @@ using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
@@ -16,6 +18,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Input.Bindings;
 using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Overlays;
@@ -27,7 +30,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseConfigScreen : OsuScreen
+    public partial class ShowcaseConfigScreen : OsuScreen, IKeyBindingHandler<GlobalAction>
     {
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
@@ -352,11 +355,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         RelativeSizeAxes = Axes.X,
                                         Width = 0.4f,
                                         Text = TournamentShowcaseStrings.StartShowcase,
-                                        Action = () =>
-                                        {
-                                            if (checkConfig())
-                                                this.Push(new ShowcaseScreen(currentProfile.Value));
-                                        },
+                                        Action = startShowcase,
                                     },
                                 },
                             },
@@ -476,6 +475,12 @@ namespace osu.Game.Screens.TournamentShowcase
             });
         }
 
+        private void startShowcase()
+        {
+            if (checkConfig())
+                this.Push(new ShowcaseScreen(currentProfile.Value));
+        }
+
         private void currentTabChanged(ValueChangedEvent<ShowcaseConfigTab> e)
         {
             // <comment>
@@ -514,6 +519,23 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             return base.OnExiting(e);
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+        {
+            switch (e.Action)
+            {
+                case GlobalAction.ShowcaseStart:
+                    startShowcase();
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+        {
         }
     }
 

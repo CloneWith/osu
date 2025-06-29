@@ -8,9 +8,12 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
+using osu.Game.Input.Bindings;
 using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
@@ -312,6 +315,25 @@ namespace osu.Game.Screens.TournamentShowcase
             };
 
             showcaseContainer.ScreenStack.Push(player);
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+        {
+            return false;
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+        {
+            switch (e.Action)
+            {
+                case GlobalAction.ShowcaseForceQuit:
+                    this.Exit();
+                    break;
+
+                case GlobalAction.ShowcaseNext:
+                    state.Value = ShowcaseState.BeatmapTransition;
+                    break;
+            }
         }
     }
 }

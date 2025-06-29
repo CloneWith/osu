@@ -217,4 +217,22 @@
     <data name="error_screen_exception_detail" xml:space="preserve">
         <value>要获取详细信息，请见运行日志。</value>
     </data>
+    <data name="input_setting_header" xml:space="preserve">
+        <value>赛事展示控制</value>
+    </data>
+    <data name="force_quit" xml:space="preserve">
+        <value>立即退出</value>
+    </data>
+    <data name="go_to_previous" xml:space="preserve">
+        <value>上一个</value>
+    </data>
+    <data name="go_to_next" xml:space="preserve">
+        <value>下一个</value>
+    </data>
+    <data name="replay_current" xml:space="preserve">
+        <value>重放当前项目</value>
+    </data>
+    <data name="pause_or_continue" xml:space="preserve">
+        <value>暂停 / 继续</value>
+    </data>
 </root>
