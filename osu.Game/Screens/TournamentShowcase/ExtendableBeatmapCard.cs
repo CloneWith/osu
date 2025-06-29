@@ -207,6 +207,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.ResizeHeightTo(80, duration, Easing.OutQuint);
             infoContainer.ResizeHeightTo(1f, duration, Easing.OutQuint);
+            setCover.Anchor = Anchor.Centre;
+            setCover.Origin = Anchor.Centre;
             setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
             setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
@@ -219,6 +221,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.ResizeHeightTo(400, duration, Easing.OutQuint);
             infoContainer.ResizeHeightTo(0.2f, duration, Easing.OutQuint);
+            setCover.Anchor = Anchor.TopCentre;
+            setCover.Origin = Anchor.TopCentre;
             setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
             setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);

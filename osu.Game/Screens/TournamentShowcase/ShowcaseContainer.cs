@@ -351,10 +351,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         card.MoveToY(card.Y + 100).Then().MoveToY(card.Y - 100, 500, Easing.OutQuint);
                         card.Delay(250).FadeIn(500, Easing.OutQuint);
 
-                        using (BeginDelayedSequence(2000 - j1 * 200))
-                        {
-                            card.Shrink();
-                        }
+                        Scheduler.AddDelayed(() => card.Shrink(), 2000 - j1 * 200);
                     }, i * 1000 + j * 200 + 800);
                 }
             }
