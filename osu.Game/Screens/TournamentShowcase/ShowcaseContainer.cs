@@ -29,7 +29,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public readonly BeatmapTitleWedge.DifficultyDisplay DifficultyDisplay;
         public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
-        public readonly TournamentOriginalBadge OriginalBeatmapBadge;
 
         private readonly PlayerContainer playerContainer;
         private readonly Box backgroundMask;
@@ -98,13 +97,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     Alpha = 0,
                     X = 0.01f,
                     Y = 0.2f,
-                },
-                OriginalBeatmapBadge = new TournamentOriginalBadge(@$"{config.TournamentName}/original-badge")
-                {
-                    RelativePositionAxes = Axes.Both,
-                    Alpha = 0,
-                    X = 0.01f,
-                    Y = 0.35f,
                 },
                 transitionMask = new WaveContainer
                 {

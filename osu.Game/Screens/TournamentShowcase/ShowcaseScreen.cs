@@ -142,7 +142,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
             showcaseContainer.DifficultyDisplay.Scale = new Vector2(priorityScale);
             showcaseContainer.BeatmapInfoDisplay.Scale = new Vector2(priorityScale);
-            showcaseContainer.OriginalBeatmapBadge.Scale = new Vector2(priorityScale * 0.6f);
 
             replaying.BindValueChanged(status =>
             {
@@ -153,9 +152,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
                     showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f, 800, Easing.OutQuint);
                     showcaseContainer.BeatmapInfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
-
-                    showcaseContainer.OriginalBeatmapBadge.MoveToX(-0.3f, 800, Easing.OutQuint);
-                    showcaseContainer.OriginalBeatmapBadge.Delay(250).FadeOut(500, Easing.OutQuint);
 
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
                     Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 4500);
@@ -231,11 +227,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 showcaseContainer.BeatmapInfoDisplay.MoveToX(-0.3f);
                 showcaseContainer.DifficultyDisplay.MoveToX(-0.75f);
-                showcaseContainer.OriginalBeatmapBadge.MoveToX(-0.2f);
 
                 showcaseContainer.BeatmapInfoDisplay.FadeOut();
                 showcaseContainer.DifficultyDisplay.FadeOut();
-                showcaseContainer.OriginalBeatmapBadge.FadeOut();
 
                 using (BeginDelayedSequence(1000))
                 {
@@ -244,14 +238,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
                     showcaseContainer.BeatmapInfoDisplay.FadeIn(1000, Easing.OutQuint)
                                      .MoveToX(0.01f, 800, Easing.OutQuint);
-
-                    if (selected.IsOriginal.Value)
-                    {
-                        showcaseContainer.OriginalBeatmapBadge.FadeIn(1000, Easing.OutQuint)
-                                         .MoveToX(0.01f, 800, Easing.OutQuint);
-
-                        Scheduler.AddDelayed(() => showcaseContainer.OriginalBeatmapBadge.Animate(), 500);
-                    }
                 }
             }
             else
@@ -305,7 +291,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 showcaseContainer.ScreenStack.Exit();
 
             showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500,
-                config, replaying, Mods.Value, introMode));
+                config, selected, replaying, Mods.Value, introMode));
         }
     }
 }

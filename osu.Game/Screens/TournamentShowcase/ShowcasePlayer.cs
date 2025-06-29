@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Beatmaps;
+using osu.Game.Models;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Play;
@@ -17,6 +18,8 @@ namespace osu.Game.Screens.TournamentShowcase
     public partial class ShowcasePlayer : ReplayPlayer
     {
         private readonly Score score;
+        private readonly ShowcaseConfig config;
+        private readonly ShowcaseBeatmap beatmap;
         private readonly double startTime;
         private readonly bool noHUD;
         private readonly IReadOnlyList<Mod>? mods;
@@ -24,7 +27,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly float priorityScale;
         private readonly BindableBool replaying = new BindableBool();
 
-        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, BindableBool replaying,
+        private TournamentOriginalBadge originalBadge = null!;
+
+        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, ShowcaseBeatmap beatmap, BindableBool replaying,
                               IReadOnlyList<Mod>? mods = null, bool noHUD = false)
             : base(score, new PlayerConfiguration
             {
@@ -35,8 +40,10 @@ namespace osu.Game.Screens.TournamentShowcase
             this.score = score;
             this.startTime = startTime;
             this.mods = mods;
+            this.beatmap = beatmap;
             this.replaying.BindTo(replaying);
             this.noHUD = noHUD;
+            this.config = config;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
         }
 
@@ -50,17 +57,28 @@ namespace osu.Game.Screens.TournamentShowcase
                 HUDOverlay.ShowHud.Value = false;
                 HUDOverlay.ShowHud.Disabled = true;
                 HUDOverlay.PlayfieldSkinLayer.Hide();
+                FailOverlay.Hide();
                 BreakOverlay.Hide();
                 DrawableRuleset.Overlays.Hide();
                 DrawableRuleset.Playfield.DisplayJudgements.Value = false;
             }
 
             // Adjust the scale and size of overlays.
+            HUDOverlay.TopRightElements.Add(originalBadge = new TournamentOriginalBadge(@$"{config.TournamentName}/original-badge")
+            {
+                Anchor = Anchor.TopRight,
+                Origin = Anchor.BottomRight,
+                Scale = new Vector2(0.8f),
+                Alpha = beatmap.IsOriginal.Value ? 1 : 0,
+            });
+
             HUDOverlay.ScaleTo(new Vector2(priorityScale));
             HUDOverlay.ResizeTo(new Vector2(1f / priorityScale, 1f / priorityScale));
 
             BreakOverlay.ScaleTo(new Vector2(priorityScale));
             BreakOverlay.ResizeTo(new Vector2(1f / priorityScale, 1f / priorityScale));
+
+            Scheduler.AddDelayed(() => originalBadge.Animate(), 800);
 
             Reset();
         }
