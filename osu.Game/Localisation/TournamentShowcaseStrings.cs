@@ -320,6 +320,33 @@ namespace osu.Game.Localisation
         /// </summary>
         public static LocalisableString MapPoolHeader => new TranslatableString(getKey(@"map_pool_header"), @"Map Pool");
 
+        /// <summary>
+        /// "Oops..."
+        /// </summary>
+        public static LocalisableString ErrorScreenTitle => new TranslatableString(getKey(@"error_screen_title"), @"Oops...");
+
+        /// <summary>
+        /// "We are sorry, but an exception just occurred."
+        /// </summary>
+        public static LocalisableString ErrorScreenFirst => new TranslatableString(getKey(@"error_screen_first"), @"We are sorry, but an exception just occurred.");
+
+        /// <summary>
+        /// "To prevent it from causing further destruction, the current showcase has been halted."
+        /// </summary>
+        public static LocalisableString ErrorScreenSecond => new TranslatableString(getKey(@"error_screen_second"),
+            @"To prevent it from causing further destruction, the current showcase has been halted.");
+
+        /// <summary>
+        /// "Exception message:"
+        /// </summary>
+        public static LocalisableString ErrorScreenException => new TranslatableString(getKey(@"error_screen_exception"), @"Exception message:");
+
+        /// <summary>
+        /// "For details about this exception, see the runtime log file."
+        /// </summary>
+        public static LocalisableString ErrorScreenExceptionDetail => new TranslatableString(getKey(@"error_screen_exception_detail"),
+            @"For details about this exception, see the runtime log file.");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

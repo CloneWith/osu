@@ -21,8 +21,9 @@ using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseScreen : OsuScreen
+    public partial class ShowcaseScreen : OsuScreen, IKeyBindingHandler<GlobalAction>
     {
+        [Cached]
         private readonly ShowcaseConfig config;
 
         public override bool DisallowExternalBeatmapRulesetChanges => true;
@@ -202,7 +203,18 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void pushIntroBeatmap() => updateBeatmap(true);
 
-        private void pushNextBeatmap() => updateBeatmap();
+        private void pushNextBeatmap()
+        {
+            try
+            {
+                updateBeatmap();
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
+                showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+            }
+        }
 
         /// <summary>
         /// Load the next beatmap in the queue and push it to the player.
@@ -290,8 +302,16 @@ namespace osu.Game.Screens.TournamentShowcase
             if (player != null)
                 showcaseContainer.ScreenStack.Exit();
 
-            showcaseContainer.ScreenStack.Push(player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500,
-                config, selected, replaying, Mods.Value, introMode));
+            player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500,
+                config, selected, replaying, Mods.Value, introMode);
+
+            player.OnError += e =>
+            {
+                Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
+                showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+            };
+
+            showcaseContainer.ScreenStack.Push(player);
         }
     }
 }

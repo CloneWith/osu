@@ -202,4 +202,19 @@
     <data name="map_pool_header" xml:space="preserve">
         <value>图池</value>
     </data>
+    <data name="error_screen_title" xml:space="preserve">
+        <value>呜喵...qwq</value>
+    </data>
+    <data name="error_screen_first" xml:space="preserve">
+        <value>很抱歉，刚刚发生了异常。</value>
+    </data>
+    <data name="error_screen_second" xml:space="preserve">
+        <value>为了及时止损，本次展示已被中止。</value>
+    </data>
+    <data name="error_screen_exception" xml:space="preserve">
+        <value>异常信息：</value>
+    </data>
+    <data name="error_screen_exception_detail" xml:space="preserve">
+        <value>要获取详细信息，请见运行日志。</value>
+    </data>
 </root>

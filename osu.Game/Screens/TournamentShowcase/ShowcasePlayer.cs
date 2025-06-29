@@ -25,9 +25,12 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly IReadOnlyList<Mod>? mods;
 
         private readonly float priorityScale;
+        private bool faulted;
         private readonly BindableBool replaying = new BindableBool();
 
         private TournamentOriginalBadge originalBadge = null!;
+
+        public event Action<Exception>? OnError;
 
         public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, ShowcaseBeatmap beatmap, BindableBool replaying,
                               IReadOnlyList<Mod>? mods = null, bool noHUD = false)
@@ -92,9 +95,17 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.Update();
 
-            if (GameplayState.HasPassed)
+            try
             {
-                replaying.Value = false;
+                if (!faulted && GameplayState.HasPassed)
+                {
+                    replaying.Value = false;
+                }
+            }
+            catch (Exception e)
+            {
+                OnError?.Invoke(e);
+                faulted = true;
             }
         }
 

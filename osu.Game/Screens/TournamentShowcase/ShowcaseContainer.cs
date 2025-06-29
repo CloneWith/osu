@@ -26,6 +26,7 @@ namespace osu.Game.Screens.TournamentShowcase
     public partial class ShowcaseContainer : Container
     {
         public OsuScreenStack ScreenStack { get; private set; }
+        public OsuScreenStack ErrorStack { get; private set; }
 
         public readonly BeatmapTitleWedge.DifficultyDisplay DifficultyDisplay;
         public readonly ShowcaseBeatmapInfoArea BeatmapInfoDisplay;
@@ -128,6 +129,10 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Black,
                     Alpha = 0,
+                },
+                ErrorStack = new OsuScreenStack
+                {
+                    RelativeSizeAxes = Axes.Both,
                 },
             };
 
