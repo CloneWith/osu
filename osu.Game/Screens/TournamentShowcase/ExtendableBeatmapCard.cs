@@ -17,6 +17,8 @@ using osu.Game.Beatmaps.Drawables;
 using osu.Game.Database;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Models;
 using osu.Game.Rulesets;
 using osuTK;
@@ -26,18 +28,15 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ExtendableBeatmapCard : CompositeDrawable
     {
-        private readonly string iconBaseDir;
-
         private readonly ShowcaseBeatmap beatmap;
         private WorkingBeatmap? workingBeatmap;
         private IBeatmapInfo? beatmapInfo;
         private Sprite setCover = null!;
         private StarRatingDisplay starRatingDisplay = null!;
-        private Sprite modIcon = null!;
+        private OsuSpriteText modText = null!;
         private Container difficultyIconContainer = null!;
         private DifficultyIcon difficultyIcon = null!;
         private GridContainer infoContainer = null!;
-        private FillFlowContainer rightFlow = null!;
         private OsuTextFlowContainer beatmapInfoFlow = null!;
 
         [Resolved]
@@ -52,7 +51,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
 
-        public ExtendableBeatmapCard(ShowcaseBeatmap beatmap, ShowcaseConfig config)
+        public ExtendableBeatmapCard(ShowcaseBeatmap beatmap)
         {
             Width = 400;
             Height = 300;
@@ -60,7 +59,6 @@ namespace osu.Game.Screens.TournamentShowcase
             Masking = true;
 
             this.beatmap = beatmap;
-            iconBaseDir = config.TournamentName.Value;
         }
 
         [BackgroundDependencyLoader]
@@ -114,25 +112,23 @@ namespace osu.Game.Screens.TournamentShowcase
                                 AutoSizeAxes = Axes.Y,
                                 ParagraphSpacing = 0,
                             },
-                            rightFlow = new FillFlowContainer
+                            new FillFlowContainer
                             {
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.Y,
                                 AutoSizeAxes = Axes.X,
                                 Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(2),
+                                Spacing = new Vector2(5),
                                 Children = new Drawable[]
                                 {
-                                    // TODO: Problem with fill flow container
-                                    modIcon = new Sprite
+                                    modText = new OsuSpriteText
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        RelativeSizeAxes = Axes.Y,
-                                        Height = 0.4f,
-                                        FillMode = FillMode.Fit,
-                                        Texture = textureStore.Get($"{iconBaseDir}/{beatmap.ModString}{beatmap.ModIndex.Value}"),
+                                        Text = $@"{beatmap.ModString.Value}{beatmap.ModIndex.Value}",
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 24),
+                                        Colour = ModColours.FromModString(beatmap.ModString.Value).Accent,
                                     },
                                     starRatingDisplay = new StarRatingDisplay(new StarDifficulty())
                                     {
@@ -213,10 +209,9 @@ namespace osu.Game.Screens.TournamentShowcase
             infoContainer.ResizeHeightTo(1f, duration, Easing.OutQuint);
             setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
             setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
-            rightFlow.Direction = FillDirection.Horizontal;
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.5f, duration, Easing.OutQuint);
-            modIcon.ScaleTo(0.75f, duration, Easing.OutQuint);
+            modText.ScaleTo(0.75f, duration, Easing.OutQuint);
             starRatingDisplay.ScaleTo(1.05f, duration, Easing.OutQuint);
         }
 
@@ -226,10 +221,9 @@ namespace osu.Game.Screens.TournamentShowcase
             infoContainer.ResizeHeightTo(0.2f, duration, Easing.OutQuint);
             setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
             setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
-            rightFlow.Direction = FillDirection.Vertical;
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.9f, duration, Easing.OutQuint);
-            modIcon.ScaleTo(1f, duration, Easing.OutQuint);
+            modText.ScaleTo(1f, duration, Easing.OutQuint);
             starRatingDisplay.ScaleTo(1f, duration, Easing.OutQuint);
         }
     }

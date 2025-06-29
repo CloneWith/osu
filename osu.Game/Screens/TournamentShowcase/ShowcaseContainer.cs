@@ -339,7 +339,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     int j1 = j;
                     Scheduler.AddDelayed(() =>
                     {
-                        var card = new ExtendableBeatmapCard(activeMaps[j1], config)
+                        var card = new ExtendableBeatmapCard(activeMaps[j1])
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
