@@ -13,7 +13,10 @@ using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Overlays;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -51,40 +54,10 @@ namespace osu.Game.Tournament.Components.Animations
         {
             this.map = map;
             this.colour = colour;
-            colourProvider = new OverlayColourProvider(colour == TeamColour.Red ? OverlayColourScheme.Pink : colour == TeamColour.Blue ? OverlayColourScheme.Blue : OverlayColourScheme.Plum);
-            themeColour = colour == TeamColour.Red ? new OsuColour().Pink1 : colour == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
+            colourProvider = new OverlayColourProvider(colour == TeamColour.Red ? OverlayColourScheme.Red : OverlayColourScheme.Blue);
+            themeColour = colour == TeamColour.Red ? FumoColours.FlandreRed.Regular : colour == TeamColour.Blue ? FumoColours.SeaBlue.Regular : Color4.White;
             mod = map.Mods + map.ModIndex;
-
-            switch (map.Mods)
-            {
-                case "HR":
-                    modColour = Color4Extensions.FromHex("#f76363");
-                    break;
-
-                case "FM":
-                    modColour = Color4Extensions.FromHex("#24eecb");
-                    break;
-
-                case "NM":
-                    modColour = Color4Extensions.FromHex("#ffdb75");
-                    break;
-
-                case "DT":
-                    modColour = Color4Extensions.FromHex("#66ccff");
-                    break;
-
-                case "HD":
-                    modColour = Color4Extensions.FromHex("#fdc300");
-                    break;
-
-                case "TB":
-                    modColour = Color4.Yellow;
-                    break;
-
-                default:
-                    modColour = Color4.White;
-                    break;
-            }
+            modColour = ModColours.FromModString(map.Mods).Accent;
         }
 
         [BackgroundDependencyLoader]
@@ -185,6 +158,7 @@ namespace osu.Game.Tournament.Components.Animations
                             Alpha = 0,
                             Scale = new Vector2(0.001f),
                             Spacing = new Vector2(10),
+                            Shear = -OsuGame.SHEAR,
                             Children = new Drawable[]
                             {
                                 beatmapBackground = new Container
@@ -192,7 +166,7 @@ namespace osu.Game.Tournament.Components.Animations
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                     Size = new Vector2(horizontal_info_size, 150f),
-                                    CornerRadius = 20f,
+                                    CornerRadius = 10f,
                                     BorderColour = colourProvider.Content2,
                                     BorderThickness = 3f,
                                     Masking = true,
@@ -241,18 +215,16 @@ namespace osu.Game.Tournament.Components.Animations
                                                 {
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
-                                                    Shear = -OsuGame.SHEAR,
                                                     MaxWidth = horizontal_info_size,
                                                     Text = map.Beatmap != null ? map.Beatmap.Metadata.GetDisplayTitleRomanisable(false) : "This beatmap!",
                                                     Padding = new MarginPadding { Horizontal = 5f },
-                                                    Font = OsuFont.GetFont(size: 26),
+                                                    Font = OsuFont.TorusAlternate.With(size: 26, weight: FontWeight.SemiBold),
                                                 },
                                                 new TruncatingSpriteText
                                                 {
                                                     Text = $"Difficulty: {(map.Beatmap != null ? map.Beatmap.DifficultyName : "A Random Difficulty")}",
                                                     Font = OsuFont.GetFont(size: 20, italics: true),
                                                     MaxWidth = horizontal_info_size,
-                                                    Shear = -OsuGame.SHEAR,
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                 },
@@ -261,13 +233,11 @@ namespace osu.Game.Tournament.Components.Animations
                                                     Text = $"by {(map.Beatmap != null ? map.Beatmap.Metadata.Author.Username : "A Random Mapper")}",
                                                     Font = OsuFont.GetFont(size: 16, italics: true),
                                                     MaxWidth = horizontal_info_size,
-                                                    Shear = -OsuGame.SHEAR,
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
                                                 },
                                                 starRatingDisplay = new StarRatingDisplay(new StarDifficulty(map.Beatmap?.StarRating ?? 0, map.MaxCombo), animated: true)
                                                 {
-                                                    Shear = -OsuGame.SHEAR,
                                                     Margin = new MarginPadding(5),
                                                     Anchor = Anchor.TopCentre,
                                                     Origin = Anchor.TopCentre,
@@ -282,27 +252,26 @@ namespace osu.Game.Tournament.Components.Animations
                                             Origin = Anchor.BottomRight,
                                             Direction = FillDirection.Horizontal,
                                             Padding = new MarginPadding(5f),
+                                            Spacing = new Vector2(3),
                                             Alpha = 0,
                                             Children = new Drawable[]
                                             {
                                                 new SpriteIcon
                                                 {
-                                                    Anchor = Anchor.BottomRight,
-                                                    Origin = Anchor.BottomRight,
+                                                    Anchor = Anchor.CentreRight,
+                                                    Origin = Anchor.CentreRight,
                                                     Icon = FontAwesome.Solid.Check,
                                                     Size = new Vector2(20),
-                                                    Shear = -OsuGame.SHEAR,
                                                     Colour = themeColour,
                                                 },
                                                 new TruncatingSpriteText
                                                 {
-                                                    Text = $"{TournamentGame.GetTeamString(colour, true, @"Smoke")} Team Picked",
-                                                    Font = OsuFont.GetFont(size: 16, italics: true),
+                                                    Text = BoardStrings.RoundActionPrompt(TournamentGame.GetTeamString(colour), InstructionsStrings.PickShort),
+                                                    Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
                                                     MaxWidth = horizontal_info_size,
                                                     Colour = themeColour,
-                                                    Shear = -OsuGame.SHEAR,
-                                                    Anchor = Anchor.BottomRight,
-                                                    Origin = Anchor.BottomRight,
+                                                    Anchor = Anchor.CentreRight,
+                                                    Origin = Anchor.CentreRight,
                                                 }
                                             }
                                         },
