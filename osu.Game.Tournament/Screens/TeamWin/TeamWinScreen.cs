@@ -14,7 +14,6 @@ using osu.Game.Graphics.Backgrounds;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
-using osu.Game.Tournament.Screens.Board.Components;
 using osuTK;
 using osuTK.Graphics;
 
@@ -52,8 +51,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private Sprite spinner = null!;
 
         private Triangles winnerTriangles = null!;
-
-        private SimpleAnimatedBoard? animatedBoard;
 
         private Sprite? banner;
 
@@ -181,8 +178,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
             blueWinBackground.Alpha = match?.WinnerColour == TeamColour.Blue ? 1 : 0;
             colourMask.FadeOut();
 
-            animatedBoard?.Expire();
-
             if (match?.Winner == null)
             {
                 mainContainer.Clear();
@@ -193,7 +188,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
-                        // Y = 100,
                         AutoSizeAxes = Axes.Both,
                         Alpha = 0,
                         Children = new Drawable[]
@@ -319,8 +313,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     redIcon.MoveToX(-100, 2000, Easing.OutQuint);
                     blueIcon.MoveToX(100, 2000, Easing.OutQuint);
                     drawIcon.Delay(800).FadeInFromZero(1000, Easing.OutQuint);
-                    symbolContainer.FadeInFromZero(500, Easing.OutQuint);
-                    symbolContainer.MoveToY(100, 100, Easing.OutQuint);
+                    symbolContainer.FadeInFromZero(750, Easing.OutQuint);
+                    symbolContainer.MoveToY(75, 1000, Easing.OutQuint);
 
                     using (BeginDelayedSequence(2000))
                     {
@@ -341,12 +335,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 altContainer.Clear();
                 symbolContainer?.Clear();
                 banner?.FadeOut();
-
-                AddInternal(animatedBoard = new SimpleAnimatedBoard(CurrentMatch)
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                });
 
                 if (firstDisplay)
                 {
@@ -427,9 +415,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
                 using (BeginDelayedSequence(4500))
                 {
-                    animatedBoard.ScaleTo(0.85f, 1000, Easing.OutQuint);
-                    animatedBoard.MoveToY(-100, 2500, Easing.OutQuint).Delay(4000).FadeOut(500, Easing.OutQuint);
-
                     using (BeginDelayedSequence(2000))
                     {
                         winMainText.FadeInFromZero(500, Easing.OutQuint);
