@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -462,7 +463,7 @@ namespace osu.Game.Tournament.Screens.Board
                             IdleIcon = FontAwesome.Solid.ArrowRight,
                             Text = BoardStrings.EnterTiebreaker,
                             Action = () => setMode(TeamColour.Neutral, RoundStep.TieBreaker),
-                            Enabled = { Value = false },
+                            Enabled = { Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin) },
                         },
                         new GridContainer
                         {
@@ -610,6 +611,14 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (stepType != RoundStep.Shiro)
                 shiroModeActivated.Value = false;
+
+            if (pickType is RoundStep.TieBreaker)
+            {
+                var tieBreakerMap = CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.Mods.Equals(@"TB", StringComparison.OrdinalIgnoreCase));
+
+                if (tieBreakerMap != null && enableIntroAnimation.Value)
+                    ShowMapIntro(tieBreakerMap);
+            }
 
             buttonEnterTiebreaker.Enabled.Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin);
             buttonTiebreakerRedWin.Enabled.Value = pickType == RoundStep.TieBreaker;
