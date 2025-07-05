@@ -174,7 +174,7 @@ namespace osu.Game.Tournament.Components.Animations
                                 {
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
-                                    Size = new Vector2(horizontal_info_size, 150f),
+                                    Size = new Vector2(horizontal_info_size, 250f),
                                     CornerRadius = 10f,
                                     BorderColour = colourProvider.Content2,
                                     BorderThickness = 3f,
@@ -302,12 +302,13 @@ namespace osu.Game.Tournament.Components.Animations
                 RelativeSizeAxes = Axes.Both,
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
-                FillMode = FillMode.Fit,
-                Scale = new Vector2(1.2f),
+                FillMode = FillMode.Fill,
                 Shear = -OsuGame.SHEAR,
+                Alpha = 0,
             }, c =>
             {
                 beatmapBackground.Add(c);
+                c.FadeIn(300, Easing.OutQuint);
             });
         }
 
