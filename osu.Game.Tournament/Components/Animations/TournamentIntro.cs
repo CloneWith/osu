@@ -101,7 +101,7 @@ namespace osu.Game.Tournament.Components.Animations
                                     AutoSizeAxes = Axes.Both,
                                     CornerRadius = 10f,
                                     Masking = true,
-                                    X = -75,
+                                    X = -90,
                                     Children = new Drawable[]
                                     {
                                         new Box
@@ -127,7 +127,7 @@ namespace osu.Game.Tournament.Components.Animations
                                     AutoSizeAxes = Axes.Both,
                                     CornerRadius = 10f,
                                     Masking = true,
-                                    X = 75,
+                                    X = 90,
                                     Children = new Drawable[]
                                     {
                                         new Box
@@ -340,7 +340,7 @@ namespace osu.Game.Tournament.Components.Animations
                     .FadeInFromZero(300, Easing.OutQuint);
 
                 chessPiece.FadeIn(500, Easing.OutQuint)
-                          .ScaleTo(1f, 500, Easing.OutQuint);
+                          .ScaleTo(1.25f, 500, Easing.OutQuint);
 
                 topTitleDisplay
                     .FadeInFromZero(400, Easing.OutQuint);
