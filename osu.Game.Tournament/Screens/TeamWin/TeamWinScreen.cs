@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
@@ -42,7 +43,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TournamentSpriteText winSubText = null!;
 
         private EmptyBox colourMask = null!;
-        private EmptyBox flash = null!;
 
         private SpriteIcon redIcon = null!;
         private SpriteIcon drawIcon = null!;
@@ -50,7 +50,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
         private Sprite spinner = null!;
 
-        private Triangles winnerTriangles = null!;
+        private TrianglesV2 winnerTriangles = null!;
 
         private Sprite? banner;
 
@@ -105,8 +105,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Origin = Anchor.Centre,
                             Text = "胜负已定...",
                             X = -250,
-                            Y = 250 - 25,
-                            Font = OsuFont.Torus.With(size: 64, weight: FontWeight.Bold),
+                            Y = -50,
+                            Font = OsuFont.Torus.With(size: 60, weight: FontWeight.SemiBold),
                             Alpha = 0,
                         },
                         winSubText = new TournamentSpriteText
@@ -115,7 +115,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Origin = Anchor.Centre,
                             Text = "...最后的获胜队是...",
                             X = 250,
-                            Y = 250 + 25,
+                            Y = 50,
                             Font = OsuFont.Torus.With(size: 64, weight: FontWeight.Bold),
                             Alpha = 0,
                         }
@@ -129,12 +129,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 mainContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Alpha = 0,
-                },
-                flash = new EmptyBox
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.White,
                     Alpha = 0,
                 },
                 new ControlPanel
@@ -345,6 +339,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     firstDisplay = false;
                 }
 
+                winMainText.X = -250;
+                winSubText.X = 250;
                 redWinBackground.Alpha = match.WinnerColour == TeamColour.Red ? 1 : 0;
                 blueWinBackground.Alpha = match.WinnerColour == TeamColour.Blue ? 1 : 0;
                 mainBackground.Alpha = 1;
@@ -353,14 +349,13 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
                 mainContainer.Children = new Drawable[]
                 {
-                    winnerTriangles = new Triangles
+                    winnerTriangles = new TrianglesV2
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        TriangleScale = 0.9f,
-                        ColourDark = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.DeepSkyBlue,
-                        ColourLight = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink2 : Color4.SkyBlue,
+                        ScaleAdjust = 1.5f,
+                        Colour = match.WinnerColour == TeamColour.Red ? FumoColours.FlandreRed.Light : FumoColours.SeaBlue.Light,
                         Alpha = 0,
                     },
                     spinner = new Sprite
@@ -412,22 +407,20 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 };
 
                 mainContainer.FadeOut();
+                spinner.Spin(36000, RotationDirection.Clockwise);
 
-                using (BeginDelayedSequence(4500))
+                using (BeginDelayedSequence(1500))
                 {
-                    using (BeginDelayedSequence(2000))
-                    {
-                        winMainText.FadeInFromZero(500, Easing.OutQuint);
-                        winMainText.MoveToX(-150, 3000, Easing.OutQuint).Then().FadeOut(500, Easing.OutQuint);
-                        winSubText.FadeInFromZero(500, Easing.OutQuint);
-                        winSubText.MoveToX(150, 3000, Easing.OutQuint);
-                        winSubText.Delay(1000).FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.SkyBlue, 2000, Easing.OutQuint)
-                                  .Then().FadeOut(500, Easing.OutQuint);
-                    }
+                    winMainText.FadeInFromZero(250, Easing.OutQuint);
+                    winSubText.FadeInFromZero(250, Easing.OutQuint);
 
-                    using (BeginDelayedSequence(5000))
+                    winMainText.MoveToX(-150, 2000, Easing.OutQuint).Delay(1500)
+                               .FadeOut(500, Easing.OutQuint);
+                    winSubText.MoveToX(150, 2000, Easing.OutQuint).Delay(1500)
+                              .FadeOut(500, Easing.OutQuint);
+
+                    using (BeginDelayedSequence(2500))
                     {
-                        flash.FadeOutFromOne(6000, Easing.OutQuint);
                         mainBackground.FadeOut(1000, Easing.OutQuint);
                         if (match.WinnerColour == TeamColour.Red)
                             redWinBackground.FadeIn(1000, Easing.OutQuint);
@@ -437,7 +430,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         colourMask.FadeTo(0.4f, 1500, Easing.OutQuint);
                         colourMask.FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1
                             : match.WinnerColour == TeamColour.Blue ? Color4.SkyBlue : Color4.White, 2000, Easing.OutQuint);
-                        spinner.Spin(36000, RotationDirection.Clockwise);
                         winnerTriangles.Delay(1000).FadeTo(0.6f, 2000, Easing.OutQuint);
                     }
                 }
