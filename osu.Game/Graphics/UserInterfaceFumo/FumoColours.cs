@@ -103,6 +103,10 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             Color4Extensions.FromHex(@"#43CF7C"), Color4Extensions.FromHex(@"#203D27"),
             Color4Extensions.FromHex(@"#2A4F33"), Color4Extensions.FromHex(@"#23432B"));
 
+        public static ModColourScheme TieBreaker = new ModColourScheme(
+            Color4Extensions.FromHex(@"#FFA500"), Color4Extensions.FromHex(@"#714800"),
+            Color4Extensions.FromHex(@"#4C3000"), Color4Extensions.FromHex(@"#986000"));
+
         /// <summary>
         /// The fallback colour scheme for empty and unavailable chess pieces.
         /// </summary>
@@ -134,6 +138,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             @"HD" => Hidden,
             @"DT" => DoubleTime,
             @"FM" => FreeMod,
+            @"TB" => TieBreaker,
             _ => Empty
         };
     }
