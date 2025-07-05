@@ -391,7 +391,9 @@ namespace osu.Game.Tournament.Components.Animations
 
                 using (BeginDelayedSequence(6000))
                 {
-                    this.FadeOutFromOne(3000, Easing.OutExpo).Then().Finally(_ =>
+                    introContent.ScaleTo(1.25f, 900, Easing.InOutQuint);
+
+                    this.FadeOutFromOne(750, Easing.OutQuint).Then().Finally(_ =>
                     {
                         Status = AnimationStatus.Complete;
                         OnAnimationComplete?.Invoke();
