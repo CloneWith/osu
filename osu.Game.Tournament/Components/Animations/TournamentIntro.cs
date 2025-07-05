@@ -43,6 +43,7 @@ namespace osu.Game.Tournament.Components.Animations
 
         private FillFlowContainer beatmapContent = null!;
 
+        private FumoChessPiece chessPiece = null!;
         private Container titleContainer = null!;
 
         private readonly OverlayColourProvider colourProvider;
@@ -100,7 +101,7 @@ namespace osu.Game.Tournament.Components.Animations
                                     AutoSizeAxes = Axes.Both,
                                     CornerRadius = 10f,
                                     Masking = true,
-                                    X = -10,
+                                    X = -75,
                                     Children = new Drawable[]
                                     {
                                         new Box
@@ -126,7 +127,7 @@ namespace osu.Game.Tournament.Components.Animations
                                     AutoSizeAxes = Axes.Both,
                                     CornerRadius = 10f,
                                     Masking = true,
-                                    X = 10,
+                                    X = 75,
                                     Children = new Drawable[]
                                     {
                                         new Box
@@ -147,6 +148,14 @@ namespace osu.Game.Tournament.Components.Animations
                                     }
                                 },
                             }
+                        },
+                        chessPiece = new FumoChessPiece(map.Mods, map.ModIndex)
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Alpha = 0,
+                            Shear = -OsuGame.SHEAR,
+                            Scale = new Vector2(2f),
                         },
                         beatmapContent = new FillFlowContainer
                         {
@@ -321,13 +330,16 @@ namespace osu.Game.Tournament.Components.Animations
 
             using (BeginDelayedSequence(1500))
             {
-                introContent.Show();
+                introContent.FadeIn(500, Easing.OutQuint);
 
                 const float y_offset_start = 260;
                 const float y_offset_end = 20;
 
                 dummyBackground
                     .FadeInFromZero(300, Easing.OutQuint);
+
+                chessPiece.FadeIn(500, Easing.OutQuint)
+                          .ScaleTo(1f, 500, Easing.OutQuint);
 
                 topTitleDisplay
                     .FadeInFromZero(400, Easing.OutQuint);
@@ -355,6 +367,10 @@ namespace osu.Game.Tournament.Components.Animations
 
                     using (BeginDelayedSequence(100))
                     {
+                        chessPiece
+                            .ScaleTo(0.4f, 400, Easing.In)
+                            .FadeOut(500, Easing.OutQuint);
+
                         titleContainer
                             .ScaleTo(0.4f, 400, Easing.In)
                             .FadeOut(500, Easing.OutQuint);
