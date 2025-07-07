@@ -132,11 +132,27 @@ namespace osu.Game.Tournament.Components
                             Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
                             Colour = TournamentGame.GetTeamColour(colour),
                         },
-                        teamSeedText = new OsuSpriteText
+                        new FillFlowContainer
                         {
                             Anchor = anchor,
                             Origin = anchor,
-                            Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(5),
+                            Children = new Drawable[]
+                            {
+                                teamSeedText = new OsuSpriteText
+                                {
+                                    Anchor = anchor,
+                                    Origin = anchor,
+                                    Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                },
+                                new TeamCoupletCounter(colour == TeamColour.Red ? currentMatch.Value?.Team1Score : currentMatch.Value?.Team2Score,
+                                    colour, currentMatch.Value?.PointsToWin ?? 0)
+                                {
+                                    Origin = anchor,
+                                    Anchor = anchor,
+                                },
+                            },
                         },
                     },
                 },
