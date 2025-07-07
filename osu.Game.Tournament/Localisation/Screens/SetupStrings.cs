@@ -84,6 +84,17 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"Show Coordinated Universal Time instead of local time for schedules.");
 
         /// <summary>
+        /// "Use blue chroma"
+        /// </summary>
+        public static LocalisableString UseBlueChroma => new TranslatableString(getKey(@"use_blue_chroma"), @"Use blue chroma for gameplay");
+
+        /// <summary>
+        /// "Use blue instead of green for chroma areas."
+        /// </summary>
+        public static LocalisableString UseBlueChromaDescription => new TranslatableString(getKey(@"use_blue_chroma_description"),
+            @"Use blue instead of green for chroma areas.");
+
+        /// <summary>
         /// "Tournament Specific"
         /// </summary>
         public static LocalisableString TournamentSpecificHeader => new TranslatableString(getKey(@"tournament_specific_header"), @"Tournament Specific");

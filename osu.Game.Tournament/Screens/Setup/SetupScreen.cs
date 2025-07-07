@@ -140,6 +140,12 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = SetupStrings.ShowGlobalTimeDescription,
                     Current = LadderInfo.UseUtcTime,
                 },
+                new LabelledSwitchButton
+                {
+                    Label = SetupStrings.UseBlueChroma,
+                    Description = SetupStrings.UseBlueChromaDescription,
+                    Current = LadderInfo.UseBlueChroma,
+                },
                 new SectionHeader(SetupStrings.TournamentSpecificHeader),
                 new LabelledDropdown<RulesetInfo?>
                 {

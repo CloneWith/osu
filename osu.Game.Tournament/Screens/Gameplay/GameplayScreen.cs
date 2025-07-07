@@ -135,6 +135,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
                                 }
                             }
                         },
+                        new LabelledSwitchButton
+                        {
+                            Label = GameplayScreenStrings.BlueChroma,
+                            Current = LadderInfo.UseBlueChroma,
+                        },
                         new SettingsSlider<int>
                         {
                             LabelText = GameplayScreenStrings.ChromaWidth,
@@ -310,12 +315,15 @@ namespace osu.Game.Tournament.Screens.Gameplay
             [Resolved]
             private LadderInfo ladder { get; set; } = null!;
 
+            private readonly Color4 chromaGreen = new Color4(0, 255, 0, 255);
+            private readonly Color4 chromaBlue = new Color4(0, 0, 255, 255);
+
             [BackgroundDependencyLoader]
             private void load()
             {
                 // chroma key area for stable gameplay
-                Colour = new Color4(0, 255, 0, 255);
-
+                ladder.UseBlueChroma.BindValueChanged(e =>
+                    this.FadeColour(e.NewValue ? chromaBlue : chromaGreen, 300, Easing.OutQuint), true);
                 ladder.PlayersPerTeam.BindValueChanged(performLayout, true);
             }
 

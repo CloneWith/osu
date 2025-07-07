@@ -102,4 +102,10 @@
     <data name="auto_update_round_description" xml:space="preserve">
         <value>回合数与当前操作将在每次成功操作后更新。</value>
     </data>
+    <data name="use_blue_chroma" xml:space="preserve">
+        <value>使用蓝幕</value>
+    </data>
+    <data name="use_blue_chroma_description" xml:space="preserve">
+        <value>窗口投影区使用蓝色而非绿色。</value>
+    </data>
 </root>

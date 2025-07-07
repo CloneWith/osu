@@ -56,6 +56,8 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> DisplayTeamSeeds = new BindableBool();
 
+        public Bindable<bool> UseBlueChroma = new BindableBool(true);
+
         public BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> BackgroundMap = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>();
 
         [JsonIgnore]
