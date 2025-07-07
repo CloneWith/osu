@@ -37,8 +37,8 @@ namespace osu.Game.Tournament
         public static readonly List<KeyValuePair<string, string>> MODS =
         [
             new KeyValuePair<string, string>(@"NM", @"No Mod"),
-            new KeyValuePair<string, string>(@"HR", @"Hard Rock"),
             new KeyValuePair<string, string>(@"HD", @"Hidden"),
+            new KeyValuePair<string, string>(@"HR", @"Hard Rock"),
             new KeyValuePair<string, string>(@"DT", @"Double Time"),
             new KeyValuePair<string, string>(@"FM", @"Free Mod"),
         ];
