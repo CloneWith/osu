@@ -175,9 +175,6 @@ namespace osu.Game.Tournament.Models
                 }
             }
 
-            if (num.red == 1) num.red = 0;
-            if (num.blue == 1) num.blue = 0;
-
             return num;
 
             int progress(int rowDelta, int columnDelta, ChoiceType targetType, int row, int column, int current = 0)

@@ -65,7 +65,7 @@ namespace osu.Game.Tournament.Tests.NonVisual
                 new ChessPlacement(2, 2, type: ChoiceType.RedWin),
             });
 
-            Assert.AreEqual(0, nums.red, "Dual diagonal match test failed: Red chess");
+            Assert.AreEqual(1, nums.red, "Dual diagonal match test failed: Red chess");
 
             runWith(new[]
             {
@@ -97,7 +97,7 @@ namespace osu.Game.Tournament.Tests.NonVisual
             });
 
             Assert.AreEqual(2, nums.red, "Horizontal dual match test failed: Red chess");
-            Assert.AreEqual(0, nums.blue, "Diagonal dual match test failed: Blue chess");
+            Assert.AreEqual(1, nums.blue, "Diagonal dual match test failed: Blue chess");
 
             runWith(new[]
             {
