@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
@@ -16,6 +17,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Configuration;
+using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
@@ -63,6 +65,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private OsuSpriteText difficultyText = null!;
         private OsuSpriteText mappedByText = null!;
         private OsuSpriteText mapperText = null!;
+        private BeatmapTitleWedge.Statistic lengthStatistic = null!;
+        private BeatmapTitleWedge.Statistic bpmStatistic = null!;
 
         private GridContainer ratingAndNameContainer = null!;
         private AdjustableDifficultyStatisticsDisplay difficultyStatisticsDisplay = null!;
@@ -74,8 +78,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private CancellationTokenSource? cancellationSource;
 
         private bool shouldShowShowcaseInfo => Target.Value != null
-                                               && !string.IsNullOrWhiteSpace(Target.Value.DiffField.Value)
-                                               && !string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value);
+                                               && (!string.IsNullOrWhiteSpace(Target.Value.DiffField.Value) || !string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value));
 
         public ShowcaseBeatmapInfoWedge()
         {
@@ -115,6 +118,24 @@ namespace osu.Game.Screens.TournamentShowcase
                             Shadow = true,
                             Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN },
                             Font = OsuFont.Style.Body,
+                        }),
+                        new ShearAligningWrapper(new FillFlowContainer
+                        {
+                            Shear = -OsuGame.SHEAR,
+                            AutoSizeAxes = Axes.X,
+                            Height = 30,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(2f, 0f),
+                            Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN },
+                            Children = new Drawable[]
+                            {
+                                lengthStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Clock),
+                                bpmStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Metronome)
+                                {
+                                    TooltipText = BeatmapsetsStrings.ShowStatsBpm,
+                                    Margin = new MarginPadding { Left = 5f },
+                                },
+                            },
                         }),
                         new ShearAligningWrapper(ratingAndNameContainer = new GridContainer
                         {
@@ -313,6 +334,7 @@ namespace osu.Game.Screens.TournamentShowcase
             starRatingDisplay.Current = (Bindable<StarDifficulty>)difficultyCache.GetBindableDifficulty(beatmap.Value.BeatmapInfo, cancellationSource.Token, SongSelect.SELECTION_DEBOUNCE);
 
             updateDifficultyStatistics();
+            updateLengthAndBpmStatistics();
             updateShowcaseInformation();
         }
 
@@ -409,6 +431,45 @@ namespace osu.Game.Screens.TournamentShowcase
                 new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsDrain, originalDifficulty.DrainRate, adjustedDifficulty.DrainRate, 10),
             };
         });
+
+        private CancellationTokenSource? lengthBpmCancellationSource;
+
+        private void updateLengthAndBpmStatistics()
+        {
+            lengthBpmCancellationSource?.Cancel();
+            lengthBpmCancellationSource = new CancellationTokenSource();
+
+            var token = lengthBpmCancellationSource.Token;
+
+            Task.Run(() =>
+            {
+                var beatmapInfo = beatmap.Value.BeatmapInfo;
+                // This can take time as it is a synchronous task.
+                var underlyingBeatmap = beatmap.Value.Beatmap;
+
+                double rate = ModUtils.CalculateRateWithMods(mods.Value);
+
+                int bpmMax = FormatUtils.RoundBPM(underlyingBeatmap.ControlPointInfo.BPMMaximum, rate);
+                int bpmMin = FormatUtils.RoundBPM(underlyingBeatmap.ControlPointInfo.BPMMinimum, rate);
+                int mostCommonBPM = FormatUtils.RoundBPM(60000 / underlyingBeatmap.GetMostCommonBeatLength(), rate);
+
+                double drainLength = Math.Round(underlyingBeatmap.CalculateDrainLength() / rate);
+                double hitLength = Math.Round(beatmapInfo.Length / rate);
+
+                Schedule(() =>
+                {
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    lengthStatistic.Text = hitLength.ToFormattedDuration();
+                    lengthStatistic.TooltipText = BeatmapsetsStrings.ShowStatsTotalLength(drainLength.ToFormattedDuration());
+
+                    bpmStatistic.Text = bpmMin == bpmMax
+                        ? $"{bpmMin}"
+                        : $"{bpmMin}-{bpmMax} (mostly {mostCommonBPM})";
+                });
+            }, token);
+        }
 
         protected override void Update()
         {
