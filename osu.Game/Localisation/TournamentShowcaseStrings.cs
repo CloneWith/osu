@@ -220,6 +220,17 @@ namespace osu.Game.Localisation
         public static LocalisableString DifficultyFieldDescription => new TranslatableString(getKey(@"difficulty_field_description"), @"The major area this beatmap lays difficulty on.");
 
         /// <summary>
+        /// "Credit Users"
+        /// </summary>
+        public static LocalisableString CreditUsers => new TranslatableString(getKey(@"credit_users"), @"Credit Users");
+
+        /// <summary>
+        /// "A list of users involved in the creation of the beatmap. Should be a list of user IDs separated by commas."
+        /// </summary>
+        public static LocalisableString CreditUsersDescription => new TranslatableString(getKey(@"credit_users_description"),
+            @"A list of users involved in the creation of the beatmap. Should be a list of user IDs separated by commas.");
+
+        /// <summary>
         /// "Have something else to show on the showcase screen?"
         /// </summary>
         public static LocalisableString BeatmapCommentDescription => new TranslatableString(getKey(@"beatmap_comment_description"), @"Have something else to show on the showcase screen?");

@@ -186,6 +186,8 @@ namespace osu.Game.Screens.TournamentShowcase
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(GridSizeMode.Absolute, 5),
                         new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.AutoSize),
                     },
                     ColumnDimensions = new[]
                     {
@@ -231,13 +233,27 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Current = Beatmap.ModIndex,
                             },
                         },
+                        new[]
+                        {
+                            Empty(),
+                        },
+                        new[]
+                        {
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.DifficultyField,
+                                HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
+                                Current = Beatmap.DiffField,
+                            },
+                            Empty(),
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.CreditUsers,
+                                HintText = TournamentShowcaseStrings.CreditUsersDescription,
+                                Current = Beatmap.CreditUserIds,
+                            },
+                        },
                     },
-                },
-                new FormTextBox
-                {
-                    Caption = TournamentShowcaseStrings.DifficultyField,
-                    HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
-                    Current = Beatmap.DiffField,
                 },
                 new FormTextBox
                 {

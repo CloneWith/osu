@@ -21,6 +21,7 @@ namespace osu.Game.Models
         public int RulesetId;
         public Bindable<string> ModString = new Bindable<string>();
         public Bindable<string> ModIndex = new Bindable<string>();
+        public Bindable<string> CreditUserIds = new Bindable<string>();
 
         [JsonIgnore]
         public BindableList<Mod> RequiredMods = new BindableList<Mod>();

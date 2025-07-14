@@ -247,4 +247,10 @@
     <data name="beatmap_missing_screen_third" xml:space="preserve">
         <value>即将跳到下一张谱面...</value>
     </data>
+    <data name="credit_users_description" xml:space="preserve">
+        <value>参与到谱面制作过程中的用户。在此填入用户 ID，使用英文逗号分隔。</value>
+    </data>
+    <data name="credit_users" xml:space="preserve">
+        <value>参与用户</value>
+    </data>
 </root>
