@@ -377,6 +377,30 @@ namespace osu.Game.Localisation
         public static LocalisableString ErrorScreenExceptionDetail => new TranslatableString(getKey(@"error_screen_exception_detail"),
             @"For details about this exception, see the runtime log file.");
 
+        /// <summary>
+        /// "Cannot find the beatmap..."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenTitle => new TranslatableString(getKey(@"beatmap_missing_screen_title"),
+            @"Cannot find the beatmap...");
+
+        /// <summary>
+        /// "This beatmap is unavailable locally, hence unable to be shown."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenFirst => new TranslatableString(getKey(@"beatmap_missing_screen_first"),
+            @"This beatmap is unavailable locally, hence unable to be shown.");
+
+        /// <summary>
+        /// "This could be because the beatmap is not imported, its version is not consistent, or the config file comes from another install of osu!lazer."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenSecond => new TranslatableString(getKey(@"beatmap_missing_screen_second"),
+            @"This could be because the beatmap is not imported, its version is not consistent, or the config file comes from another install of osu!lazer.");
+
+        /// <summary>
+        /// "Skipping to the next beatmap..."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenThird => new TranslatableString(getKey(@"beatmap_missing_screen_third"),
+            @"Skipping to the next beatmap...");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

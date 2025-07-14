@@ -257,6 +257,14 @@ namespace osu.Game.Screens.TournamentShowcase
                 Hash = selected.BeatmapHash,
             }, true);
 
+            if (beatmap.BeatmapInfo.BeatmapSet == null)
+            {
+                showcaseContainer.ErrorStack.Push(new ShowcaseBeatmapMissingScreen(selected));
+
+                Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 5000);
+                return;
+            }
+
             var ruleset = (rulesetStore.GetRuleset(selected.RulesetId) ?? config.FallbackRuleset.Value).CreateInstance();
             Ruleset.Value = ruleset.RulesetInfo;
 

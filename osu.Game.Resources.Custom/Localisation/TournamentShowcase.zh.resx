@@ -235,4 +235,16 @@
     <data name="pause_or_continue" xml:space="preserve">
         <value>暂停 / 继续</value>
     </data>
+    <data name="beatmap_missing_screen_title" xml:space="preserve">
+        <value>找不到谱面...</value>
+    </data>
+    <data name="beatmap_missing_screen_first" xml:space="preserve">
+        <value>该谱面本地不可用，因此无法展示。</value>
+    </data>
+    <data name="beatmap_missing_screen_second" xml:space="preserve">
+        <value>未导入谱面、版本不一致、配置文件来自其他客户端均可能会导致此情况。</value>
+    </data>
+    <data name="beatmap_missing_screen_third" xml:space="preserve">
+        <value>即将跳到下一张谱面...</value>
+    </data>
 </root>
