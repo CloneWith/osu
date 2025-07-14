@@ -54,12 +54,14 @@ namespace osu.Game.Screens.SelectV2
         private void load(AudioManager audio)
         {
             sampleConfirmSelection = audio.Samples.Get(@"SongSelect/confirm-selection");
+
+            AddInternal(new SongSelectTouchInputDetector());
         }
 
         public override IEnumerable<OsuMenuItem> GetForwardActions(BeatmapInfo beatmap)
         {
             yield return new OsuMenuItem(ButtonSystemStrings.Play.ToSentence(), MenuItemType.Highlighted, () => SelectAndRun(beatmap, OnStart)) { Icon = FontAwesome.Solid.Check };
-            yield return new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, () => edit(beatmap)) { Icon = FontAwesome.Solid.PencilAlt };
+            yield return new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, () => Edit(beatmap)) { Icon = FontAwesome.Solid.PencilAlt };
 
             yield return new OsuMenuItemSpacer();
 
@@ -89,7 +91,7 @@ namespace osu.Game.Screens.SelectV2
         {
             if (playerLoader != null) return;
 
-            modsAtGameplayStart = Mods.Value;
+            modsAtGameplayStart = Mods.Value.Select(m => m.DeepClone()).ToArray();
 
             // Ctrl+Enter should start map with autoplay enabled.
             if (GetContainingInputManager()?.CurrentState?.Keyboard.ControlPressed == true)
@@ -136,7 +138,7 @@ namespace osu.Game.Screens.SelectV2
             }
         }
 
-        private void edit(BeatmapInfo beatmap)
+        public void Edit(BeatmapInfo beatmap)
         {
             if (!this.IsCurrentScreen())
                 return;
@@ -171,7 +173,7 @@ namespace osu.Game.Screens.SelectV2
 
         private partial class PlayerLoader : Play.PlayerLoader
         {
-            public override bool ShowFooter => true;
+            public override bool ShowFooter => !QuickRestart;
 
             public PlayerLoader(Func<Player> createPlayer)
                 : base(createPlayer)
