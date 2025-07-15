@@ -259,4 +259,13 @@
     <data name="colour_scheme_description" xml:space="preserve">
         <value>多数展示元素使用的一组颜色。</value>
     </data>
+    <data name="score_missing_dialog_title" xml:space="preserve">
+        <value>分数不可用</value>
+    </data>
+    <data name="score_missing_dialog_text" xml:space="preserve">
+        <value>在数据库中搜索后，仍有 {0} 张谱面没有可用分数。它们将使用自动生成的 Autoplay 回放。</value>
+    </data>
+    <data name="score_missing_proceed" xml:space="preserve">
+        <value>为它们使用 Autoplay 分数</value>
+    </data>
 </root>

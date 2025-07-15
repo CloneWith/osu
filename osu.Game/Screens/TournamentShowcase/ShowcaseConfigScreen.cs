@@ -1,11 +1,13 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -24,6 +26,7 @@ using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
+using osu.Game.Scoring;
 using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
@@ -37,6 +40,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
+
+        [Resolved]
+        private ScoreManager scoreManager { get; set; } = null!;
 
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
@@ -460,6 +466,27 @@ namespace osu.Game.Screens.TournamentShowcase
             return isValid;
         }
 
+        private bool checkScores(bool tryFetch = false)
+        {
+            if (currentProfile.Value.Beatmaps.Any(b => b.ShowcaseScore == null))
+            {
+                if (tryFetch)
+                {
+                    currentProfile.Value.Beatmaps.Where(b => b.ShowcaseScore == null)
+                                  .ForEach(b => b.ShowcaseScore = scoreManager.GetScore(new ScoreInfo
+                                  {
+                                      Hash = b.ScoreHash
+                                  })?.ScoreInfo);
+
+                    return checkScores();
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Update the form components to match the new profile.
         /// </summary>
@@ -488,8 +515,20 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void startShowcase()
         {
+            Action launchAction = () => this.Push(new ShowcaseScreen(currentProfile.Value));
+
             if (checkConfig())
-                this.Push(new ShowcaseScreen(currentProfile.Value));
+            {
+                if (!checkScores(true))
+                {
+                    int missing = currentProfile.Value.Beatmaps.Count(b => b.ShowcaseScore == null);
+                    dialogOverlay?.Push(new ScoreMissingDialog(missing, launchAction));
+                }
+                else
+                {
+                    launchAction.Invoke();
+                }
+            }
         }
 
         private void currentTabChanged(ValueChangedEvent<ShowcaseConfigTab> e)

@@ -422,6 +422,26 @@ namespace osu.Game.Localisation
         public static LocalisableString BeatmapMissingScreenThird => new TranslatableString(getKey(@"beatmap_missing_screen_third"),
             @"Skipping to the next beatmap...");
 
+        /// <summary>
+        /// "Scores unavailable"
+        /// </summary>
+        public static LocalisableString ScoreMissingDialogTitle => new TranslatableString(getKey(@"score_missing_dialog_title"),
+            @"Scores unavailable");
+
+        /// <summary>
+        /// "After searching from the local database, {0} beatmap(s) don't have available scores."
+        /// " Auto generated replays with Autoplay mod would be used instead."
+        /// </summary>
+        public static LocalisableString ScoreMissingDialogText(int number) => new TranslatableString(getKey(@"score_missing_dialog_text"),
+            "After searching from the local database, {0} beatmap(s) don't have available scores."
+            + @" Auto generated replays with Autoplay mod would be used instead.", number);
+
+        /// <summary>
+        /// "Use Autoplay scores for these beatmaps"
+        /// </summary>
+        public static LocalisableString ScoreMissingProceed => new TranslatableString(getKey(@"score_missing_proceed"),
+            @"Use Autoplay scores for these beatmaps");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
