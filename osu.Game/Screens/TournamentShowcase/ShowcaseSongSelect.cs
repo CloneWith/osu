@@ -1,6 +1,8 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Screens;
@@ -17,6 +19,8 @@ namespace osu.Game.Screens.TournamentShowcase
     {
         public override bool AllowEditing => false;
 
+        public event Action<SelectResult>? OnSelect;
+
         [Resolved]
         private IDialogOverlay? dialogOverlay { get; set; }
 
@@ -24,6 +28,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly Bindable<ScoreInfo?> targetScore = new Bindable<ScoreInfo?>();
         private readonly BindableList<Mod> targetMods = new BindableList<Mod>();
         private readonly Bindable<RulesetInfo> targetRuleset = new Bindable<RulesetInfo>();
+
+        private SelectResult status = SelectResult.None;
 
         public ShowcaseSongSelect(Bindable<BeatmapInfo> beatmap, BindableList<Mod> mods,
                                   Bindable<ScoreInfo?> score, Bindable<RulesetInfo> rulesetInfo)
@@ -47,14 +53,33 @@ namespace osu.Game.Screens.TournamentShowcase
 
         protected override bool OnStart()
         {
+            applyCommonInfo();
+
+            // We should clear the score to null, which also means an update,
+            targetScore.Value = null;
+            status |= SelectResult.ScoreUpdated;
+
+            OnSelect?.Invoke(status);
+            this.Exit();
+            return true;
+        }
+
+        private void applyCommonInfo()
+        {
             // Pass information of the selected beatmap to the bindable.
+            if (targetBeatmap.Value.Hash != Beatmap.Value.BeatmapInfo.Hash)
+                status |= SelectResult.BeatmapUpdated;
+
+            if (targetRuleset.Value.OnlineID != Ruleset.Value.OnlineID)
+                status |= SelectResult.RulesetUpdated;
+
+            if (!targetMods.SequenceEqual(Mods.Value))
+                status |= SelectResult.ModUpdated;
+
             targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
             targetRuleset.Value = Ruleset.Value;
             targetMods.Clear();
             targetMods.AddRange(Mods.Value);
-
-            this.Exit();
-            return true;
         }
 
         private void scoreSelected(ScoreInfo s)
@@ -71,14 +96,44 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
                 }
 
-                targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
+                applyCommonInfo();
+                status |= SelectResult.ScoreUpdated;
                 targetScore.Value = s;
                 targetRuleset.Value = s.Ruleset;
-                targetMods.Clear();
-                targetMods.AddRange(s.Mods);
 
+                OnSelect?.Invoke(status);
                 this.Exit();
             }
         }
+    }
+
+    [Flags]
+    public enum SelectResult
+    {
+        /// <summary>
+        /// No change was made to the original selection.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// Only the selected mod has been updated.
+        /// This should only happen when no score was selected.
+        /// </summary>
+        ModUpdated = 2 << 1,
+
+        /// <summary>
+        /// The score has been updated.
+        /// </summary>
+        ScoreUpdated = 2 << 2,
+
+        /// <summary>
+        /// The ruleset has been changed.
+        /// </summary>
+        RulesetUpdated = 2 << 3,
+
+        /// <summary>
+        /// The beatmap has been reselected.
+        /// </summary>
+        BeatmapUpdated = 2 << 4,
     }
 }
