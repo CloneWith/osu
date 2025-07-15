@@ -4,6 +4,7 @@
 using System;
 using osu.Framework.Bindables;
 using osu.Game.Models;
+using osu.Game.Overlays;
 using osu.Game.Rulesets;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -42,6 +43,8 @@ namespace osu.Game.Screens.TournamentShowcase
             MaxValue = 5000,
             Precision = 500
         };
+
+        public Bindable<OverlayColourScheme> ColourScheme = new Bindable<OverlayColourScheme>(OverlayColourScheme.Blue);
 
         public BindableFloat AspectRatio = new BindableFloat(1)
         {

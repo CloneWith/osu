@@ -67,7 +67,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             // Adjust the scale and size of overlays.
-            HUDOverlay.TopRightElements.Add(originalBadge = new TournamentOriginalBadge(@$"{config.TournamentName}/original-badge")
+            HUDOverlay.TopRightElements.Add(originalBadge = new TournamentOriginalBadge(@$"{config.TournamentName}/original-badge", config.ColourScheme.Value)
             {
                 Anchor = Anchor.TopRight,
                 Origin = Anchor.BottomRight,

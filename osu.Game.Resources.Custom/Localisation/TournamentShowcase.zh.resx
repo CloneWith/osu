@@ -253,4 +253,10 @@
     <data name="credit_users" xml:space="preserve">
         <value>参与用户</value>
     </data>
+    <data name="colour_scheme" xml:space="preserve">
+        <value>颜色主题</value>
+    </data>
+    <data name="colour_scheme_description" xml:space="preserve">
+        <value>多数展示元素使用的一组颜色。</value>
+    </data>
 </root>

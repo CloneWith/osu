@@ -13,7 +13,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
-using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Overlays;
 using osuTK;
 using osuTK.Graphics;
 
@@ -31,12 +31,14 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly string logoPath;
 
-        public TournamentOriginalBadge(string logoPath = "")
+        public TournamentOriginalBadge(string logoPath = "", OverlayColourScheme colourScheme = OverlayColourScheme.Blue)
         {
             this.logoPath = logoPath;
 
             Width = width;
             Height = height;
+
+            var colourProvider = new OverlayColourProvider(colourScheme);
 
             InternalChildren = new Drawable[]
             {
@@ -58,7 +60,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = FumoColours.SeaBlue.Light.Opacity(0.75f),
+                            Colour = colourProvider.Highlight1.Opacity(0.75f),
                         },
                         new TrianglesV2
                         {

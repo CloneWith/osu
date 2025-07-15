@@ -100,6 +100,16 @@ namespace osu.Game.Localisation
         public static LocalisableString IntroCommentDescription => new TranslatableString(getKey(@"intro_comment_description"), @"In fact you can write anything here.\nThis would be shown below the main title at the intro screen.");
 
         /// <summary>
+        /// "Colour Scheme"
+        /// </summary>
+        public static LocalisableString ColourScheme => new TranslatableString(getKey(@"colour_scheme"), @"Colour Scheme");
+
+        /// <summary>
+        /// "A set of colours to be used for most showcase elements."
+        /// </summary>
+        public static LocalisableString ColourSchemeDescription => new TranslatableString(getKey(@"colour_scheme_description"), @"A set of colours to be used for most showcase elements.");
+
+        /// <summary>
         /// "Interface Layout"
         /// </summary>
         public static LocalisableString InterfaceLayout => new TranslatableString(getKey(@"interface_layout"), @"Interface Layout");

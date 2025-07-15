@@ -15,8 +15,8 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
-using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Localisation;
+using osu.Game.Overlays;
 using osu.Game.Screens.Menu;
 using osuTK;
 using osuTK.Graphics;
@@ -49,6 +49,7 @@ namespace osu.Game.Screens.TournamentShowcase
             this.config = config;
             state.BindTo(showcaseState);
             this.playerLoaded.BindTo(playerLoaded);
+            var colourProvider = new OverlayColourProvider(config.ColourScheme.Value);
 
             yPositionScale = config.Layout.Value == ShowcaseLayout.Immersive ? 1 : 0.95f;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
@@ -79,6 +80,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     ScaleAdjust = 1.5f,
                     SpawnRatio = 1.75f,
+                    Colour = colourProvider.Highlight1,
                     Alpha = 0,
                 },
                 InfoDisplay = new ShowcaseBeatmapInfoWedge
@@ -95,16 +97,16 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    FirstWaveColour = FumoColours.SeaBlue.Lighter,
-                    SecondWaveColour = FumoColours.SeaBlue.Light,
-                    ThirdWaveColour = FumoColours.SeaBlue.Dark,
-                    FourthWaveColour = FumoColours.SeaBlue.Darker,
+                    FirstWaveColour = colourProvider.Colour0,
+                    SecondWaveColour = colourProvider.Colour1,
+                    ThirdWaveColour = colourProvider.Colour2,
+                    FourthWaveColour = colourProvider.Colour3,
                     Children = new Drawable[]
                     {
                         new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = FumoColours.SeaBlue.Regular,
+                            Colour = colourProvider.Colour3,
                         },
                         transitionBackground = new Sprite
                         {
@@ -330,7 +332,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     int j1 = j;
                     Scheduler.AddDelayed(() =>
                     {
-                        var card = new ExtendableBeatmapCard(activeMaps[j1])
+                        var card = new ExtendableBeatmapCard(activeMaps[j1], config.ColourScheme.Value)
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,

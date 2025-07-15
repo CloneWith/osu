@@ -61,7 +61,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
         private FormSliderBar<int> startCountdownInput = null!;
-        private FormDropdown<ShowcaseLayout> layoutDropdown = null!;
+        private FormEnumDropdown<OverlayColourScheme> colourSchemeDropdown = null!;
+        private FormEnumDropdown<ShowcaseLayout> layoutDropdown = null!;
         private FormSliderBar<float> aspectRatioInput = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
         private FormTextBox outroTitleInput = null!;
@@ -168,9 +169,17 @@ namespace osu.Game.Screens.TournamentShowcase
                 Children = new Drawable[]
                 {
                     new SectionHeader(TournamentShowcaseStrings.ShowcaseSettingsHeader),
+                    colourSchemeDropdown = new FormEnumDropdown<OverlayColourScheme>
+                    {
+                        Caption = TournamentShowcaseStrings.ColourScheme,
+                        HintText = TournamentShowcaseStrings.ColourSchemeDescription,
+                        Current = currentProfile.Value.ColourScheme,
+                    },
                     layoutDropdown = new FormEnumDropdown<ShowcaseLayout>
                     {
-                        Caption = TournamentShowcaseStrings.InterfaceLayout, HintText = TournamentShowcaseStrings.InterfaceLayoutDescription, Current = currentProfile.Value.Layout,
+                        Caption = TournamentShowcaseStrings.InterfaceLayout,
+                        HintText = TournamentShowcaseStrings.InterfaceLayoutDescription,
+                        Current = currentProfile.Value.Layout,
                     },
                     aspectRatioInput = new FormSliderBar<float>
                     {
@@ -385,6 +394,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                        + $" You are still editing \"{e.OldValue}\".");
                 }
             });
+            colourSchemeDropdown.Current.BindValueChanged(e => colourProvider.ChangeColourScheme(e.NewValue), true);
 
             this.FadeInFromZero(500, Easing.OutQuint);
 
@@ -460,6 +470,7 @@ namespace osu.Game.Screens.TournamentShowcase
             roundNameInput.Current = currentProfile.Value.RoundName;
             dateTimeInput.Current = currentProfile.Value.DateTime;
             commentInput.Current = currentProfile.Value.Comment;
+            colourSchemeDropdown.Current = currentProfile.Value.ColourScheme;
             layoutDropdown.Current = currentProfile.Value.Layout;
             aspectRatioInput.Current = currentProfile.Value.AspectRatio;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
