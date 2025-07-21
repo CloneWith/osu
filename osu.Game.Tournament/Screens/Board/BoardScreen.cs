@@ -621,8 +621,8 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             buttonEnterTiebreaker.Enabled.Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin);
-            buttonTiebreakerRedWin.Enabled.Value = pickType == RoundStep.TieBreaker;
-            buttonTiebreakerBlueWin.Enabled.Value = pickType == RoundStep.TieBreaker;
+            buttonTiebreakerRedWin.Enabled.Value = pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
+            buttonTiebreakerBlueWin.Enabled.Value = pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
 
             buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
@@ -630,6 +630,12 @@ namespace osu.Game.Tournament.Screens.Board
             buttonBluePick.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Pick);
             buttonRedWin.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Win);
             buttonBlueWin.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Win);
+
+            if (pickType != RoundStep.TieBreaker)
+            {
+                buttonTiebreakerRedWin.Colour = setColour(colour == TeamColour.Red && pickType == RoundStep.FinalWin);
+                buttonTiebreakerBlueWin.Colour = setColour(colour == TeamColour.Blue && pickType == RoundStep.FinalWin);
+            }
 
             return;
 
