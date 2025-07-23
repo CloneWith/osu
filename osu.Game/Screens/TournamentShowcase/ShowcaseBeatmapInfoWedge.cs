@@ -396,9 +396,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Ruleset rulesetInstance = ruleset.Value.CreateInstance();
 
-            double rate = ModUtils.CalculateRateWithMods(mods.Value);
-
-            adjustedDifficulty = rulesetInstance.GetRateAdjustedDisplayDifficulty(adjustedDifficulty, rate);
+            adjustedDifficulty = rulesetInstance.GetAdjustedDisplayDifficulty(adjustedDifficulty, mods.Value);
             difficultyStatisticsDisplay.TooltipContent = new AdjustedAttributesTooltip.Data(originalDifficulty, adjustedDifficulty);
 
             BeatmapTitleWedge.StatisticDifficulty.Data firstStatistic;
