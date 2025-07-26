@@ -67,12 +67,21 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             // Adjust the scale and size of overlays.
-            HUDOverlay.TopRightElements.Add(originalBadge = new TournamentOriginalBadge(@$"{config.TournamentName}/original-badge", config.ColourScheme.Value)
+            HUDOverlay.TopRightElements.AddRange(new Drawable[]
             {
-                Anchor = Anchor.TopRight,
-                Origin = Anchor.BottomRight,
-                Scale = new Vector2(0.8f),
-                Alpha = beatmap.IsOriginal.Value ? 1 : 0,
+                originalBadge = new TournamentOriginalBadge(@$"{config.TournamentName}/original-badge", config.ColourScheme.Value)
+                {
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
+                    Scale = new Vector2(0.8f),
+                    Alpha = beatmap.IsOriginal.Value ? 1 : 0,
+                },
+                new ShowcaseUserCreditsWedge(beatmap)
+                {
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
+                    Alpha = beatmap.IsOriginal.Value ? 1 : 0,
+                },
             });
 
             HUDOverlay.ScaleTo(new Vector2(priorityScale));
