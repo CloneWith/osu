@@ -381,7 +381,7 @@ namespace osu.Game.Tournament.Components.Animations
                         beatmapContent.FadeInFromZero(280, Easing.InQuad);
 
                         using (BeginDelayedSequence(200))
-                            authorDisplay.FadeInFromZero(200, Easing.InQuad);
+                            authorDisplay.FadeTo(colour is TeamColour.Red or TeamColour.Blue ? 1 : 0, 200, Easing.InQuad);
 
                         using (BeginDelayedSequence(400))
                             flash.FadeOutFromOne(5000, Easing.OutQuint);
