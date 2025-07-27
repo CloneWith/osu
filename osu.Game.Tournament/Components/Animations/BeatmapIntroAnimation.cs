@@ -23,7 +23,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components.Animations
 {
-    public partial class TournamentIntro : CompositeDrawable, IAnimation
+    public partial class BeatmapIntroAnimation : CompositeDrawable, IAnimation
     {
         private readonly RoundBeatmap map;
         private readonly string mod;
@@ -51,7 +51,7 @@ namespace osu.Game.Tournament.Components.Animations
         public event Action? OnAnimationComplete;
         public AnimationStatus Status { get; private set; } = AnimationStatus.Loading;
 
-        public TournamentIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral)
+        public BeatmapIntroAnimation(RoundBeatmap map, TeamColour colour = TeamColour.Neutral)
         {
             this.map = map;
             this.colour = colour;

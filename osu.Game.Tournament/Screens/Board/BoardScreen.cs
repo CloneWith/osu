@@ -1354,7 +1354,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private IAnimation? currentAnimation;
 
-        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral) => queueAnimation(new TournamentIntro(map, colour)
+        public void ShowMapIntro(RoundBeatmap map, TeamColour colour = TeamColour.Neutral) => queueAnimation(new BeatmapIntroAnimation(map, colour)
         {
             Anchor = Anchor.Centre,
             Origin = Anchor.Centre,
