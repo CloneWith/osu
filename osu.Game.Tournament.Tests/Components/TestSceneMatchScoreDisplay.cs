@@ -1,6 +1,7 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Utils;
@@ -11,6 +12,8 @@ namespace osu.Game.Tournament.Tests.Components
 {
     public partial class TestSceneMatchScoreDisplay : TournamentTestScene
     {
+        private const int max_score = 4000000;
+
         [Cached(Type = typeof(MatchIPCInfo))]
         private MatchIPCInfo matchInfo = new MatchIPCInfo();
 
@@ -23,18 +26,30 @@ namespace osu.Game.Tournament.Tests.Components
             });
         }
 
-        protected override void LoadComplete()
+        [Test]
+        public void TestStaticScore()
         {
-            base.LoadComplete();
+            AddStep("Clear score", () =>
+            {
+                matchInfo.Score1.Value = 0;
+                matchInfo.Score2.Value = 0;
+            });
 
-            Scheduler.AddDelayed(() =>
+            AddStep("Set random red score", () => matchInfo.Score1.Value = RNG.Next(0, max_score));
+            AddStep("Set random blue score", () => matchInfo.Score2.Value = RNG.Next(0, max_score));
+        }
+
+        [Test]
+        public void TestRandomRolling()
+        {
+            AddStep("Start rolling", () => Scheduler.AddDelayed(() =>
             {
                 int amount = (int)((RNG.NextDouble() - 0.5) * 10000);
                 if (amount < 0)
                     matchInfo.Score1.Value -= amount;
                 else
                     matchInfo.Score2.Value += amount;
-            }, 100, true);
+            }, 100, true));
         }
     }
 }
