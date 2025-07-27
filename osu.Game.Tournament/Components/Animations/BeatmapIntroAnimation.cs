@@ -303,7 +303,6 @@ namespace osu.Game.Tournament.Components.Animations
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
                 FillMode = FillMode.Fill,
-                Shear = -OsuGame.SHEAR,
                 Alpha = 0,
             }, c =>
             {
