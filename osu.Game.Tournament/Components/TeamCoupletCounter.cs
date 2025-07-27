@@ -14,29 +14,56 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class TeamCoupletCounter : StarCounter
+    public partial class TeamCoupletCounter : Container
     {
-        private readonly Bindable<int?> currentTeamScore = new Bindable<int?>();
-        private readonly InnerCounter counter;
+        /// <summary>
+        /// The current score bindable.
+        /// </summary>
+        public Bindable<int?> Current = new Bindable<int?>();
 
-        public TeamCoupletCounter(Bindable<int?>? score, TeamColour colour, int count)
+        /// <summary>
+        /// How many circles should we display.
+        /// </summary>
+        public int CircleCount
         {
-            bool flip = colour == TeamColour.Blue;
+            get => count;
+            set
+            {
+                if (value < 0)
+                    return;
+
+                count = value;
+                setInnerCounter();
+            }
+        }
+
+        private InnerCounter counter = null!;
+        private readonly TeamColour colour;
+
+        private int count;
+
+        public TeamCoupletCounter(TeamColour colour)
+        {
+            this.colour = colour;
 
             AutoSizeAxes = Axes.Both;
+            setInnerCounter();
 
+            Current.BindValueChanged(scoreChanged);
+        }
+
+        private void scoreChanged(ValueChangedEvent<int?> score) => counter.Current = score.NewValue ?? 0;
+
+        private void setInnerCounter()
+        {
+            bool flip = colour == TeamColour.Blue;
             InternalChild = counter = new InnerCounter(colour, count)
             {
                 AutoSizeAxes = Axes.Both,
                 Anchor = flip ? Anchor.TopRight : Anchor.TopLeft,
                 Scale = flip ? new Vector2(-1, 1) : Vector2.One,
             };
-
-            currentTeamScore.BindValueChanged(scoreChanged);
-            currentTeamScore.BindTo(score);
         }
-
-        private void scoreChanged(ValueChangedEvent<int?> score) => counter.Current = score.NewValue ?? 0;
 
         public partial class InnerCounter : StarCounter
         {

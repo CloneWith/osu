@@ -29,6 +29,7 @@ namespace osu.Game.Tournament.Components
         private Container flagContainer = null!;
         private OsuSpriteText teamNameText = null!;
         private OsuSpriteText teamSeedText = null!;
+        private TeamCoupletCounter coupletCounter = null!;
         private Circle nameHeader = null!;
         private Box colourMask = null!;
         private SpriteIcon activeIcon = null!;
@@ -146,8 +147,7 @@ namespace osu.Game.Tournament.Components
                                     Origin = anchor,
                                     Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
                                 },
-                                new TeamCoupletCounter(colour == TeamColour.Red ? currentMatch.Value?.Team1Score : currentMatch.Value?.Team2Score,
-                                    colour, currentMatch.Value?.PointsToWin ?? 0)
+                                coupletCounter = new TeamCoupletCounter(colour)
                                 {
                                     Origin = anchor,
                                     Anchor = anchor,
@@ -164,6 +164,7 @@ namespace osu.Game.Tournament.Components
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
             currentTeam.UnbindBindings();
+            coupletCounter.Current.UnbindBindings();
             Scheduler.AddOnce(updateMatch);
         }
 
@@ -200,6 +201,8 @@ namespace osu.Game.Tournament.Components
                 match.PreparationMode.BindValueChanged(_ => updateActiveState());
                 match.Completed.BindValueChanged(_ => updateActiveState());
                 currentTeam.BindTo(colour == TeamColour.Red ? match.Team1 : match.Team2);
+                coupletCounter.Current.BindTo(colour == TeamColour.Red ? match.Team1Score : match.Team2Score);
+                coupletCounter.CircleCount = match.PointsToWin;
             }
 
             // team may change to same team, which means score is not in a good state.
