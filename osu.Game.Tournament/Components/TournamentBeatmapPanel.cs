@@ -22,9 +22,8 @@ namespace osu.Game.Tournament.Components
     {
         public readonly IBeatmapInfo? Beatmap;
 
-        private readonly string modIndex;
-
-        private readonly string mod;
+        private string modIndex;
+        private string mod;
 
         public const float HEIGHT = 50;
 
@@ -53,6 +52,18 @@ namespace osu.Game.Tournament.Components
             currentMatch.BindTo(ladder.CurrentMatch);
 
             Masking = true;
+
+            // Try to get mod information from map pool
+            if (Beatmap != null && string.IsNullOrEmpty(mod) && string.IsNullOrEmpty(modIndex))
+            {
+                var match = currentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == Beatmap.OnlineID);
+
+                if (match != null)
+                {
+                    mod = match.Mods;
+                    modIndex = match.ModIndex;
+                }
+            }
 
             AddRangeInternal(new Drawable[]
             {
@@ -135,14 +146,23 @@ namespace osu.Game.Tournament.Components
 
             if (!string.IsNullOrEmpty(mod))
             {
-                AddInternal(new TournamentModIcon(modIndex.IsNull() ? mod : mod + modIndex)
-                {
-                    Anchor = Anchor.CentreRight,
-                    Origin = Anchor.CentreRight,
-                    Margin = new MarginPadding(10),
-                    Width = 60,
-                    RelativeSizeAxes = Axes.Y,
-                });
+                AddInternal(currentMatch.Value?.Round.Value?.UseBoard.Value == true
+                    ? new FumoChessPiece(mod, modIndex)
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        Margin = new MarginPadding { Right = 10 },
+                        Width = HEIGHT - 5,
+                        Height = HEIGHT - 5,
+                    }
+                    : new TournamentModIcon(modIndex.IsNull() ? mod : mod + modIndex)
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        Margin = new MarginPadding(10),
+                        Width = 60,
+                        RelativeSizeAxes = Axes.Y,
+                    });
             }
         }
 
