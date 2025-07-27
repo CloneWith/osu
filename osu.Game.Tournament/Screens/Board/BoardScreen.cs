@@ -1179,6 +1179,13 @@ namespace osu.Game.Tournament.Screens.Board
                 return false;
             }
 
+            // Don't update if same as the last type
+            if ((existing.CurrentType is ChoiceType.RedWin && pickTeam == TeamColour.Red)
+                || (existing.CurrentType is ChoiceType.BlueWin && pickTeam == TeamColour.Blue))
+            {
+                return false;
+            }
+
             if (existing.CurrentType is ChoiceType.Ban or ChoiceType.Consumed)
                 return false;
 
