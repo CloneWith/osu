@@ -118,25 +118,37 @@ namespace osu.Game.Tournament.Components
                     Spacing = new Vector2(1),
                     Children = new Drawable[]
                     {
-                        nameHeader = new Circle
+                        new FillFlowContainer
                         {
                             Anchor = anchor,
                             Origin = anchor,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 4,
-                            Colour = TournamentGame.GetTeamColour(colour),
-                        },
-                        teamNameText = new OsuSpriteText
-                        {
-                            Anchor = anchor,
-                            Origin = anchor,
-                            Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
-                            Colour = TournamentGame.GetTeamColour(colour),
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(1),
+                            Children = new Drawable[]
+                            {
+                                nameHeader = new Circle
+                                {
+                                    Anchor = anchor,
+                                    Origin = anchor,
+                                    RelativeSizeAxes = Axes.X,
+                                    Height = 4,
+                                    Colour = TournamentGame.GetTeamColour(colour),
+                                },
+                                teamNameText = new OsuSpriteText
+                                {
+                                    Anchor = anchor,
+                                    Origin = anchor,
+                                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
+                                    Colour = TournamentGame.GetTeamColour(colour),
+                                },
+                            },
                         },
                         new FillFlowContainer
                         {
                             Anchor = anchor,
                             Origin = anchor,
+                            AutoSizeAxes = Axes.Both,
                             Direction = FillDirection.Horizontal,
                             Spacing = new Vector2(5),
                             Children = new Drawable[]

@@ -117,7 +117,6 @@ namespace osu.Game.Tournament.Components
                                 {
                                     Colour = colour,
                                     RelativeSizeAxes = Axes.Both,
-
                                 },
                             },
                         },
@@ -128,11 +127,6 @@ namespace osu.Game.Tournament.Components
 
                 public override void DisplayAt(float scale)
                 {
-                    if (scale == 1)
-                    {
-                        circle.FlashColour(Color4.White, 1000, Easing.OutQuint);
-                    }
-
                     float targetSize = idle_size + (active_size - idle_size) * Math.Clamp(scale, 0, 1);
                     content.ResizeTo(new Vector2(targetSize), 300, Easing.OutQuint);
                     circle.FadeTo(scale, 500, Easing.OutQuint);
