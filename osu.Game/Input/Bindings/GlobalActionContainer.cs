@@ -244,6 +244,7 @@ namespace osu.Game.Input.Bindings
             new KeyBinding(new[] { InputKey.Control, InputKey.Alt, InputKey.Right }, GlobalAction.ShowcaseNext),
             new KeyBinding(new[] { InputKey.Control, InputKey.Space }, GlobalAction.ShowcasePauseContinue),
             new KeyBinding(new[] { InputKey.Control, InputKey.Alt, InputKey.R }, GlobalAction.ShowcaseReplay),
+            new KeyBinding(new[] { InputKey.Control, InputKey.A }, GlobalAction.ShowcaseToggleAuto),
         };
     }
 
@@ -552,6 +553,9 @@ namespace osu.Game.Input.Bindings
 
         [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.PauseOrContinue))]
         ShowcasePauseContinue,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.PauseOrContinue))]
+        ShowcaseToggleAuto,
     }
 
     public enum GlobalActionCategory

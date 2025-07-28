@@ -372,6 +372,11 @@ namespace osu.Game.Localisation
         public static LocalisableString PauseOrContinue => new TranslatableString(getKey(@"pause_or_continue"), @"Pause / continue");
 
         /// <summary>
+        /// "Toggle auto showcase"
+        /// </summary>
+        public static LocalisableString ToggleAutoShowcase => new TranslatableString(getKey(@"toggle_auto_showcase"), @"Toggle auto showcase");
+
+        /// <summary>
         /// "Oops..."
         /// </summary>
         public static LocalisableString ErrorScreenTitle => new TranslatableString(getKey(@"error_screen_title"), @"Oops...");

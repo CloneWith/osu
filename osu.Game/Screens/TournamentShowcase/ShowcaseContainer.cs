@@ -5,12 +5,14 @@ using System;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Screens;
+using osu.Framework.Threading;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Containers;
@@ -25,6 +27,8 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ShowcaseContainer : Container
     {
+        public BindableBool UseAutoShowcase = new BindableBool(true);
+
         public OsuScreenStack ScreenStack { get; private set; }
         public ScreenStack ErrorStack { get; private set; }
 
@@ -36,6 +40,14 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly TrianglesV2 triangles;
         private readonly WaveContainer transitionMask;
         private readonly Sprite transitionBackground;
+        private readonly Container controlIndicator;
+        private readonly SpriteIcon indicatorIcon;
+        private readonly OsuSpriteText indicatorText;
+
+        private Container mapPoolContainer = null!;
+
+        private ScheduledDelegate? scheduledMapPool;
+        private ScheduledDelegate? scheduledFirstPush;
 
         private readonly ShowcaseConfig config;
         private readonly float yPositionScale;
@@ -127,8 +139,54 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
+                controlIndicator = new Container
+                {
+                    Name = "Control indicator",
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    AutoSizeAxes = Axes.Both,
+                    Masking = true,
+                    CornerRadius = 10,
+                    Alpha = 0,
+                    Margin = new MarginPadding(20),
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                            Colour = Color4.Black.Opacity(0.75f),
+                        },
+                        new FillFlowContainer
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Margin = new MarginPadding(10),
+                            Spacing = new Vector2(5),
+                            Children = new Drawable[]
+                            {
+                                indicatorIcon = new SpriteIcon
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Size = new Vector2(24),
+                                },
+                                indicatorText = new OsuSpriteText
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
+                                },
+                            },
+                        },
+                    },
+                },
             };
 
+            UseAutoShowcase.BindValueChanged(controlChanged);
             state.BindValueChanged(stateChanged);
             this.playerLoaded.BindValueChanged(loadStateChanged);
         }
@@ -137,6 +195,14 @@ namespace osu.Game.Screens.TournamentShowcase
         private void load(TextureStore textures)
         {
             transitionBackground.Texture = textures.Get($"{config.TournamentName}/transition");
+        }
+
+        private void controlChanged(ValueChangedEvent<bool> useAutoShowcase)
+        {
+            indicatorIcon.Icon = useAutoShowcase.NewValue ? OsuIcon.Debug : OsuIcon.Input;
+            indicatorText.Text = useAutoShowcase.NewValue ? TournamentShowcaseStrings.AutoControlState : TournamentShowcaseStrings.ManualControlState;
+
+            controlIndicator.FadeIn(500, Easing.OutQuint).Delay(1000).FadeOut(500, Easing.OutQuint);
         }
 
         private void loadStateChanged(ValueChangedEvent<bool> state)
@@ -150,6 +216,22 @@ namespace osu.Game.Screens.TournamentShowcase
             switch (state.NewValue)
             {
                 case ShowcaseState.BeatmapTransition:
+                    if (state.OldValue is ShowcaseState.Intro or ShowcaseState.MapPool or ShowcaseState.Ending)
+                    {
+                        topMask.FadeOut(300, Easing.OutQuint);
+                        triangles.FadeOut(300, Easing.OutQuint);
+
+                        // Cancel all scheduled screen changes.
+                        scheduledMapPool?.Cancel();
+                        scheduledFirstPush?.Cancel();
+                    }
+
+                    if (state.OldValue is ShowcaseState.MapPool)
+                    {
+                        mapPoolContainer.FadeOut(300, Easing.OutQuint);
+                        playerContainer.BlurTo(Vector2.Zero, 300, Easing.OutQuint);
+                    }
+
                     showTransition();
                     break;
 
@@ -247,7 +329,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 introContainer.MoveToY(-1.5f, 1500, Easing.InQuint);
             }
 
-            Scheduler.AddDelayed(showMapPool, 6000);
+            scheduledMapPool = Scheduler.AddDelayed(showMapPool, 6000);
         }
 
         /// <summary>
@@ -265,7 +347,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             FillFlowContainer mapPoolFlow;
 
-            Container mapPoolContainer = new Container
+            mapPoolContainer = new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -351,19 +433,23 @@ namespace osu.Game.Screens.TournamentShowcase
 
             int totalTime = mapList.Count * 1000 + 5000;
 
-            using (BeginDelayedSequence(totalTime))
-            {
-                mapPoolContainer.MoveToY(-1f, 1500, Easing.InQuint);
-                mapPoolContainer.FadeOut(1000, Easing.InQuint);
-
-                topMask.Delay(1000).FadeOut(1000, Easing.InQuint);
-                triangles.Delay(1000).FadeOut(1500, Easing.OutQuint);
-                playerContainer.Delay(1000).BlurTo(Vector2.Zero, 1500, Easing.OutQuint);
-            }
-
             Scheduler.AddDelayed(() =>
             {
-                state.Value = ShowcaseState.BeatmapTransition;
+                if (UseAutoShowcase.Value)
+                {
+                    mapPoolContainer.MoveToY(-1f, 1500, Easing.InQuint);
+                    mapPoolContainer.FadeOut(1000, Easing.InQuint);
+
+                    topMask.Delay(1000).FadeOut(1000, Easing.InQuint);
+                    triangles.Delay(1000).FadeOut(1500, Easing.OutQuint);
+                    playerContainer.Delay(1000).BlurTo(Vector2.Zero, 1500, Easing.OutQuint);
+                }
+            }, totalTime);
+
+            scheduledFirstPush = Scheduler.AddDelayed(() =>
+            {
+                if (UseAutoShowcase.Value)
+                    state.Value = ShowcaseState.BeatmapTransition;
             }, totalTime + 3000);
         }
 

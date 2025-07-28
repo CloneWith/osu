@@ -268,4 +268,7 @@
     <data name="score_missing_proceed" xml:space="preserve">
         <value>为它们使用 Autoplay 分数</value>
     </data>
+    <data name="toggle_auto_showcase" xml:space="preserve">
+        <value>切换自动展示</value>
+    </data>
 </root>

@@ -12,6 +12,7 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
+using osu.Framework.Threading;
 using osu.Game.Beatmaps;
 using osu.Game.Input.Bindings;
 using osu.Game.Models;
@@ -56,6 +57,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private readonly BindableBool replaying = new BindableBool();
         private readonly Bindable<ShowcaseState> state = new Bindable<ShowcaseState>();
+
+        private ScheduledDelegate? scheduledNextPush;
 
         public ShowcaseScreen(ShowcaseConfig config)
         {
@@ -154,7 +157,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     showcaseContainer.InfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
 
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
-                    Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 4500);
+
+                    scheduledNextPush = Scheduler.AddDelayed(() =>
+                    {
+                        if (showcaseContainer.UseAutoShowcase.Value)
+                            state.Value = beatmapSets.Any() ? ShowcaseState.BeatmapTransition : ShowcaseState.Ending;
+                    }, 4500);
                 }
             });
         }
@@ -184,6 +192,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     return;
 
                 case ShowcaseState.BeatmapTransition:
+                    scheduledNextPush?.Cancel();
                     Scheduler.AddDelayed(pushNextBeatmap, 500);
                     return;
 
@@ -317,6 +326,15 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
         {
+            switch (e.Action)
+            {
+                case GlobalAction.ShowcaseToggleAuto:
+                    if (!e.Repeat)
+                        showcaseContainer.UseAutoShowcase.Value = !showcaseContainer.UseAutoShowcase.Value;
+
+                    return true;
+            }
+
             return false;
         }
 
