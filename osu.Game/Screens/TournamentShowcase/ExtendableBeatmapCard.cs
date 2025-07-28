@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
@@ -32,6 +33,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private WorkingBeatmap? workingBeatmap;
         private IBeatmapInfo? beatmapInfo;
         private Sprite setCover = null!;
+        private Box infoMask = null!;
         private StarRatingDisplay starRatingDisplay = null!;
         private OsuSpriteText modText = null!;
         private Container difficultyIconContainer = null!;
@@ -82,11 +84,19 @@ namespace osu.Game.Screens.TournamentShowcase
                 },
                 setCover = new Sprite
                 {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
-                    Height = 0.8f,
                     FillMode = FillMode.Fill,
+                    Alpha = 0.8f,
+                },
+                infoMask = new Box
+                {
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    RelativeSizeAxes = Axes.Both,
+                    Height = 0.4f,
+                    Colour = ColourInfo.GradientVertical(Color4.Transparent, Color4.Black.Opacity(0.5f)),
                 },
                 infoContainer = new GridContainer
                 {
@@ -263,9 +273,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.ResizeHeightTo(80, duration, Easing.OutQuint);
             infoContainer.ResizeHeightTo(1f, duration, Easing.OutQuint);
-            setCover.Anchor = Anchor.Centre;
-            setCover.Origin = Anchor.Centre;
-            setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
+            infoMask.FadeOut(duration, Easing.OutQuint);
             setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.5f, duration, Easing.OutQuint);
@@ -277,10 +285,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.ResizeHeightTo(400, duration, Easing.OutQuint);
             infoContainer.ResizeHeightTo(0.2f, duration, Easing.OutQuint);
-            setCover.Anchor = Anchor.TopCentre;
-            setCover.Origin = Anchor.TopCentre;
-            setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
-            setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
+            infoMask.FadeIn(duration, Easing.OutQuint);
+            setCover.FadeTo(0.8f, duration * 0.5f, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.9f, duration, Easing.OutQuint);
             modText.ScaleTo(1f, duration, Easing.OutQuint);
