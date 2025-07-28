@@ -372,14 +372,24 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void showTransition()
         {
+            transitionMask.FadeIn();
             transitionMask.Show();
+            transitionBackground.Show();
+
             Scheduler.AddDelayed(() =>
             {
                 transitionMask.RotateTo(180);
                 transitionBackground.RotateTo(180);
                 transitionMask.Hide();
-                transitionMask.Delay(600).RotateTo(0);
-                transitionBackground.Delay(600).RotateTo(0);
+
+                using (BeginDelayedSequence(WaveContainer.DISAPPEAR_DURATION))
+                {
+                    transitionMask.RotateTo(0);
+                    transitionBackground.RotateTo(0);
+
+                    transitionMask.FadeOut();
+                    transitionBackground.FadeOut();
+                }
             }, 600);
         }
 
