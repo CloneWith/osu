@@ -19,8 +19,8 @@ namespace osu.Game.Models
 
         public int BeatmapId;
         public int RulesetId;
-        public Bindable<string> ModString = new Bindable<string>();
-        public Bindable<string> ModIndex = new Bindable<string>();
+        public Bindable<string> ModString = new Bindable<string>(string.Empty);
+        public Bindable<string> ModIndex = new Bindable<string>(string.Empty);
         public Bindable<string> CreditUserIds = new Bindable<string>();
 
         [JsonIgnore]

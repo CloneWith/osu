@@ -38,7 +38,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             areaContainer.Clear();
 
-            if (!string.IsNullOrEmpty(Beatmap.Value.DiffField.Value))
+            if (!string.IsNullOrWhiteSpace(Beatmap.Value.DiffField.Value))
             {
                 areaContainer.AddIcon(FontAwesome.Solid.Star, icon =>
                 {
