@@ -14,6 +14,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osu.Game.Configuration;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Localisation;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Overlays;
@@ -71,7 +72,14 @@ namespace osu.Game.Updater
 
                 // notify the user if they're using a build that is not officially sanctioned.
                 if (RuntimeInfo.EntryAssembly.GetCustomAttribute<OfficialBuildAttribute>() == null)
-                    Notifications.Post(new SimpleNotification { Text = NotificationsStrings.NotOfficialBuild });
+                {
+                    Notifications.Post(new SimpleNotification
+                    {
+                        Text = CustomNotificationsStrings.Greeting,
+                        Icon = OsuIcon.Gear,
+                        IconColour = FumoColours.SeaBlue.Regular,
+                    });
+                }
             }
             else
             {
