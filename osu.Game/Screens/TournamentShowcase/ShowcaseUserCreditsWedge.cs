@@ -65,7 +65,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 {
                     AutoSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
-                    Padding = new MarginPadding { Horizontal = 5, Vertical = 10 },
+                    Padding = new MarginPadding { Horizontal = 15, Vertical = 10 },
                     Children = new Drawable[]
                     {
                         new TruncatingSpriteText
@@ -79,7 +79,7 @@ namespace osu.Game.Screens.TournamentShowcase
                             AutoSizeAxes = Axes.Both,
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(3f),
-                            Padding = new MarginPadding(5),
+                            Padding = new MarginPadding { Horizontal = 10, Top = 5 },
                         },
                     },
                 },
