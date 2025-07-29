@@ -32,7 +32,15 @@ namespace osu.Game.Screens.TournamentShowcase
         public OsuScreenStack ScreenStack { get; private set; }
         public ScreenStack ErrorStack { get; private set; }
 
+        /// <summary>
+        /// The top left wedge showing beatmap information.
+        /// </summary>
         public readonly ShowcaseBeatmapInfoWedge InfoDisplay;
+
+        /// <summary>
+        /// Invoked when we should push the next beatmap.
+        /// </summary>
+        public event Action? OnPushNext;
 
         private readonly PlayerContainer playerContainer;
         private readonly Box backgroundMask;
@@ -44,7 +52,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly SpriteIcon indicatorIcon;
         private readonly OsuSpriteText indicatorText;
 
+        private Container introContainer = null!;
         private Container mapPoolContainer = null!;
+        private Container outroContainer = null!;
 
         private ScheduledDelegate? scheduledMapPool;
         private ScheduledDelegate? scheduledFirstPush;
@@ -218,18 +228,27 @@ namespace osu.Game.Screens.TournamentShowcase
                 case ShowcaseState.BeatmapTransition:
                     if (state.OldValue is ShowcaseState.Intro or ShowcaseState.MapPool or ShowcaseState.Ending)
                     {
+                        backgroundMask.FadeOut(300, Easing.OutQuint);
                         topMask.FadeOut(300, Easing.OutQuint);
                         triangles.FadeOut(300, Easing.OutQuint);
-
-                        // Cancel all scheduled screen changes.
-                        scheduledMapPool?.Cancel();
-                        scheduledFirstPush?.Cancel();
-                    }
-
-                    if (state.OldValue is ShowcaseState.MapPool)
-                    {
-                        mapPoolContainer.FadeOut(300, Easing.OutQuint);
                         playerContainer.BlurTo(Vector2.Zero, 300, Easing.OutQuint);
+
+                        switch (state.OldValue)
+                        {
+                            case ShowcaseState.Intro:
+                                scheduledMapPool?.Cancel();
+                                introContainer.FadeOut(300, Easing.OutQuint);
+                                break;
+
+                            case ShowcaseState.MapPool:
+                                scheduledFirstPush?.Cancel();
+                                mapPoolContainer.FadeOut(300, Easing.OutQuint);
+                                break;
+
+                            case ShowcaseState.Ending:
+                                outroContainer.FadeOut(300, Easing.OutQuint);
+                                break;
+                        }
                     }
 
                     showTransition();
@@ -258,7 +277,7 @@ namespace osu.Game.Screens.TournamentShowcase
             OsuSpriteText titleText;
             OsuSpriteText subtitleText;
 
-            Container introContainer = new Container
+            introContainer = new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,
@@ -339,7 +358,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             if (!config.ShowMapPool.Value)
             {
-                state.Value = ShowcaseState.BeatmapTransition;
+                OnPushNext?.Invoke();
                 return;
             }
 
@@ -449,7 +468,7 @@ namespace osu.Game.Screens.TournamentShowcase
             scheduledFirstPush = Scheduler.AddDelayed(() =>
             {
                 if (UseAutoShowcase.Value)
-                    state.Value = ShowcaseState.BeatmapTransition;
+                    OnPushNext?.Invoke();
             }, totalTime + 3000);
         }
 
@@ -488,7 +507,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             OsuLogo logo;
 
-            Container outroContainer = new Container
+            outroContainer = new Container
             {
                 Anchor = Anchor.Centre,
                 Origin = Anchor.Centre,

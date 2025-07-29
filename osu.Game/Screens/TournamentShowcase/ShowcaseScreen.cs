@@ -50,6 +50,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private MusicController music { get; set; } = null!;
 
+        private int currentIndex;
         private WorkingBeatmap beatmap = null!;
         private ShowcasePlayer? player;
         private readonly List<ShowcaseBeatmap> beatmapSets;
@@ -59,6 +60,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly Bindable<ShowcaseState> state = new Bindable<ShowcaseState>();
 
         private ScheduledDelegate? scheduledNextPush;
+        private ScheduledDelegate? scheduledErrorPush;
 
         public ShowcaseScreen(ShowcaseConfig config)
         {
@@ -161,10 +163,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     scheduledNextPush = Scheduler.AddDelayed(() =>
                     {
                         if (showcaseContainer.UseAutoShowcase.Value)
-                            state.Value = beatmapSets.Any() ? ShowcaseState.BeatmapTransition : ShowcaseState.Ending;
+                            pushNextBeatmap();
                     }, 4500);
                 }
             });
+
+            showcaseContainer.OnPushNext += pushNextBeatmap;
         }
 
         protected override void LoadComplete()
@@ -183,6 +187,16 @@ namespace osu.Game.Screens.TournamentShowcase
             Scheduler.AddDelayed(showcaseContainer.StartShowcase, config.StartCountdown.Value);
         }
 
+        private void scheduleBeatmapPush(Action pushAction, int delay = 0)
+        {
+            if (showcaseContainer.ErrorStack.CurrentScreen != null)
+                showcaseContainer.ErrorStack.Exit();
+
+            scheduledErrorPush?.Cancel();
+            scheduledNextPush?.Cancel();
+            scheduledNextPush = Scheduler.AddDelayed(pushAction, delay);
+        }
+
         private void stateChanged(ValueChangedEvent<ShowcaseState> state)
         {
             switch (state.NewValue)
@@ -191,9 +205,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     pushIntroBeatmap();
                     return;
 
+                // Note: Beatmap changing mechanism shouldn't be implemented here.
                 case ShowcaseState.BeatmapTransition:
                     scheduledNextPush?.Cancel();
-                    Scheduler.AddDelayed(pushNextBeatmap, 500);
                     return;
 
                 case ShowcaseState.Ended:
@@ -209,13 +223,30 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        private void pushIntroBeatmap() => updateBeatmap(true);
+        private void pushIntroBeatmap() => updateBeatmap(0, true);
+
+        private void pushPreviousBeatmap()
+        {
+            // Currently we only support travelling among beatmaps.
+            if (currentIndex <= 0)
+                return;
+
+            try
+            {
+                updateBeatmap(currentIndex - 1);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
+                showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+            }
+        }
 
         private void pushNextBeatmap()
         {
             try
             {
-                updateBeatmap();
+                updateBeatmap(state.Value is ShowcaseState.Intro or ShowcaseState.MapPool ? 0 : currentIndex + 1);
             }
             catch (Exception e)
             {
@@ -228,22 +259,21 @@ namespace osu.Game.Screens.TournamentShowcase
         /// Load the next beatmap in the queue and push it to the player.
         /// <br/>If no map presents, this will trigger the outro screen.
         /// </summary>
-        private void updateBeatmap(bool introMode = false)
+        private void updateBeatmap(int index, bool introMode = false)
         {
-            state.Value = introMode ? ShowcaseState.Intro : ShowcaseState.BeatmapShow;
             ShowcaseBeatmap selected;
             Score score;
 
             if (!introMode)
             {
-                if (!beatmapSets.Any())
+                if (index == beatmapSets.Count)
                 {
                     state.Value = ShowcaseState.Ending;
                     return;
                 }
 
-                selected = beatmapSets.First();
-                beatmapSets.Remove(beatmapSets.First());
+                selected = beatmapSets[index];
+                currentIndex = index;
 
                 showcaseContainer.InfoDisplay.MoveToX(-0.75f);
                 showcaseContainer.InfoDisplay.FadeOut();
@@ -253,6 +283,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     showcaseContainer.InfoDisplay.FadeIn(500, Easing.OutQuint)
                                      .MoveToX(-0.01f, 800, Easing.OutQuint);
                 }
+
+                state.Value = ShowcaseState.BeatmapTransition;
             }
             else
             {
@@ -270,7 +302,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 showcaseContainer.ErrorStack.Push(new ShowcaseBeatmapMissingScreen(selected));
 
-                Scheduler.AddDelayed(() => state.Value = ShowcaseState.BeatmapTransition, 5000);
+                scheduledErrorPush = Scheduler.AddDelayed(() => scheduleBeatmapPush(pushNextBeatmap), 5000);
                 return;
             }
 
@@ -306,22 +338,26 @@ namespace osu.Game.Screens.TournamentShowcase
                 Mods.Value = selected.RequiredMods;
             }
 
-            Beatmap.Value = beatmap;
-            showcaseContainer.InfoDisplay.Target.Value = selected;
-
-            if (player != null)
-                showcaseContainer.ScreenStack.Exit();
-
-            player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500,
-                config, selected, replaying, Mods.Value, introMode);
-
-            player.OnError += e =>
+            Scheduler.AddDelayed(() =>
             {
-                Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
-                showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
-            };
+                Beatmap.Value = beatmap;
+                showcaseContainer.InfoDisplay.Target.Value = selected;
+                state.Value = introMode ? ShowcaseState.Intro : ShowcaseState.BeatmapShow;
 
-            showcaseContainer.ScreenStack.Push(player);
+                if (player != null)
+                    showcaseContainer.ScreenStack.Exit();
+
+                player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500,
+                    config, selected, replaying, Mods.Value, introMode);
+
+                player.OnError += e =>
+                {
+                    Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
+                    showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+                };
+
+                showcaseContainer.ScreenStack.Push(player);
+            }, introMode ? 0 : 500);
         }
 
         public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
@@ -346,8 +382,19 @@ namespace osu.Game.Screens.TournamentShowcase
                     this.Exit();
                     break;
 
+                case GlobalAction.ShowcasePrevious:
+                    scheduleBeatmapPush(pushPreviousBeatmap);
+                    break;
+
                 case GlobalAction.ShowcaseNext:
-                    state.Value = ShowcaseState.BeatmapTransition;
+                    scheduleBeatmapPush(pushNextBeatmap);
+                    break;
+
+                case GlobalAction.ShowcaseReplay:
+                    if (state.Value is not ShowcaseState.BeatmapShow)
+                        return;
+
+                    scheduleBeatmapPush(() => updateBeatmap(currentIndex));
                     break;
             }
         }
