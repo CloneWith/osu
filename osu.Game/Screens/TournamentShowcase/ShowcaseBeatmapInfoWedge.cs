@@ -60,6 +60,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private StarRatingDisplay starRatingDisplay = null!;
         private FillFlowContainer nameLine = null!;
+        private OsuSpriteText modText = null!;
         private OsuSpriteText titleText = null!;
         private OsuSpriteText artistText = null!;
         private OsuSpriteText difficultyText = null!;
@@ -286,6 +287,15 @@ namespace osu.Game.Screens.TournamentShowcase
                         }),
                     },
                 },
+                modText = new OsuSpriteText
+                {
+                    Name = "Mod text",
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
+                    Shear = -OsuGame.SHEAR,
+                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 24),
+                    Margin = new MarginPadding(20),
+                },
             };
         }
 
@@ -353,6 +363,9 @@ namespace osu.Game.Screens.TournamentShowcase
                 commentText.Hide();
                 return;
             }
+
+            modText.Text = $"{Target.Value.ModString.Value}{Target.Value.ModIndex.Value}";
+            modText.FadeColour(ModColours.FromModString(Target.Value.ModString.Value).Accent);
 
             difficultyAreaText.FadeTo(string.IsNullOrWhiteSpace(Target.Value.DiffField.Value) ? 0 : 1);
             commentText.FadeTo(string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value) ? 0 : 1);
