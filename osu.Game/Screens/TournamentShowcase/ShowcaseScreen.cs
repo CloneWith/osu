@@ -192,9 +192,9 @@ namespace osu.Game.Screens.TournamentShowcase
             if (showcaseContainer.ErrorStack.CurrentScreen != null)
                 showcaseContainer.ErrorStack.Exit();
 
-            scheduledErrorPush?.Cancel();
             scheduledNextPush?.Cancel();
             scheduledNextPush = Scheduler.AddDelayed(pushAction, delay);
+            scheduledErrorPush?.Cancel();
         }
 
         private void stateChanged(ValueChangedEvent<ShowcaseState> state)

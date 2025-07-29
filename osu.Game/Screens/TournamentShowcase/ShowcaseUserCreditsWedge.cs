@@ -45,7 +45,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             foreach (string v in userValues)
             {
-                if (int.TryParse(v, out int userId))
+                if (int.TryParse(v, out int userId) && userId >= 0)
                     userIds.Add(userId);
             }
         }
@@ -89,6 +89,12 @@ namespace osu.Game.Screens.TournamentShowcase
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            if (userIds.Count == 0)
+            {
+                AlwaysPresent = false;
+                return;
+            }
 
             cancellationSource?.Cancel();
             cancellationSource = new CancellationTokenSource();
