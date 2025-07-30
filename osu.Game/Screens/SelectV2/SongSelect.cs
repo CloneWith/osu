@@ -346,7 +346,7 @@ namespace osu.Game.Screens.SelectV2
 
                 ensureGlobalBeatmapValid();
 
-                ensurePlayingSelected(true);
+                ensurePlayingSelected();
                 updateBackgroundDim();
                 updateWedgeVisibility();
             });
@@ -379,7 +379,7 @@ namespace osu.Game.Screens.SelectV2
         /// Ensures some music is playing for the current track.
         /// Will resume playback from a manual user pause if the track has changed.
         /// </summary>
-        private void ensurePlayingSelected(bool restart)
+        private void ensurePlayingSelected()
         {
             if (!ControlGlobalMusic)
                 return;
@@ -391,7 +391,10 @@ namespace osu.Game.Screens.SelectV2
             if (!track.IsRunning && (music.UserPauseRequested != true || isNewTrack))
             {
                 Logger.Log($"Song select decided to {nameof(ensurePlayingSelected)}");
-                music.Play(restart);
+
+                // Only restart playback if a new track.
+                // This is important so that when exiting gameplay, the track is not restarted back to the preview point.
+                music.Play(isNewTrack);
             }
 
             lastTrack.SetTarget(track);
@@ -634,7 +637,7 @@ namespace osu.Game.Screens.SelectV2
 
             ensureGlobalBeatmapValid();
 
-            ensurePlayingSelected(false);
+            ensurePlayingSelected();
             updateBackgroundDim();
         }
 
@@ -955,7 +958,7 @@ namespace osu.Game.Screens.SelectV2
 
         public virtual IEnumerable<OsuMenuItem> GetForwardActions(BeatmapInfo beatmap)
         {
-            yield return new OsuMenuItem("Select", MenuItemType.Highlighted, () => SelectAndRun(beatmap, OnStart))
+            yield return new OsuMenuItem(GlobalActionKeyBindingStrings.Select, MenuItemType.Highlighted, () => SelectAndRun(beatmap, OnStart))
             {
                 Icon = FontAwesome.Solid.Check
             };
@@ -964,7 +967,7 @@ namespace osu.Game.Screens.SelectV2
 
             if (beatmap.OnlineID > 0)
             {
-                yield return new OsuMenuItem("Details...", MenuItemType.Standard, () => beatmapOverlay?.FetchAndShowBeatmap(beatmap.OnlineID));
+                yield return new OsuMenuItem(CommonStrings.Details, MenuItemType.Standard, () => beatmapOverlay?.FetchAndShowBeatmap(beatmap.OnlineID));
 
                 if (beatmap.GetOnlineURL(api, Ruleset.Value) is string url)
                     yield return new OsuMenuItem(CommonStrings.CopyLink, MenuItemType.Standard, () => (game as OsuGame)?.CopyToClipboard(url));
@@ -983,7 +986,7 @@ namespace osu.Game.Screens.SelectV2
                                        .AsEnumerable()
                                        .Select(c => new CollectionToggleMenuItem(c.ToLive(realm), beatmap)).Cast<OsuMenuItem>().ToList();
 
-            collectionItems.Add(new OsuMenuItem("Manage...", MenuItemType.Standard, () => manageCollectionsDialog?.Show()));
+            collectionItems.Add(new OsuMenuItem(CommonStrings.Manage, MenuItemType.Standard, () => manageCollectionsDialog?.Show()));
 
             yield return new OsuMenuItem(CommonStrings.Collections) { Items = collectionItems };
         }
