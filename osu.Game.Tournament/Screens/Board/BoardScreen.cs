@@ -145,19 +145,40 @@ namespace osu.Game.Tournament.Screens.Board
                                             Alpha = 0.74f,
                                             RelativeSizeAxes = Axes.Both,
                                         },
-                                        new MatchRoundDisplay
+                                        new GridContainer
                                         {
-                                            Anchor = Anchor.TopCentre,
-                                            Origin = Anchor.TopCentre,
-                                            Y = 5,
-                                            Scale = new Vector2(0.45f),
-                                        },
-                                        new RoundCounterLine
-                                        {
-                                            Anchor = Anchor.BottomCentre,
-                                            Origin = Anchor.BottomCentre,
-                                            RelativeSizeAxes = Axes.X,
-                                            Margin = new MarginPadding { Bottom = 5 },
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            RelativeSizeAxes = Axes.Both,
+                                            RowDimensions = new[]
+                                            {
+                                                new Dimension(GridSizeMode.AutoSize),
+                                                new Dimension(),
+                                                new Dimension(GridSizeMode.AutoSize),
+                                            },
+                                            Content = new Drawable[][]
+                                            {
+                                                [
+                                                    new MatchRoundDisplay
+                                                    {
+                                                        Anchor = Anchor.TopCentre,
+                                                        Origin = Anchor.TopCentre,
+                                                        // Weird margin layout...
+                                                        Margin = new MarginPadding { Vertical = 10 },
+                                                        Scale = new Vector2(0.45f),
+                                                    },
+                                                ],
+                                                [Empty()],
+                                                [
+                                                    new RoundCounterLine
+                                                    {
+                                                        Anchor = Anchor.BottomCentre,
+                                                        Origin = Anchor.BottomCentre,
+                                                        RelativeSizeAxes = Axes.X,
+                                                        Margin = new MarginPadding { Vertical = 5 },
+                                                    },
+                                                ],
+                                            },
                                         },
                                     },
                                 },
