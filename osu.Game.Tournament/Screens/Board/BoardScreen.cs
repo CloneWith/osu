@@ -47,11 +47,9 @@ namespace osu.Game.Tournament.Screens.Board
 
         private readonly BindableBool preparationMode = new BindableBool(true);
         private readonly BindableBool shiroModeActivated = new BindableBool();
+        private readonly BindableBool tiebreakerOverride = new BindableBool();
 
         private readonly BindableBool enableIntroAnimation = new BindableBool(true);
-
-        [Resolved]
-        private TournamentSceneManager? sceneManager { get; set; }
 
         private TeamColour pickTeam;
         private RoundStep pickType;
@@ -82,6 +80,7 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonBlueWin = null!;
 
         private ClickTwiceButton buttonEnterTiebreaker = null!;
+        private ClickTwiceButton buttonClearSpecialState = null!;
         private OsuButton buttonIndicator = null!;
         private OsuButton buttonTiebreakerRedWin = null!;
         private OsuButton buttonTiebreakerBlueWin = null!;
@@ -455,6 +454,11 @@ namespace osu.Game.Tournament.Screens.Board
                             Action = clearShiroSelection,
                         },
                         new SectionHeader(BoardStrings.TiebreakerControl),
+                        new LabelledSwitchButton
+                        {
+                            Label = BoardStrings.OverrideTiebreakerControl,
+                            Current = tiebreakerOverride,
+                        },
                         buttonEnterTiebreaker = new ClickTwiceButton(sampleSet: null)
                         {
                             AutoSizeAxes = Axes.None,
@@ -464,6 +468,16 @@ namespace osu.Game.Tournament.Screens.Board
                             Text = BoardStrings.EnterTiebreaker,
                             Action = () => setMode(TeamColour.Neutral, RoundStep.TieBreaker),
                             Enabled = { Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin) },
+                        },
+                        buttonClearSpecialState = new ClickTwiceButton(sampleSet: null)
+                        {
+                            AutoSizeAxes = Axes.None,
+                            RelativeSizeAxes = Axes.X,
+                            Height = 40,
+                            IdleIcon = FontAwesome.Regular.TrashAlt,
+                            Text = BoardStrings.ClearSpecialState,
+                            Action = clearWin,
+                            Enabled = { Value = pickType is RoundStep.TieBreaker or RoundStep.FinalWin },
                         },
                         new GridContainer
                         {
@@ -544,6 +558,12 @@ namespace osu.Game.Tournament.Screens.Board
                     pickType = RoundStep.Default;
             });
 
+            tiebreakerOverride.BindValueChanged(e =>
+            {
+                buttonTiebreakerRedWin.Enabled.Value = buttonTiebreakerBlueWin.Enabled.Value = e.NewValue;
+                buttonTiebreakerRedWin.Colour = buttonTiebreakerBlueWin.Colour = setColour(e.NewValue);
+            });
+
             currentRoundIndex.BindValueChanged(e =>
             {
                 roundMinusButton.Enabled.Value = e.NewValue > currentRoundIndex.MinValue;
@@ -569,6 +589,8 @@ namespace osu.Game.Tournament.Screens.Board
                 }
             };
         }
+
+        private static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
@@ -621,8 +643,9 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             buttonEnterTiebreaker.Enabled.Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin);
-            buttonTiebreakerRedWin.Enabled.Value = pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
-            buttonTiebreakerBlueWin.Enabled.Value = pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
+            buttonClearSpecialState.Enabled.Value = pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
+            buttonTiebreakerRedWin.Enabled.Value = tiebreakerOverride.Value || pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
+            buttonTiebreakerBlueWin.Enabled.Value = tiebreakerOverride.Value || pickType is RoundStep.TieBreaker or RoundStep.FinalWin;
 
             buttonRedBan.Colour = setColour(pickTeam == TeamColour.Red && pickType == RoundStep.Ban);
             buttonBlueBan.Colour = setColour(pickTeam == TeamColour.Blue && pickType == RoundStep.Ban);
@@ -636,10 +659,6 @@ namespace osu.Game.Tournament.Screens.Board
                 buttonTiebreakerRedWin.Colour = setColour(colour == TeamColour.Red && pickType == RoundStep.FinalWin);
                 buttonTiebreakerBlueWin.Colour = setColour(colour == TeamColour.Blue && pickType == RoundStep.FinalWin);
             }
-
-            return;
-
-            static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
         }
 
         private bool checkSelected(IEnumerable<FumoChessPiece> source)
@@ -772,6 +791,21 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.Team1Score.Value = couplets.red;
                 CurrentMatch.Value.Team2Score.Value = couplets.blue;
             }
+        }
+
+        private void clearWin()
+        {
+            if (CurrentMatch.Value == null)
+                return;
+
+            detectWin();
+
+            // If we still got the winner, it is valid and don't need further handling.
+            // Otherwise, restore the original state.
+            if (!CurrentMatch.Value.Completed.Value)
+                setMode(CurrentMatch.Value.CurrentTeam, CurrentMatch.Value.CurrentRoundIndex.Value <= 0 ? RoundStep.Ban : RoundStep.Pick);
+
+            SceneManager?.CancelScreenChange();
         }
 
         private bool isTieBreaker()
@@ -1351,7 +1385,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         public override void Show()
         {
-            sceneManager?.ProxyChatToContainer(chatContainer);
+            SceneManager?.ProxyChatToContainer(chatContainer);
             base.Show();
         }
 

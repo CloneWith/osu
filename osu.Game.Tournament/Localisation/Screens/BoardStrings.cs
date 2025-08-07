@@ -35,9 +35,19 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString TiebreakerIndicator => new TranslatableString(getKey(@"tiebreaker_indicator"), @"TB Status");
 
         /// <summary>
+        /// "Control Override"
+        /// </summary>
+        public static LocalisableString OverrideTiebreakerControl => new TranslatableString(getKey(@"override_tiebreaker_control"), @"Control Override");
+
+        /// <summary>
         /// "Enter TB"
         /// </summary>
         public static LocalisableString EnterTiebreaker => new TranslatableString(getKey(@"enter_tiebreaker"), @"Enter TB");
+
+        /// <summary>
+        /// "Clear Special State"
+        /// </summary>
+        public static LocalisableString ClearSpecialState => new TranslatableString(getKey(@"clear_special_state"), @"Clear Special State");
 
         /// <summary>
         /// "Cannot find a Pick record associated with the selected beatmap."
