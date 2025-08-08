@@ -735,7 +735,7 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
-            addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID);
+            addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID, true);
             consumeSelected();
             shiroModeActivated.Value = false;
         }
@@ -975,7 +975,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     if (chessPieces.Contains(target))
                                         break;
 
-                                    succeeded |= addWinPlacement(target.BeatmapID);
+                                    succeeded |= addWinPlacement(target.BeatmapID, true);
 
                                     if (succeeded)
                                     {
@@ -1221,7 +1221,7 @@ namespace osu.Game.Tournament.Screens.Board
             flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
         }
 
-        private bool addWinPlacement(int beatmapId)
+        private bool addWinPlacement(int beatmapId, bool keepCurrentRound = false)
         {
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                 p.BeatmapID == beatmapId && p.CurrentType is not ChoiceType.Neutral);
@@ -1254,7 +1254,9 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             updateOwnerSample?.Play();
-            setNextMode();
+
+            if (!keepCurrentRound)
+                setNextMode();
 
             return true;
         }
