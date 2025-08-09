@@ -737,6 +737,9 @@ namespace osu.Game.Tournament.Screens.Board
             setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
             addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID, true);
             consumeSelected();
+
+            // Only this function escapes the normal interaction route, needed to detect winner separately.
+            detectWin();
             shiroModeActivated.Value = false;
         }
 
