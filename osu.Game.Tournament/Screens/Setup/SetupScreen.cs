@@ -150,6 +150,12 @@ namespace osu.Game.Tournament.Screens.Setup
                     Current = LadderInfo.UseBlueChroma,
                 },
                 new SectionHeader(SetupStrings.TournamentSpecificHeader),
+                new LabelledTextBox
+                {
+                    Label = SetupStrings.TournamentName,
+                    Description = SetupStrings.TournamentNameDescription,
+                    Current = LadderInfo.FullName,
+                },
                 new LabelledDropdown<RulesetInfo?>
                 {
                     Label = SetupStrings.Ruleset,

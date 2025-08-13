@@ -100,6 +100,17 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString TournamentSpecificHeader => new TranslatableString(getKey(@"tournament_specific_header"), @"Tournament Specific");
 
         /// <summary>
+        /// "Tournament Name"
+        /// </summary>
+        public static LocalisableString TournamentName => new TranslatableString(getKey(@"tournament_name"), @"Tournament Name");
+
+        /// <summary>
+        /// "The full name of the tournament. It will be shown on countdown, team win and other screens."
+        /// </summary>
+        public static LocalisableString TournamentNameDescription => new TranslatableString(getKey(@"tournament_name_description"),
+            @"The full name of the tournament. It will be shown on countdown, team win and other screens.");
+
+        /// <summary>
         /// "Ruleset"
         /// </summary>
         public static LocalisableString Ruleset => new TranslatableString(getKey(@"ruleset"), @"Ruleset");

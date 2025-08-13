@@ -108,4 +108,10 @@
     <data name="use_blue_chroma_description" xml:space="preserve">
         <value>窗口投影区使用蓝色而非绿色。</value>
     </data>
+    <data name="tournament_name_description" xml:space="preserve">
+        <value>该赛事的完整名称（或认为适合显示的长名称）。将会在倒计时、获胜展示等界面显示。</value>
+    </data>
+    <data name="tournament_name" xml:space="preserve">
+        <value>赛事名称</value>
+    </data>
 </root>
