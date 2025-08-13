@@ -78,6 +78,8 @@ namespace osu.Game.Graphics
 
         public static FontUsage Inter => GetFont(Typeface.Inter, weight: FontWeight.Regular);
 
+        public static FontUsage KaushanScript => GetFont(Typeface.KaushanScript, weight: FontWeight.Regular);
+
         /// <summary>
         /// Retrieves a <see cref="FontUsage"/>.
         /// </summary>
@@ -123,6 +125,9 @@ namespace osu.Game.Graphics
 
                 case Typeface.HarmonyTorus:
                     return @"HarmonyTorus";
+
+                case Typeface.KaushanScript:
+                    return @"KaushanScript";
             }
 
             return null;
@@ -174,6 +179,9 @@ namespace osu.Game.Graphics
         TorusAlternate,
         Inter,
         HarmonyTorus,
+
+        [Description("Kaushan Script")]
+        KaushanScript,
     }
 
     public enum FontWeight

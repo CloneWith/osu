@@ -521,6 +521,8 @@ namespace osu.Game.Tournament
             AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-SemiBold");
             AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Bold");
 
+            AddFont(Resources, @"Fonts/KaushanScript/KaushanScript-Regular");
+
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Regular");
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-SemiBold");
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Bold");

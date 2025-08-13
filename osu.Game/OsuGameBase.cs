@@ -495,6 +495,8 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Inter/Inter-Bold");
             AddFont(Resources, @"Fonts/Inter/Inter-BoldItalic");
 
+            AddFont(Resources, @"Fonts/KaushanScript/KaushanScript-Regular");
+
             // Use HarmonyOS Sans as primary font for CJK characters
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Regular");
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-SemiBold");
