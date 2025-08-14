@@ -9,11 +9,9 @@ using osu.Framework.Audio;
 using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
@@ -39,12 +37,6 @@ namespace osu.Game.Tournament.Screens.Board
 {
     public partial class BoardScreen : TournamentMatchScreen
     {
-        private const float board_size = 570;
-
-        private readonly List<FumoChessPiece> boardMapList = new List<FumoChessPiece>();
-        private List<DrawableBoardBlock> blocks = new List<DrawableBoardBlock>();
-        private readonly List<DrawableBoardBlock> selectedBlocks = new List<DrawableBoardBlock>();
-
         private readonly BindableBool preparationMode = new BindableBool(true);
         private readonly BindableBool shiroModeActivated = new BindableBool();
         private readonly BindableBool tiebreakerOverride = new BindableBool();
@@ -63,10 +55,9 @@ namespace osu.Game.Tournament.Screens.Board
         private Container mainContainer = null!;
         private Container informationContainer = null!;
         private Container chatContainer = null!;
-        private Container boardContainer = null!;
+        private FumoChessBoard chessBoard = null!;
         private ChessMapPool mapPool = null!;
         private InstructionDisplay instructionDisplay = null!;
-        private FillFlowContainer<DrawableBoardBlock> boardBlockArea = null!;
 
         private OsuNumberBox roundNumberBox = null!;
         private GrayButton roundMinusButton = null!;
@@ -89,16 +80,12 @@ namespace osu.Game.Tournament.Screens.Board
 
         private DialogOverlay dialogOverlay = null!;
 
-        private Sample? placeChessSample;
         private Sample? updateOwnerSample;
         private Sample? unavailableSample;
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures, AudioManager audio)
+        private void load(AudioManager audio)
         {
-            var boardTexture = textures.Get("Board/board");
-
-            placeChessSample = audio.Samples.Get("Board/place");
             updateOwnerSample = audio.Samples.Get("Board/update");
             unavailableSample = audio.Samples.Get("unavailable");
 
@@ -206,56 +193,14 @@ namespace osu.Game.Tournament.Screens.Board
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             RelativeSizeAxes = Axes.Y,
-                            Width = board_size,
+                            Width = FumoChessBoard.BOARD_SIZE,
                             Children = new Drawable[]
                             {
-                                boardContainer = new Container
+                                chessBoard = new FumoChessBoard
                                 {
-                                    Name = "Board container",
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
                                     RelativePositionAxes = Axes.Both,
-                                    Height = board_size,
-                                    Children = new Drawable[]
-                                    {
-                                        boardTexture != null
-                                            ? new Sprite
-                                            {
-                                                Name = @"Board texture",
-                                                Anchor = Anchor.Centre,
-                                                Origin = Anchor.Centre,
-                                                RelativeSizeAxes = Axes.Both,
-                                                FillMode = FillMode.Fit,
-                                                Texture = textures.Get(@"Board/board"),
-                                            }
-                                            : new EmptyBox(10)
-                                            {
-                                                Colour = Color4Extensions.FromHex("#454545"),
-                                                Alpha = 0.74f,
-                                                RelativeSizeAxes = Axes.Both,
-                                            },
-                                        boardBlockArea = new FillFlowContainer<DrawableBoardBlock>
-                                        {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
-                                            Direction = FillDirection.Full,
-                                            Width = LadderInfo.MainBoardSize.Value,
-                                            Height = LadderInfo.MainBoardSize.Value,
-                                            ChildrenEnumerable = blocks =
-                                                (from row in Enumerable.Range(1, 4)
-                                                 from column in Enumerable.Range(1, 4)
-                                                 select new DrawableBoardBlock(row, column)
-                                                 {
-                                                     Anchor = Anchor.Centre,
-                                                     Origin = Anchor.Centre,
-                                                     RelativeSizeAxes = Axes.Both,
-                                                     Width = 0.25f,
-                                                     Height = 0.25f,
-                                                 })
-                                                .ToList(),
-                                        },
-                                    },
                                 },
                                 instructionDisplay = new InstructionDisplay
                                 {
@@ -568,9 +513,6 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.BindValueChanged(matchChanged, true);
 
-            LadderInfo.MainBoardSize.BindValueChanged(e =>
-                boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
-
             shiroModeActivated.BindValueChanged(e =>
             {
                 if (e.NewValue)
@@ -630,7 +572,6 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             ResetSelectStatus();
-            initializeBoard();
             detectWin();
         }
 
@@ -695,7 +636,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void consumeSelected()
         {
-            foreach (var b in selectedBlocks)
+            foreach (var b in chessBoard.SelectedBlocks)
             {
                 b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
                 var record = CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b));
@@ -723,7 +664,7 @@ namespace osu.Game.Tournament.Screens.Board
                 updateActionText(BoardStrings.ShiroActivatedPrompt, true);
             }
 
-            var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+            var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child);
 
             if (chessPieces.Count() != 2)
             {
@@ -748,7 +689,7 @@ namespace osu.Game.Tournament.Screens.Board
             if (CurrentMatch.Value == null || !CurrentMatch.Value.ChessPlacements.Any())
                 return;
 
-            var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+            var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child);
             var placements = chessPieces.Select(p => p.BeatmapID)
                                         .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
                                         .OfType<ChessPlacement>();
@@ -837,7 +778,7 @@ namespace osu.Game.Tournament.Screens.Board
             if (CurrentMatch.Value == null)
                 return false;
 
-            var occupiedBlocks = blocks.Where(b => b.ChessLayer.Count == 1).ToList();
+            var occupiedBlocks = chessBoard.Blocks.Where(b => b.ChessLayer.Count == 1).ToList();
 
             // 1. Row / Column / Diagonal line chess check
             // Win chess pieces must have the same colour and not consumed
@@ -871,7 +812,7 @@ namespace osu.Game.Tournament.Screens.Board
                     _ => true,
                 };
 
-                stepsAvailable |= blocks.Any(b => condition(b) && b.ChessLayer.Count == 0);
+                stepsAvailable |= chessBoard.Blocks.Any(b => condition(b) && b.ChessLayer.Count == 0);
             }
 
             return !stepsAvailable;
@@ -906,7 +847,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         protected override bool OnMouseDown(MouseDownEvent e)
         {
-            var block = blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
+            var block = chessBoard.Blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
             var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
 
             bool succeeded = false;
@@ -920,7 +861,7 @@ namespace osu.Game.Tournament.Screens.Board
                     return true;
 
                 var existingPlacement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(c => c.BeatmapID == target.Beatmap.ID);
-                var chessBlock = blocks.FirstOrDefault(b => positionEquals(existingPlacement, b));
+                var chessBlock = chessBoard.Blocks.FirstOrDefault(b => positionEquals(existingPlacement, b));
 
                 switch (e.Button)
                 {
@@ -958,11 +899,11 @@ namespace osu.Game.Tournament.Screens.Board
                         break;
                 }
             }
-            else if (boardBlockArea.ReceivePositionalInputAt(e.ScreenSpaceMousePosition))
+            else if (chessBoard.CanBlockAreaReceivesInput(e.ScreenSpaceMousePosition))
             {
                 // 2. Chess board interaction or no special handling needed
                 var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => positionEquals(p, block));
-                var target = boardMapList.FirstOrDefault(c => c.BeatmapID == placement?.BeatmapID);
+                var target = chessBoard.ChessPieces.FirstOrDefault(c => c.BeatmapID == placement?.BeatmapID);
 
                 switch (e.Button)
                 {
@@ -973,7 +914,7 @@ namespace osu.Game.Tournament.Screens.Board
                             case RoundStep.UpdateOwner:
                                 if (target != null)
                                 {
-                                    var chessPieces = selectedBlocks.Select(b => b.ChessLayer.Child);
+                                    var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child);
 
                                     if (chessPieces.Contains(target))
                                         break;
@@ -1040,17 +981,17 @@ namespace osu.Game.Tournament.Screens.Board
                                                 break;
 
                                             succeeded = true;
-                                            bool exists = selectedBlocks.Contains(block);
+                                            bool exists = chessBoard.SelectedBlocks.Contains(block);
 
                                             block.FadeBackgroundColour(!exists ? FumoColours.SeaBlue.Regular : null);
 
                                             if (exists)
                                             {
-                                                selectedBlocks.Remove(block);
+                                                chessBoard.SelectedBlocks.Remove(block);
                                             }
                                             else
                                             {
-                                                selectedBlocks.Add(block);
+                                                chessBoard.SelectedBlocks.Add(block);
                                             }
 
                                             break;
@@ -1102,8 +1043,8 @@ namespace osu.Game.Tournament.Screens.Board
             // Get back to normal route to avoid accidentally adding win states.
             shiroModeActivated.Value = false;
 
-            selectedBlocks.ForEach(b => b.FadeBackgroundColour());
-            selectedBlocks.Clear();
+            chessBoard.SelectedBlocks.ForEach(b => b.FadeBackgroundColour());
+            chessBoard.SelectedBlocks.Clear();
         }
 
         private bool removeLatestPlacement(int beatmapId)
@@ -1120,7 +1061,7 @@ namespace osu.Game.Tournament.Screens.Board
                 || placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                 setNextMode(undo: true);
 
-            var chessPiece = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
+            var chessPiece = chessBoard.ChessPieces.LastOrDefault(c => c.BeatmapID == beatmapId);
 
             if (chessPiece != null)
             {
@@ -1148,14 +1089,14 @@ namespace osu.Game.Tournament.Screens.Board
             mainContainer.MoveToY(10);
             informationContainer.MoveToY(1.5f);
             chatContainer.MoveToY(1.75f);
-            boardContainer.MoveToY(1.5f);
+            chessBoard.MoveToY(1.5f);
             instructionDisplay.MoveToY(1.75f);
             mapPool.MoveToY(1.5f);
 
             // All containers start moving into the screen in order.
             using (BeginDelayedSequence(1000))
             {
-                boardContainer.MoveToY(0, 900, Easing.OutQuint);
+                chessBoard.MoveToY(0, 900, Easing.OutQuint);
 
                 using (BeginDelayedSequence(300))
                 {
@@ -1179,8 +1120,7 @@ namespace osu.Game.Tournament.Screens.Board
             CurrentMatch.Value?.ChessPlacements.Clear();
             CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
 
-            boardMapList.Clear();
-            boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
+            chessBoard.Reset();
 
             if (CurrentMatch.Value != null)
             {
@@ -1228,7 +1168,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                 p.BeatmapID == beatmapId && p.CurrentType is not ChoiceType.Neutral);
-            var chess = boardMapList.LastOrDefault(c => c.BeatmapID == beatmapId);
+            var chess = chessBoard.ChessPieces.LastOrDefault(c => c.BeatmapID == beatmapId);
 
             // Updating winning status without existing placement entries is not allowed now.
             if (existing == null)
@@ -1274,7 +1214,7 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value?.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
                     pickTeam, ChoiceType.Pick));
 
-                addSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
+                chessBoard.AddSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
                 setNextMode();
                 return true;
             }
@@ -1318,7 +1258,7 @@ namespace osu.Game.Tournament.Screens.Board
             {
                 if (block != null)
                 {
-                    addSingleChess(beatmapId, block.BoardRow, block.BoardColumn);
+                    chessBoard.AddSingleChess(beatmapId, block.BoardRow, block.BoardColumn);
                 }
 
                 CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block?.BoardRow, block?.BoardColumn,
@@ -1337,59 +1277,6 @@ namespace osu.Game.Tournament.Screens.Board
             }
 
             return true;
-        }
-
-        private void addSingleChess(int beatmapId, int row, int column,
-                                    TeamColour ownerTeam = TeamColour.None, ChoiceType choiceType = ChoiceType.Neutral,
-                                    bool omitSound = false)
-        {
-            var block = blocks.FirstOrDefault(b => b.BoardRow == row && b.BoardColumn == column);
-
-            // Add chess piece only when a block exists
-            if (block == null)
-                return;
-
-            var newPiece = new FumoChessPiece(beatmapId)
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativeSizeAxes = Axes.Both,
-                Width = 1,
-                Height = 1,
-                Alpha = 0,
-                OwnerTeam = ownerTeam,
-                CurrentType = choiceType,
-            };
-
-            block.ChessLayer.Add(newPiece);
-            boardMapList.Add(newPiece);
-
-            newPiece.FadeIn(500, Easing.OutQuint);
-            newPiece.ScaleTo(1.25f).Then().ScaleTo(1f, 900, Easing.OutQuint);
-
-            if (!omitSound)
-                placeChessSample?.Play();
-        }
-
-        private void initializeBoard()
-        {
-            if (!IsLoaded)
-                return;
-
-            boardMapList.Clear();
-            boardBlockArea.Children.ForEach(b => b.ChessLayer.Clear());
-
-            for (int i = 1; i <= 4; i++)
-            {
-                for (int j = 1; j <= 4; j++)
-                {
-                    var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
-                        p.BoardRow == i && p.BoardColumn == j);
-
-                    if (placement != null)
-                        addSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType, true);
-                }
-            }
         }
 
         private bool isValidArea(string acronym, int row, int column) => acronym.ToUpperInvariant() switch
