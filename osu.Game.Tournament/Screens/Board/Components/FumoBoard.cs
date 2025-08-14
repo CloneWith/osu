@@ -43,6 +43,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
         /// </summary>
         public List<FumoChessPiece> ChessPieces { get; } = new List<FumoChessPiece>();
 
+        private readonly bool lazyInitialization;
+
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         private FillFlowContainer<DrawableBoardBlock> boardBlockArea = null!;
@@ -52,11 +54,13 @@ namespace osu.Game.Tournament.Screens.Board.Components
         [Resolved]
         private LadderInfo ladderInfo { get; set; } = null!;
 
-        public FumoChessBoard()
+        public FumoChessBoard(bool lazyInitialization = false)
         {
             Name = @"Chess board";
             Width = BOARD_SIZE;
             Height = BOARD_SIZE;
+
+            this.lazyInitialization = lazyInitialization;
         }
 
         [BackgroundDependencyLoader]
@@ -122,7 +126,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 boardBlockArea.ResizeTo(new Vector2(e.NewValue), 300, Easing.OutQuint));
 
             currentMatch.BindTo(ladderInfo.CurrentMatch);
-            currentMatch.BindValueChanged(_ => initialize());
+            currentMatch.BindValueChanged(_ => initialize(), !lazyInitialization);
         }
 
         private void initialize()
