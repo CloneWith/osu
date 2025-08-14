@@ -51,6 +51,7 @@ namespace osu.Game.Tournament.Screens.Countdown
 
             InternalChildren = new Drawable[]
             {
+                new TeamGradientBackground(),
                 countdownContainer = new Container
                 {
                     Name = @"Countdown container",
