@@ -13,6 +13,7 @@ namespace osu.Game.Tournament.Models
     /// </summary>
     public record History(
         HistoryType Type,
+        TeamColour Team,
         ChoiceType OriginalType,
         string? Mod,
         string? ModIndex,
@@ -67,7 +68,7 @@ namespace osu.Game.Tournament.Models
                 {
                     case ChoiceType.Ban or ChoiceType.Pick:
                         result.Add(new History(isShiroPlacement ? HistoryType.ShiroPlacement : HistoryType.Normal,
-                            entry.CurrentType, match?.Mods, match?.ModIndex, entry.BoardRow, entry.BoardColumn, []));
+                            entry.OwnerTeam, entry.CurrentType, match?.Mods, match?.ModIndex, entry.BoardRow, entry.BoardColumn, []));
                         break;
 
                     case ChoiceType.RedWin or ChoiceType.BlueWin:
@@ -77,7 +78,7 @@ namespace osu.Game.Tournament.Models
 
                         // Mark as owner updates if we have consumed records before next record
                         result.Add(new History(sequential.Any() ? HistoryType.OwnerUpdate : HistoryType.Normal,
-                            entry.CurrentType, match?.Mods, match?.ModIndex, entry.BoardRow, entry.BoardColumn,
+                            entry.OwnerTeam, entry.CurrentType, match?.Mods, match?.ModIndex, entry.BoardRow, entry.BoardColumn,
                             consumedMaps.Select(p => (p.Mods, p.ModIndex)).ToArray()));
 
                         break;
