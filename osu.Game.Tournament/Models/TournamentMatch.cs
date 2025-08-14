@@ -54,6 +54,8 @@ namespace osu.Game.Tournament.Models
 
         public readonly ObservableCollection<ChessPlacement> ChessPlacements = new ObservableCollection<ChessPlacement>();
 
+        public readonly ObservableCollection<History> ChessHistory = new ObservableCollection<History>();
+
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();
 

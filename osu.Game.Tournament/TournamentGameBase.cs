@@ -229,7 +229,13 @@ namespace osu.Game.Tournament
                 addedInfo |= await AddRoundBeatmaps().ConfigureAwait(false);
                 addedInfo |= await AddSeedingBeatmaps().ConfigureAwait(false);
 
-                if (addedInfo)
+                foreach (var match in ladder.Matches)
+                {
+                    match.ChessHistory.Clear();
+                    match.ChessHistory.AddRange(HistoryExtensions.Convert(match.ChessPlacements.ToList(), match.Round.Value?.Beatmaps.ToList()));
+                }
+
+                if (addedInfo || ladder.Matches.Any())
                     saveChanges();
 
                 ladder.CurrentMatch.Value = ladder.Matches.FirstOrDefault(p => p.Current.Value);
