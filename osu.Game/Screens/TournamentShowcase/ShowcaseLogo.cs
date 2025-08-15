@@ -101,7 +101,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            Texture logoTexture = textures.Get($"{config.TournamentName}/logo");
+            Texture logoTexture = textures.Get($"{config.TournamentName}/logo") ?? textures.Get(@"Menu/logo");
             logo.Texture = logoTexture;
         }
 
