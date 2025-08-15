@@ -190,7 +190,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                             {
                                                 Shadow = true,
                                                 Font = OsuFont.Style.Body.With(weight: FontWeight.SemiBold),
-                                                Colour = FumoColours.SeaBlue.Regular,
+                                                Colour = colourProvider.Colour1,
                                             },
                                         },
                                     },

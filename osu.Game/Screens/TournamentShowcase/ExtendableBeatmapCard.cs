@@ -45,7 +45,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private Box floatingBox = null!;
         private OsuSpriteText instructText = null!;
 
-        private readonly OverlayColourProvider? colourProvider;
+        private readonly OverlayColourProvider colourProvider;
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
@@ -67,9 +67,10 @@ namespace osu.Game.Screens.TournamentShowcase
             Masking = true;
 
             this.beatmap = beatmap;
+            colourProvider = new OverlayColourProvider(colourScheme ?? OverlayColourScheme.Blue);
 
-            if (colourScheme != null)
-                colourProvider = new OverlayColourProvider(colourScheme.Value);
+            BorderThickness = 1;
+            BorderColour = colourProvider.Colour1;
         }
 
         [BackgroundDependencyLoader]
@@ -80,7 +81,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black.Opacity(0.5f)
+                    Colour = ColourInfo.GradientVertical(colourProvider.Dark2.Opacity(0), colourProvider.Dark2),
                 },
                 setCover = new Sprite
                 {
@@ -260,7 +261,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         beatmapInfoFlow.AddParagraph(beatmapInfo.GetDisplayTitleRomanisable(false, false));
                         beatmapInfoFlow.AddParagraph(beatmapInfo.DifficultyName);
                         beatmapInfoFlow.AddParagraph("Mapped by ");
-                        beatmapInfoFlow.AddText(beatmapInfo.Metadata.Author.Username, t => t.Colour = colourProvider?.Highlight1 ?? Color4.SkyBlue);
+                        beatmapInfoFlow.AddText(beatmapInfo.Metadata.Author.Username, t => t.Colour = colourProvider.Highlight1);
                     }
 
                     difficultyIcon.ScaleTo(1.75f, 250, Easing.OutQuint);
@@ -318,9 +319,9 @@ namespace osu.Game.Screens.TournamentShowcase
             floatingContainer.Height = 0;
 
             // Colours may change halfway, using transforms to handle them.
-            statusIcon.FadeColour(colourProvider?.Content1 ?? Color4.White, 300, Easing.OutQuint);
-            instructText.FadeColour(colourProvider?.Content1 ?? Color4.White, 300, Easing.OutQuint);
-            floatingBox.FadeColour(colourProvider?.Colour2 ?? Color4.SkyBlue, 300, Easing.OutQuint);
+            statusIcon.FadeColour(colourProvider.Content1, 300, Easing.OutQuint);
+            instructText.FadeColour(colourProvider.Content1, 300, Easing.OutQuint);
+            floatingBox.FadeColour(colourProvider.Colour2, 300, Easing.OutQuint);
 
             statusIcon.Y = 1.5f;
             statusIcon.Alpha = 0f;
