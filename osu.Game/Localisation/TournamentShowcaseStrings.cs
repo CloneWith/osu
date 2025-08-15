@@ -10,6 +10,11 @@ namespace osu.Game.Localisation
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.TournamentShowcase";
 
         /// <summary>
+        /// "Mappool Showcase"
+        /// </summary>
+        public static LocalisableString ShowcaseTitle => new TranslatableString(getKey(@"showcase_title"), @"Mappool Showcase");
+
+        /// <summary>
         /// "showcase"
         /// </summary>
         public static LocalisableString ShowcaseButtonText => new TranslatableString(getKey(@"showcase_button_text"), @"showcase");

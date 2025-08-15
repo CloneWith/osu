@@ -271,4 +271,7 @@
     <data name="toggle_auto_showcase" xml:space="preserve">
         <value>切换自动展示</value>
     </data>
+    <data name="showcase_title" xml:space="preserve">
+        <value>图池展示</value>
+    </data>
 </root>

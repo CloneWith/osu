@@ -19,7 +19,6 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Localisation;
 using osu.Game.Overlays;
-using osu.Game.Screens.Menu;
 using osuTK;
 using osuTK.Graphics;
 
@@ -41,6 +40,8 @@ namespace osu.Game.Screens.TournamentShowcase
         /// Invoked when we should push the next beatmap.
         /// </summary>
         public event Action? OnPushNext;
+
+        private readonly OverlayColourProvider colourProvider;
 
         private readonly PlayerContainer playerContainer;
         private readonly Box backgroundMask;
@@ -71,7 +72,7 @@ namespace osu.Game.Screens.TournamentShowcase
             this.config = config;
             state.BindTo(showcaseState);
             this.playerLoaded.BindTo(playerLoaded);
-            var colourProvider = new OverlayColourProvider(config.ColourScheme.Value);
+            colourProvider = new OverlayColourProvider(config.ColourScheme.Value);
 
             yPositionScale = config.Layout.Value == ShowcaseLayout.Immersive ? 1 : 0.95f;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
@@ -273,9 +274,11 @@ namespace osu.Game.Screens.TournamentShowcase
             state.Value = ShowcaseState.Intro;
             backgroundMask.FadeIn(500, Easing.OutQuint);
 
-            OsuLogo logo;
+            ShowcaseLogo logo;
             OsuSpriteText titleText;
             OsuSpriteText subtitleText;
+            OsuSpriteText showcaseText;
+            FillFlowContainer titleFlow;
 
             introContainer = new Container
             {
@@ -287,34 +290,50 @@ namespace osu.Game.Screens.TournamentShowcase
                 Alpha = 0,
                 Children = new Drawable[]
                 {
-                    logo = new OsuLogo
+                    logo = new ShowcaseLogo(config)
                     {
+                        Anchor = Anchor.Centre,
                         RelativePositionAxes = Axes.Both,
-                        X = -0.5f,
-                        Y = 0.5f * yPositionScale,
-                        Scale = new Vector2(0.5f * priorityScale),
-                    },
-                    titleText = new OsuSpriteText
-                    {
-                        RelativePositionAxes = Axes.Both,
-                        Origin = Anchor.CentreLeft,
-                        X = 1.45f,
-                        Y = 0.45f,
+                        Scale = new Vector2(0.4f * priorityScale),
                         Alpha = 0,
-                        Text = config.TournamentName.Value,
-                        Font = OsuFont.GetFont(size: 80, typeface: Typeface.TorusAlternate, weight: FontWeight.SemiBold),
-                        Scale = new Vector2(priorityScale)
                     },
-                    subtitleText = new OsuSpriteText
+                    titleFlow = new FillFlowContainer
                     {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.TopCentre,
+                        AutoSizeAxes = Axes.Both,
                         RelativePositionAxes = Axes.Both,
-                        Origin = Anchor.CentreLeft,
-                        X = 1.45f,
-                        Y = 0.55f,
-                        Alpha = 0,
-                        Text = config.RoundName.Value,
-                        Font = OsuFont.GetFont(size: 60, typeface: Typeface.TorusAlternate),
-                        Scale = new Vector2(priorityScale)
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(10),
+                        Scale = new Vector2(priorityScale),
+                        Children = new Drawable[]
+                        {
+                            titleText = new OsuSpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Alpha = 0,
+                                Text = config.TournamentName.Value,
+                                Font = OsuFont.Torus.With(size: 64, weight: FontWeight.SemiBold),
+                            },
+                            subtitleText = new OsuSpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Alpha = 0,
+                                Text = config.RoundName.Value,
+                                Colour = colourProvider.Colour1,
+                                Font = OsuFont.Torus.With(size: 42),
+                            },
+                            showcaseText = new OsuSpriteText
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                Alpha = 0,
+                                Text = TournamentShowcaseStrings.ShowcaseTitle,
+                                Font = OsuFont.Torus.With(size: 24),
+                            }
+                        },
                     },
                 }
             };
@@ -329,26 +348,26 @@ namespace osu.Game.Screens.TournamentShowcase
                 introContainer.FadeIn(1000, Easing.OutQuint);
             }
 
-            using (BeginDelayedSequence(2700))
+            using (BeginDelayedSequence(4500))
             {
-                titleText.FadeIn(600, Easing.OutQuint);
-                subtitleText.Delay(100).FadeIn(600, Easing.OutQuint);
+                titleFlow.MoveToY(0.15f, 1500, Easing.OutExpo);
 
-                titleText.MoveToX(0.45f, 1000, Easing.OutQuint);
-                subtitleText.Delay(100).MoveToX(0.45f, 1000, Easing.OutQuint);
+                titleText.Delay(500).FadeIn(1000, Easing.OutQuint);
+                subtitleText.Delay(700).FadeIn(1000, Easing.OutQuint);
+                showcaseText.Delay(900).FadeIn(1500, Easing.OutQuint);
             }
 
-            logo.Delay(2700).FadeIn(500);
-            logo.Delay(2700).MoveToX(0.25f, 1000, Easing.OutQuint);
-            logo.Delay(2700).ScaleTo(new Vector2(0.8f * priorityScale), 500, Easing.OutQuint);
+            logo.Delay(1800).FadeIn(1500, Easing.OutSine);
+            logo.Delay(4500).MoveToY(-0.1f, 1000, Easing.OutExpo);
+            logo.ScaleTo(new Vector2(0.8f * priorityScale), 4000, Easing.OutExpo);
 
-            using (BeginDelayedSequence(6000))
+            using (BeginDelayedSequence(7500))
             {
                 introContainer.FadeOut(1000, Easing.InQuint);
                 introContainer.MoveToY(-1.5f, 1500, Easing.InQuint);
             }
 
-            scheduledMapPool = Scheduler.AddDelayed(showMapPool, 6000);
+            scheduledMapPool = Scheduler.AddDelayed(showMapPool, 7500);
         }
 
         /// <summary>
@@ -505,7 +524,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             state.Value = ShowcaseState.Ending;
 
-            OsuLogo logo;
+            ShowcaseLogo logo;
 
             outroContainer = new Container
             {
@@ -518,7 +537,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Alpha = 0,
                 Children = new Drawable[]
                 {
-                    logo = new OsuLogo
+                    logo = new ShowcaseLogo(config)
                     {
                         RelativePositionAxes = Axes.Both,
                         X = 0.25f,
