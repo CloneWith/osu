@@ -155,7 +155,15 @@ namespace osu.Game.Tournament.Screens.Board
                                                         Scale = new Vector2(0.45f),
                                                     },
                                                 ],
-                                                [Empty()],
+                                                [
+                                                    new HistoryDisplay
+                                                    {
+                                                        Anchor = Anchor.TopCentre,
+                                                        Origin = Anchor.TopCentre,
+                                                        RelativeSizeAxes = Axes.Both,
+                                                        Padding = new MarginPadding(5),
+                                                    },
+                                                ],
                                                 [
                                                     new RoundCounterLine
                                                     {
@@ -553,6 +561,15 @@ namespace osu.Game.Tournament.Screens.Board
             };
         }
 
+        private (string? mod, string? index) getBeatmapMod(int beatmapId)
+        {
+            if (CurrentMatch.Value?.Round.Value?.Beatmaps == null)
+                return (null, null);
+
+            var fetched = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
+            return (fetched?.Mods, fetched?.ModIndex);
+        }
+
         private static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -592,6 +609,9 @@ namespace osu.Game.Tournament.Screens.Board
                 instructionDisplay.Team = colour;
                 instructionDisplay.Step = stepType;
             }
+
+            if (CurrentMatch.Value != null)
+                CurrentMatch.Value.IsFinalStage.Value = pickType is RoundStep.TieBreaker;
 
             if (stepType != RoundStep.Shiro)
                 shiroModeActivated.Value = false;
@@ -919,7 +939,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     if (chessPieces.Contains(target))
                                         break;
 
-                                    succeeded |= addWinPlacement(target.BeatmapID, true);
+                                    succeeded |= addWinPlacement(target.BeatmapID, true, true);
 
                                     if (succeeded)
                                     {
@@ -1052,11 +1072,47 @@ namespace osu.Game.Tournament.Screens.Board
         private bool removeLatestPlacement(int beatmapId)
         {
             var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+            var beatmap = CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
+            var history = CurrentMatch.Value?.ChessHistory.LastOrDefault(h => (h.Mod, h.ModIndex) == (beatmap?.Mods, beatmap?.ModIndex));
 
-            if (placement == null)
+            if (CurrentMatch.Value == null || placement == null)
                 return false;
 
-            CurrentMatch.Value?.ChessPlacements.Remove(placement);
+            if (placement.CurrentType is ChoiceType.Consumed)
+            {
+                if (beatmap != null)
+                {
+                    var lastConsumed = CurrentMatch.Value.ChessHistory.LastOrDefault(h =>
+                        h.UsedPieces.Contains((beatmap.Mods, beatmap.ModIndex)));
+
+                    if (lastConsumed != null)
+                    {
+                        if (lastConsumed.UsedPieces.Length == 1 || placement.CurrentType is not ChoiceType.Consumed)
+                            CurrentMatch.Value.ChessHistory.Remove(lastConsumed);
+                        else
+                        {
+                            var otherUsedPieces = lastConsumed.UsedPieces.Where(p => p != (beatmap.Mods, beatmap.ModIndex))
+                                                              .ToArray();
+                            int index = CurrentMatch.Value.ChessHistory.Count - 1;
+
+                            while (index >= 0 && CurrentMatch.Value.ChessHistory[index] == lastConsumed)
+                                index--;
+
+                            CurrentMatch.Value.ChessHistory[index] = lastConsumed with
+                            {
+                                UsedPieces = otherUsedPieces
+                            };
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (history != null)
+                    CurrentMatch.Value.ChessHistory.Remove(history);
+            }
+
+            CurrentMatch.Value.ChessPlacements.Remove(placement);
 
             // Decrement round when the revoked placement is a Shiro, or in a Win status.
             if (placement.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID
@@ -1067,7 +1123,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (chessPiece != null)
             {
-                placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+                placement = CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
 
                 if (placement != null)
                 {
@@ -1120,7 +1176,7 @@ namespace osu.Game.Tournament.Screens.Board
             // Clear map marking lists
             CurrentMatch.Value?.PicksBans.Clear();
             CurrentMatch.Value?.ChessPlacements.Clear();
-            CurrentMatch.Value?.Round.Value?.IsFinalStage.BindTo(new BindableBool());
+            CurrentMatch.Value?.ChessHistory.Clear();
 
             chessBoard.Reset();
 
@@ -1129,6 +1185,7 @@ namespace osu.Game.Tournament.Screens.Board
                 CurrentMatch.Value.PreparationMode.Value = true;
                 CurrentMatch.Value.CurrentRoundIndex.Value = -1;
 
+                CurrentMatch.Value.IsFinalStage.Value = false;
                 CurrentMatch.Value.Completed.Value = false;
                 CurrentMatch.Value.Team1Score.Value = 0;
                 CurrentMatch.Value.Team2Score.Value = 0;
@@ -1166,7 +1223,7 @@ namespace osu.Game.Tournament.Screens.Board
             flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
         }
 
-        private bool addWinPlacement(int beatmapId, bool keepCurrentRound = false)
+        private bool addWinPlacement(int beatmapId, bool keepCurrentRound = false, bool updating = false)
         {
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                 p.BeatmapID == beatmapId && p.CurrentType is not ChoiceType.Neutral);
@@ -1189,8 +1246,24 @@ namespace osu.Game.Tournament.Screens.Board
             if (existing.CurrentType is ChoiceType.Ban or ChoiceType.Consumed)
                 return false;
 
-            CurrentMatch.Value?.ChessPlacements.Add(existing.CreateUpdate(pickTeam,
-                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin));
+            var winRecord = existing.CreateUpdate(pickTeam,
+                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin);
+
+            CurrentMatch.Value?.ChessPlacements.Add(winRecord);
+
+            var converted = HistoryExtensions.Convert([winRecord], CurrentMatch.Value?.Round.Value?.Beatmaps.ToList());
+            List<(string?, string?)> usedModDataList = chessBoard.SelectedBlocks.Select(b => CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b))).OfType<ChessPlacement>().Select(record => getBeatmapMod(record.BeatmapID)).ToList();
+
+            if (converted.Count == 1)
+            {
+                CurrentMatch.Value?.ChessHistory.Add(converted[0] with
+                {
+                    Type = updating ? HistoryType.OwnerUpdate : HistoryType.Normal,
+                    UsedPieces = updating
+                        ? usedModDataList.OfType<(string, string)>().ToArray()
+                        : [],
+                });
+            }
 
             if (chess != null)
             {
@@ -1215,6 +1288,9 @@ namespace osu.Game.Tournament.Screens.Board
 
                 CurrentMatch.Value?.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
                     pickTeam, ChoiceType.Pick));
+
+                CurrentMatch.Value?.ChessHistory.Add(new History(HistoryType.ShiroPlacement, pickTeam, ChoiceType.Pick,
+                    null, null, block.BoardRow, block.BoardColumn, []));
 
                 chessBoard.AddSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
                 setNextMode();
@@ -1265,6 +1341,11 @@ namespace osu.Game.Tournament.Screens.Board
 
                 CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block?.BoardRow, block?.BoardColumn,
                     pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
+
+                var fetched = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
+
+                CurrentMatch.Value.ChessHistory.Add(new History(HistoryType.Normal, pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam),
+                    fetched?.Mods, fetched?.ModIndex, block?.BoardRow ?? -1, block?.BoardColumn ?? -1, []));
             }
 
             if (pickType is RoundStep.Ban)

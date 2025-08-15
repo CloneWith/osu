@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+    
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="match_in_progress" xml:space="preserve">
+        <value>比赛火热进行中...</value>
+    </data>
+    <data name="match_tiebreaker" xml:space="preserve">
+        <value>进入 TB 终局...</value>
+    </data>
+    <data name="match_ended" xml:space="preserve">
+        <value>比赛结束，{0}获胜！</value>
+    </data>
+    <data name="banned" xml:space="preserve">
+        <value>禁了</value>
+    </data>
+    <data name="picked" xml:space="preserve">
+        <value>选择了</value>
+    </data>
+    <data name="won" xml:space="preserve">
+        <value>获胜</value>
+    </data>
+    <data name="placed_shiro" xml:space="preserve">
+        <value>放置了白子</value>
+    </data>
+    <data name="updated_winner" xml:space="preserve">
+        <value>用 {0} 夺棋</value>
+    </data>
+    <data name="match_history" xml:space="preserve">
+        <value>比赛历史</value>
+    </data>
+</root>
