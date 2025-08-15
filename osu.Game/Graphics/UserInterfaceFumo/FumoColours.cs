@@ -131,7 +131,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         /// </summary>
         /// <param name="mod">the given mod string</param>
         /// <returns>a colour scheme of the mod, <see cref="Empty"/> if unavailable</returns>
-        public static ModColourScheme FromModString(string mod) => mod.Trim().ToUpperInvariant() switch
+        public static ModColourScheme FromModString(string? mod) => mod?.Trim().ToUpperInvariant() switch
         {
             @"NM" => NoMod,
             @"HR" => HardRock,
