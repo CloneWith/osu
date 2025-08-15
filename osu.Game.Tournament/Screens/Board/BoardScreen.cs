@@ -960,9 +960,11 @@ namespace osu.Game.Tournament.Screens.Board
                                     switch (pickTeam)
                                     {
                                         case TeamColour.None:
+                                            pickTeam = currentRoundIndex.Value % 2 == 1 ? TeamColour.Red : TeamColour.Blue;
                                             succeeded |= addPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
 
-                                            if (succeeded)
+                                            // Reset active mode only when auto progressing is not enabled
+                                            if (succeeded && !LadderInfo.AutoProgressRound.Value)
                                             {
                                                 pickType = RoundStep.Default;
                                                 instructionDisplay.Step = RoundStep.Default;
