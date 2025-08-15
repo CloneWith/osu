@@ -89,7 +89,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.Both,
                     FillMode = FillMode.Fill,
-                    Alpha = 0.8f,
+                    Alpha = 0.95f,
                 },
                 infoMask = new Box
                 {

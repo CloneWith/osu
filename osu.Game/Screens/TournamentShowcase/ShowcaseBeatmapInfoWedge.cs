@@ -11,7 +11,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Beatmaps;
@@ -24,7 +23,6 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Models;
 using osu.Game.Overlays;
-using osu.Game.Overlays.Mods;
 using osu.Game.Resources.Localisation.Web;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
@@ -70,7 +68,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private BeatmapTitleWedge.Statistic bpmStatistic = null!;
 
         private GridContainer ratingAndNameContainer = null!;
-        private AdjustableDifficultyStatisticsDisplay difficultyStatisticsDisplay = null!;
+        private BeatmapTitleWedge.DifficultyStatisticsDisplay difficultyStatisticsDisplay = null!;
 
         private Container showcaseInfoContainer = null!;
         private OsuTextFlowContainer difficultyAreaText = null!;
@@ -232,7 +230,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         {
                                             new[]
                                             {
-                                                difficultyStatisticsDisplay = new AdjustableDifficultyStatisticsDisplay(autoSize: true),
+                                                difficultyStatisticsDisplay = new BeatmapTitleWedge.DifficultyStatisticsDisplay(autoSize: true),
                                             }
                                         },
                                     },
@@ -396,7 +394,6 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             if (beatmap.IsDefault || ruleset.Value == null)
             {
-                difficultyStatisticsDisplay.TooltipContent = null;
                 difficultyStatisticsDisplay.Statistics = Array.Empty<BeatmapTitleWedge.StatisticDifficulty.Data>();
                 return;
             }
@@ -409,8 +406,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Ruleset rulesetInstance = ruleset.Value.CreateInstance();
 
-            adjustedDifficulty = rulesetInstance.GetAdjustedDisplayDifficulty(adjustedDifficulty, mods.Value);
-            difficultyStatisticsDisplay.TooltipContent = new AdjustedAttributesTooltip.Data(originalDifficulty, adjustedDifficulty);
+            adjustedDifficulty = rulesetInstance.GetAdjustedDisplayDifficulty(beatmap.Value.BeatmapInfo, mods.Value);
 
             BeatmapTitleWedge.StatisticDifficulty.Data firstStatistic;
 
@@ -494,21 +490,6 @@ namespace osu.Game.Screens.TournamentShowcase
             difficultyText.Colour = col;
             mappedByText.Colour = col;
             difficultyStatisticsDisplay.AccentColour = col;
-        }
-
-        private partial class AdjustableDifficultyStatisticsDisplay : BeatmapTitleWedge.DifficultyStatisticsDisplay, IHasCustomTooltip<AdjustedAttributesTooltip.Data>
-        {
-            [Resolved]
-            private OverlayColourProvider colourProvider { get; set; } = null!;
-
-            public ITooltip<AdjustedAttributesTooltip.Data> GetCustomTooltip() => new AdjustedAttributesTooltip(colourProvider);
-
-            public AdjustedAttributesTooltip.Data? TooltipContent { get; set; }
-
-            public AdjustableDifficultyStatisticsDisplay(bool autoSize)
-                : base(autoSize)
-            {
-            }
         }
     }
 }
