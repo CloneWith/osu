@@ -18,11 +18,29 @@ using osu.Game.Overlays;
 using osu.Game.Screens.Menu;
 using osuTK.Graphics;
 
-namespace osu.Game.Screens.TournamentShowcase
+namespace osu.Game.Graphics.UserInterfaceFumo
 {
-    public partial class ShowcaseLogo : BeatSyncedContainer
+    /// <summary>
+    /// A generic logo component with simple decorations.
+    /// </summary>
+    public partial class FumoLogo : BeatSyncedContainer
     {
-        private readonly ShowcaseConfig config;
+        /// <summary>
+        /// Whether to show coloured triangles in the background.
+        /// </summary>
+        public bool ShowBackground
+        {
+            get => showBackground;
+            set
+            {
+                showBackground = value;
+                colourAndTriangles.FadeTo(value ? 1 : 0, 300, Easing.OutQuint);
+            }
+        }
+
+        private bool showBackground = true;
+
+        private readonly string source;
         private readonly Sprite logo;
         private readonly Container logoBeatContainer;
         private readonly Box flashLayer;
@@ -32,10 +50,15 @@ namespace osu.Game.Screens.TournamentShowcase
         private const double early_activation = 60;
         private const float triangles_paused_velocity = 0.5f;
 
-        public ShowcaseLogo(ShowcaseConfig config)
+        /// <summary>
+        /// Constructs a logo component.
+        /// </summary>
+        /// <param name="source">The source of the logo texture.</param>
+        /// <param name="colourScheme">The <see cref="OverlayColourScheme"/> to use for decoration.</param>
+        public FumoLogo(string source, OverlayColourScheme colourScheme = OverlayColourScheme.Blue)
         {
-            this.config = config;
-            var colourProvider = new OverlayColourProvider(config.ColourScheme.Value);
+            this.source = source;
+            var colourProvider = new OverlayColourProvider(colourScheme);
 
             EarlyActivationMilliseconds = early_activation;
             Origin = Anchor.Centre;
@@ -63,6 +86,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                     RelativeSizeAxes = Axes.Both,
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
+                                    Alpha = showBackground ? 1 : 0,
                                     Children = new Drawable[]
                                     {
                                         triangles = new TrianglesV2
@@ -101,7 +125,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            Texture logoTexture = textures.Get($"{config.TournamentName}/logo") ?? textures.Get(@"Menu/logo");
+            Texture logoTexture = textures.Get(source) ?? textures.Get(@"Menu/logo");
             logo.Texture = logoTexture;
         }
 
@@ -134,13 +158,13 @@ namespace osu.Game.Screens.TournamentShowcase
         }
 
         [Resolved]
-        private MusicController musicController { get; set; } = null!;
+        private MusicController? musicController { get; set; }
 
         protected override void Update()
         {
             base.Update();
 
-            if (musicController.CurrentTrack.IsRunning)
+            if (musicController?.CurrentTrack.IsRunning == true)
             {
                 triangles.Velocity = (float)Interpolation.Damp(triangles.Velocity, triangles_paused_velocity * (IsKiaiTime ? 4 : 2), 0.995f, Time.Elapsed);
             }

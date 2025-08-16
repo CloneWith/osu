@@ -17,6 +17,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Localisation;
 using osu.Game.Overlays;
 using osuTK;
@@ -274,7 +275,7 @@ namespace osu.Game.Screens.TournamentShowcase
             state.Value = ShowcaseState.Intro;
             backgroundMask.FadeIn(500, Easing.OutQuint);
 
-            ShowcaseLogo logo;
+            FumoLogo logo;
             OsuSpriteText titleText;
             OsuSpriteText subtitleText;
             OsuSpriteText showcaseText;
@@ -290,7 +291,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Alpha = 0,
                 Children = new Drawable[]
                 {
-                    logo = new ShowcaseLogo(config)
+                    logo = new FumoLogo(config.TournamentName.Value, config.ColourScheme.Value)
                     {
                         Anchor = Anchor.Centre,
                         RelativePositionAxes = Axes.Both,
@@ -524,7 +525,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             state.Value = ShowcaseState.Ending;
 
-            ShowcaseLogo logo;
+            FumoLogo logo;
 
             outroContainer = new Container
             {
@@ -537,7 +538,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Alpha = 0,
                 Children = new Drawable[]
                 {
-                    logo = new ShowcaseLogo(config)
+                    logo = new FumoLogo(config.TournamentName.Value, config.ColourScheme.Value)
                     {
                         RelativePositionAxes = Axes.Both,
                         X = 0.25f,
