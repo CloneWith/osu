@@ -14,9 +14,9 @@ using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Legacy;
 using osu.Game.Extensions;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Models;
 using osu.Game.Rulesets;
-using osu.Game.Screens.Menu;
 using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
@@ -239,7 +239,7 @@ namespace osu.Game.Tournament.Components
                                                 RelativeSizeAxes = Axes.Both,
                                                 Alpha = 0.1f,
                                             },
-                                            new OsuLogo
+                                            new FumoLogo("header-logo")
                                             {
                                                 Triangles = false,
                                                 Scale = new Vector2(0.08f),
