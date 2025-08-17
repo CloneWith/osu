@@ -28,7 +28,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         /// <summary>
         /// Whether to show coloured triangles in the background.
         /// </summary>
-        public bool ShowBackground
+        public bool Triangles
         {
             get => showBackground;
             set
