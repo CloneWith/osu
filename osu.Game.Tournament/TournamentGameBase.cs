@@ -235,7 +235,7 @@ namespace osu.Game.Tournament
                     match.ChessHistory.AddRange(HistoryExtensions.Convert(match.ChessPlacements.ToList(), match.Round.Value?.Beatmaps.ToList()));
                 }
 
-                if (addedInfo || ladder.Matches.Any())
+                if (addedInfo)
                     saveChanges();
 
                 ladder.CurrentMatch.Value = ladder.Matches.FirstOrDefault(p => p.Current.Value);
@@ -288,6 +288,10 @@ namespace osu.Game.Tournament
             {
                 Logger.Error(e, "Failed to parse background mapping information, falling back to default values.");
             }
+
+            // Delayed saving here after background settings deserialized
+            if (ladder.Matches.Any())
+                saveChanges();
 
             Schedule(() =>
             {
