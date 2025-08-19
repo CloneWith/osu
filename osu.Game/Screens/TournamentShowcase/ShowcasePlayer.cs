@@ -37,7 +37,6 @@ namespace osu.Game.Screens.TournamentShowcase
             : base(score, new PlayerConfiguration
             {
                 AllowUserInteraction = false,
-                AllowFailAnimation = false
             })
         {
             this.score = score;
