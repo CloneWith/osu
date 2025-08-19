@@ -256,6 +256,11 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString Disqualified => new TranslatableString(getKey(@"disqualified"), @"Disqualified");
 
+        /// <summary>
+        /// "Players and staffs, thanks for your support!"
+        /// </summary>
+        public static LocalisableString Thanks => new TranslatableString(getKey(@"thanks"), @"Players and staffs, thanks for your support!");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

@@ -5,16 +5,19 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
+using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
+using osu.Game.Tournament.Screens.Board.Components;
 using osuTK;
 using osuTK.Graphics;
 
@@ -24,7 +27,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
     {
         private Container mainContainer = null!;
         private Container transferContainer = null!;
-        private Container altContainer = null!;
+        private Container firstStageContainer = null!;
 
         private readonly Bindable<bool> currentCompleted = new Bindable<bool>();
 
@@ -32,34 +35,25 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TourneyBackground redWinBackground = null!;
         private TourneyBackground mainBackground = null!;
 
-        private Container? symbolContainer;
-
-        private TournamentSpriteText captionMainText = null!;
-        private TournamentSpriteText captionMainCaption = null!;
-        private TournamentSpriteText captionSubText = null!;
-        private TournamentSpriteText captionSubCaption = null!;
+        private FillFlowContainer drawDisplayFlow = null!;
+        private RotatingDisplayContainer drawTextDisplay = null!;
 
         private TournamentSpriteText winMainText = null!;
         private TournamentSpriteText winSubText = null!;
 
-        private EmptyBox colourMask = null!;
+        private TeamGradientBackground gradientBackground = null!;
+        private Box colourMask = null!;
 
-        private SpriteIcon redIcon = null!;
         private SpriteIcon drawIcon = null!;
-        private SpriteIcon blueIcon = null!;
-
-        private Sprite spinner = null!;
-
         private TrianglesV2 winnerTriangles = null!;
 
-        private Sprite? banner;
-
-        private TextureStore textureStore = null!;
+        private Container thanksContainer = null!;
+        private TournamentSpriteText thanksText = null!;
+        private SpriteIcon heart = null!;
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load()
         {
-            textureStore = textures;
             RelativeSizeAxes = Axes.Both;
 
             InternalChildren = new Drawable[]
@@ -82,11 +76,14 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
-                colourMask = new EmptyBox
+                gradientBackground = new TeamGradientBackground(),
+                colourMask = new Box
                 {
+                    Anchor = Anchor.TopLeft,
+                    Origin = Anchor.TopLeft,
                     RelativeSizeAxes = Axes.Both,
-                    BoxColour = Color4.White,
-                    Alpha = 0.4f,
+                    Width = 0.3f,
+                    Shear = OsuGame.SHEAR,
                 },
                 new TrianglesV2
                 {
@@ -122,7 +119,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     },
                     Alpha = 0,
                 },
-                altContainer = new Container
+                firstStageContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,
                 },
@@ -172,163 +169,86 @@ namespace osu.Game.Tournament.Screens.TeamWin
             blueWinBackground.Alpha = match?.WinnerColour == TeamColour.Blue ? 1 : 0;
             colourMask.FadeOut();
 
-            if (match?.Winner == null)
+            firstStageContainer.Child = drawDisplayFlow = new FillFlowContainer
             {
-                mainContainer.Clear();
-
-                altContainer.Children = new Drawable[]
+                Name = @"Draw indicator",
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Y = 100,
+                AutoSizeAxes = Axes.Both,
+                AutoSizeEasing = Easing.OutQuint,
+                AutoSizeDuration = 300,
+                Direction = FillDirection.Horizontal,
+                Spacing = new Vector2(10),
+                Alpha = 0,
+                Children = new Drawable[]
                 {
-                    symbolContainer = new Container
+                    new Container
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        AutoSizeAxes = Axes.Both,
-                        Alpha = 0,
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Size = new Vector2(24),
                         Children = new Drawable[]
                         {
-                            redIcon = new SpriteIcon
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                X = -250,
-                                Icon = FontAwesome.Solid.Trophy,
-                                Colour = new OsuColour().Pink1,
-                                Size = new Vector2(70),
-                                Alpha = 0,
-                            },
                             drawIcon = new SpriteIcon
                             {
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
-                                Icon = FontAwesome.Solid.Question,
-                                Size = new Vector2(52),
-                                Alpha = 0,
-                            },
-                            blueIcon = new SpriteIcon
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                X = 250,
-                                Icon = FontAwesome.Solid.Trophy,
-                                Colour = Color4.SkyBlue,
-                                Size = new Vector2(70),
-                                Alpha = 0,
-                            },
-                            new DrawableTeamFlag(CurrentMatch.Value?.Team1.Value)
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Position = new Vector2(-300, 10),
-                                Scale = new Vector2(2f),
-                                EdgeEffect = new EdgeEffectParameters
-                                {
-                                    Type = EdgeEffectType.Glow,
-                                    Colour = new OsuColour().Pink1.Opacity(0.5f),
-                                    Radius = 10,
-                                },
-                            },
-                            new DrawableTeamFlag(CurrentMatch.Value?.Team2.Value)
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Position = new Vector2(300, 10),
-                                Scale = new Vector2(2f),
-                                EdgeEffect = new EdgeEffectParameters
-                                {
-                                    Type = EdgeEffectType.Glow,
-                                    Colour = Color4.SkyBlue.Opacity(0.5f),
-                                    Radius = 10,
-                                },
-                            },
-                        }
+                                Size = new Vector2(24),
+                                Icon = FontAwesome.Solid.HourglassHalf,
+                            }
+                        },
                     },
-                    new FillFlowContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Name = @"Draw State Caption",
-                        Y = 200,
-                        AutoSizeAxes = Axes.Both,
-                        AutoSizeEasing = Easing.OutQuint,
-                        AutoSizeDuration = 300,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(10),
-                        Children = new Drawable[]
-                        {
-                            captionMainText = new TournamentSpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "胜负未决",
-                                Font = OsuFont.Torus.With(size: 70, weight: FontWeight.Bold),
-                                Alpha = 0,
-                            },
-                            captionMainCaption = new TournamentSpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Who would win?",
-                                Font = OsuFont.TorusAlternate.With(size: 64, weight: FontWeight.Bold),
-                                Alpha = 0,
-                            },
-                            captionSubText = new TournamentSpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "请坐和放宽",
-                                Font = OsuFont.Torus.With(size: 60, weight: FontWeight.Regular),
-                                Alpha = 0,
-                            },
-                            captionSubCaption = new TournamentSpriteText
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Text = "Sit down and relax...",
-                                Font = OsuFont.TorusAlternate.With(size: 55, weight: FontWeight.Regular),
-                                Alpha = 0,
-                            },
-                        }
-                    },
-                    banner = new Sprite
+                    drawTextDisplay = new RotatingDisplayContainer
                     {
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
-                        Y = 250,
-                        Texture = textureStore.Get("Icons/usercard-default"),
-                        Scale = new Vector2(0.5f),
-                        Alpha = 0,
-                    }
-                };
+                        AutoSizeAxes = Axes.Both,
+                        CrossAnimation = true,
+                        TransformLength = 1000,
+                    },
+                },
+            };
+
+            if (match?.Winner == null)
+            {
+                mainContainer.Clear();
+
+                drawTextDisplay.AddLayers([
+                    new TournamentSpriteText
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Text = "胜负未决 请坐和放宽",
+                        Font = OsuFont.Torus.With(size: 22, weight: FontWeight.SemiBold),
+                    },
+                    new TournamentSpriteText
+                    {
+                        Anchor = Anchor.Centre,
+                        Origin = Anchor.Centre,
+                        Text = "Who would win? Sit down and relax...",
+                        Font = OsuFont.TorusAlternate.With(size: 22, weight: FontWeight.SemiBold),
+                    },
+                ]);
+
+                drawTextDisplay.Start(true);
 
                 using (BeginDelayedSequence(1500))
                 {
-                    redIcon.FadeInFromZero(500, Easing.OutQuint);
-                    blueIcon.FadeInFromZero(500, Easing.OutQuint);
-                    redIcon.MoveToX(-100, 2000, Easing.OutQuint);
-                    blueIcon.MoveToX(100, 2000, Easing.OutQuint);
-                    drawIcon.Delay(800).FadeInFromZero(1000, Easing.OutQuint);
-                    symbolContainer.FadeInFromZero(750, Easing.OutQuint);
-                    symbolContainer.MoveToY(75, 1000, Easing.OutQuint);
+                    drawIcon.Delay(800).RotateTo(0)
+                            .Then().RotateTo(360 * 5, 5000, Easing.InOutExpo)
+                            .Loop(3000);
 
                     using (BeginDelayedSequence(2000))
                     {
-                        captionMainText.FadeInFromZero(500, Easing.OutQuint);
-                        captionMainCaption.Delay(500).FadeInFromZero(500, Easing.OutQuint);
-                        captionSubText.FadeInFromZero(500, Easing.OutQuint);
-                        captionSubCaption.Delay(500).FadeInFromZero(500, Easing.OutQuint);
-
-                        using (BeginDelayedSequence(1000))
-                        {
-                            banner.FadeInFromZero(3000, Easing.OutQuint);
-                        }
+                        drawDisplayFlow.MoveToY(-50, 1500, Easing.OutQuint);
+                        drawDisplayFlow.FadeInFromZero(500, Easing.OutQuint);
                     }
                 }
             }
             else
             {
-                altContainer.Clear();
-                symbolContainer?.Clear();
-                banner?.FadeOut();
+                firstStageContainer.Clear();
 
                 if (firstDisplay)
                 {
@@ -354,41 +274,43 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         Anchor = Anchor.Centre,
                         Origin = Anchor.Centre,
                         RelativeSizeAxes = Axes.Both,
-                        ScaleAdjust = 1.5f,
+                        ScaleAdjust = 1.1f,
                         Colour = match.WinnerColour == TeamColour.Red ? FumoColours.FlandreRed.Light : FumoColours.SeaBlue.Light,
                         Alpha = 0,
                     },
-                    spinner = new Sprite
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Position = new Vector2(-300, 10),
-                        Texture = textureStore.Get(@"MedalSplash/disc-spin"),
-                        Colour = match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1 : Color4.SkyBlue,
-                        Alpha = 0.6f,
-                    },
                     new DrawableTeamFlag(match.Winner)
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Position = new Vector2(-300, 10),
+                        Anchor = Anchor.TopRight,
+                        Origin = Anchor.TopRight,
+                        Position = new Vector2(-50, 50),
                         Scale = new Vector2(2f),
                         EdgeEffect = new EdgeEffectParameters
                         {
                             Type = EdgeEffectType.Glow,
-                            Colour = (match.WinnerColour == TeamColour.Red
-                                ? new OsuColour().Pink1
-                                : (match.WinnerColour == TeamColour.Blue ? Color4.SkyBlue : Color4.Yellow)).Opacity(0.5f),
+                            Colour = TournamentGame.GetTeamColour(match.WinnerColour).MultiplyAlpha(0.5f),
                             Radius = 10,
                         },
+                    },
+                    new DrawableTeamTitleWithHeader(match.Winner, match.WinnerColour)
+                    {
+                        Anchor = Anchor.TopRight,
+                        Origin = Anchor.TopRight,
+                        Position = new Vector2(-50, 150),
+                    },
+                    new FumoChessBoard
+                    {
+                        Anchor = Anchor.BottomRight,
+                        Origin = Anchor.BottomRight,
+                        Position = new Vector2(-50, -50),
+                        Scale = new Vector2(0.5f),
                     },
                     new FillFlowContainer
                     {
                         AutoSizeAxes = Axes.Both,
                         Direction = FillDirection.Vertical,
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        X = 260,
+                        Anchor = Anchor.TopLeft,
+                        Origin = Anchor.TopLeft,
+                        Position = new Vector2(50, 50),
                         Children = new Drawable[]
                         {
                             new RoundDisplay(match)
@@ -397,17 +319,70 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             },
                             new TournamentSpriteText
                             {
-                                Text = "WINNER",
-                                Font = OsuFont.Torus.With(size: 100, weight: FontWeight.Bold),
-                                Margin = new MarginPadding { Bottom = 50 },
+                                Text = "Winner",
+                                Font = OsuFont.KaushanScript.With(size: 80),
+                                Margin = new MarginPadding { Bottom = 30 },
                             },
-                            new DrawableTeamWithPlayers(match.Winner, match.WinnerColour, autoAdjust: false)
-                        }
+                            new DrawableTeamWithPlayers(match.Winner, match.WinnerColour,
+                                autoAdjust: false, hideHeader: true),
+                        },
+                    },
+                    thanksContainer = new Container
+                    {
+                        Anchor = Anchor.BottomLeft,
+                        Origin = Anchor.BottomLeft,
+                        Position = new Vector2(50, 100),
+                        AutoSizeAxes = Axes.Both,
+                        Masking = true,
+                        CornerRadius = 10,
+                        Children = new Drawable[]
+                        {
+                            new Box
+                            {
+                                RelativeSizeAxes = Axes.Both,
+                                Colour = new OsuColour().Pink3.Opacity(0.6f),
+                            },
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                AutoSizeAxes = Axes.Both,
+                                AutoSizeEasing = Easing.OutExpo,
+                                AutoSizeDuration = 900,
+                                Direction = FillDirection.Horizontal,
+                                Spacing = new Vector2(10),
+                                Margin = new MarginPadding { Horizontal = 15, Vertical = 10 },
+                                Children = new Drawable[]
+                                {
+                                    new Container
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        Size = new Vector2(24),
+                                        Child = heart = new SpriteIcon
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Size = new Vector2(20),
+                                            Icon = FontAwesome.Solid.Heart,
+                                            Colour = new OsuColour().Pink,
+                                        }
+                                    },
+                                    thanksText = new TournamentSpriteText
+                                    {
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        Alpha = 0,
+                                        Text = BaseStrings.Thanks,
+                                        Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                    },
+                                },
+                            },
+                        },
                     },
                 };
 
                 mainContainer.FadeOut();
-                spinner.Spin(36000, RotationDirection.Clockwise);
 
                 using (BeginDelayedSequence(1500))
                 {
@@ -421,16 +396,26 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
                     using (BeginDelayedSequence(2500))
                     {
+                        gradientBackground.FadeOut(500, Easing.OutQuint);
                         mainBackground.FadeOut(1000, Easing.OutQuint);
                         if (match.WinnerColour == TeamColour.Red)
                             redWinBackground.FadeIn(1000, Easing.OutQuint);
                         else
                             blueWinBackground.FadeIn(1000, Easing.OutQuint);
                         mainContainer.FadeIn(1600, Easing.OutQuint);
-                        colourMask.FadeTo(0.4f, 1500, Easing.OutQuint);
-                        colourMask.FadeColour(match.WinnerColour == TeamColour.Red ? new OsuColour().Pink1
-                            : match.WinnerColour == TeamColour.Blue ? Color4.SkyBlue : Color4.White, 2000, Easing.OutQuint);
+                        colourMask.FadeTo(0.6f, 1500, Easing.OutQuint);
+                        Color4 targetColour = TournamentGame.GetTeamColour(match.WinnerColour);
+                        colourMask.FadeColour(ColourInfo.GradientHorizontal(targetColour,
+                            targetColour.Opacity(0)), 2000, Easing.OutQuint);
                         winnerTriangles.Delay(1000).FadeTo(0.6f, 2000, Easing.OutQuint);
+
+                        using (BeginDelayedSequence(3000))
+                        {
+                            heart.ScaleTo(1.1f, 100, Easing.InExpo).Then().ScaleTo(0.9f, 900, Easing.OutQuint)
+                                 .Loop();
+                            thanksContainer.MoveToY(-20, 1500, Easing.OutQuint);
+                            thanksText.Delay(1000).FadeIn(1000, Easing.OutSine);
+                        }
                     }
                 }
             }

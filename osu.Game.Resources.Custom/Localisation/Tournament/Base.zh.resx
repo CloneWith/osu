@@ -162,4 +162,7 @@
     <data name="team_member" xml:space="preserve">
         <value>队员</value>
     </data>
+    <data name="thanks" xml:space="preserve">
+        <value>感谢各位选手与工作人员的支持！</value>
+    </data>
 </root>

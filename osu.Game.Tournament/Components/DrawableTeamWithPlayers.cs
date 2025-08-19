@@ -15,7 +15,8 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamWithPlayers : CompositeDrawable
     {
-        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool autoAdjust = true)
+        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour,
+                                       bool autoAdjust = true, bool hideHeader = false)
         {
             AutoSizeAxes = Axes.Both;
 
@@ -33,7 +34,10 @@ namespace osu.Game.Tournament.Components
                     Spacing = new Vector2(30),
                     Children = new Drawable[]
                     {
-                        new DrawableTeamTitleWithHeader(team, colour),
+                        new DrawableTeamTitleWithHeader(team, colour)
+                        {
+                            Alpha = hideHeader ? 0 : 1,
+                        },
                         new FillFlowContainer
                         {
                             AutoSizeAxes = Axes.Both,
