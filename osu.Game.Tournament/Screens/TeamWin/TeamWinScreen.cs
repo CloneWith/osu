@@ -116,7 +116,12 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 },
             };
 
-            currentCompleted.BindValueChanged(_ => update());
+            currentCompleted.BindValueChanged(_ => ResetSelectStatus());
+        }
+
+        protected override void OnFirstSelected()
+        {
+            base.OnFirstSelected();
             update();
         }
 
@@ -130,7 +135,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 return;
 
             currentCompleted.BindTo(match.NewValue.Completed);
-            update();
+            ResetSelectStatus();
         }
 
         private bool firstDisplay = true;
