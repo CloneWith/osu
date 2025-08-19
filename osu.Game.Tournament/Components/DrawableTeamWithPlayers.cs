@@ -2,8 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics;
@@ -20,7 +20,8 @@ namespace osu.Game.Tournament.Components
         {
             AutoSizeAxes = Axes.Both;
 
-            var players = team?.Players ?? new BindableList<TournamentUser>();
+            var players = team?.Players.OrderByDescending(p => p.Role).ToList()
+                          ?? new List<TournamentUser>();
 
             // split the players into two even columns, favouring the first column if odd.
             int split = (int)Math.Ceiling(players.Count / 2f);
@@ -80,8 +81,6 @@ namespace osu.Game.Tournament.Components
                 new FumoUserCard(user, colour)
                 {
                     RelativeSizeAxes = Axes.None,
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
                     Margin = new MarginPadding { Bottom = 10 },
                 };
         }
