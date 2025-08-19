@@ -3,6 +3,7 @@
 
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Users;
 
@@ -18,6 +19,8 @@ namespace osu.Game.Tournament.Models
         public int OnlineID { get; set; }
 
         public string Username { get; set; } = string.Empty;
+
+        public UserRole Role { get; set; }
 
         /// <summary>
         /// The player's country.
@@ -60,5 +63,24 @@ namespace osu.Game.Tournament.Models
         }
 
         bool IUser.IsBot => false;
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum UserRole
+    {
+        /// <summary>
+        /// Team member, the minimum role.
+        /// </summary>
+        Member,
+
+        /// <summary>
+        /// Team members making decisions.
+        /// </summary>
+        Strategist,
+
+        /// <summary>
+        /// Team leader.
+        /// </summary>
+        Leader,
     }
 }

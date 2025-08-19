@@ -150,4 +150,16 @@
     <data name="punishment" xml:space="preserve">
         <value>行为处罚</value>
     </data>
+    <data name="user_role" xml:space="preserve">
+        <value>角色</value>
+    </data>
+    <data name="team_leader" xml:space="preserve">
+        <value>队长</value>
+    </data>
+    <data name="team_strategist" xml:space="preserve">
+        <value>策略师</value>
+    </data>
+    <data name="team_member" xml:space="preserve">
+        <value>队员</value>
+    </data>
 </root>

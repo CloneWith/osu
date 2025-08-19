@@ -122,6 +122,26 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString UserID => new TranslatableString(getKey(@"user_id"), @"User ID");
 
         /// <summary>
+        /// "Role"
+        /// </summary>
+        public static LocalisableString UserRole => new TranslatableString(getKey(@"user_role"), @"Role");
+
+        /// <summary>
+        /// "Team Member"
+        /// </summary>
+        public static LocalisableString TeamMember => new TranslatableString(getKey(@"team_member"), @"Team Member");
+
+        /// <summary>
+        /// "Strategist"
+        /// </summary>
+        public static LocalisableString TeamStrategist => new TranslatableString(getKey(@"team_strategist"), @"Strategist");
+
+        /// <summary>
+        /// "Team Leader"
+        /// </summary>
+        public static LocalisableString TeamLeader => new TranslatableString(getKey(@"team_leader"), @"Team Leader");
+
+        /// <summary>
         /// "Beatmap ID"
         /// </summary>
         public static LocalisableString BeatmapID => new TranslatableString(getKey(@"beatmap_id"), @"Beatmap ID");
