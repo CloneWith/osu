@@ -18,6 +18,7 @@ using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
+using osu.Game.Tournament.Screens.Gameplay.Components;
 using osuTK;
 using osuTK.Graphics;
 
@@ -26,7 +27,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
     public partial class TeamWinScreen : TournamentMatchScreen
     {
         private Container mainContainer = null!;
-        private Container transferContainer = null!;
         private Container firstStageContainer = null!;
 
         private readonly Bindable<bool> currentCompleted = new Bindable<bool>();
@@ -35,11 +35,12 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TourneyBackground redWinBackground = null!;
         private TourneyBackground mainBackground = null!;
 
+        private FumoLogo logo = null!;
+        private FillFlowContainer matchInfoFlow = null!;
+        private MatchRoundDisplay roundDisplay = null!;
+        private GridContainer roundLine = null!;
         private FillFlowContainer drawDisplayFlow = null!;
         private RotatingDisplayContainer drawTextDisplay = null!;
-
-        private TournamentSpriteText winMainText = null!;
-        private TournamentSpriteText winSubText = null!;
 
         private TeamGradientBackground gradientBackground = null!;
         private Box colourMask = null!;
@@ -83,6 +84,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     Origin = Anchor.TopLeft,
                     RelativeSizeAxes = Axes.Both,
                     Width = 0.3f,
+                    Colour = Color4.Transparent,
                     Shear = OsuGame.SHEAR,
                 },
                 new TrianglesV2
@@ -90,34 +92,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     RelativeSizeAxes = Axes.Both,
                     ScaleAdjust = 1.5f,
                     Alpha = 0.6f,
-                },
-                transferContainer = new Container
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    Children = new Drawable[]
-                    {
-                        winMainText = new TournamentSpriteText
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Text = "胜负已定...",
-                            X = -250,
-                            Y = -50,
-                            Font = OsuFont.Torus.With(size: 60, weight: FontWeight.SemiBold),
-                            Alpha = 0,
-                        },
-                        winSubText = new TournamentSpriteText
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Text = "...最后的获胜队是...",
-                            X = 250,
-                            Y = 50,
-                            Font = OsuFont.Torus.With(size: 64, weight: FontWeight.Bold),
-                            Alpha = 0,
-                        }
-                    },
-                    Alpha = 0,
                 },
                 firstStageContainer = new Container
                 {
@@ -167,48 +141,132 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
             redWinBackground.Alpha = match?.WinnerColour == TeamColour.Red ? 1 : 0;
             blueWinBackground.Alpha = match?.WinnerColour == TeamColour.Blue ? 1 : 0;
+            gradientBackground.FadeIn();
+            firstStageContainer.FadeOut();
             colourMask.FadeOut();
 
-            firstStageContainer.Child = drawDisplayFlow = new FillFlowContainer
+            firstStageContainer.Children = new Drawable[]
             {
-                Name = @"Draw indicator",
-                Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
-                Y = 100,
-                AutoSizeAxes = Axes.Both,
-                AutoSizeEasing = Easing.OutQuint,
-                AutoSizeDuration = 300,
-                Direction = FillDirection.Horizontal,
-                Spacing = new Vector2(10),
-                Alpha = 0,
-                Children = new Drawable[]
+                logo = new FumoLogo("header-logo")
                 {
-                    new Container
+                    Anchor = Anchor.Centre,
+                    Scale = new Vector2(0.8f),
+                },
+                matchInfoFlow = new FillFlowContainer
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.TopCentre,
+                    AutoSizeAxes = Axes.Both,
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(5),
+                    Alpha = 0,
+                    Children = new Drawable[]
                     {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        Size = new Vector2(24),
-                        Children = new Drawable[]
+                        new TournamentSpriteText
                         {
-                            drawIcon = new SpriteIcon
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Font = OsuFont.Torus.With(size: 42, weight: FontWeight.Bold),
+                            Text = LadderInfo.FullName.Value,
+                        },
+                        roundDisplay = new MatchRoundDisplay
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Alpha = 0,
+                            Scale = new Vector2(0.5f),
+                        },
+                        roundLine = new GridContainer
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            AutoSizeAxes = Axes.Both,
+                            Alpha = 0,
+                            Scale = new Vector2(1.2f),
+                            RowDimensions = [new Dimension(GridSizeMode.AutoSize)],
+                            ColumnDimensions =
+                            [
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(GridSizeMode.AutoSize),
+                            ],
+                            Content = new Drawable[][]
                             {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Size = new Vector2(24),
-                                Icon = FontAwesome.Solid.HourglassHalf,
-                            }
+                                [
+                                    new DrawableTeamLine(match?.Team1.Value, TeamColour.Red),
+                                    new SpriteIcon
+                                    {
+                                        Size = new Vector2(24),
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Shadow = false,
+                                        Icon = match?.Round.Value?.UseBoard.Value == true
+                                            ? FontAwesome.Solid.ChessBoard
+                                            : FontAwesome.Solid.Trophy,
+                                        Colour = FumoColours.SunshineYellow.Regular,
+                                        Margin = new MarginPadding { Horizontal = 20 },
+                                    },
+                                    new DrawableTeamLine(match?.Team2.Value, TeamColour.Blue),
+                                ],
+                            },
                         },
                     },
-                    drawTextDisplay = new RotatingDisplayContainer
-                    {
-                        Anchor = Anchor.Centre,
-                        Origin = Anchor.Centre,
-                        AutoSizeAxes = Axes.Both,
-                        CrossAnimation = true,
-                        TransformLength = 1000,
-                    },
                 },
+                drawDisplayFlow = new FillFlowContainer
+                {
+                    Name = @"Draw indicator",
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Y = 100,
+                    AutoSizeAxes = Axes.Both,
+                    AutoSizeEasing = Easing.OutQuint,
+                    AutoSizeDuration = 300,
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(10),
+                    Alpha = 0,
+                    Children = new Drawable[]
+                    {
+                        new Container
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Size = new Vector2(24),
+                            Children = new Drawable[]
+                            {
+                                drawIcon = new SpriteIcon
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    Size = new Vector2(24),
+                                    Icon = FontAwesome.Solid.HourglassHalf,
+                                }
+                            },
+                        },
+                        drawTextDisplay = new RotatingDisplayContainer
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            AutoSizeAxes = Axes.Both,
+                            CrossAnimation = true,
+                            TransformLength = 1000,
+                        },
+                    },
+                }
             };
+
+            using (BeginDelayedSequence(1000))
+            {
+                firstStageContainer.FadeIn(2000, Easing.OutSine);
+
+                using (BeginDelayedSequence(2500))
+                {
+                    logo.MoveToY(-100, 1500, Easing.OutQuint);
+                    matchInfoFlow.FadeIn(900, Easing.OutQuint)
+                                 .MoveToY(150, 1500, Easing.OutQuint);
+                    roundDisplay.Delay(150).FadeIn(900, Easing.OutQuint);
+                    roundLine.Delay(300).FadeIn(900, Easing.OutQuint);
+                }
+            }
 
             if (match?.Winner == null)
             {
@@ -233,7 +291,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
                 drawTextDisplay.Start(true);
 
-                using (BeginDelayedSequence(1500))
+                using (BeginDelayedSequence(3500 + 1000))
                 {
                     drawIcon.Delay(800).RotateTo(0)
                             .Then().RotateTo(360 * 5, 5000, Easing.InOutExpo)
@@ -248,8 +306,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
             }
             else
             {
-                firstStageContainer.Clear();
-
                 if (firstDisplay)
                 {
                     if (match.WinnerColour == TeamColour.Red)
@@ -259,13 +315,9 @@ namespace osu.Game.Tournament.Screens.TeamWin
                     firstDisplay = false;
                 }
 
-                winMainText.X = -250;
-                winSubText.X = 250;
                 redWinBackground.Alpha = match.WinnerColour == TeamColour.Red ? 1 : 0;
                 blueWinBackground.Alpha = match.WinnerColour == TeamColour.Blue ? 1 : 0;
                 mainBackground.Alpha = 1;
-
-                transferContainer.Show();
 
                 mainContainer.Children = new Drawable[]
                 {
@@ -384,17 +436,11 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
                 mainContainer.FadeOut();
 
-                using (BeginDelayedSequence(1500))
+                using (BeginDelayedSequence(3500 + 1500))
                 {
-                    winMainText.FadeInFromZero(250, Easing.OutQuint);
-                    winSubText.FadeInFromZero(250, Easing.OutQuint);
+                    firstStageContainer.FadeOut(1500, Easing.OutQuint);
 
-                    winMainText.MoveToX(-150, 2000, Easing.OutQuint).Delay(1500)
-                               .FadeOut(500, Easing.OutQuint);
-                    winSubText.MoveToX(150, 2000, Easing.OutQuint).Delay(1500)
-                              .FadeOut(500, Easing.OutQuint);
-
-                    using (BeginDelayedSequence(2500))
+                    using (BeginDelayedSequence(1500))
                     {
                         gradientBackground.FadeOut(500, Easing.OutQuint);
                         mainBackground.FadeOut(1000, Easing.OutQuint);
