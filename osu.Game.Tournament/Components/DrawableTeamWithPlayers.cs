@@ -72,16 +72,13 @@ namespace osu.Game.Tournament.Components
                     Colour = Color4.White,
                 };
 
-            static TeamPlayerCard createPlayerCard(TournamentUser user) =>
-                new TeamPlayerCard(user.ToAPIUser())
+            FumoUserCard createPlayerCard(TournamentUser user) =>
+                new FumoUserCard(user, colour)
                 {
                     RelativeSizeAxes = Axes.None,
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.BottomLeft,
-                    Width = 250,
-                    Height = 50,
                     Margin = new MarginPadding { Bottom = 10 },
-                    Scale = new Vector2(1f),
                 };
         }
     }
