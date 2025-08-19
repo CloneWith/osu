@@ -19,6 +19,7 @@ namespace osu.Game.Rulesets.Edit
             new CheckBackgroundPresence(),
             new CheckBackgroundQuality(),
             new CheckVideoResolution(),
+            new CheckVideoUsage(),
 
             // Audio
             new CheckAudioPresence(),
@@ -50,6 +51,10 @@ namespace osu.Game.Rulesets.Edit
             // Metadata
             new CheckTitleMarkers(),
             new CheckInconsistentMetadata(),
+            new CheckMissingGenreLanguage(),
+
+            // Settings
+            new CheckInconsistentSettings(),
         };
 
         public IEnumerable<Issue> Run(BeatmapVerifierContext context)
