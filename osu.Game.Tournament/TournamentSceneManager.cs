@@ -332,8 +332,11 @@ namespace osu.Game.Tournament
         public void ScheduleScreenChange(Type screenType, int time)
         {
             scheduledScreenChange?.Cancel();
-            scheduledScreenChange = Scheduler.AddDelayed(() => { SetScreen(screenType); }, time);
+
+            // Need to set timer first since it calls OnCancel
             timer.TimerTime = time;
+            scheduledScreenChange = Scheduler.AddDelayed(() => { SetScreen(screenType); }, time);
+
             timer.ActiveText = $"-> {screenType.Name}";
             timer.Start();
         }
