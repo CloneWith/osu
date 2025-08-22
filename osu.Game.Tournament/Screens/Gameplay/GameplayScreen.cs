@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
@@ -178,7 +179,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             warmupToggle.Current.BindValueChanged(_ => updateWarmup(), true);
 
             State.BindTo(ipc.State);
-            State.BindValueChanged(_ => updateState(), true);
+            State.BindValueChanged(e => updateState(e), true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -241,7 +242,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
                 if (State.Value == TourneyState.Ranking)
                 {
-                    if (warmup.Value || CurrentMatch.Value == null || isUsingBoard) return;
+                    if (warmup.Value || CurrentMatch.Value == null) return;
 
                     if (ipc.Score1.Value > ipc.Score2.Value)
                         CurrentMatch.Value.Team1Score.Value++;
@@ -259,27 +260,29 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             contract();
                         }
 
+                        break;
+
+                    case TourneyState.Ranking:
+                        const int delay_before_progression = 25000;
+
                         if (LadderInfo.AutoProgressScreens.Value)
                         {
-                            const int delay_before_progression = 4000;
-
-                            // if we've returned to idle and the last screen was ranking
+                            // if we've gone to ranking and the last screen was playing
                             // we should automatically proceed after a short delay
-                            if (lastState == TourneyState.Ranking && !warmup.Value)
+                            // It's shit code to wait for an Idle state
+                            if ((e?.OldValue == TourneyState.Playing || lastState == TourneyState.Playing) && !warmup.Value)
                             {
                                 if (CurrentMatch.Value?.Completed.Value == true)
                                     sceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), delay_before_progression);
                                 else if (CurrentMatch.Value?.Completed.Value == false)
                                 {
+                                    Logger.Log("Last state is ranking, scheduling changing back.");
                                     sceneManager?.ScheduleScreenChange(isUsingBoard ? typeof(BoardScreen) : typeof(MapPoolScreen), delay_before_progression);
                                 }
                             }
                         }
 
-                        break;
-
-                    case TourneyState.Ranking:
-                        scheduledContract = Scheduler.AddDelayed(contract, 10000);
+                        scheduledContract = Scheduler.AddDelayed(contract, 20000);
                         break;
 
                     default:
