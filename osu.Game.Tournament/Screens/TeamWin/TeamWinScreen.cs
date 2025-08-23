@@ -156,6 +156,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 {
                     Anchor = Anchor.Centre,
                     Scale = new Vector2(0.8f),
+                    Triangles = false,
                 },
                 matchInfoFlow = new FillFlowContainer
                 {
@@ -263,7 +264,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
             {
                 firstStageContainer.FadeIn(2000, Easing.OutSine);
 
-                using (BeginDelayedSequence(2500))
+                using (BeginDelayedSequence(1500))
                 {
                     logo.MoveToY(-100, 1500, Easing.OutQuint);
                     matchInfoFlow.FadeIn(900, Easing.OutQuint)
