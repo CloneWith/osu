@@ -6,7 +6,6 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
@@ -25,13 +24,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
     public partial class GameplayScreen : BeatmapInfoScreen
     {
         private readonly BindableBool warmup = new BindableBool();
-
-        public readonly Bindable<TourneyState> State = new Bindable<TourneyState>();
-        private LabelledSwitchButton warmupToggle = null!;
+        private readonly Bindable<TourneyState> state = new Bindable<TourneyState>();
 
         private bool isChatShown;
-
-        private MatchIPCInfo ipc = null!;
         private bool chatEnforcing;
 
         private bool isUsingBoard => CurrentMatch.Value?.Round.Value?.UseBoard.Value == true;
@@ -39,13 +34,15 @@ namespace osu.Game.Tournament.Screens.Gameplay
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
+        [Resolved]
+        private MatchIPCInfo ipc { get; set; } = null!;
+
+        private LabelledSwitchButton warmupToggle = null!;
         private Drawable chroma = null!;
 
         [BackgroundDependencyLoader]
-        private void load(MatchIPCInfo ipc)
+        private void load()
         {
-            this.ipc = ipc;
-
             AddRangeInternal(new Drawable[]
             {
                 new TourneyBackground(BackgroundType.Gameplay)
@@ -178,8 +175,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             warmupToggle.Current.BindValueChanged(_ => updateWarmup(), true);
 
-            State.BindTo(ipc.State);
-            State.BindValueChanged(e => updateState(e), true);
+            state.BindTo(ipc.State);
+            state.BindValueChanged(e => updateState(e), true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -240,17 +237,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             {
                 sceneManager?.CancelScreenChange();
 
-                if (State.Value == TourneyState.Ranking)
-                {
-                    if (warmup.Value || CurrentMatch.Value == null) return;
-
-                    if (ipc.Score1.Value > ipc.Score2.Value)
-                        CurrentMatch.Value.Team1Score.Value++;
-                    else
-                        CurrentMatch.Value.Team2Score.Value++;
-                }
-
-                switch (State.Value)
+                switch (state.Value)
                 {
                     case TourneyState.Idle:
                         if (!chatEnforcing || lastState == TourneyState.Ranking)
@@ -265,6 +252,14 @@ namespace osu.Game.Tournament.Screens.Gameplay
                     case TourneyState.Ranking:
                         const int delay_before_progression = 25000;
 
+                        if (CurrentMatch.Value != null && !isUsingBoard && !warmup.Value)
+                        {
+                            if (ipc.Score1.Value > ipc.Score2.Value)
+                                CurrentMatch.Value.Team1Score.Value++;
+                            else
+                                CurrentMatch.Value.Team2Score.Value++;
+                        }
+
                         if (LadderInfo.AutoProgressScreens.Value)
                         {
                             // if we've gone to ranking and the last screen was playing
@@ -272,12 +267,15 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             // It's shit code to wait for an Idle state
                             if ((e?.OldValue == TourneyState.Playing || lastState == TourneyState.Playing) && !warmup.Value)
                             {
-                                if (CurrentMatch.Value?.Completed.Value == true)
-                                    sceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), delay_before_progression);
-                                else if (CurrentMatch.Value?.Completed.Value == false)
+                                switch (CurrentMatch.Value?.Completed.Value)
                                 {
-                                    Logger.Log("Last state is ranking, scheduling changing back.");
-                                    sceneManager?.ScheduleScreenChange(isUsingBoard ? typeof(BoardScreen) : typeof(MapPoolScreen), delay_before_progression);
+                                    case true:
+                                        sceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), delay_before_progression);
+                                        break;
+
+                                    case false:
+                                        sceneManager?.ScheduleScreenChange(isUsingBoard ? typeof(BoardScreen) : typeof(MapPoolScreen), delay_before_progression);
+                                        break;
                                 }
                             }
                         }
@@ -297,7 +295,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             }
             finally
             {
-                lastState = e?.NewValue ?? State.Value;
+                lastState = e?.NewValue ?? state.Value;
             }
         }
 
