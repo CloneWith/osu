@@ -861,7 +861,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (LadderInfo.AutoProgressScreens.Value)
             {
-                SceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), 10000);
+                SceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), 15000);
             }
         }
 
@@ -1355,7 +1355,7 @@ namespace osu.Game.Tournament.Screens.Board
             {
                 if (pickType == RoundStep.Pick && CurrentMatch.Value.ChessPlacements.Any(i => i.CurrentType == ChoiceType.Pick))
                 {
-                    SceneManager?.ScheduleScreenChange(typeof(GameplayScreen), 10000);
+                    SceneManager?.ScheduleScreenChange(typeof(GameplayScreen), 20000);
                 }
             }
 
