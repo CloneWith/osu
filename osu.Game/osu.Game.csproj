@@ -53,7 +53,4 @@
   <ItemGroup>
     <ProjectReference Include="..\osu.Game.Resources.Custom\osu.Game.Resources.Custom.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\osu.Game.Resources.Custom\osu.Game.Resources.Custom.csproj" />
-  </ItemGroup>
 </Project>
