@@ -9,9 +9,9 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
-using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Overlays.Chat;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osuTK;
@@ -26,7 +26,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
-        private OsuScrollContainer scroll = null!;
         private FillFlowContainer<HistoryLine> innerContent = null!;
         private TournamentSpriteText currentStatusText = null!;
         private SpriteIcon winnerIcon = null!;
@@ -53,7 +52,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     },
                 ],
                 [
-                    scroll = new OsuScrollContainer
+                    new ChannelScrollContainer
                     {
                         RelativeSizeAxes = Axes.Both,
                         ScrollbarVisible = false,
@@ -163,8 +162,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     innerContent.Clear();
                     break;
             }
-
-            scroll.ScrollToEnd();
         }
 
         protected override void LoadComplete()
