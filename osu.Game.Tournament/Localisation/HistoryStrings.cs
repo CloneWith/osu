@@ -26,36 +26,36 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString MatchTiebreaker => new TranslatableString(getKey(@"match_tiebreaker"), @"TieBreaker for the final stage...");
 
         /// <summary>
-        /// Match concluded, {0} wins!
+        /// "Match concluded, {0} wins!"
         /// </summary>
         public static LocalisableString MatchEnded(TeamColour winner) => new TranslatableString(getKey(@"match_ended"),
             @"Match concluded, {0} wins!", TournamentGame.GetTeamString(winner));
 
         /// <summary>
-        /// banned
+        /// " banned "
         /// </summary>
         public static LocalisableString Banned => new TranslatableString(getKey(@"banned"), @" banned ");
 
         /// <summary>
-        /// picked
+        /// " picked "
         /// </summary>
         public static LocalisableString Picked => new TranslatableString(getKey(@"picked"), @" picked ");
 
         /// <summary>
-        /// won
+        /// " won "
         /// </summary>
         public static LocalisableString Won => new TranslatableString(getKey(@"won"), @" won ");
 
         /// <summary>
-        /// placed a shiro
+        /// " placed a shiro"
         /// </summary>
         public static LocalisableString PlacedShiro => new TranslatableString(getKey(@"placed_shiro"), @" placed a shiro");
 
         /// <summary>
-        /// used {0} to take
+        /// " used {0} to take "
         /// </summary>
         public static LocalisableString UpdatedWinner(LocalisableString usedPieces) => new TranslatableString(getKey(@"updated_winner"),
-            @" used {0} to take", usedPieces);
+            @" used {0} to take ", usedPieces);
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

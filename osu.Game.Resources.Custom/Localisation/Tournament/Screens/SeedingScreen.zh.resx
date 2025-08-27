@@ -25,4 +25,16 @@
     <data name="show_specific_team" xml:space="preserve">
         <value>显示特定队伍</value>
     </data>
+    <data name="average_rank" xml:space="preserve">
+        <value>平均排名：</value>
+    </data>
+    <data name="seed" xml:space="preserve">
+        <value>种子：</value>
+    </data>
+    <data name="last_years_placing" xml:space="preserve">
+        <value>上届排名：</value>
+    </data>
+    <data name="by" xml:space="preserve">
+        <value>艺术家</value>
+    </data>
 </root>

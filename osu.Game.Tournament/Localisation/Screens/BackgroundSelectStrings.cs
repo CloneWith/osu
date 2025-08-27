@@ -56,7 +56,7 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString DialogResetAll => new TranslatableString(getKey(@"dialog_reset_all"), @"Yes, reset all of them.");
 
         /// <summary>
-        /// "I'd rather stay the same."
+        /// "I&#39;d rather stay the same."
         /// </summary>
         public static LocalisableString DialogCancel => new TranslatableString(getKey(@"dialog_cancel"), @"I'd rather stay the same.");
 
@@ -91,12 +91,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString FileTypeImage => new TranslatableString(getKey(@"file_type_image"), @"Images");
 
         /// <summary>
-        /// "{0} must be selected from current \"{1}\" directory."
+        /// "{0} must be selected from current \&quot;{1}\&quot; directory."
         /// </summary>
         public static LocalisableString PromptFilePath(LocalisableString type, LocalisableString path) => new TranslatableString(getKey(@"prompt_file_path"),
-            @"{0} must be selected from current ""{1}"" directory.", type, path);
+            @"{0} must be selected from current \""{1}\"" directory.", type, path);
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
-

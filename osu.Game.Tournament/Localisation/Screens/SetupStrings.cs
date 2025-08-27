@@ -84,7 +84,7 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"Show Coordinated Universal Time instead of local time for schedules.");
 
         /// <summary>
-        /// "Use blue chroma"
+        /// "Use blue chroma for gameplay"
         /// </summary>
         public static LocalisableString UseBlueChroma => new TranslatableString(getKey(@"use_blue_chroma"), @"Use blue chroma for gameplay");
 
@@ -149,7 +149,7 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString AutomationHeader => new TranslatableString(getKey(@"automation_header"), @"Automation");
 
         /// <summary>
-        /// "Auto update round count"
+        /// "Auto advance round count"
         /// </summary>
         public static LocalisableString AutoUpdateRound => new TranslatableString(getKey(@"auto_update_round"), @"Auto advance round count");
 
