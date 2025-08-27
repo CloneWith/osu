@@ -82,12 +82,18 @@ namespace osu.Game.Tournament.Screens.Board
 
         private Sample? updateOwnerSample;
         private Sample? unavailableSample;
+        private Sample? conclusionSample;
+        private Sample? tiebreakerFirstSample;
+        private Sample? tiebreakerSecondSample;
 
         [BackgroundDependencyLoader]
         private void load(AudioManager audio)
         {
-            updateOwnerSample = audio.Samples.Get("Board/update");
-            unavailableSample = audio.Samples.Get("unavailable");
+            updateOwnerSample = audio.Samples.Get(@"Board/update");
+            unavailableSample = audio.Samples.Get(@"unavailable");
+            conclusionSample = audio.Samples.Get(@"SongSelect/confirm-selection");
+            tiebreakerFirstSample = audio.Samples.Get(@"Gameplay/restart");
+            tiebreakerSecondSample = audio.Samples.Get(@"Results/swoosh-up");
 
             InternalChildren = new Drawable[]
             {
@@ -618,6 +624,9 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (pickType is RoundStep.TieBreaker)
             {
+                tiebreakerFirstSample?.Play();
+                Scheduler.AddDelayed(() => tiebreakerSecondSample?.Play(), 500);
+
                 var tieBreakerMap = CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.Mods.Equals(@"TB", StringComparison.OrdinalIgnoreCase));
 
                 if (tieBreakerMap != null && enableIntroAnimation.Value)
@@ -858,6 +867,8 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.Value.Team1Score.Value = colour == TeamColour.Red ? targetScore : 0;
             CurrentMatch.Value.Team2Score.Value = colour == TeamColour.Blue ? targetScore : 0;
+
+            conclusionSample?.Play();
 
             if (LadderInfo.AutoProgressScreens.Value)
             {

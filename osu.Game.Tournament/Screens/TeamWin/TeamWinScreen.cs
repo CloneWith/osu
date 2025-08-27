@@ -2,6 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Audio;
+using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
@@ -10,6 +12,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Threading;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.Containers;
@@ -52,10 +55,15 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private TournamentSpriteText thanksText = null!;
         private SpriteIcon heart = null!;
 
+        private ScheduledDelegate? scheduledApplause;
+        private Sample? applauseSample;
+
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(AudioManager audio)
         {
             RelativeSizeAxes = Axes.Both;
+
+            applauseSample = audio.Samples.Get(@"Results/applause-s");
 
             InternalChildren = new Drawable[]
             {
@@ -142,6 +150,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
 
         private void update() => Scheduler.AddOnce(() =>
         {
+            scheduledApplause?.Cancel();
             var match = CurrentMatch.Value;
 
             redWinBackground.Alpha = match?.WinnerColour == TeamColour.Red ? 1 : 0;
@@ -441,6 +450,11 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 };
 
                 mainContainer.FadeOut();
+
+                scheduledApplause = Scheduler.AddDelayed(() =>
+                {
+                    applauseSample?.Play();
+                }, 6000);
 
                 using (BeginDelayedSequence(3500 + 1500))
                 {
