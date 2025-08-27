@@ -231,7 +231,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                 },
                                                 new TruncatingSpriteText
                                                 {
-                                                    Text = $"Difficulty: {(map.Beatmap != null ? map.Beatmap.DifficultyName : "A Random Difficulty")}",
+                                                    Text = $"Difficulty: {map.Beatmap?.DifficultyName ?? "A Random Difficulty"}",
                                                     Font = OsuFont.GetFont(size: 20, italics: true),
                                                     MaxWidth = horizontal_info_size,
                                                     Anchor = Anchor.TopCentre,
@@ -239,7 +239,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                 },
                                                 new TruncatingSpriteText
                                                 {
-                                                    Text = $"by {(map.Beatmap != null ? map.Beatmap.Metadata.Author.Username : "A Random Mapper")}",
+                                                    Text = $"by {map.Beatmap?.Metadata.Author.Username ?? "A Random Mapper"}",
                                                     Font = OsuFont.GetFont(size: 16, italics: true),
                                                     MaxWidth = horizontal_info_size,
                                                     Anchor = Anchor.TopCentre,
