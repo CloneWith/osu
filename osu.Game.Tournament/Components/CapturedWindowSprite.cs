@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using osu.Framework.Graphics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
@@ -46,7 +45,7 @@ namespace osu.Game.Tournament.Components
 
         private Texture? texture;
 
-        private bool isWindowsLive = false;
+        private bool isWindowsLive;
 
         [Resolved]
         private LadderInfo? ladder { get; set; }
@@ -179,7 +178,7 @@ namespace osu.Game.Tournament.Components
                         // ctor 里只分配 new Rgba32[w*h]
                     }
 
-                    ConvertBgraToRgba32(rawBufferPool!, poolWidth, poolHeight, uploadPool!.PixelData);
+                    convertBgraToRgba32(rawBufferPool!, poolWidth, poolHeight, uploadPool!.PixelData);
 
                     lock (bufferLock)
                     {
@@ -200,7 +199,7 @@ namespace osu.Game.Tournament.Components
             }
         }
 
-        private void ConvertBgraToRgba32(byte[] src, int width, int height, Span<Rgba32> dst)
+        private void convertBgraToRgba32(byte[] src, int width, int height, Span<Rgba32> dst)
         {
             int dstIdx = 0;
 
@@ -210,8 +209,8 @@ namespace osu.Game.Tournament.Components
                 byte g = src[i + 1];
                 byte r = src[i + 2];
 
-                byte a = 255;
-                dst[dstIdx++] = new Rgba32(r, g, b, a);
+                // Currently alpha channel isn't supported
+                dst[dstIdx++] = new Rgba32(r, g, b, 255);
             }
         }
 
