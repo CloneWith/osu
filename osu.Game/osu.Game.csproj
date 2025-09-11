@@ -43,6 +43,7 @@
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.10" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
 
     <!-- Required since Veldrid references a library that depends on Microsoft.DotNet.PlatformAbstractions (2.0.3), which doesn't play nice with Realm. -->

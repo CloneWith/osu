@@ -149,6 +149,12 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = SetupStrings.UseBlueChromaDescription,
                     Current = LadderInfo.UseBlueChroma,
                 },
+                new LabelledSwitchButton
+                {
+                    Label = SetupStrings.NativeTourneyWindowCapturing,
+                    Description = SetupStrings.NativeTourneyWindowCapturingDescription,
+                    Current = LadderInfo.NativeTourneyWindowCapturing,
+                },
                 new SectionHeader(SetupStrings.TournamentSpecificHeader),
                 new LabelledTextBox
                 {
