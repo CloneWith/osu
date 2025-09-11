@@ -4,7 +4,9 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using osu.Framework.Localisation;
 using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Users;
 
 namespace osu.Game.Tournament.Models
@@ -71,16 +73,19 @@ namespace osu.Game.Tournament.Models
         /// <summary>
         /// Team member, the minimum role.
         /// </summary>
+        [LocalisableDescription(typeof(BaseStrings), nameof(BaseStrings.TeamMember))]
         Member,
 
         /// <summary>
         /// Team members making decisions.
         /// </summary>
+        [LocalisableDescription(typeof(BaseStrings), nameof(BaseStrings.TeamStrategist))]
         Strategist,
 
         /// <summary>
         /// Team leader.
         /// </summary>
+        [LocalisableDescription(typeof(BaseStrings), nameof(BaseStrings.TeamLeader))]
         Leader,
     }
 }
