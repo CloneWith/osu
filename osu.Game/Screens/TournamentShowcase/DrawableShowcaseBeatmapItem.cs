@@ -136,9 +136,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     Schedule(() => ownerAvatar.User = foundUser);
                 }
 
-                workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = item.BeatmapGuid }, true);
+                workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { Hash = item.BeatmapHash }, true);
 
-                if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
+                if (workingBeatmap?.BeatmapInfo.BeatmapSet == null || ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
                 {
                     beatmapInfo = await beatmapLookupCache.GetBeatmapAsync(item.BeatmapId).ConfigureAwait(false);
                 }
@@ -443,10 +443,10 @@ namespace osu.Game.Screens.TournamentShowcase
                             },
                             recordScoreContainer = new Container
                             {
-                                RelativePositionAxes = Axes.Both,
-                                RelativeSizeAxes = Axes.Both,
-                                Height = 0.5f,
-                                Y = 0.5f,
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomCentre,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
                                 Child = item.ShowcaseScore != null
                                     ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
                                     : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt),
@@ -459,7 +459,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private IEnumerable<Drawable> createButtons() => new[]
         {
-            beatmapInfo == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
+            beatmapInfo?.BeatmapSet == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
             editButton = new PlaylistEditButton
             {
                 Size = new Vector2(30, 30),

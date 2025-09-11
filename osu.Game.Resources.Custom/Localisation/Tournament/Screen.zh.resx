@@ -63,4 +63,7 @@
     <data name="countdown" xml:space="preserve">
         <value>倒计时</value>
     </data>
+    <data name="punishment_editor" xml:space="preserve">
+        <value>惩罚编辑</value>
+    </data>
 </root>

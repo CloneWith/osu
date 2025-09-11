@@ -51,7 +51,7 @@ namespace osu.Game.Tournament.Localisation
             @"Cannot access current match, sorry ;w;");
 
         /// <summary>
-        /// "This round isn't set up for board view..."
+        /// "This round isn&#39;t set up for board view..."
         /// </summary>
         public static LocalisableString BoardModeUnsetWarning => new TranslatableString(getKey(@"board_mode_unset_warning"),
             @"This round isn't set up for board view...");
@@ -122,6 +122,26 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString UserID => new TranslatableString(getKey(@"user_id"), @"User ID");
 
         /// <summary>
+        /// "Role"
+        /// </summary>
+        public static LocalisableString UserRole => new TranslatableString(getKey(@"user_role"), @"Role");
+
+        /// <summary>
+        /// "Team Member"
+        /// </summary>
+        public static LocalisableString TeamMember => new TranslatableString(getKey(@"team_member"), @"Team Member");
+
+        /// <summary>
+        /// "Strategist"
+        /// </summary>
+        public static LocalisableString TeamStrategist => new TranslatableString(getKey(@"team_strategist"), @"Strategist");
+
+        /// <summary>
+        /// "Team Leader"
+        /// </summary>
+        public static LocalisableString TeamLeader => new TranslatableString(getKey(@"team_leader"), @"Team Leader");
+
+        /// <summary>
         /// "Beatmap ID"
         /// </summary>
         public static LocalisableString BeatmapID => new TranslatableString(getKey(@"beatmap_id"), @"Beatmap ID");
@@ -162,7 +182,7 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString TeamBlueShort => new TranslatableString(getKey(@"team_blue_short"), @"Blue");
 
         /// <summary>
-        /// "Seeding Mod"
+        /// "Mod"
         /// </summary>
         public static LocalisableString BeatmapMod => new TranslatableString(getKey(@"beatmap_mod"), @"Mod");
 
@@ -222,9 +242,24 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString IdleScreenTimer => new TranslatableString(getKey(@"idle_screen_timer"), @"No pending screens!");
 
         /// <summary>
-        /// "Screen Changed"
+        /// "Screen changed"
         /// </summary>
         public static LocalisableString ScreenChanged => new TranslatableString(getKey(@"screen_changed"), @"Screen changed");
+
+        /// <summary>
+        /// "Punishments"
+        /// </summary>
+        public static LocalisableString Punishment => new TranslatableString(getKey(@"punishment"), @"Punishments");
+
+        /// <summary>
+        /// "Disqualified"
+        /// </summary>
+        public static LocalisableString Disqualified => new TranslatableString(getKey(@"disqualified"), @"Disqualified");
+
+        /// <summary>
+        /// "Players and staffs, thanks for your support!"
+        /// </summary>
+        public static LocalisableString Thanks => new TranslatableString(getKey(@"thanks"), @"Players and staffs, thanks for your support!");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

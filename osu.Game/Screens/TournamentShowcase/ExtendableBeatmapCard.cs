@@ -7,17 +7,20 @@ using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Database;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Models;
+using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osuTK;
 using osuTK.Graphics;
@@ -26,20 +29,23 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ExtendableBeatmapCard : CompositeDrawable
     {
-        private const float star_rating_y_expanded = 0.075f;
-        private const float centre_offset = -0.1f;
-
-        private readonly string iconBaseDir;
-
         private readonly ShowcaseBeatmap beatmap;
         private WorkingBeatmap? workingBeatmap;
         private IBeatmapInfo? beatmapInfo;
         private Sprite setCover = null!;
+        private Box infoMask = null!;
         private StarRatingDisplay starRatingDisplay = null!;
-        private Sprite modIcon = null!;
+        private OsuSpriteText modText = null!;
         private Container difficultyIconContainer = null!;
         private DifficultyIcon difficultyIcon = null!;
+        private GridContainer infoContainer = null!;
         private OsuTextFlowContainer beatmapInfoFlow = null!;
+        private SpriteIcon statusIcon = null!;
+        private Container floatingContainer = null!;
+        private Box floatingBox = null!;
+        private OsuSpriteText instructText = null!;
+
+        private readonly OverlayColourProvider colourProvider;
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
@@ -53,76 +59,145 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
 
-        public ExtendableBeatmapCard(ShowcaseBeatmap beatmap, ShowcaseConfig config)
-        {
-            this.beatmap = beatmap;
-            iconBaseDir = config.TournamentName.Value;
-        }
-
-        [BackgroundDependencyLoader]
-        private void load(TextureStore textureStore)
+        public ExtendableBeatmapCard(ShowcaseBeatmap beatmap, OverlayColourScheme? colourScheme = null)
         {
             Width = 400;
             Height = 300;
             CornerRadius = 10;
             Masking = true;
 
+            this.beatmap = beatmap;
+            colourProvider = new OverlayColourProvider(colourScheme ?? OverlayColourScheme.Blue);
+
+            BorderThickness = 1;
+            BorderColour = colourProvider.Colour1;
+        }
+
+        [BackgroundDependencyLoader]
+        private void load()
+        {
             InternalChildren = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = Color4.Black.Opacity(0.8f)
+                    Colour = ColourInfo.GradientVertical(colourProvider.Dark2.Opacity(0), colourProvider.Dark2),
                 },
                 setCover = new Sprite
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
-                    Y = centre_offset,
                     RelativeSizeAxes = Axes.Both,
-                    Height = 0.8f,
-                    FillMode = FillMode.Fill
+                    FillMode = FillMode.Fill,
+                    Alpha = 0.95f,
                 },
-                modIcon = new Sprite
+                infoMask = new Box
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
                     RelativeSizeAxes = Axes.Both,
-                    Width = 0.25f,
-                    Y = -star_rating_y_expanded + centre_offset,
-                    FillMode = FillMode.Fit,
-                    Texture = textureStore.Get($"{iconBaseDir}/{beatmap.ModString}{beatmap.ModIndex.Value}")
+                    Height = 0.4f,
+                    Colour = ColourInfo.GradientVertical(Color4.Transparent, Color4.Black.Opacity(0.5f)),
                 },
-                starRatingDisplay = new StarRatingDisplay(new StarDifficulty())
+                infoContainer = new GridContainer
                 {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
-                    Y = star_rating_y_expanded + centre_offset,
-                    Scale = new Vector2(1.75f)
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    Padding = new MarginPadding { Horizontal = 10, Vertical = 5 },
+                    RelativeSizeAxes = Axes.Both,
+                    Height = 0.2f,
+                    ColumnDimensions = [
+                        new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(),
+                        new Dimension(GridSizeMode.AutoSize),
+                    ],
+                    Content = new[]
+                    {
+                        new Drawable[]
+                        {
+                            difficultyIconContainer = new Container
+                            {
+                                Anchor = Anchor.Centre,
+                                Origin = Anchor.Centre,
+                                AutoSizeAxes = Axes.Both,
+                                AutoSizeEasing = Easing.OutQuint,
+                                AutoSizeDuration = 100,
+                                Padding = new MarginPadding { Right = 10 },
+                            },
+                            beatmapInfoFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold))
+                            {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                ParagraphSpacing = 0,
+                            },
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.Y,
+                                AutoSizeAxes = Axes.X,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(5),
+                                Children = new Drawable[]
+                                {
+                                    modText = new OsuSpriteText
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Text = $@"{beatmap.ModString.Value}{beatmap.ModIndex.Value}",
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 24),
+                                        Colour = ModColours.FromModString(beatmap.ModString.Value).Accent,
+                                    },
+                                    starRatingDisplay = new StarRatingDisplay(new StarDifficulty())
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
-                difficultyIconContainer = new Container
+                floatingContainer = new Container
                 {
-                    Origin = Anchor.Centre,
-                    RelativePositionAxes = Axes.Both,
-                    AutoSizeAxes = Axes.Both,
-                    AutoSizeEasing = Easing.OutQuint,
-                    AutoSizeDuration = 100,
-                    X = 0.07f,
-                    Y = 0.9f
+                    Name = @"Floating container",
+                    Anchor = Anchor.BottomCentre,
+                    Origin = Anchor.BottomCentre,
+                    RelativeSizeAxes = Axes.Both,
+                    Height = 0,
+                    Masking = true,
+                    CornerRadius = 5,
+                    Children = new Drawable[]
+                    {
+                        floatingBox = new Box
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativeSizeAxes = Axes.Both,
+                        },
+                        statusIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativePositionAxes = Axes.Both,
+                            Height = 1f,
+                            Icon = FontAwesome.Solid.Heart,
+                            Size = new Vector2(20),
+                            Colour = Color4.White,
+                            Alpha = 0,
+                        },
+                        instructText = new OsuSpriteText
+                        {
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            RelativePositionAxes = Axes.Both,
+                            Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold),
+                            Text = @"Tournament Original!",
+                        },
+                    },
                 },
-                beatmapInfoFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold))
-                {
-                    Origin = Anchor.CentreLeft,
-                    RelativePositionAxes = Axes.Both,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Width = 0.88f,
-                    X = 0.14f,
-                    Y = 0.9f
-                }
             };
         }
 
@@ -130,11 +205,20 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
+            if (beatmap.IsOriginal.Value)
+            {
+                Scheduler.AddDelayed(() =>
+                {
+                    prepareFloatingBox();
+                    runAnimation();
+                }, 3000);
+            }
+
             Task.Run(async () =>
             {
                 try
                 {
-                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { ID = beatmap.BeatmapGuid }, true);
+                    workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { Hash = beatmap.BeatmapHash }, true);
 
                     if (ReferenceEquals(workingBeatmap, beatmapManager.DefaultBeatmap))
                     {
@@ -177,7 +261,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         beatmapInfoFlow.AddParagraph(beatmapInfo.GetDisplayTitleRomanisable(false, false));
                         beatmapInfoFlow.AddParagraph(beatmapInfo.DifficultyName);
                         beatmapInfoFlow.AddParagraph("Mapped by ");
-                        beatmapInfoFlow.AddText(beatmapInfo.Metadata.Author.Username, t => t.Colour = Color4.SkyBlue);
+                        beatmapInfoFlow.AddText(beatmapInfo.Metadata.Author.Username, t => t.Colour = colourProvider.Highlight1);
                     }
 
                     difficultyIcon.ScaleTo(1.75f, 250, Easing.OutQuint);
@@ -188,30 +272,80 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public void Shrink(int duration = 800)
         {
-            setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
-            setCover.MoveToY(0, duration, Easing.OutQuint);
-            setCover.ResizeHeightTo(1f, duration, Easing.OutQuint);
             this.ResizeHeightTo(80, duration, Easing.OutQuint);
+            infoContainer.ResizeHeightTo(1f, duration, Easing.OutQuint);
+            infoMask.FadeOut(duration, Easing.OutQuint);
+            setCover.FadeTo(0.6f, duration * 0.5f, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.5f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.5f, duration, Easing.OutQuint);
-            modIcon.ResizeWidthTo(0.15f, duration, Easing.OutQuint);
-            modIcon.MoveTo(new Vector2(0.4f, -0.15f), duration, Easing.OutQuint);
-            starRatingDisplay.MoveTo(new Vector2(0.4f, 0.15f), duration, Easing.OutQuint);
+            modText.ScaleTo(0.75f, duration, Easing.OutQuint);
             starRatingDisplay.ScaleTo(1.05f, duration, Easing.OutQuint);
         }
 
         public void Expand(int duration = 800)
         {
-            setCover.FadeIn(duration * 0.5f, Easing.OutQuint);
-            setCover.MoveToY(centre_offset, duration, Easing.OutQuint);
-            setCover.ResizeHeightTo(0.8f, duration, Easing.OutQuint);
             this.ResizeHeightTo(400, duration, Easing.OutQuint);
+            infoContainer.ResizeHeightTo(0.2f, duration, Easing.OutQuint);
+            infoMask.FadeIn(duration, Easing.OutQuint);
+            setCover.FadeTo(0.8f, duration * 0.5f, Easing.OutQuint);
             difficultyIconContainer.MoveToY(0.9f, duration, Easing.OutQuint);
             beatmapInfoFlow.MoveToY(0.9f, duration, Easing.OutQuint);
-            modIcon.ResizeWidthTo(0.25f, duration, Easing.OutQuint);
-            modIcon.MoveTo(new Vector2(0, -star_rating_y_expanded + centre_offset), duration, Easing.OutQuint);
-            starRatingDisplay.ScaleTo(1.75f, duration, Easing.OutQuint);
-            starRatingDisplay.MoveTo(new Vector2(0, star_rating_y_expanded + centre_offset), duration, Easing.OutQuint);
+            modText.ScaleTo(1f, duration, Easing.OutQuint);
+            starRatingDisplay.ScaleTo(1f, duration, Easing.OutQuint);
+        }
+
+        private void prepareFloatingBox() => Scheduler.AddDelayed(() =>
+        {
+            floatingContainer.Anchor = Anchor.TopCentre;
+            floatingContainer.Origin = Anchor.TopCentre;
+
+            floatingContainer.ResizeHeightTo(0, 1300, Easing.InOutQuint);
+
+            statusIcon.MoveToY(-2f, 1350, Easing.InExpo);
+            instructText.MoveToY(-2f, 1450, Easing.InExpo);
+
+            using (BeginDelayedSequence(500))
+            {
+                statusIcon.FadeOut(600, Easing.OutQuint);
+                instructText.FadeOut(600, Easing.OutQuint);
+            }
+        }, 200 + 100 + 2000);
+
+        private void runAnimation()
+        {
+            // Reset the state of the floating container
+            floatingContainer.Anchor = Anchor.BottomCentre;
+            floatingContainer.Origin = Anchor.BottomCentre;
+            floatingContainer.Height = 0;
+
+            // Colours may change halfway, using transforms to handle them.
+            statusIcon.FadeColour(colourProvider.Content1, 300, Easing.OutQuint);
+            instructText.FadeColour(colourProvider.Content1, 300, Easing.OutQuint);
+            floatingBox.FadeColour(colourProvider.Colour2, 300, Easing.OutQuint);
+
+            statusIcon.Y = 1.5f;
+            statusIcon.Alpha = 0f;
+
+            instructText.Y = 1.5f;
+            instructText.Alpha = 0f;
+
+            // Expand floating container and show instructions.
+            using (BeginDelayedSequence(200))
+            {
+                floatingContainer.ResizeHeightTo(1, 700, Easing.OutQuint);
+
+                statusIcon.FadeIn(300, Easing.OutQuint);
+                instructText.FadeIn(300, Easing.OutQuint);
+
+                using (BeginDelayedSequence(100))
+                {
+                    statusIcon.MoveToY(-0.175f, 800, Easing.OutExpo);
+                    instructText.Delay(50).MoveToY(0.175f, 800, Easing.OutExpo);
+                }
+            }
+
+            // Use a separate scheduler to handle other things around floating container.
+            prepareFloatingBox();
         }
     }
 }

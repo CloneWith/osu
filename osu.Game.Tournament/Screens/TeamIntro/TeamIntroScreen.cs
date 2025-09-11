@@ -27,6 +27,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
+                new TeamGradientBackground(),
                 mainContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,

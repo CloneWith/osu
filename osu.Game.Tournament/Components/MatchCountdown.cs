@@ -2,6 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using osu.Framework.Allocation;
+using osu.Framework.Audio;
+using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -30,6 +33,8 @@ namespace osu.Game.Tournament.Components
         /// If the countdown is in progress.
         /// </summary>
         public bool OnGoing { get; private set; }
+
+        public event Action? OnCompleted;
 
         public static Color4 NormalColour = Color4.White;
         public static Color4 AccentColour = FumoColours.SeaBlue.Regular;
@@ -61,6 +66,10 @@ namespace osu.Game.Tournament.Components
 
         // If the complete animation is triggered since last countdown reset.
         private bool endTriggered;
+
+        private Sample? tickSample;
+        private Sample? lastSecondsSample;
+        private Sample? completedSample;
 
         public MatchCountdown()
         {
@@ -168,6 +177,17 @@ namespace osu.Game.Tournament.Components
             };
         }
 
+        [BackgroundDependencyLoader]
+        private void load(AudioManager audio)
+        {
+            tickSample = audio.Samples.Get(@"Multiplayer/countdown-tick");
+            lastSecondsSample = audio.Samples.Get(@"Gameplay/resume-countdown");
+            completedSample = audio.Samples.Get(@"Menu/button-default-select");
+
+            if (tickSample != null)
+                tickSample.Volume.Value = 0.6f;
+        }
+
         /// <summary>
         /// If the countdown takes a long time. In this case it means more than one day.
         /// </summary>
@@ -255,6 +275,24 @@ namespace osu.Game.Tournament.Components
                 }
             }
 
+            if (remainingTime.Value.TotalMinutes <= 1
+                && lastSecond != countdownSecondPart.Text
+                && remainingTime.Value.Milliseconds >= 990)
+            {
+                tickSample?.Play();
+
+                if (remainingTime.Value.Seconds <= 2)
+                {
+                    bool isLastSecond = remainingTime.Value.Seconds == 0;
+
+                    if (lastSecondsSample != null)
+                    {
+                        lastSecondsSample.Frequency.Value = isLastSecond ? 0.5f : 1;
+                        lastSecondsSample.Play();
+                    }
+                }
+            }
+
             lastHour = countdownHourPart.Text.ToString();
             lastMinute = countdownMinutePart.Text.ToString();
             lastSecond = countdownSecondPart.Text.ToString();
@@ -287,6 +325,7 @@ namespace osu.Game.Tournament.Components
             if (remainingTime.Value.NearlyEqualsZero())
             {
                 OnGoing = false;
+                OnCompleted?.Invoke();
                 fillDoneContent();
             }
             else updateTimerTextParts();
@@ -381,6 +420,7 @@ namespace osu.Game.Tournament.Components
 
             contentFlow.FadeOut().Delay(500).FadeIn().Delay(500).Loop(0, 3);
             contentFlow.Delay(2000).ScaleTo(1.2f, 1000, Easing.InQuint);
+            completedSample?.Play();
 
             Scheduler.AddDelayed(() =>
             {

@@ -229,6 +229,12 @@ namespace osu.Game.Tournament
                 addedInfo |= await AddRoundBeatmaps().ConfigureAwait(false);
                 addedInfo |= await AddSeedingBeatmaps().ConfigureAwait(false);
 
+                foreach (var match in ladder.Matches)
+                {
+                    match.ChessHistory.Clear();
+                    match.ChessHistory.AddRange(HistoryExtensions.Convert(match.ChessPlacements.ToList(), match.Round.Value?.Beatmaps.ToList()));
+                }
+
                 if (addedInfo)
                     saveChanges();
 
@@ -282,6 +288,10 @@ namespace osu.Game.Tournament
             {
                 Logger.Error(e, "Failed to parse background mapping information, falling back to default values.");
             }
+
+            // Delayed saving here after background settings deserialized
+            if (ladder.Matches.Any())
+                saveChanges();
 
             Schedule(() =>
             {
@@ -520,6 +530,8 @@ namespace osu.Game.Tournament
             AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Light");
             AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-SemiBold");
             AddFont(Resources, @"Fonts/Torus-Alternate/Torus-Alternate-Bold");
+
+            AddFont(Resources, @"Fonts/KaushanScript/KaushanScript-Regular");
 
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Regular");
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-SemiBold");

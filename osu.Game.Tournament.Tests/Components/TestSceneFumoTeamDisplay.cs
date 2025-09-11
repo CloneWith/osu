@@ -3,6 +3,7 @@
 
 using NUnit.Framework;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Components;
@@ -37,6 +38,21 @@ namespace osu.Game.Tournament.Tests.Components
         {
             AddStep("Change Red team name", () => Ladder.CurrentMatch.Value!.Team1.Value!.FullName.Value = "赢了曹飞对面电脑显示屏");
             AddStep("Change Blue team name", () => Ladder.CurrentMatch.Value!.Team2.Value!.FullName.Value = "弱队");
+        }
+
+        [Test]
+        public void TestScoreChange()
+        {
+            AddSliderStep("Red team score", 0, 10, 0, s => setScore(Ladder.CurrentMatch.Value?.Team1Score, s));
+            AddSliderStep("Blue team score", 0, 10, 0, s => setScore(Ladder.CurrentMatch.Value?.Team2Score, s));
+
+            void setScore(Bindable<int?>? target, int value)
+            {
+                if (target == null)
+                    return;
+
+                target.Value = value;
+            }
         }
 
         [Test]

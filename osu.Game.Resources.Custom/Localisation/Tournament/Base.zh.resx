@@ -144,4 +144,25 @@
     <data name="screen_changed" xml:space="preserve">
         <value>屏幕已切换</value>
     </data>
+    <data name="disqualified" xml:space="preserve">
+        <value>取消资格</value>
+    </data>
+    <data name="punishment" xml:space="preserve">
+        <value>行为处罚</value>
+    </data>
+    <data name="user_role" xml:space="preserve">
+        <value>角色</value>
+    </data>
+    <data name="team_leader" xml:space="preserve">
+        <value>队长</value>
+    </data>
+    <data name="team_strategist" xml:space="preserve">
+        <value>策略师</value>
+    </data>
+    <data name="team_member" xml:space="preserve">
+        <value>队员</value>
+    </data>
+    <data name="thanks" xml:space="preserve">
+        <value>感谢各位选手与工作人员的支持！</value>
+    </data>
 </root>

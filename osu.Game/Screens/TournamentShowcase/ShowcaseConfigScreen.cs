@@ -1,14 +1,18 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
@@ -16,24 +20,29 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Input.Bindings;
 using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Rulesets;
+using osu.Game.Scoring;
 using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseConfigScreen : OsuScreen
+    public partial class ShowcaseConfigScreen : OsuScreen, IKeyBindingHandler<GlobalAction>
     {
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         [Resolved]
         private RulesetStore rulesets { get; set; } = null!;
+
+        [Resolved]
+        private ScoreManager scoreManager { get; set; } = null!;
 
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
@@ -58,7 +67,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox commentInput = null!;
         private FormSliderBar<int> transformDurationInput = null!;
         private FormSliderBar<int> startCountdownInput = null!;
-        private FormDropdown<ShowcaseLayout> layoutDropdown = null!;
+        private FormEnumDropdown<OverlayColourScheme> colourSchemeDropdown = null!;
+        private FormEnumDropdown<ShowcaseLayout> layoutDropdown = null!;
         private FormSliderBar<float> aspectRatioInput = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
         private FormTextBox outroTitleInput = null!;
@@ -165,9 +175,17 @@ namespace osu.Game.Screens.TournamentShowcase
                 Children = new Drawable[]
                 {
                     new SectionHeader(TournamentShowcaseStrings.ShowcaseSettingsHeader),
+                    colourSchemeDropdown = new FormEnumDropdown<OverlayColourScheme>
+                    {
+                        Caption = TournamentShowcaseStrings.ColourScheme,
+                        HintText = TournamentShowcaseStrings.ColourSchemeDescription,
+                        Current = currentProfile.Value.ColourScheme,
+                    },
                     layoutDropdown = new FormEnumDropdown<ShowcaseLayout>
                     {
-                        Caption = TournamentShowcaseStrings.InterfaceLayout, HintText = TournamentShowcaseStrings.InterfaceLayoutDescription, Current = currentProfile.Value.Layout,
+                        Caption = TournamentShowcaseStrings.InterfaceLayout,
+                        HintText = TournamentShowcaseStrings.InterfaceLayoutDescription,
+                        Current = currentProfile.Value.Layout,
                     },
                     aspectRatioInput = new FormSliderBar<float>
                     {
@@ -352,11 +370,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         RelativeSizeAxes = Axes.X,
                                         Width = 0.4f,
                                         Text = TournamentShowcaseStrings.StartShowcase,
-                                        Action = () =>
-                                        {
-                                            if (checkConfig())
-                                                this.Push(new ShowcaseScreen(currentProfile.Value));
-                                        },
+                                        Action = startShowcase,
                                     },
                                 },
                             },
@@ -386,6 +400,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                        + $" You are still editing \"{e.OldValue}\".");
                 }
             });
+            colourSchemeDropdown.Current.BindValueChanged(e => colourProvider.ChangeColourScheme(e.NewValue), true);
 
             this.FadeInFromZero(500, Easing.OutQuint);
 
@@ -451,6 +466,27 @@ namespace osu.Game.Screens.TournamentShowcase
             return isValid;
         }
 
+        private bool checkScores(bool tryFetch = false)
+        {
+            if (currentProfile.Value.Beatmaps.Any(b => b.ShowcaseScore == null))
+            {
+                if (tryFetch)
+                {
+                    currentProfile.Value.Beatmaps.Where(b => b.ShowcaseScore == null)
+                                  .ForEach(b => b.ShowcaseScore = scoreManager.GetScore(new ScoreInfo
+                                  {
+                                      Hash = b.ScoreHash
+                                  })?.ScoreInfo);
+
+                    return checkScores();
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Update the form components to match the new profile.
         /// </summary>
@@ -461,6 +497,7 @@ namespace osu.Game.Screens.TournamentShowcase
             roundNameInput.Current = currentProfile.Value.RoundName;
             dateTimeInput.Current = currentProfile.Value.DateTime;
             commentInput.Current = currentProfile.Value.Comment;
+            colourSchemeDropdown.Current = currentProfile.Value.ColourScheme;
             layoutDropdown.Current = currentProfile.Value.Layout;
             aspectRatioInput.Current = currentProfile.Value.AspectRatio;
             transformDurationInput.Current = currentProfile.Value.TransformDuration;
@@ -474,6 +511,24 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 AllowDeletion = false
             });
+        }
+
+        private void startShowcase()
+        {
+            Action launchAction = () => this.Push(new ShowcaseScreen(currentProfile.Value));
+
+            if (checkConfig())
+            {
+                if (!checkScores(true))
+                {
+                    int missing = currentProfile.Value.Beatmaps.Count(b => b.ShowcaseScore == null);
+                    dialogOverlay?.Push(new ScoreMissingDialog(missing, launchAction));
+                }
+                else
+                {
+                    launchAction.Invoke();
+                }
+            }
         }
 
         private void currentTabChanged(ValueChangedEvent<ShowcaseConfigTab> e)
@@ -514,6 +569,23 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             return base.OnExiting(e);
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+        {
+            switch (e.Action)
+            {
+                case GlobalAction.ShowcaseStart:
+                    startShowcase();
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+        {
         }
     }
 

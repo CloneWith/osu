@@ -23,9 +23,12 @@
         <value>切换聊天</value>
     </data>
     <data name="chroma_width" xml:space="preserve">
-        <value>绿幕宽度</value>
+        <value>色幕宽度</value>
     </data>
     <data name="players_per_team" xml:space="preserve">
         <value>每队玩家数</value>
+    </data>
+    <data name="blue_chroma" xml:space="preserve">
+        <value>使用蓝幕</value>
     </data>
 </root>

@@ -39,6 +39,7 @@ namespace osu.Game.Input.Bindings
                                                                        .Concat(replayKeyBindings)
                                                                        .Concat(songSelectKeyBindings)
                                                                        .Concat(audioControlKeyBindings)
+                                                                       .Concat(showcaseKeyBindings)
                                                                        // Overlay bindings may conflict with more local cases like the editor so they are checked last.
                                                                        // It has generally been agreed on that local screens like the editor should have priority,
                                                                        // based on such usages potentially requiring a lot more key bindings that may be "shared" with global ones.
@@ -72,6 +73,9 @@ namespace osu.Game.Input.Bindings
                 case GlobalActionCategory.EditorTestPlay:
                     return editorTestPlayKeyBindings;
 
+                case GlobalActionCategory.Showcase:
+                    return showcaseKeyBindings;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(category), category, $"Unexpected {nameof(GlobalActionCategory)}");
             }
@@ -88,9 +92,6 @@ namespace osu.Game.Input.Bindings
         {
             new KeyBinding(InputKey.Up, GlobalAction.SelectPrevious),
             new KeyBinding(InputKey.Down, GlobalAction.SelectNext),
-
-            new KeyBinding(InputKey.Left, GlobalAction.SelectPreviousGroup),
-            new KeyBinding(InputKey.Right, GlobalAction.SelectNextGroup),
 
             new KeyBinding(InputKey.Space, GlobalAction.Select),
             new KeyBinding(InputKey.Enter, GlobalAction.Select),
@@ -199,6 +200,14 @@ namespace osu.Game.Input.Bindings
 
         private static IEnumerable<KeyBinding> songSelectKeyBindings => new[]
         {
+            new KeyBinding(InputKey.Left, GlobalAction.ActivatePreviousSet),
+            new KeyBinding(InputKey.Right, GlobalAction.ActivateNextSet),
+
+            new KeyBinding(new[] { InputKey.Shift, InputKey.Left }, GlobalAction.ExpandPreviousGroup),
+            new KeyBinding(new[] { InputKey.Shift, InputKey.Right }, GlobalAction.ExpandNextGroup),
+
+            new KeyBinding(new[] { InputKey.Shift, InputKey.Enter }, GlobalAction.ToggleCurrentGroup),
+
             new KeyBinding(InputKey.F1, GlobalAction.ToggleModSelection),
             new KeyBinding(InputKey.F2, GlobalAction.SelectNextRandom),
             new KeyBinding(new[] { InputKey.Shift, InputKey.F2 }, GlobalAction.SelectPreviousRandom),
@@ -225,6 +234,17 @@ namespace osu.Game.Input.Bindings
             new KeyBinding(InputKey.F5, GlobalAction.MusicNext),
             new KeyBinding(InputKey.PlayPause, GlobalAction.MusicPlay),
             new KeyBinding(InputKey.F3, GlobalAction.MusicPlay)
+        };
+
+        private static IEnumerable<KeyBinding> showcaseKeyBindings => new[]
+        {
+            new KeyBinding(new[] { InputKey.Control, InputKey.Enter }, GlobalAction.ShowcaseStart),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Alt, InputKey.Q }, GlobalAction.ShowcaseForceQuit),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Alt, InputKey.Left }, GlobalAction.ShowcasePrevious),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Alt, InputKey.Right }, GlobalAction.ShowcaseNext),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Space }, GlobalAction.ShowcasePauseContinue),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Alt, InputKey.R }, GlobalAction.ShowcaseReplay),
+            new KeyBinding(new[] { InputKey.Control, InputKey.A }, GlobalAction.ShowcaseToggleAuto),
         };
     }
 
@@ -396,11 +416,11 @@ namespace osu.Game.Input.Bindings
         [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.EditorDecreaseDistanceSpacing))]
         EditorDecreaseDistanceSpacing,
 
-        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.SelectPreviousGroup))]
-        SelectPreviousGroup,
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.ActivatePreviousSet))]
+        ActivatePreviousSet,
 
-        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.SelectNextGroup))]
-        SelectNextGroup,
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.ActivateNextSet))]
+        ActivateNextSet,
 
         [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.DeselectAllMods))]
         DeselectAllMods,
@@ -506,6 +526,36 @@ namespace osu.Game.Input.Bindings
 
         [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.EditorDiscardUnsavedChanges))]
         EditorDiscardUnsavedChanges,
+
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.ExpandPreviousGroup))]
+        ExpandPreviousGroup,
+
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.ExpandNextGroup))]
+        ExpandNextGroup,
+
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.ToggleCurrentGroup))]
+        ToggleCurrentGroup,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.StartShowcase))]
+        ShowcaseStart,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.ForceQuit))]
+        ShowcaseForceQuit,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.GoToPrevious))]
+        ShowcasePrevious,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.ReplayCurrent))]
+        ShowcaseReplay,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.GoToNext))]
+        ShowcaseNext,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.PauseOrContinue))]
+        ShowcasePauseContinue,
+
+        [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.PauseOrContinue))]
+        ShowcaseToggleAuto,
     }
 
     public enum GlobalActionCategory
@@ -518,5 +568,6 @@ namespace osu.Game.Input.Bindings
         AudioControl,
         Overlays,
         EditorTestPlay,
+        Showcase,
     }
 }

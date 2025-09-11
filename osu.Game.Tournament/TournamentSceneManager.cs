@@ -124,6 +124,7 @@ namespace osu.Game.Tournament
                                 new LadderEditorScreen(),
                                 new TeamEditorScreen(),
                                 new RoundEditorScreen(),
+                                new PunishmentEditorScreen(),
                                 new CountdownScreen(),
                                 new ShowcaseScreen(),
                                 new MapPoolScreen(),
@@ -133,7 +134,7 @@ namespace osu.Game.Tournament
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
                                 new BoardScreen(),
-                            }
+                            },
                         },
                         defaultProxyChatContainer = new Container
                         {
@@ -145,10 +146,10 @@ namespace osu.Game.Tournament
                                 RelativeSizeAxes = Axes.None,
                                 Width = STREAM_AREA_WIDTH,
                                 Height = 480,
-                                Child = chat
+                                Child = chat,
                             },
-                        }
-                    }
+                        },
+                    },
                 },
                 new Container
                 {
@@ -162,77 +163,110 @@ namespace osu.Game.Tournament
                             Colour = Color4.Black,
                             RelativeSizeAxes = Axes.Both,
                         },
-                        new OsuScrollContainer
+                        new GridContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            ScrollbarVisible = false,
-                            Child = buttons = new FillFlowContainer
+                            RowDimensions =
+                            [
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(),
+                                new Dimension(GridSizeMode.AutoSize),
+                            ],
+                            Content = new Drawable[][]
                             {
-                                Anchor = Anchor.TopCentre,
-                                Origin = Anchor.TopCentre,
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Direction = FillDirection.Vertical,
-                                Spacing = new Vector2(5),
-                                Padding = new MarginPadding(5),
-                                Children = new Drawable[]
-                                {
-                                    new ToolbarClock
+                                [
+                                    new SidebarPart
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        AutoSizeAxes = Axes.X,
-                                        RelativeSizeAxes = Axes.None,
-                                        Height = 50,
-                                        Scale = new Vector2(1.25f),
+                                        Name = "Top Area",
+                                        Children = new Drawable[]
+                                        {
+                                            new ToolbarClock
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                AutoSizeAxes = Axes.X,
+                                                RelativeSizeAxes = Axes.None,
+                                                Height = 50,
+                                                Scale = new Vector2(1.25f),
+                                            },
+                                            timer = new SidebarTimer
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                RelativeSizeAxes = Axes.X,
+                                            },
+                                        },
                                     },
-                                    timer = new SidebarTimer
+                                ],
+                                [
+                                    new OsuScrollContainer
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.X,
+                                        Name = "Scrollable Area",
+                                        RelativeSizeAxes = Axes.Both,
+                                        ScrollbarVisible = false,
+                                        Child = buttons = new FillFlowContainer
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Spacing = new Vector2(5),
+                                            Padding = new MarginPadding(5),
+                                            Children = new Drawable[]
+                                            {
+                                                new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(RoundEditorScreen)) { Text = ScreenStrings.RoundsEditor, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(LadderEditorScreen)) { Text = ScreenStrings.BracketEditor, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(PunishmentEditorScreen)) { Text = ScreenStrings.PunishmentEditor, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = ScreenStrings.Schedule, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(LadderScreen), Key.R) { Text = ScreenStrings.Bracket, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = ScreenStrings.TeamIntro, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(SeedingScreen), Key.D) { Text = ScreenStrings.Seeding, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(CountdownScreen), Key.C) { Text = ScreenStrings.Countdown, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(GameplayScreen), Key.G) { Text = ScreenStrings.Gameplay, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = ScreenStrings.Win, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
+                                            },
+                                        },
                                     },
-                                    new Separator(),
-                                    new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(RoundEditorScreen)) { Text = ScreenStrings.RoundsEditor, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(LadderEditorScreen)) { Text = ScreenStrings.BracketEditor, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = ScreenStrings.Schedule, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(LadderScreen), Key.R) { Text = ScreenStrings.Bracket, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = ScreenStrings.TeamIntro, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(SeedingScreen), Key.D) { Text = ScreenStrings.Seeding, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(CountdownScreen), Key.C) { Text = ScreenStrings.Countdown, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(GameplayScreen), Key.G) { Text = ScreenStrings.Gameplay, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = ScreenStrings.Win, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
-                                    new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
-                                    new Separator(),
-                                    new TournamentSpriteText
+                                ],
+                                [
+                                    new SidebarPart
                                     {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        Text = BaseStrings.ClientName,
-                                        Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
-                                        Colour = colourProvider.Colour1,
+                                        Name = "Bottom Area",
+                                        Children = new Drawable[]
+                                        {
+                                            new TournamentSpriteText
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                Text = BaseStrings.ClientName,
+                                                Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
+                                                Colour = colourProvider.Colour1,
+                                            },
+                                            new TournamentSpriteText
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                Text = gameBase.Version,
+                                                Font = OsuFont.GetFont(size: 18, weight: FontWeight.SemiBold),
+                                                Margin = new MarginPadding { Bottom = 5 },
+                                            },
+                                        },
                                     },
-                                    new TournamentSpriteText
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        Text = gameBase.Version,
-                                        Font = OsuFont.GetFont(size: 18, weight: FontWeight.SemiBold),
-                                        Margin = new MarginPadding { Bottom = 5 },
-                                    },
-                                }
-                            }
+                                ],
+                            },
                         },
                     },
                 },
@@ -245,6 +279,20 @@ namespace osu.Game.Tournament
 
             defaultProxyChatContainer.Add(proxyChatContainer = chatContainer.CreateProxy());
             timer.OnCancel += () => scheduledScreenChange?.Cancel();
+        }
+
+        private partial class SidebarPart : FillFlowContainer
+        {
+            public SidebarPart()
+            {
+                Anchor = Anchor.TopCentre;
+                Origin = Anchor.TopCentre;
+                RelativeSizeAxes = Axes.X;
+                AutoSizeAxes = Axes.Y;
+                Direction = FillDirection.Vertical;
+                Spacing = new Vector2(5);
+                Padding = new MarginPadding(5);
+            }
         }
 
         private float depth;
@@ -284,11 +332,16 @@ namespace osu.Game.Tournament
         public void ScheduleScreenChange(Type screenType, int time)
         {
             scheduledScreenChange?.Cancel();
-            scheduledScreenChange = Scheduler.AddDelayed(() => { SetScreen(screenType); }, time);
+
+            // Need to set timer first since it calls OnCancel
             timer.TimerTime = time;
+            scheduledScreenChange = Scheduler.AddDelayed(() => { SetScreen(screenType); }, time);
+
             timer.ActiveText = $"-> {screenType.Name}";
             timer.Start();
         }
+
+        public void CancelScreenChange() => timer.Stop();
 
         public void SetScreen(TournamentScreen screen)
         {

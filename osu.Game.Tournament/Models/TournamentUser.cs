@@ -3,7 +3,10 @@
 
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using osu.Framework.Localisation;
 using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Users;
 
 namespace osu.Game.Tournament.Models
@@ -18,6 +21,8 @@ namespace osu.Game.Tournament.Models
         public int OnlineID { get; set; }
 
         public string Username { get; set; } = string.Empty;
+
+        public UserRole Role { get; set; }
 
         /// <summary>
         /// The player's country.
@@ -40,11 +45,6 @@ namespace osu.Game.Tournament.Models
         /// </summary>
         public RatingInfo Ratings { get; set; } = new RatingInfo();
 
-        /// <summary>
-        /// The player's punishment information and status.
-        /// </summary>
-        public PunishmentInfo Punishments { get; set; } = new PunishmentInfo();
-
         public APIUser ToAPIUser()
         {
             var user = new APIUser
@@ -65,5 +65,27 @@ namespace osu.Game.Tournament.Models
         }
 
         bool IUser.IsBot => false;
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum UserRole
+    {
+        /// <summary>
+        /// Team member, the minimum role.
+        /// </summary>
+        [LocalisableDescription(typeof(BaseStrings), nameof(BaseStrings.TeamMember))]
+        Member,
+
+        /// <summary>
+        /// Team members making decisions.
+        /// </summary>
+        [LocalisableDescription(typeof(BaseStrings), nameof(BaseStrings.TeamStrategist))]
+        Strategist,
+
+        /// <summary>
+        /// Team leader.
+        /// </summary>
+        [LocalisableDescription(typeof(BaseStrings), nameof(BaseStrings.TeamLeader))]
+        Leader,
     }
 }

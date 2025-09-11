@@ -126,4 +126,10 @@
     <data name="auto_advance_screens" xml:space="preserve">
         <value>自动推进屏幕</value>
     </data>
+    <data name="clear_special_state" xml:space="preserve">
+        <value>清除特殊状态</value>
+    </data>
+    <data name="override_tiebreaker_control" xml:space="preserve">
+        <value>特殊控制</value>
+    </data>
 </root>

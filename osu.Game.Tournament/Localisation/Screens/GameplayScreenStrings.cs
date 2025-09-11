@@ -20,6 +20,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString ToggleChat => new TranslatableString(getKey(@"toggle_chat"), @"Toggle chat");
 
         /// <summary>
+        /// "Blue chroma"
+        /// </summary>
+        public static LocalisableString BlueChroma => new TranslatableString(getKey(@"blue_chroma"), @"Blue chroma");
+
+        /// <summary>
         /// "Chroma width"
         /// </summary>
         public static LocalisableString ChromaWidth => new TranslatableString(getKey(@"chroma_width"), @"Chroma width");

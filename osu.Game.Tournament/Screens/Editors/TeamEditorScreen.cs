@@ -239,6 +239,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     private IDialogOverlay? dialogOverlay { get; set; }
 
                     private readonly Bindable<int?> playerId = new Bindable<int?>();
+                    private readonly Bindable<UserRole> role = new Bindable<UserRole>();
 
                     private readonly Container userPanelContainer;
 
@@ -262,26 +263,46 @@ namespace osu.Game.Tournament.Screens.Editors
                             },
                             new FillFlowContainer
                             {
-                                Margin = new MarginPadding(5),
-                                Padding = new MarginPadding { Right = 60 },
-                                Spacing = new Vector2(5),
-                                Direction = FillDirection.Horizontal,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(5),
+                                Margin = new MarginPadding(5),
+                                // Leave space for the remove button
+                                Padding = new MarginPadding { Right = 150 },
                                 Children = new Drawable[]
                                 {
-                                    new SettingsNumberBox
+                                    new GridContainer
                                     {
-                                        LabelText = BaseStrings.UserID,
-                                        Width = 0.25f,
-                                        Current = playerId,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        RowDimensions = [new Dimension(GridSizeMode.AutoSize)],
+                                        ColumnDimensions =
+                                        [
+                                            new Dimension(),
+                                            new Dimension(GridSizeMode.Absolute, 350),
+                                        ],
+                                        Content = new Drawable[][]
+                                        {
+                                            [
+                                                new SettingsNumberBox
+                                                {
+                                                    LabelText = BaseStrings.UserID,
+                                                    Current = playerId,
+                                                },
+                                                userPanelContainer = new Container
+                                                {
+                                                    RelativeSizeAxes = Axes.Both,
+                                                },
+                                            ],
+                                        }
                                     },
-                                    userPanelContainer = new Container
+                                    new FormEnumDropdown<UserRole>
                                     {
-                                        Width = 350,
-                                        RelativeSizeAxes = Axes.Y,
+                                        Caption = BaseStrings.UserRole,
+                                        Current = role,
                                     },
-                                }
+                                },
                             },
                             new DangerousSettingsButton
                             {
@@ -302,7 +323,10 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
+                        role.Default = role.Value = user.Role;
                         playerId.Default = playerId.Value = user.OnlineID;
+
+                        role.BindValueChanged(r => user.Role = r.NewValue);
                         playerId.BindValueChanged(id =>
                         {
                             user.OnlineID = id.NewValue ?? 0;

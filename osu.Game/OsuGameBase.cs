@@ -84,8 +84,6 @@ namespace osu.Game
 
         public const string OSU_PROTOCOL = "osu://";
 
-        public const string CLIENT_STREAM_NAME = @"lazer";
-
         /// <summary>
         /// The filename of the main client database.
         /// </summary>
@@ -93,7 +91,7 @@ namespace osu.Game
 
         public const int SAMPLE_CONCURRENCY = 6;
 
-        public const double SFX_STEREO_STRENGTH = 0.75;
+        public const double SFX_STEREO_STRENGTH = 0.6;
 
         /// <summary>
         /// Length of debounce (in milliseconds) for commonly occuring sample playbacks that could stack.
@@ -121,8 +119,6 @@ namespace osu.Game
 
         public bool IsDeployedBuild => AssemblyVersion.Major > 0;
 
-        internal const string BUILD_SUFFIX = "offc";
-
         public virtual string Version
         {
             get
@@ -130,8 +126,16 @@ namespace osu.Game
                 if (!IsDeployedBuild)
                     return @"local " + (DebugUtils.IsDebugBuild ? @"debug" : @"release");
 
-                var version = AssemblyVersion;
-                return $@"{version.Major}.{version.Minor}.{version.Build}-{BUILD_SUFFIX}";
+                string informationalVersion = Assembly.GetEntryAssembly()?
+                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                    .InformationalVersion;
+
+                // Example: [assembly: AssemblyInformationalVersion("2025.613.0-tachyon+d934e574b2539e8787956c3c9ecce9dadebb10ee")]
+                if (!string.IsNullOrEmpty(informationalVersion))
+                    return informationalVersion.Split('+').First();
+
+                Version version = AssemblyVersion;
+                return $@"{version.Major}.{version.Minor}.{version.Build}-lazer";
             }
         }
 
@@ -491,15 +495,18 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Inter/Inter-Bold");
             AddFont(Resources, @"Fonts/Inter/Inter-BoldItalic");
 
+            AddFont(Resources, @"Fonts/KaushanScript/KaushanScript-Regular");
+
             // Use HarmonyOS Sans as primary font for CJK characters
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Regular");
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-SemiBold");
             AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Bold");
 
             AddFont(Resources, @"Fonts/Noto/Noto-Basic");
-            AddFont(Resources, @"Fonts/Noto/Noto-Hangul");
+            AddFont(Resources, @"Fonts/Noto/Noto-Bopomofo");
             AddFont(Resources, @"Fonts/Noto/Noto-CJK-Basic");
             AddFont(Resources, @"Fonts/Noto/Noto-CJK-Compatibility");
+            AddFont(Resources, @"Fonts/Noto/Noto-Hangul");
             AddFont(Resources, @"Fonts/Noto/Noto-Thai");
 
             AddFont(Resources, @"Fonts/Venera/Venera-Light");

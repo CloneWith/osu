@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Models;
 using osu.Game.Users.Drawables;
 using osuTK;
@@ -33,13 +34,18 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void prepareData()
         {
-            static void formatComment(SpriteText t) => t.Font = OsuFont.TorusAlternate.With(size: 22, weight: FontWeight.SemiBold);
+            static void formatComment(SpriteText t) => t.Font = OsuFont.TorusAlternate.With(size: 20, weight: FontWeight.SemiBold);
 
             areaContainer.Clear();
 
-            if (!string.IsNullOrEmpty(Beatmap.Value.DiffField.Value))
+            if (!string.IsNullOrWhiteSpace(Beatmap.Value.DiffField.Value))
             {
-                areaContainer.AddIcon(FontAwesome.Solid.Star);
+                areaContainer.AddIcon(FontAwesome.Solid.Star, icon =>
+                {
+                    icon.Colour = FumoColours.SunshineYellow.Regular;
+                    icon.Margin = new MarginPadding { Right = 5 };
+                });
+
                 areaContainer.AddParagraph(Beatmap.Value.DiffField.Value, formatComment);
             }
 
@@ -139,7 +145,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Horizontal,
-                    Spacing = new Vector2(2)
                 },
                 commentHeader = new FillFlowContainer
                 {

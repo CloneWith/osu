@@ -144,8 +144,15 @@ namespace osu.Game.Tournament.Components
 
             Texture? borderTexture = textures.Get(@"Board/chess-border");
             Texture? specialTexture = textures.Get(@"Board/special-mask");
-            chessIcon = textures.Get(@$"Board/{ModName}{ModIndex}")
-                        ?? textures.Get(@$"Board/{ModName}");
+
+            // Use win icon for TB maps, subject to change
+            if (ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase))
+                chessIcon = textures.Get(@"Board/chess-win");
+            else
+            {
+                chessIcon = textures.Get(@$"Board/{ModName}{ModIndex}")
+                            ?? textures.Get(@$"Board/{ModName}");
+            }
 
             EdgeEffect = new EdgeEffectParameters
             {

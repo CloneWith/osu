@@ -8,11 +8,20 @@ namespace osu.Game.Tournament.Components
 {
     public interface IAnimation : IDrawable
     {
-        public event Action? OnAnimationComplete;
+        /// <summary>
+        /// Triggered when the animation has completed.
+        /// </summary>
+        event Action? OnAnimationComplete;
 
-        public void Fire();
+        /// <summary>
+        /// Start the animation.
+        /// </summary>
+        void Fire();
 
-        public AnimationStatus Status { get; }
+        /// <summary>
+        /// The status of the animation.
+        /// </summary>
+        AnimationStatus Status { get; }
     }
 
     public enum AnimationStatus

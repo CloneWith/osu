@@ -2,8 +2,8 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics;
@@ -15,11 +15,13 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamWithPlayers : CompositeDrawable
     {
-        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool autoAdjust = true)
+        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour,
+                                       bool autoAdjust = true, bool hideHeader = false)
         {
             AutoSizeAxes = Axes.Both;
 
-            var players = team?.Players ?? new BindableList<TournamentUser>();
+            var players = team?.Players.OrderByDescending(p => p.Role).ToList()
+                          ?? new List<TournamentUser>();
 
             // split the players into two even columns, favouring the first column if odd.
             int split = (int)Math.Ceiling(players.Count / 2f);
@@ -33,7 +35,10 @@ namespace osu.Game.Tournament.Components
                     Spacing = new Vector2(30),
                     Children = new Drawable[]
                     {
-                        new DrawableTeamTitleWithHeader(team, colour),
+                        new DrawableTeamTitleWithHeader(team, colour)
+                        {
+                            Alpha = hideHeader ? 0 : 1,
+                        },
                         new FillFlowContainer
                         {
                             AutoSizeAxes = Axes.Both,
@@ -72,16 +77,11 @@ namespace osu.Game.Tournament.Components
                     Colour = Color4.White,
                 };
 
-            static TeamPlayerCard createPlayerCard(TournamentUser user) =>
-                new TeamPlayerCard(user.ToAPIUser())
+            FumoUserCard createPlayerCard(TournamentUser user) =>
+                new FumoUserCard(user, colour)
                 {
                     RelativeSizeAxes = Axes.None,
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Width = 250,
-                    Height = 50,
                     Margin = new MarginPadding { Bottom = 10 },
-                    Scale = new Vector2(1f),
                 };
         }
     }

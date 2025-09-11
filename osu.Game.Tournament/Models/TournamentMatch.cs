@@ -54,6 +54,8 @@ namespace osu.Game.Tournament.Models
 
         public readonly ObservableCollection<ChessPlacement> ChessPlacements = new ObservableCollection<ChessPlacement>();
 
+        public readonly ObservableCollection<History> ChessHistory = new ObservableCollection<History>();
+
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();
 
@@ -69,6 +71,8 @@ namespace osu.Game.Tournament.Models
         public readonly Bindable<bool> Current = new Bindable<bool>();
 
         public readonly Bindable<DateTimeOffset> Date = new Bindable<DateTimeOffset>(DateTimeOffset.Now);
+
+        public readonly BindableBool IsFinalStage = new BindableBool();
 
         public readonly BindableBool PreparationMode = new BindableBool(true);
 
@@ -174,9 +178,6 @@ namespace osu.Game.Tournament.Models
                     }
                 }
             }
-
-            if (num.red == 1) num.red = 0;
-            if (num.blue == 1) num.blue = 0;
 
             return num;
 

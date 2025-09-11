@@ -29,6 +29,7 @@ namespace osu.Game.Tournament.Components
         private Container flagContainer = null!;
         private OsuSpriteText teamNameText = null!;
         private OsuSpriteText teamSeedText = null!;
+        private TeamCoupletCounter coupletCounter = null!;
         private Circle nameHeader = null!;
         private Box colourMask = null!;
         private SpriteIcon activeIcon = null!;
@@ -117,26 +118,53 @@ namespace osu.Game.Tournament.Components
                     Spacing = new Vector2(1),
                     Children = new Drawable[]
                     {
-                        nameHeader = new Circle
+                        new FillFlowContainer
                         {
                             Anchor = anchor,
                             Origin = anchor,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 4,
-                            Colour = TournamentGame.GetTeamColour(colour),
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Vertical,
+                            Spacing = new Vector2(1),
+                            Children = new Drawable[]
+                            {
+                                nameHeader = new Circle
+                                {
+                                    Anchor = anchor,
+                                    Origin = anchor,
+                                    RelativeSizeAxes = Axes.X,
+                                    Height = 4,
+                                    Colour = TournamentGame.GetTeamColour(colour),
+                                },
+                                teamNameText = new OsuSpriteText
+                                {
+                                    Anchor = anchor,
+                                    Origin = anchor,
+                                    Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
+                                    Colour = TournamentGame.GetTeamColour(colour),
+                                },
+                            },
                         },
-                        teamNameText = new OsuSpriteText
+                        new FillFlowContainer
                         {
                             Anchor = anchor,
                             Origin = anchor,
-                            Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
-                            Colour = TournamentGame.GetTeamColour(colour),
-                        },
-                        teamSeedText = new OsuSpriteText
-                        {
-                            Anchor = anchor,
-                            Origin = anchor,
-                            Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(5),
+                            Children = new Drawable[]
+                            {
+                                teamSeedText = new OsuSpriteText
+                                {
+                                    Anchor = anchor,
+                                    Origin = anchor,
+                                    Font = OsuFont.Torus.With(size: 20, weight: FontWeight.SemiBold),
+                                },
+                                coupletCounter = new TeamCoupletCounter(colour)
+                                {
+                                    Origin = anchor,
+                                    Anchor = anchor,
+                                },
+                            },
                         },
                     },
                 },
@@ -148,6 +176,7 @@ namespace osu.Game.Tournament.Components
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
         {
             currentTeam.UnbindBindings();
+            coupletCounter.Current.UnbindBindings();
             Scheduler.AddOnce(updateMatch);
         }
 
@@ -184,6 +213,8 @@ namespace osu.Game.Tournament.Components
                 match.PreparationMode.BindValueChanged(_ => updateActiveState());
                 match.Completed.BindValueChanged(_ => updateActiveState());
                 currentTeam.BindTo(colour == TeamColour.Red ? match.Team1 : match.Team2);
+                coupletCounter.Current.BindTo(colour == TeamColour.Red ? match.Team1Score : match.Team2Score);
+                coupletCounter.CircleCount = match.PointsToWin;
             }
 
             // team may change to same team, which means score is not in a good state.

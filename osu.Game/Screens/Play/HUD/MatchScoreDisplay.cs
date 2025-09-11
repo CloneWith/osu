@@ -184,9 +184,10 @@ namespace osu.Game.Screens.Play.HUD
             });
 
             private void updateFont(bool winning)
-                => displayedSpriteText.Font = winning
-                    ? OsuFont.Torus.With(weight: FontWeight.Bold, size: font_size, fixedWidth: true)
-                    : OsuFont.Torus.With(weight: FontWeight.Regular, size: font_size * 0.8f, fixedWidth: true);
+            {
+                displayedSpriteText.Font = OsuFont.Torus.With(weight: winning ? FontWeight.Bold : FontWeight.Regular, size: font_size, fixedWidth: true);
+                displayedSpriteText.ScaleTo(winning ? 1 : 0.8f, 300, Easing.OutQuint);
+            }
         }
 
         private partial class MatchScoreDiffCounter : CommaSeparatedScoreCounter

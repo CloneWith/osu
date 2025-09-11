@@ -37,8 +37,8 @@ namespace osu.Game.Tournament
         public static readonly List<KeyValuePair<string, string>> MODS =
         [
             new KeyValuePair<string, string>(@"NM", @"No Mod"),
-            new KeyValuePair<string, string>(@"HR", @"Hard Rock"),
             new KeyValuePair<string, string>(@"HD", @"Hidden"),
+            new KeyValuePair<string, string>(@"HR", @"Hard Rock"),
             new KeyValuePair<string, string>(@"DT", @"Double Time"),
             new KeyValuePair<string, string>(@"FM", @"Free Mod"),
         ];
@@ -136,6 +136,11 @@ namespace osu.Game.Tournament
                 @"DT" => LegacyMods.DoubleTime,
                 _ => LegacyMods.None,
             };
+
+        /// <summary>
+        /// The maximum allowable penalty points. Users with points more than this would be disqualified.
+        /// </summary>
+        public const int PUNISHMENT_THRESHOLD = 3;
 
         public const int RESERVED_BEATMAP_ID = -1;
 

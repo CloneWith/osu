@@ -15,11 +15,14 @@ namespace osu.Game.Tournament.Models
     [Serializable]
     public class LadderInfo
     {
+        public Bindable<string> FullName = new Bindable<string>();
+
         public Bindable<RulesetInfo?> Ruleset = new Bindable<RulesetInfo?>();
 
         public BindableList<TournamentMatch> Matches = new BindableList<TournamentMatch>();
         public BindableList<TournamentRound> Rounds = new BindableList<TournamentRound>();
         public BindableList<TournamentTeam> Teams = new BindableList<TournamentTeam>();
+        public BindableList<PunishmentEntry> Punishments = new BindableList<PunishmentEntry>();
 
         // only used for serialisation
         public List<TournamentProgression> Progressions = new List<TournamentProgression>();
@@ -61,6 +64,8 @@ namespace osu.Game.Tournament.Models
         public Bindable<bool> SplitMapPoolByMods = new BindableBool(true);
 
         public Bindable<bool> DisplayTeamSeeds = new BindableBool();
+
+        public Bindable<bool> UseBlueChroma = new BindableBool(true);
 
         public BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> BackgroundMap = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>();
 

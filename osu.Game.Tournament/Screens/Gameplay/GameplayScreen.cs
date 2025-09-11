@@ -14,6 +14,7 @@ using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
+using osu.Game.Tournament.Screens.Board;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.MapPool;
 using osu.Game.Tournament.Screens.TeamWin;
@@ -24,25 +25,25 @@ namespace osu.Game.Tournament.Screens.Gameplay
     public partial class GameplayScreen : BeatmapInfoScreen
     {
         private readonly BindableBool warmup = new BindableBool();
-
-        public readonly Bindable<TourneyState> State = new Bindable<TourneyState>();
-        private LabelledSwitchButton warmupToggle = null!;
+        private readonly Bindable<TourneyState> state = new Bindable<TourneyState>();
 
         private bool isChatShown;
-
-        private MatchIPCInfo ipc = null!;
         private bool chatEnforcing;
+
+        private bool isUsingBoard => CurrentMatch.Value?.Round.Value?.UseBoard.Value == true;
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
+        [Resolved]
+        private MatchIPCInfo ipc { get; set; } = null!;
+
+        private LabelledSwitchButton warmupToggle = null!;
         private Drawable chroma = null!;
 
         [BackgroundDependencyLoader]
-        private void load(MatchIPCInfo ipc)
+        private void load()
         {
-            this.ipc = ipc;
-
             AddRangeInternal(new Drawable[]
             {
                 new TourneyBackground(BackgroundType.Gameplay)
@@ -134,6 +135,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
                                 }
                             }
                         },
+                        new LabelledSwitchButton
+                        {
+                            Label = GameplayScreenStrings.BlueChroma,
+                            Current = LadderInfo.UseBlueChroma,
+                        },
                         new SettingsSlider<int>
                         {
                             LabelText = $"{(OperatingSystem.IsWindows() ? "Player Area" : "Chroma")} width",
@@ -179,8 +185,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             warmupToggle.Current.BindValueChanged(_ => updateWarmup(), true);
 
-            State.BindTo(ipc.State);
-            State.BindValueChanged(_ => updateState(), true);
+            state.BindTo(ipc.State);
+            state.BindValueChanged(e => updateState(e), true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -191,10 +197,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 return;
 
             warmup.Value = match.NewValue.Team1Score.Value + match.NewValue.Team2Score.Value == 0;
-            scheduledScreenChange?.Cancel();
+            sceneManager?.CancelScreenChange();
         }
 
-        private ScheduledDelegate? scheduledScreenChange;
         private ScheduledDelegate? scheduledContract;
 
         private TournamentMatchScoreDisplay scoreDisplay = null!;
@@ -240,19 +245,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
         {
             try
             {
-                scheduledScreenChange?.Cancel();
+                sceneManager?.CancelScreenChange();
 
-                if (State.Value == TourneyState.Ranking)
-                {
-                    if (warmup.Value || CurrentMatch.Value == null) return;
-
-                    if (ipc.Score1.Value > ipc.Score2.Value)
-                        CurrentMatch.Value.Team1Score.Value++;
-                    else
-                        CurrentMatch.Value.Team2Score.Value++;
-                }
-
-                switch (State.Value)
+                switch (state.Value)
                 {
                     case TourneyState.Idle:
                         if (!chatEnforcing || lastState == TourneyState.Ranking)
@@ -262,25 +257,40 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             contract();
                         }
 
-                        if (LadderInfo.AutoProgressScreens.Value)
-                        {
-                            const float delay_before_progression = 4000;
-
-                            // if we've returned to idle and the last screen was ranking
-                            // we should automatically proceed after a short delay
-                            if (lastState == TourneyState.Ranking && !warmup.Value)
-                            {
-                                if (CurrentMatch.Value?.Completed.Value == true)
-                                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(TeamWinScreen)); }, delay_before_progression);
-                                else if (CurrentMatch.Value?.Completed.Value == false)
-                                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(MapPoolScreen)); }, delay_before_progression);
-                            }
-                        }
-
                         break;
 
                     case TourneyState.Ranking:
-                        scheduledContract = Scheduler.AddDelayed(contract, 10000);
+                        const int delay_before_progression = 25000;
+
+                        if (CurrentMatch.Value != null && !isUsingBoard && !warmup.Value)
+                        {
+                            if (ipc.Score1.Value > ipc.Score2.Value)
+                                CurrentMatch.Value.Team1Score.Value++;
+                            else
+                                CurrentMatch.Value.Team2Score.Value++;
+                        }
+
+                        if (LadderInfo.AutoProgressScreens.Value)
+                        {
+                            // if we've gone to ranking and the last screen was playing
+                            // we should automatically proceed after a short delay
+                            // It's shit code to wait for an Idle state
+                            if ((e?.OldValue == TourneyState.Playing || lastState == TourneyState.Playing) && !warmup.Value)
+                            {
+                                switch (CurrentMatch.Value?.Completed.Value)
+                                {
+                                    case true:
+                                        sceneManager?.ScheduleScreenChange(typeof(TeamWinScreen), delay_before_progression);
+                                        break;
+
+                                    case false:
+                                        sceneManager?.ScheduleScreenChange(isUsingBoard ? typeof(BoardScreen) : typeof(MapPoolScreen), delay_before_progression);
+                                        break;
+                                }
+                            }
+                        }
+
+                        scheduledContract = Scheduler.AddDelayed(contract, 20000);
                         break;
 
                     default:
@@ -295,13 +305,13 @@ namespace osu.Game.Tournament.Screens.Gameplay
             }
             finally
             {
-                lastState = e?.NewValue ?? State.Value;
+                lastState = e?.NewValue ?? state.Value;
             }
         }
 
         public override void Hide()
         {
-            scheduledScreenChange?.Cancel();
+            sceneManager?.CancelScreenChange();
             base.Hide();
         }
 
@@ -315,6 +325,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
         {
             [Resolved]
             private LadderInfo ladder { get; set; } = null!;
+
+            private readonly Color4 chromaGreen = new Color4(0, 255, 0, 255);
+            private readonly Color4 chromaBlue = new Color4(0, 0, 255, 255);
 
             private TeamColour teamColour;
 
@@ -330,11 +343,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
             [BackgroundDependencyLoader]
             private void load()
             {
-                if (!OperatingSystem.IsWindows())
-                {
-                    // chroma key area for stable gameplay
-                    Colour = new Color4(0, 255, 0, 255);
-                }
+                // chroma key area for stable gameplay
+                ladder.UseBlueChroma.BindValueChanged(e =>
+                    this.FadeColour(e.NewValue ? chromaBlue : chromaGreen, 300, Easing.OutQuint), true);
 
                 ladder.PlayersPerTeam.BindValueChanged(performLayout, true);
             }

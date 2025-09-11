@@ -39,4 +39,7 @@
     <data name="join_with_loser" xml:space="preserve">
         <value>连接...（败者）</value>
     </data>
+    <data name="losers_round" xml:space="preserve">
+        <value>败者组{0}</value>
+    </data>
 </root>

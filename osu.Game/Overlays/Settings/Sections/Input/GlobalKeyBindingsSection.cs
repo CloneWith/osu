@@ -32,6 +32,7 @@ namespace osu.Game.Overlays.Settings.Sections.Input
                 new GlobalKeyBindingsSubsection(InputSettingsStrings.ReplaySection, GlobalActionCategory.Replay),
                 new GlobalKeyBindingsSubsection(InputSettingsStrings.EditorSection, GlobalActionCategory.Editor),
                 new GlobalKeyBindingsSubsection(InputSettingsStrings.EditorTestPlaySection, GlobalActionCategory.EditorTestPlay),
+                new GlobalKeyBindingsSubsection(TournamentShowcaseStrings.InputSettingHeader, GlobalActionCategory.Showcase),
             });
         }
     }

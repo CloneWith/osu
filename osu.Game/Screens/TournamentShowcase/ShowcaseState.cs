@@ -11,7 +11,15 @@ namespace osu.Game.Screens.TournamentShowcase
         Initialization,
         Intro,
         MapPool,
+
+        /// <summary>
+        /// A beatmap replay is being shown.
+        /// </summary>
         BeatmapShow,
+
+        /// <summary>
+        /// Switching between beatmaps.
+        /// </summary>
         BeatmapTransition,
         Ending,
 

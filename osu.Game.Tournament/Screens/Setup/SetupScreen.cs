@@ -14,6 +14,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
 using osu.Game.Online.API;
+using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Tournament.Components;
@@ -46,6 +47,7 @@ namespace osu.Game.Tournament.Screens.Setup
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
+        private readonly IBindable<APIUser> localUser = new Bindable<APIUser>();
         private Bindable<Size> windowSize = null!;
 
         [BackgroundDependencyLoader]
@@ -75,7 +77,8 @@ namespace osu.Game.Tournament.Screens.Setup
                 new ControlPanel(true)
             };
 
-            api.LocalUser.BindValueChanged(_ => Schedule(reload));
+            localUser.BindTo(api.LocalUser);
+            localUser.BindValueChanged(_ => Schedule(reload));
             stableInfo.OnStableInfoSaved += () => Schedule(reload);
             reload();
         }
@@ -140,7 +143,19 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = SetupStrings.ShowGlobalTimeDescription,
                     Current = LadderInfo.UseUtcTime,
                 },
+                new LabelledSwitchButton
+                {
+                    Label = SetupStrings.UseBlueChroma,
+                    Description = SetupStrings.UseBlueChromaDescription,
+                    Current = LadderInfo.UseBlueChroma,
+                },
                 new SectionHeader(SetupStrings.TournamentSpecificHeader),
+                new LabelledTextBox
+                {
+                    Label = SetupStrings.TournamentName,
+                    Description = SetupStrings.TournamentNameDescription,
+                    Current = LadderInfo.FullName,
+                },
                 new LabelledDropdown<RulesetInfo?>
                 {
                     Label = SetupStrings.Ruleset,

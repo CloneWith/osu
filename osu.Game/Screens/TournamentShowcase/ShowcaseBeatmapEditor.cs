@@ -186,6 +186,8 @@ namespace osu.Game.Screens.TournamentShowcase
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(GridSizeMode.Absolute, 5),
                         new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(GridSizeMode.Absolute, 5),
+                        new Dimension(GridSizeMode.AutoSize),
                     },
                     ColumnDimensions = new[]
                     {
@@ -231,13 +233,27 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Current = Beatmap.ModIndex,
                             },
                         },
+                        new[]
+                        {
+                            Empty(),
+                        },
+                        new[]
+                        {
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.DifficultyField,
+                                HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
+                                Current = Beatmap.DiffField,
+                            },
+                            Empty(),
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.CreditUsers,
+                                HintText = TournamentShowcaseStrings.CreditUsersDescription,
+                                Current = Beatmap.CreditUserIds,
+                            },
+                        },
                     },
-                },
-                new FormTextBox
-                {
-                    Caption = TournamentShowcaseStrings.DifficultyField,
-                    HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
-                    Current = Beatmap.DiffField,
                 },
                 new FormTextBox
                 {
@@ -252,9 +268,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     AllowDeletion = AllowDeletion,
                     RequestEdit = _ =>
                     {
-                        Schedule(() => performer?.PerformFromScreen(s =>
-                                s.Push(new ShowcaseSongSelect(beatmapInfoBindable, modListBindable, scoreInfoBindable, rulesetBindable)),
-                            new[] { typeof(ShowcaseConfigScreen) }));
+                        var select = new ShowcaseSongSelect(beatmapInfoBindable, modListBindable, scoreInfoBindable, rulesetBindable);
+                        select.OnSelect += updateAsNeeded;
+                        Schedule(() => performer?.PerformFromScreen(s => s.Push(select), new[] { typeof(ShowcaseConfigScreen) }));
                     },
                     RequestDeletion = _ =>
                     {
@@ -282,34 +298,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     Scheduler.AddOnce(populateSelector);
             }, true);
 
-            beatmapInfoBindable.BindValueChanged(info =>
-            {
-                Beatmap.BeatmapInfo = info.NewValue;
-                Beatmap.BeatmapGuid = info.NewValue.ID;
-                Beatmap.BeatmapId = info.NewValue.OnlineID;
-
-                // Reset the score to avoid conflict.
-                Beatmap.ShowcaseScore = null;
-                Beatmap.ScoreHash = string.Empty;
-
-                drawableItem.Item = Beatmap;
-            });
-
-            scoreInfoBindable.BindValueChanged(score =>
-            {
-                Beatmap.ShowcaseScore = score.NewValue;
-                Beatmap.ScoreHash = score.NewValue?.Hash ?? string.Empty;
-                drawableItem.Refresh(refreshScoreOnly: true);
-            });
-
-            rulesetBindable.BindValueChanged(ruleset =>
-            {
-                Beatmap.RulesetId = ruleset.NewValue.OnlineID;
-                drawableItem.Refresh(needPopulation: true);
-            });
-
-            modListBindable.BindCollectionChanged((_, _) => drawableItem.Refresh());
-
             Beatmap.ModString.BindValueChanged(_ => drawableItem.UpdateModIcon());
             Beatmap.ModIndex.BindValueChanged(_ => drawableItem.UpdateModIcon());
         }
@@ -318,10 +306,39 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
-            scoreInfoBindable.Value = scoreManager.GetScore(new ScoreInfo
+            Beatmap.ShowcaseScore = scoreInfoBindable.Value = scoreManager.GetScore(new ScoreInfo
             {
                 Hash = Beatmap.ScoreHash
             })?.ScoreInfo;
+        }
+
+        private void updateAsNeeded(SelectResult result)
+        {
+            if (result.HasFlag(SelectResult.RulesetUpdated))
+            {
+                Beatmap.RulesetId = rulesetBindable.Value.OnlineID;
+            }
+
+            if (result.HasFlag(SelectResult.ScoreUpdated))
+            {
+                Beatmap.ShowcaseScore = scoreInfoBindable.Value;
+                Beatmap.ScoreHash = Beatmap.ShowcaseScore?.Hash ?? string.Empty;
+            }
+
+            if (result.HasFlag(SelectResult.BeatmapUpdated))
+            {
+                Beatmap.BeatmapInfo = beatmapInfoBindable.Value;
+                Beatmap.BeatmapId = beatmapInfoBindable.Value.OnlineID;
+                Beatmap.BeatmapHash = beatmapInfoBindable.Value.Hash;
+
+                // This triggers a full refresh, thus no further action is needed.
+                drawableItem.Item = Beatmap;
+                return;
+            }
+
+            // For other uncovered cases, e.g. ruleset and score updates.
+            drawableItem.Refresh(refreshScoreOnly: result == SelectResult.ScoreUpdated,
+                needPopulation: result.HasFlag(SelectResult.RulesetUpdated));
         }
 
         private void populateSelector()

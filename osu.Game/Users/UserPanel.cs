@@ -14,7 +14,6 @@ using osu.Game.Overlays;
 using osu.Framework.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterface;
 using osu.Framework.Graphics.Cursor;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Screens;
 using osu.Game.Graphics.Containers;
@@ -23,16 +22,15 @@ using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Online.Chat;
 using osu.Game.Resources.Localisation.Web;
 using osu.Game.Localisation;
-using osu.Game.Online.API.Requests;
 using osu.Game.Online.Metadata;
 using osu.Game.Online.Multiplayer;
-using osu.Game.Overlays.Notifications;
 using osu.Game.Screens;
 using osu.Game.Screens.Play;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.LocalisationExtensions;
+using osu.Framework.Graphics.Sprites;
 
 namespace osu.Game.Users
 {
@@ -79,6 +77,9 @@ namespace osu.Game.Users
         private LocalisableString globalRank;
 
         [Resolved]
+        private IDialogOverlay? dialogOverlay { get; set; }
+
+        [Resolved]
         protected OverlayColourProvider? ColourProvider { get; private set; }
 
         [Resolved]
@@ -93,9 +94,6 @@ namespace osu.Game.Users
 
         [Resolved]
         private MetadataClient? metadataClient { get; set; }
-
-        [Resolved]
-        private INotificationOverlay? notifications { get; set; }
 
         [BackgroundDependencyLoader]
         private void load()
@@ -203,9 +201,9 @@ namespace osu.Game.Users
                     chatOverlay?.Show();
                 }));
 
-                items.Add(isUserBlocked()
-                    ? new OsuMenuItem(UsersStrings.BlocksButtonUnblock, MenuItemType.Standard, () => toggleBlock(false))
-                    : new OsuMenuItem(UsersStrings.BlocksButtonBlock, MenuItemType.Destructive, () => toggleBlock(true)));
+                items.Add(!isUserBlocked()
+                    ? new OsuMenuItem(UsersStrings.BlocksButtonBlock, MenuItemType.Destructive, () => dialogOverlay?.Push(ConfirmBlockActionDialog.Block(User)))
+                    : new OsuMenuItem(UsersStrings.BlocksButtonUnblock, MenuItemType.Standard, () => dialogOverlay?.Push(ConfirmBlockActionDialog.Unblock(User))));
 
                 if (isUserOnline())
                 {
@@ -231,27 +229,6 @@ namespace osu.Game.Users
                 bool canInviteUser() => isUserOnline() && multiplayerClient?.Room?.Users.All(u => u.UserID != User.Id) == true;
                 bool isUserBlocked() => api.Blocks.Any(b => b.TargetID == User.OnlineID);
             }
-        }
-
-        private void toggleBlock(bool block)
-        {
-            APIRequest req = block ? new BlockUserRequest(User.OnlineID) : new UnblockUserRequest(User.OnlineID);
-
-            req.Success += () =>
-            {
-                api.UpdateLocalBlocks();
-            };
-
-            req.Failure += e =>
-            {
-                notifications?.Post(new SimpleNotification
-                {
-                    Text = e.Message,
-                    Icon = FontAwesome.Solid.Times,
-                });
-            };
-
-            api.Queue(req);
         }
 
         public IEnumerable<LocalisableString> FilterTerms => [User.Username];

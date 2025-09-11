@@ -10,6 +10,11 @@ namespace osu.Game.Localisation
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.TournamentShowcase";
 
         /// <summary>
+        /// "Mappool Showcase"
+        /// </summary>
+        public static LocalisableString ShowcaseTitle => new TranslatableString(getKey(@"showcase_title"), @"Mappool Showcase");
+
+        /// <summary>
         /// "showcase"
         /// </summary>
         public static LocalisableString ShowcaseButtonText => new TranslatableString(getKey(@"showcase_button_text"), @"showcase");
@@ -98,6 +103,16 @@ namespace osu.Game.Localisation
         /// "In fact you can write anything here.\nThis would be shown below the main title at the intro screen."
         /// </summary>
         public static LocalisableString IntroCommentDescription => new TranslatableString(getKey(@"intro_comment_description"), @"In fact you can write anything here.\nThis would be shown below the main title at the intro screen.");
+
+        /// <summary>
+        /// "Colour Scheme"
+        /// </summary>
+        public static LocalisableString ColourScheme => new TranslatableString(getKey(@"colour_scheme"), @"Colour Scheme");
+
+        /// <summary>
+        /// "A set of colours to be used for most showcase elements."
+        /// </summary>
+        public static LocalisableString ColourSchemeDescription => new TranslatableString(getKey(@"colour_scheme_description"), @"A set of colours to be used for most showcase elements.");
 
         /// <summary>
         /// "Interface Layout"
@@ -220,6 +235,17 @@ namespace osu.Game.Localisation
         public static LocalisableString DifficultyFieldDescription => new TranslatableString(getKey(@"difficulty_field_description"), @"The major area this beatmap lays difficulty on.");
 
         /// <summary>
+        /// "Credit Users"
+        /// </summary>
+        public static LocalisableString CreditUsers => new TranslatableString(getKey(@"credit_users"), @"Credit Users");
+
+        /// <summary>
+        /// "A list of users involved in the creation of the beatmap. Should be a list of user IDs separated by commas."
+        /// </summary>
+        public static LocalisableString CreditUsersDescription => new TranslatableString(getKey(@"credit_users_description"),
+            @"A list of users involved in the creation of the beatmap. Should be a list of user IDs separated by commas.");
+
+        /// <summary>
         /// "Have something else to show on the showcase screen?"
         /// </summary>
         public static LocalisableString BeatmapCommentDescription => new TranslatableString(getKey(@"beatmap_comment_description"), @"Have something else to show on the showcase screen?");
@@ -319,6 +345,112 @@ namespace osu.Game.Localisation
         /// "Map Pool"
         /// </summary>
         public static LocalisableString MapPoolHeader => new TranslatableString(getKey(@"map_pool_header"), @"Map Pool");
+
+        /// <summary>
+        /// "Tournament Showcase Control"
+        /// </summary>
+        public static LocalisableString InputSettingHeader => new TranslatableString(getKey(@"input_setting_header"), @"Tournament Showcase Control");
+
+        /// <summary>
+        /// "Exit showcase"
+        /// </summary>
+        public static LocalisableString ForceQuit => new TranslatableString(getKey(@"force_quit"), @"Exit showcase");
+
+        /// <summary>
+        /// "Show previous"
+        /// </summary>
+        public static LocalisableString GoToPrevious => new TranslatableString(getKey(@"go_to_previous"), @"Show previous");
+
+        /// <summary>
+        /// "Show next"
+        /// </summary>
+        public static LocalisableString GoToNext => new TranslatableString(getKey(@"go_to_next"), @"Show next");
+
+        /// <summary>
+        /// "Replay current"
+        /// </summary>
+        public static LocalisableString ReplayCurrent => new TranslatableString(getKey(@"replay_current"), @"Replay current");
+
+        /// <summary>
+        /// "Pause / continue"
+        /// </summary>
+        public static LocalisableString PauseOrContinue => new TranslatableString(getKey(@"pause_or_continue"), @"Pause / continue");
+
+        /// <summary>
+        /// "Toggle auto showcase"
+        /// </summary>
+        public static LocalisableString ToggleAutoShowcase => new TranslatableString(getKey(@"toggle_auto_showcase"), @"Toggle auto showcase");
+
+        /// <summary>
+        /// "Oops..."
+        /// </summary>
+        public static LocalisableString ErrorScreenTitle => new TranslatableString(getKey(@"error_screen_title"), @"Oops...");
+
+        /// <summary>
+        /// "We are sorry, but an exception just occurred."
+        /// </summary>
+        public static LocalisableString ErrorScreenFirst => new TranslatableString(getKey(@"error_screen_first"), @"We are sorry, but an exception just occurred.");
+
+        /// <summary>
+        /// "To prevent it from causing further destruction, the current showcase has been halted."
+        /// </summary>
+        public static LocalisableString ErrorScreenSecond => new TranslatableString(getKey(@"error_screen_second"),
+            @"To prevent it from causing further destruction, the current showcase has been halted.");
+
+        /// <summary>
+        /// "Exception message:"
+        /// </summary>
+        public static LocalisableString ErrorScreenException => new TranslatableString(getKey(@"error_screen_exception"), @"Exception message:");
+
+        /// <summary>
+        /// "For details about this exception, see the runtime log file."
+        /// </summary>
+        public static LocalisableString ErrorScreenExceptionDetail => new TranslatableString(getKey(@"error_screen_exception_detail"),
+            @"For details about this exception, see the runtime log file.");
+
+        /// <summary>
+        /// "Cannot find the beatmap..."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenTitle => new TranslatableString(getKey(@"beatmap_missing_screen_title"),
+            @"Cannot find the beatmap...");
+
+        /// <summary>
+        /// "This beatmap is unavailable locally, hence unable to be shown."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenFirst => new TranslatableString(getKey(@"beatmap_missing_screen_first"),
+            @"This beatmap is unavailable locally, hence unable to be shown.");
+
+        /// <summary>
+        /// "This could be because the beatmap is not imported, its version is not consistent, or the config file comes from another install of osu!lazer."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenSecond => new TranslatableString(getKey(@"beatmap_missing_screen_second"),
+            @"This could be because the beatmap is not imported, its version is not consistent, or the config file comes from another install of osu!lazer.");
+
+        /// <summary>
+        /// "Skipping to the next beatmap..."
+        /// </summary>
+        public static LocalisableString BeatmapMissingScreenThird => new TranslatableString(getKey(@"beatmap_missing_screen_third"),
+            @"Skipping to the next beatmap...");
+
+        /// <summary>
+        /// "Scores unavailable"
+        /// </summary>
+        public static LocalisableString ScoreMissingDialogTitle => new TranslatableString(getKey(@"score_missing_dialog_title"),
+            @"Scores unavailable");
+
+        /// <summary>
+        /// "After searching from the local database, {0} beatmap(s) don't have available scores."
+        /// " Auto generated replays with Autoplay mod would be used instead."
+        /// </summary>
+        public static LocalisableString ScoreMissingDialogText(int number) => new TranslatableString(getKey(@"score_missing_dialog_text"),
+            "After searching from the local database, {0} beatmap(s) don't have available scores."
+            + @" Auto generated replays with Autoplay mod would be used instead.", number);
+
+        /// <summary>
+        /// "Use Autoplay scores for these beatmaps"
+        /// </summary>
+        public static LocalisableString ScoreMissingProceed => new TranslatableString(getKey(@"score_missing_proceed"),
+            @"Use Autoplay scores for these beatmaps");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

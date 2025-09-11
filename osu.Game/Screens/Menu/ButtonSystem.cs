@@ -74,7 +74,8 @@ namespace osu.Game.Screens.Menu
             else
             {
                 // We should stop tracking as the facade is now out of scope.
-                logoTrackingContainer.StopTracking();
+                logoTracking?.Dispose();
+                logoTracking = null;
             }
         }
 
@@ -392,6 +393,7 @@ namespace osu.Game.Screens.Menu
         }
 
         private ScheduledDelegate? logoDelayedAction;
+        private IDisposable? logoTracking;
 
         private void updateLogoState(ButtonSystemState lastState = ButtonSystemState.Initial)
         {
@@ -404,7 +406,8 @@ namespace osu.Game.Screens.Menu
                     logoDelayedAction?.Cancel();
                     logoDelayedAction = Scheduler.AddDelayed(() =>
                     {
-                        logoTrackingContainer.StopTracking();
+                        logoTracking?.Dispose();
+                        logoTracking = null;
 
                         game?.Toolbar.Hide();
 
@@ -431,7 +434,8 @@ namespace osu.Game.Screens.Menu
 
                             logo.ScaleTo(0.5f, 200, Easing.In);
 
-                            logoTrackingContainer.StartTracking(logo, 200, Easing.In);
+                            logoTracking?.Dispose();
+                            logoTracking = logoTrackingContainer.StartTracking(logo, 200, Easing.In);
 
                             logoDelayedAction?.Cancel();
                             logoDelayedAction = Scheduler.AddDelayed(() =>
@@ -445,7 +449,10 @@ namespace osu.Game.Screens.Menu
 
                         default:
                             logo.ClearTransforms(targetMember: nameof(Position));
-                            logoTrackingContainer.StartTracking(logo, 0, Easing.In);
+
+                            logoTracking?.Dispose();
+                            logoTracking = logoTrackingContainer.StartTracking(logo, 0, Easing.In);
+
                             logo.ScaleTo(0.5f, 200, Easing.OutQuint);
                             break;
                     }
@@ -453,7 +460,8 @@ namespace osu.Game.Screens.Menu
                     break;
 
                 case ButtonSystemState.EnteringMode:
-                    logoTrackingContainer.StartTracking(logo, lastState == ButtonSystemState.Initial ? MainMenu.FADE_OUT_DURATION : 0, Easing.InSine);
+                    logoTracking?.Dispose();
+                    logoTracking = logoTrackingContainer.StartTracking(logo, lastState == ButtonSystemState.Initial ? MainMenu.FADE_OUT_DURATION : 0, Easing.InSine);
                     break;
             }
         }

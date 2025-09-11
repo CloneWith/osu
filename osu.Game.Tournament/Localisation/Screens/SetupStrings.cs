@@ -84,9 +84,31 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"Show Coordinated Universal Time instead of local time for schedules.");
 
         /// <summary>
+        /// "Use blue chroma for gameplay"
+        /// </summary>
+        public static LocalisableString UseBlueChroma => new TranslatableString(getKey(@"use_blue_chroma"), @"Use blue chroma for gameplay");
+
+        /// <summary>
+        /// "Use blue instead of green for chroma areas."
+        /// </summary>
+        public static LocalisableString UseBlueChromaDescription => new TranslatableString(getKey(@"use_blue_chroma_description"),
+            @"Use blue instead of green for chroma areas.");
+
+        /// <summary>
         /// "Tournament Specific"
         /// </summary>
         public static LocalisableString TournamentSpecificHeader => new TranslatableString(getKey(@"tournament_specific_header"), @"Tournament Specific");
+
+        /// <summary>
+        /// "Tournament Name"
+        /// </summary>
+        public static LocalisableString TournamentName => new TranslatableString(getKey(@"tournament_name"), @"Tournament Name");
+
+        /// <summary>
+        /// "The full name of the tournament. It will be shown on countdown, team win and other screens."
+        /// </summary>
+        public static LocalisableString TournamentNameDescription => new TranslatableString(getKey(@"tournament_name_description"),
+            @"The full name of the tournament. It will be shown on countdown, team win and other screens.");
 
         /// <summary>
         /// "Ruleset"
@@ -127,7 +149,7 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString AutomationHeader => new TranslatableString(getKey(@"automation_header"), @"Automation");
 
         /// <summary>
-        /// "Auto update round count"
+        /// "Auto advance round count"
         /// </summary>
         public static LocalisableString AutoUpdateRound => new TranslatableString(getKey(@"auto_update_round"), @"Auto advance round count");
 
