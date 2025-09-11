@@ -6,7 +6,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
@@ -329,11 +328,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
             private readonly Color4 chromaGreen = new Color4(0, 255, 0, 255);
             private readonly Color4 chromaBlue = new Color4(0, 0, 255, 255);
 
-            private TeamColour teamColour;
+            private readonly TeamColour teamColour;
 
             // 到底什么样的弱智会往前面加个空格啊
             // 对，就是ppy
-            private const string tournament_client_name = " Tournament Client ";
+            private const string tournament_client_name = @" Tournament Client ";
 
             public PlayerArea(TeamColour teamColour)
             {
@@ -348,18 +347,19 @@ namespace osu.Game.Tournament.Screens.Gameplay
                     this.FadeColour(e.NewValue ? chromaBlue : chromaGreen, 300, Easing.OutQuint), true);
 
                 ladder.PlayersPerTeam.BindValueChanged(performLayout, true);
+                ladder.NativeTourneyWindowCapturing.BindValueChanged(_ => ladder.PlayersPerTeam.TriggerChange());
             }
 
             private void performLayout(ValueChangedEvent<int> playerCount)
             {
-                if (!OperatingSystem.IsWindows())
+                if (!ladder.NativeTourneyWindowCapturing.Value || !OperatingSystem.IsWindows())
                 {
                     switch (playerCount.NewValue)
                     {
                         case 3:
                             InternalChildren = new Drawable[]
                             {
-                                new Box
+                                new ChromaBox
                                 {
                                     RelativeSizeAxes = Axes.Both,
                                     Width = 0.5f,
@@ -367,7 +367,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
                                     Anchor = Anchor.TopCentre,
                                     Origin = Anchor.TopCentre,
                                 },
-                                new Box
+                                new ChromaBox
                                 {
                                     RelativeSizeAxes = Axes.Both,
                                     Anchor = Anchor.BottomLeft,
@@ -378,7 +378,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             break;
 
                         default:
-                            InternalChild = new Box
+                            InternalChild = new ChromaBox
                             {
                                 RelativeSizeAxes = Axes.Both,
                             };

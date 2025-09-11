@@ -6,9 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Components;
-using osu.Framework.Graphics.Shapes;
 using osu.Game.Tournament.Models;
-using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Showcase
 {
@@ -29,14 +27,13 @@ namespace osu.Game.Tournament.Screens.Showcase
                 {
                     Padding = new MarginPadding { Bottom = SongBar.HEIGHT },
                     RelativeSizeAxes = Axes.Both,
-                    Child = new Box
+                    Child = new ChromaBox
                     {
                         // chroma key area for stable gameplay
                         Name = "chroma",
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,
                         RelativeSizeAxes = Axes.Both,
-                        Colour = new Color4(0, 255, 0, 255),
                     }
                 }
             });
