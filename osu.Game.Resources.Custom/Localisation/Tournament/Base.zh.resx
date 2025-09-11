@@ -165,4 +165,10 @@
     <data name="thanks" xml:space="preserve">
         <value>感谢各位选手与工作人员的支持！</value>
     </data>
+    <data name="native_tourney_window_capturing_description" xml:space="preserve">
+        <value>尝试在游玩界面利用原生库方法捕捉 tourney 窗口显示。该功能目前仅限 Windows 平台使用，可能不稳定。</value>
+    </data>
+    <data name="native_tourney_window_capturing" xml:space="preserve">
+        <value>[实验性] 使用原生方式捕捉 tourney 窗口</value>
+    </data>
 </root>
