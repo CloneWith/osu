@@ -66,4 +66,10 @@
     <data name="punishment_editor" xml:space="preserve">
         <value>惩罚编辑</value>
     </data>
+    <data name="section_setup" xml:space="preserve">
+        <value>配置</value>
+    </data>
+    <data name="section_before_match" xml:space="preserve">
+        <value>赛前</value>
+    </data>
 </root>

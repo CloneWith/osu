@@ -89,6 +89,16 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString Showcase => new TranslatableString(getKey(@"showcase"), @"Showcase");
 
+        /// <summary>
+        /// "Setup"
+        /// </summary>
+        public static LocalisableString SectionSetup => new TranslatableString(getKey(@"section_setup"), @"Setup");
+
+        /// <summary>
+        /// "Before Match"
+        /// </summary>
+        public static LocalisableString SectionBeforeMatch => new TranslatableString(getKey(@"section_before_match"), @"Before Match");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
