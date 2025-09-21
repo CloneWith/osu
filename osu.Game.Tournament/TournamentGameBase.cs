@@ -236,7 +236,7 @@ namespace osu.Game.Tournament
                 }
 
                 if (addedInfo)
-                    saveChanges();
+                    saveChanges(false);
 
                 ladder.CurrentMatch.Value = ladder.Matches.FirstOrDefault(p => p.Current.Value);
 
@@ -249,7 +249,7 @@ namespace osu.Game.Tournament
                             player.Rank = null;
                     }
 
-                    SaveChanges();
+                    SaveChanges(false);
                 });
             }
             catch (Exception e)
@@ -463,7 +463,7 @@ namespace osu.Game.Tournament
             }
         }
 
-        public void SaveChanges()
+        public void SaveChanges(bool saveBackgrounds = true)
         {
             if (!bracketLoadTaskCompletionSource.Task.IsCompletedSuccessfully)
             {
@@ -471,10 +471,10 @@ namespace osu.Game.Tournament
                 return;
             }
 
-            saveChanges();
+            saveChanges(saveBackgrounds);
         }
 
-        private void saveChanges()
+        private void saveChanges(bool saveBackgrounds = true)
         {
             // Serialise before opening stream for writing, so if there's a failure it will leave the file in the previous state.
             string serialisedLadder = GetSerialisedLadder(false);
@@ -489,9 +489,12 @@ namespace osu.Game.Tournament
                 DefaultValueHandling = DefaultValueHandling.Ignore,
             });
 
-            using (var stream = storage.CreateFileSafely(BACKGROUND_MAPPING_FILENAME))
-            using (var sw = new StreamWriter(stream))
-                sw.Write(serialisedBackgroundMapping);
+            if (saveBackgrounds)
+            {
+                using (var stream = storage.CreateFileSafely(BACKGROUND_MAPPING_FILENAME))
+                using (var sw = new StreamWriter(stream))
+                    sw.Write(serialisedBackgroundMapping);
+            }
         }
 
         public string GetSerialisedLadder(bool includeAllParts = true)
