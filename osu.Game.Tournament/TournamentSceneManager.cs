@@ -4,13 +4,10 @@
 using System;
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
-using osu.Framework.Localisation;
 using osu.Framework.Testing;
 using osu.Framework.Threading;
 using osu.Game.Graphics;
@@ -33,7 +30,6 @@ using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Game.Graphics.Containers;
-using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
@@ -221,7 +217,7 @@ namespace osu.Game.Tournament
                                             Children = new Drawable[]
                                             {
                                                 new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
-                                                new ScreenGroupSection(ScreenStrings.SectionSetup)
+                                                new FoldableSectionHeader(ScreenStrings.SectionSetup, null)
                                                 {
                                                     Children = new Drawable[]
                                                     {
@@ -231,7 +227,7 @@ namespace osu.Game.Tournament
                                                         new ScreenButton(typeof(PunishmentEditorScreen)) { Text = ScreenStrings.PunishmentEditor, RequestSelection = SetScreen },
                                                     },
                                                 },
-                                                new ScreenGroupSection(ScreenStrings.SectionBeforeMatch)
+                                                new FoldableSectionHeader(ScreenStrings.SectionBeforeMatch, null)
                                                 {
                                                     Children = new Drawable[]
                                                     {
@@ -442,7 +438,7 @@ namespace osu.Game.Tournament
                         button.Selected = screenType == button.Type;
                         break;
 
-                    case ScreenGroupSection section:
+                    case FoldableSectionHeader section:
                         foreach (var b in section.OfType<ScreenButton>())
                             b.Selected = screenType == b.Type;
                         break;
@@ -458,68 +454,6 @@ namespace osu.Game.Tournament
                 Origin = Anchor.TopCentre;
                 RelativeSizeAxes = Axes.X;
                 Height = 5;
-            }
-        }
-
-        private partial class ScreenGroupSection : FillFlowContainer
-        {
-            protected override Container<Drawable> Content => contentFlow;
-
-            private readonly FillFlowContainer contentFlow;
-
-            private readonly BindableBool sectionShown = new BindableBool(true);
-
-            public ScreenGroupSection(LocalisableString title)
-            {
-                RelativeSizeAxes = Axes.X;
-                Direction = FillDirection.Vertical;
-                AutoSizeAxes = Axes.Y;
-                AutoSizeEasing = Easing.OutQuint;
-                AutoSizeDuration = 300;
-                Spacing = new Vector2(5);
-
-                InternalChildren = new Drawable[]
-                {
-                    new GridContainer
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        RowDimensions = [new Dimension(GridSizeMode.AutoSize)],
-                        ColumnDimensions =
-                        [
-                            new Dimension(),
-                            new Dimension(GridSizeMode.AutoSize),
-                        ],
-                        Content = new Drawable[][]
-                        {
-                            [
-                                new SectionHeader(title),
-                                new StateSwitchButton(sampleSet: null)
-                                {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    Current = { BindTarget = sectionShown },
-                                    IdleIcon = FontAwesome.Solid.Expand,
-                                    ActiveIcon = FontAwesome.Solid.Compress,
-                                },
-                            ]
-                        },
-                    },
-                    contentFlow = new FillFlowContainer
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(5),
-                    },
-                };
-            }
-
-            protected override void LoadComplete()
-            {
-                base.LoadComplete();
-
-                sectionShown.BindValueChanged(e => contentFlow.FadeTo(e.NewValue ? 1 : 0, 300, Easing.OutQuint));
             }
         }
 
