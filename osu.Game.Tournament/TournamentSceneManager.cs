@@ -494,7 +494,7 @@ namespace osu.Game.Tournament
                         {
                             [
                                 new SectionHeader(title),
-                                new StateSwitchButton
+                                new StateSwitchButton(sampleSet: null)
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
