@@ -76,7 +76,7 @@ namespace osu.Game.Updater
                     Notifications.Post(new SimpleNotification
                     {
                         Text = CustomNotificationsStrings.Greeting,
-                        Icon = OsuIcon.Gear,
+                        Icon = OsuIcon.Debug,
                         IconColour = FumoColours.SeaBlue.Regular,
                     });
                 }
