@@ -1,6 +1,7 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Diagnostics;
 using osu.Framework.Graphics;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Colour;
@@ -36,6 +37,8 @@ namespace osu.Game.Users
         [BackgroundDependencyLoader]
         private void load()
         {
+            Debug.Assert(Background != null);
+
             Height = RelativeSizeAxes is Axes.Y or Axes.Both ? 1f : absoluteHeight;
             Background.Width = 0.5f;
             Background.Origin = Anchor.CentreRight;

@@ -1,13 +1,16 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using NUnit.Framework;
 using osu.Framework.Extensions;
 using osu.Framework.Graphics;
 using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Online.Matchmaking.Events;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Online.Multiplayer.MatchTypes.Matchmaking;
-using osu.Game.Screens.OnlinePlay.Matchmaking.Screens.Idle;
+using osu.Game.Online.Rooms;
+using osu.Game.Screens.OnlinePlay.Matchmaking.Match;
 using osu.Game.Tests.Visual.Multiplayer;
 using osu.Game.Users;
 
@@ -21,7 +24,7 @@ namespace osu.Game.Tests.Visual.Matchmaking
         {
             base.SetUpSteps();
 
-            AddStep("join room", () => JoinRoom(CreateDefaultRoom()));
+            AddStep("join room", () => JoinRoom(CreateDefaultRoom(MatchType.Matchmaking)));
             WaitForJoined();
 
             AddStep("add panel", () => Child = panel = new PlayerPanel(new MultiplayerRoomUser(1)
@@ -32,7 +35,7 @@ namespace osu.Game.Tests.Visual.Matchmaking
                     Id = 2,
                     Colour = "99EB47",
                     CountryCode = CountryCode.AU,
-                    CoverUrl = @"https://assets.ppy.sh/user-profile-covers/8195163/4a8e2ad5a02a2642b631438cfa6c6bd7e2f9db289be881cb27df18331f64144c.jpeg",
+                    CoverUrl = @"https://assets.ppy.sh/user-profile-covers/2/baba245ef60834b769694178f8f6d4f6166c5188c740de084656ad2b80f1eea7.jpeg",
                     Statistics = new UserStatistics { GlobalRank = null, CountryRank = null }
                 }
             })
@@ -64,7 +67,10 @@ namespace osu.Game.Tests.Visual.Matchmaking
                 }
             }).WaitSafely());
 
-            AddToggleStep("toggle horizontal", h => panel.Horizontal = h);
+            foreach (var layout in Enum.GetValues<PlayerPanelDisplayMode>())
+            {
+                AddStep($"set layout to {layout}", () => panel.DisplayMode = layout);
+            }
         }
 
         [Test]
@@ -89,6 +95,12 @@ namespace osu.Game.Tests.Visual.Matchmaking
                     }
                 }
             }).WaitSafely());
+        }
+
+        [Test]
+        public void TestJump()
+        {
+            AddStep("jump", () => MultiplayerClient.SendUserMatchRequest(1, new MatchmakingAvatarActionRequest { Action = MatchmakingAvatarAction.Jump }).WaitSafely());
         }
     }
 }
