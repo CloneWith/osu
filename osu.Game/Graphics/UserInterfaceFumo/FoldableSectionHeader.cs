@@ -19,7 +19,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
 
         private readonly BindableBool sectionShown = new BindableBool(true);
 
-        public FoldableSectionHeader(LocalisableString title, HoverSampleSet? sampleSet = HoverSampleSet.Button)
+        public FoldableSectionHeader(LocalisableString title, HoverSampleSet sampleSet = HoverSampleSet.Button)
         {
             RelativeSizeAxes = Axes.X;
             Direction = FillDirection.Vertical;

@@ -439,7 +439,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Label = BoardStrings.OverrideTiebreakerControl,
                             Current = tiebreakerOverride,
                         },
-                        buttonEnterTiebreaker = new ClickTwiceButton(sampleSet: null)
+                        buttonEnterTiebreaker = new ClickTwiceButton(sampleSet: HoverSampleSet.Muted)
                         {
                             AutoSizeAxes = Axes.None,
                             RelativeSizeAxes = Axes.X,
@@ -449,7 +449,7 @@ namespace osu.Game.Tournament.Screens.Board
                             Action = () => setMode(TeamColour.Neutral, RoundStep.TieBreaker),
                             Enabled = { Value = pickType is not (RoundStep.TieBreaker or RoundStep.FinalWin) },
                         },
-                        buttonClearSpecialState = new ClickTwiceButton(sampleSet: null)
+                        buttonClearSpecialState = new ClickTwiceButton(sampleSet: HoverSampleSet.Muted)
                         {
                             AutoSizeAxes = Axes.None,
                             RelativeSizeAxes = Axes.X,

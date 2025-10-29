@@ -30,6 +30,7 @@ using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
@@ -217,7 +218,7 @@ namespace osu.Game.Tournament
                                             Children = new Drawable[]
                                             {
                                                 new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
-                                                new FoldableSectionHeader(ScreenStrings.SectionSetup, null)
+                                                new FoldableSectionHeader(ScreenStrings.SectionSetup, HoverSampleSet.Muted)
                                                 {
                                                     Children = new Drawable[]
                                                     {
@@ -227,7 +228,7 @@ namespace osu.Game.Tournament
                                                         new ScreenButton(typeof(PunishmentEditorScreen)) { Text = ScreenStrings.PunishmentEditor, RequestSelection = SetScreen },
                                                     },
                                                 },
-                                                new FoldableSectionHeader(ScreenStrings.SectionBeforeMatch, null)
+                                                new FoldableSectionHeader(ScreenStrings.SectionBeforeMatch, HoverSampleSet.Muted)
                                                 {
                                                     Children = new Drawable[]
                                                     {

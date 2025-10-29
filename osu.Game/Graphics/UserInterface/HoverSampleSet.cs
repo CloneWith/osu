@@ -27,5 +27,11 @@ namespace osu.Game.Graphics.UserInterface
 
         [Description("menu-open")]
         MenuOpen,
+
+        /// <summary>
+        /// This serves as a dummy sampleset for elements that do not want event sounds.
+        /// </summary>
+        [Description("muted")]
+        Muted,
     }
 }

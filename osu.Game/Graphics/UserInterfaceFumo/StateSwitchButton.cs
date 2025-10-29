@@ -31,7 +31,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             set => IdleText = ActiveText = value;
         }
 
-        public StateSwitchButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet? sampleSet = HoverSampleSet.Button)
+        public StateSwitchButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet sampleSet = HoverSampleSet.Button)
             : base(direction, sampleSet)
         {
         }

@@ -115,7 +115,7 @@ namespace osu.Game.Tournament.Components
                         CornerRadius = 3,
                         FillColour = FumoColours.SeaBlue.Light,
                     },
-                    cancelButton = new ClickTwiceButton(sampleSet: null)
+                    cancelButton = new ClickTwiceButton(sampleSet: HoverSampleSet.Muted)
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,

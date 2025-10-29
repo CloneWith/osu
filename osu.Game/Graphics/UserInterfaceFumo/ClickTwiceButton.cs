@@ -27,7 +27,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             set => IdleText = ActiveText = value;
         }
 
-        public ClickTwiceButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet? sampleSet = HoverSampleSet.Button)
+        public ClickTwiceButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet sampleSet = HoverSampleSet.Button)
             : base(direction, sampleSet)
         {
         }

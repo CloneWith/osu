@@ -57,7 +57,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         /// <remarks>This exists to prevent the button from being disabled when no action is bound.</remarks>
         public static void DummyAction() { }
 
-        public FumoButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet? sampleSet = HoverSampleSet.ButtonSidebar)
+        public FumoButton(FillDirection direction = FillDirection.Horizontal, HoverSampleSet sampleSet = HoverSampleSet.ButtonSidebar)
             : base(sampleSet)
         {
             Content.Name = "Content of FumoButton";
