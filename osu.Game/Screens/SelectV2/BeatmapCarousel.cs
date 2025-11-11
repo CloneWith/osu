@@ -459,6 +459,8 @@ namespace osu.Game.Screens.SelectV2
                         // - Background user tag population runs and causes a realm update.
                         //   We don't display user tags so want to ignore this.
                         bool equalForDisplayPurposes =
+                            // covers import-as-update flows, such as updating the beatmap with the latest online versions, or external editing inside editor
+                            oldBeatmap.ID == newBeatmap.ID &&
                             // covers metadata changes
                             oldBeatmap.Hash == newBeatmap.Hash &&
                             // sanity check
@@ -497,25 +499,35 @@ namespace osu.Game.Screens.SelectV2
             // The filter might have changed the set of available groups, which means that the current selection may point to a stale group.
             // Check whether that is the case.
             bool groupingRemainsOff = currentGroupedBeatmap?.Group == null && grouping.GroupItems.Count == 0;
-            bool groupStillExists = currentGroupedBeatmap?.Group != null && grouping.GroupItems.ContainsKey(currentGroupedBeatmap.Group);
 
-            if (groupingRemainsOff || groupStillExists)
+            bool groupStillValid = false;
+
+            if (currentGroupedBeatmap?.Group != null)
+            {
+                groupStillValid = grouping.GroupItems.TryGetValue(currentGroupedBeatmap.Group, out var items)
+                                  && items.Any(i => CheckModelEquality(i.Model, currentGroupedBeatmap));
+            }
+
+            if (groupingRemainsOff || groupStillValid)
             {
                 // Only update the visual state of the selected item.
                 HandleItemSelected(currentGroupedBeatmap);
             }
             else if (currentGroupedBeatmap != null)
             {
-                // If the group no longer exists, grab an arbitrary other instance of the beatmap under the first group encountered.
+                // If the group no longer exists (or the item no longer exists in the previous group), grab an arbitrary other instance of the beatmap under the first group encountered.
                 var newSelection = GetCarouselItems()?.Select(i => i.Model).OfType<GroupedBeatmap>().FirstOrDefault(gb => gb.Beatmap.Equals(currentGroupedBeatmap.Beatmap));
+
                 // Only change the selection if we actually got a positive hit.
                 // This is necessary so that selection isn't lost if the panel reappears later due to e.g. unapplying some filter criteria that made it disappear in the first place.
                 if (newSelection != null)
+                {
                     CurrentSelection = newSelection;
+                    groupForReselection = newSelection.Group;
+                }
             }
 
             // If a group was selected that is not the one containing the selection, attempt to reselect it.
-            // If the original group was not found, ExpandedGroup will already have been updated to a valid value in `HandleItemSelected` above.
             if (groupForReselection != null && grouping.GroupItems.TryGetValue(groupForReselection, out _))
                 setExpandedGroup(groupForReselection);
         }
@@ -561,8 +573,19 @@ namespace osu.Game.Screens.SelectV2
 
             var beatmaps = items.Select(i => i.Model).OfType<GroupedBeatmap>();
 
-            if (beatmaps.Any(b => b.Equals(CurrentSelection as GroupedBeatmap)))
+            // do not request recommended selection if the user already had selected a difficulty within the single filtered beatmap set,
+            // as it could change the difficulty that will be selected
+            var preexistingSelection = beatmaps.FirstOrDefault(b => b.Equals(CurrentSelection as GroupedBeatmap));
+
+            if (preexistingSelection != null)
+            {
+                // the selection might not have an item associated with it, if it was fully filtered away previously
+                // in this case, request to reselect it
+                if (CurrentSelectionItem == null)
+                    RequestSelection(preexistingSelection);
+
                 return;
+            }
 
             RequestRecommendedSelection(beatmaps);
         }
@@ -678,7 +701,7 @@ namespace osu.Game.Screens.SelectV2
 
             var groupItem = GetCarouselItems()?.FirstOrDefault(i => CheckModelEquality(i.Model, CurrentGroupedBeatmap.Group));
             if (groupItem != null)
-                HandleItemActivated(groupItem);
+                Activate(groupItem);
         }
 
         protected override double? GetScrollTarget()
