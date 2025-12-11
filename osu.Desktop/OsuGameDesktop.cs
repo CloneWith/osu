@@ -22,6 +22,7 @@ using osu.Game.Configuration;
 using osu.Game.IO;
 using osu.Game.IPC;
 using osu.Game.Performance;
+using osu.Game.Platform;
 using osu.Game.Utils;
 
 namespace osu.Desktop
@@ -34,6 +35,9 @@ namespace osu.Desktop
         [Cached(typeof(IHighPerformanceSessionManager))]
         private readonly HighPerformanceSessionManager highPerformanceSessionManager = new HighPerformanceSessionManager();
 
+        [Cached(typeof(IAssociationManager))]
+        private readonly IAssociationManager? associationManager;
+
         public bool IsFirstRun { get; init; }
 
         public bool EnableWebSocketServer { get; init; }
@@ -41,6 +45,10 @@ namespace osu.Desktop
         public OsuGameDesktop(string[]? args = null)
             : base(args)
         {
+            if (OperatingSystem.IsWindows())
+            {
+                associationManager = new WindowsAssociationManagerAdapter();
+            }
         }
 
         public override StableStorage? GetStorageForStableInstall()

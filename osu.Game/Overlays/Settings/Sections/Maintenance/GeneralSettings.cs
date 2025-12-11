@@ -3,12 +3,14 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using osu.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osu.Game.Localisation;
+using osu.Game.Platform;
 using osu.Game.Screens;
 using osu.Game.Screens.Import;
 using osu.Game.Screens.Utility;
@@ -22,7 +24,8 @@ namespace osu.Game.Overlays.Settings.Sections.Maintenance
         private ISystemFileSelector? selector;
 
         [BackgroundDependencyLoader]
-        private void load(OsuGameBase game, GameHost host, IPerformFromScreenRunner? performer)
+        private void load(OsuGameBase game, GameHost host, IPerformFromScreenRunner? performer,
+                          IAssociationManager? associationManager, IDialogOverlay? dialogOverlay)
         {
             if ((selector = host.CreateSystemFileSelector(game.HandledExtensions.ToArray())) != null)
                 selector.Selected += f => Task.Run(() => game.Import(f.FullName));
@@ -46,6 +49,15 @@ namespace osu.Game.Overlays.Settings.Sections.Maintenance
                     Action = () => performer?.PerformFromScreen(menu => menu.Push(new LatencyCertifierScreen()))
                 }
             });
+
+            if (RuntimeInfo.OS is RuntimeInfo.Platform.Windows && associationManager != null)
+            {
+                Add(new SettingsButton
+                {
+                    Text = DebugSettingsStrings.SetApplicationAssociation,
+                    Action = () => dialogOverlay?.Push(new AssociationPrePromptDialog(associationManager.InstallAssociations)),
+                });
+            }
         }
 
         protected override void Dispose(bool isDisposing)

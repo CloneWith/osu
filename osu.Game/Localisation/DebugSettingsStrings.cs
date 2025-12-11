@@ -39,6 +39,20 @@ namespace osu.Game.Localisation
         /// </summary>
         public static LocalisableString RunLatencyCertifier => new TranslatableString(getKey(@"run_latency_certifier"), @"Run latency certifier");
 
+        /// <summary>
+        /// "Set application association"
+        /// </summary>
+        public static LocalisableString SetApplicationAssociation => new TranslatableString(getKey(@"set_application_association"), @"Set application association");
+
+        /// <summary>
+        /// "Association Update"
+        /// </summary>
+        public static LocalisableString AssociationDialogHeader => new TranslatableString(getKey(@"association_dialog_header"), @"Association Update");
+
+        public static LocalisableString AssociationDialogText => new TranslatableString(getKey(@"association_dialog_text"),
+            "Setting up a separate association for osu!gu client."
+            + "\nPlease be aware that associations for the official client won't be changed. You may need to reinstall or update it to fix them.");
+
         private static string getKey(string key) => $"{prefix}:{key}";
     }
 }
