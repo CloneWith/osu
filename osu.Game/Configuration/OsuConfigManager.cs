@@ -234,6 +234,9 @@ namespace osu.Game.Configuration
 
             // intentionally uses `DateTime?` and not `DateTimeOffset?` because the latter fails due to `DateTimeOffset` not implementing `IConvertible`
             SetDefault(OsuSetting.LastOnlineTagsPopulation, (DateTime?)null);
+
+            SetDefault(OsuSetting.DoNotDisturb, false);
+            SetDefault(OsuSetting.PersistentNotifications, false);
         }
 
         protected override bool CheckLookupContainsPrivateInformation(OsuSetting lookup)
@@ -486,5 +489,8 @@ namespace osu.Game.Configuration
         LastOnlineTagsPopulation,
 
         AutomaticallyAdjustBeatmapOffset,
+
+        DoNotDisturb,
+        PersistentNotifications,
     }
 }

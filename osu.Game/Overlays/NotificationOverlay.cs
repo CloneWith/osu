@@ -17,9 +17,12 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
+using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Localisation;
 using osu.Game.Overlays.Notifications;
+using osu.Game.Overlays.Settings;
 using osu.Game.Resources.Localisation.Web;
 using osuTK;
 using osuTK.Graphics;
@@ -70,12 +73,18 @@ namespace osu.Game.Overlays
 
         private Container mainContent = null!;
 
+        private readonly BindableBool doNotDisturb = new BindableBool();
+        private readonly BindableBool persistentNotifications = new BindableBool();
+
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(OsuConfigManager config)
         {
             X = WIDTH;
             Width = WIDTH;
             RelativeSizeAxes = Axes.Y;
+
+            config.BindWith(OsuSetting.DoNotDisturb, doNotDisturb);
+            config.BindWith(OsuSetting.PersistentNotifications, persistentNotifications);
 
             Children = new Drawable[]
             {
@@ -108,18 +117,43 @@ namespace osu.Game.Overlays
                             RelativeSizeAxes = Axes.Both,
                             Children = new[]
                             {
-                                sections = new FillFlowContainer<NotificationSection>
+                                new FillFlowContainer
                                 {
                                     Direction = FillDirection.Vertical,
                                     AutoSizeAxes = Axes.Y,
                                     RelativeSizeAxes = Axes.X,
-                                    Children = new[]
+                                    Padding = new MarginPadding { Top = 10 },
+                                    Spacing = new Vector2(5),
+                                    Children = new Drawable[]
                                     {
-                                        // The main section adds as a catch-all for notifications which don't group into other sections.
-                                        new NotificationSection(AccountsStrings.NotificationsTitle),
-                                        new NotificationSection(NotificationsStrings.RunningTasks, new[] { typeof(ProgressNotification) }),
+                                        new SettingsCheckbox
+                                        {
+                                            LabelText = UserInterfaceStrings.DoNotDisturb,
+                                            TooltipText = UserInterfaceStrings.DoNotDisturbDescription,
+                                            Current = doNotDisturb,
+                                            ShowsDefaultIndicator = false,
+                                        },
+                                        new SettingsCheckbox
+                                        {
+                                            LabelText = UserInterfaceStrings.PersistentNotifications,
+                                            TooltipText = UserInterfaceStrings.PersistentNotificationsDescription,
+                                            Current = persistentNotifications,
+                                            ShowsDefaultIndicator = false,
+                                        },
+                                        sections = new FillFlowContainer<NotificationSection>
+                                        {
+                                            Direction = FillDirection.Vertical,
+                                            AutoSizeAxes = Axes.Y,
+                                            RelativeSizeAxes = Axes.X,
+                                            Children = new[]
+                                            {
+                                                // The main section adds as a catch-all for notifications which don't group into other sections.
+                                                new NotificationSection(AccountsStrings.NotificationsTitle),
+                                                new NotificationSection(NotificationsStrings.RunningTasks, new[] { typeof(ProgressNotification) }),
+                                            }
+                                        }
                                     }
-                                }
+                                },
                             }
                         }
                     }
@@ -172,7 +206,7 @@ namespace osu.Game.Overlays
 
         private double? lastSamplePlayback;
 
-        public void Post(Notification notification) => (notification.IsCritical ? criticalPostScheduler : postScheduler).Add(() =>
+        public void Post(Notification notification) => (!doNotDisturb.Value && notification.IsCritical ? criticalPostScheduler : postScheduler).Add(() =>
         {
             ++runningDepth;
 
@@ -185,13 +219,13 @@ namespace osu.Game.Overlays
 
             playDebouncedSample(notification.PopInSampleName);
 
-            if (notification.IsImportant)
+            if (!doNotDisturb.Value && notification.IsImportant)
             {
                 game?.Window?.Flash();
                 notification.Closed += () => game?.Window?.CancelFlash();
             }
 
-            if (State.Value == Visibility.Hidden)
+            if (!doNotDisturb.Value && State.Value == Visibility.Hidden)
             {
                 notification.IsInToastTray = true;
                 toastTray.Post(notification);
@@ -258,7 +292,7 @@ namespace osu.Game.Overlays
 
         private void playDebouncedSample(string sampleName)
         {
-            if (string.IsNullOrEmpty(sampleName))
+            if (doNotDisturb.Value || string.IsNullOrEmpty(sampleName))
                 return;
 
             if (lastSamplePlayback == null || Time.Current - lastSamplePlayback > OsuGameBase.SAMPLE_DEBOUNCE_TIME)

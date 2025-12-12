@@ -25,6 +25,7 @@ namespace osu.Game.Overlays.Settings.Sections
             {
                 new GeneralSettings(),
                 new MainMenuSettings(),
+                new NotificationSettings(),
                 new SongSelectSettings()
             };
         }
