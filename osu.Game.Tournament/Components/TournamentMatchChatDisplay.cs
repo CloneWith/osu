@@ -16,7 +16,7 @@ namespace osu.Game.Tournament.Components
 {
     public partial class TournamentMatchChatDisplay : StandAloneChatDisplay
     {
-        private readonly Bindable<string> chatChannel = new Bindable<string>();
+        private readonly Bindable<string> channelName = new Bindable<string>();
 
         private ChannelManager? manager;
 
@@ -42,53 +42,45 @@ namespace osu.Game.Tournament.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load(MatchIPCInfo? ipc, IAPIProvider api)
+        private void load(MatchIPCInfo ipc, IAPIProvider api)
         {
+            this.ipc = ipc;
             this.api = api;
 
-            if (ipc != null)
+            AddInternal(manager = new ChannelManager(api));
+            Channel.BindTo(manager.CurrentChannel);
+
+            channelName.BindTo(ipc.ChatChannel);
+            channelName.BindValueChanged(c =>
             {
-                this.ipc = ipc;
-                chatChannel.BindTo(ipc.ChatChannel);
-                chatChannel.BindValueChanged(c =>
+                if (int.TryParse(c.OldValue, out int oldChannelId) && oldChannelId > 0)
                 {
-                    if (string.IsNullOrWhiteSpace(c.NewValue))
-                        return;
+                    var joinedChannel = manager.JoinedChannels.SingleOrDefault(ch => ch.Id == oldChannelId);
+                    if (joinedChannel != null)
+                        manager.LeaveChannel(joinedChannel);
+                }
 
-                    channelId = int.Parse(c.NewValue);
-
-                    if (channelId <= 0) return;
-
-                    if (manager == null)
+                if (int.TryParse(c.NewValue, out int newChannelId) && newChannelId > 0)
+                {
+                    var channel = new Channel
                     {
-                        AddInternal(manager = new ChannelManager(api));
-                        Channel.BindTo(manager.CurrentChannel);
-                    }
+                        Id = newChannelId,
+                        Type = ChannelType.Public
+                    };
 
-                    Channel? channel = manager.JoinedChannels.FirstOrDefault(p => p.Id == channelId);
-
-                    if (channel == null)
-                    {
-                        channel = new Channel
-                        {
-                            Id = channelId,
-                            Type = ChannelType.Public,
-                        };
-                        manager.JoinChannel(channel);
-                    }
-
+                    manager.JoinChannel(channel);
                     manager.CurrentChannel.Value = channel;
-                }, true);
-            }
+                }
+            }, true);
         }
 
         public void ReloadChannel()
         {
             if (ipc == null) return;
 
-            if (string.IsNullOrWhiteSpace(chatChannel.Value)) return;
+            if (string.IsNullOrWhiteSpace(channelName.Value)) return;
 
-            channelId = int.Parse(chatChannel.Value);
+            channelId = int.Parse(channelName.Value);
 
             if (manager == null)
             {
