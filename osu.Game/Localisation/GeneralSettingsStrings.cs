@@ -100,6 +100,21 @@ namespace osu.Game.Localisation
         public static LocalisableString ReportIssueTooltip => new TranslatableString(getKey(@"report_issue_tooltip"), @"Report a problem with the game to the developers.");
 
         /// <summary>
+        /// "Reporting an issue"
+        /// </summary>
+        public static LocalisableString IssueReportDialogHeader => new TranslatableString(getKey(@"issue_report_dialog_header"), @"Reporting an issue");
+
+        /// <summary>
+        /// "This will open the project&#39;s issue page on GitHub, where you can view and create issue reports (requires a GitHub account).
+        /// Before reporting an issue, we recommend searching for existing ones and exporting your client logs for future reference."
+        /// </summary>
+        public static LocalisableString IssueReportDialogText => new TranslatableString(getKey(@"issue_report_dialog_text"),
+            """
+            This will open the project's issue page on GitHub, where you can view and create issue reports (requires a GitHub account).
+            Before reporting an issue, we recommend searching for existing ones and exporting your client logs for future reference.
+            """);
+
+        /// <summary>
         /// "Check with your package manager / provider for other release streams."
         /// </summary>
         public static LocalisableString ChangeReleaseStreamPackageManagerWarning => new TranslatableString(getKey(@"change_release_stream_package_warning"), @"Check with your package manager / provider for other release streams.");

@@ -1317,7 +1317,7 @@ namespace osu.Game
 
             // Importantly, this should be run after binding PostNotification to the import handlers so they can present the import after game startup.
             handleStartupImport();
-            
+
             // Show server information notification on startup
             showServerInfoNotification();
         }
