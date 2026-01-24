@@ -8,7 +8,6 @@ using osu.Framework.Configuration;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
@@ -60,7 +59,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = OsuColour.Gray(0.2f),
+                    Colour = ColourProvider.Background5,
                 },
                 new OsuScrollContainer
                 {
@@ -162,12 +161,13 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = SetupStrings.TournamentNameDescription,
                     Current = LadderInfo.FullName,
                 },
-                new LabelledDropdown<RulesetInfo?>
+                new LabelledDropdown<RulesetInfo?>(padded: true)
                 {
                     Label = SetupStrings.Ruleset,
                     Description = SetupStrings.RulesetDescription,
                     Items = rulesets.AvailableRulesets,
                     Current = LadderInfo.Ruleset,
+                    DropdownWidth = 0.5f,
                 },
                 new ActionableInfo
                 {

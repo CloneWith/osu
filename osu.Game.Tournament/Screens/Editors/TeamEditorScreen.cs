@@ -166,12 +166,11 @@ namespace osu.Game.Tournament.Screens.Editors
                                     ladderInfo.Teams.Remove(Model);
                                 })),
                             },
-                            new FormSliderBar<int>
+                            new FormTextBox
                             {
                                 Caption = TeamEditorStrings.LastYearPlacement,
                                 Width = 0.33f,
                                 Current = Model.LastYearPlacing,
-                                TransferValueOnCommit = true,
                                 TabbableContentContainer = this,
                             },
                             new SettingsButton
