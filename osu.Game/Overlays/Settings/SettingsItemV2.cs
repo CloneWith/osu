@@ -102,6 +102,8 @@ namespace osu.Game.Overlays.Settings
             base.Update();
             controlDefault.Value = Control.IsDefault;
             controlEnabled.Value = !Control.IsDisabled;
+
+            revertButton.Height = Control.MainDrawHeight;
         }
 
         #region ISettingsItem

@@ -136,9 +136,7 @@ namespace osu.Game.Overlays.Settings.Sections.Input
                 {
                     Anchor = Anchor.TopRight,
                     Origin = Anchor.TopRight,
-                    Height = 1,
                     RelativeSizeAxes = Axes.Y,
-                    IconSize = 12,
                     Action = RestoreDefaults,
                 },
                 new Container

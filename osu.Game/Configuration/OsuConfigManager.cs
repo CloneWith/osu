@@ -15,6 +15,7 @@ using osu.Game.Input;
 using osu.Game.Input.Bindings;
 using osu.Game.Localisation;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Dashboard.Friends;
 using osu.Game.Overlays.Mods.Input;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Screens.Edit.Compose.Components;
@@ -237,6 +238,9 @@ namespace osu.Game.Configuration
 
             SetDefault(OsuSetting.DoNotDisturb, false);
             SetDefault(OsuSetting.PersistentNotifications, false);
+
+            SetDefault(OsuSetting.DashboardSortMode, UserSortCriteria.LastVisit);
+            SetDefault(OsuSetting.DashboardDisplayStyle, OverlayPanelDisplayStyle.Card);
         }
 
         protected override bool CheckLookupContainsPrivateInformation(OsuSetting lookup)
@@ -492,5 +496,8 @@ namespace osu.Game.Configuration
 
         DoNotDisturb,
         PersistentNotifications,
+
+        DashboardSortMode,
+        DashboardDisplayStyle,
     }
 }
