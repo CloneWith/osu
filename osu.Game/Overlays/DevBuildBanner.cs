@@ -5,7 +5,6 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osuTK;
@@ -15,33 +14,41 @@ namespace osu.Game.Overlays
     public partial class DevBuildBanner : VisibilityContainer
     {
         [BackgroundDependencyLoader]
-        private void load(OsuColour colours, TextureStore textures, OsuGameBase game)
+        private void load()
         {
             AutoSizeAxes = Axes.Both;
 
-            Anchor = Anchor.BottomCentre;
-            Origin = Anchor.BottomCentre;
+            Anchor = Anchor.BottomRight;
+            Origin = Anchor.BottomRight;
+            Position = new Vector2(-10, -10);
 
             Alpha = 0;
 
-            AddRange(new Drawable[]
+            Add(new FillFlowContainer
             {
-                new OsuSpriteText
+                Anchor = Anchor.CentreRight,
+                Origin = Anchor.CentreRight,
+                Direction = FillDirection.Horizontal,
+                AutoSizeAxes = Axes.Both,
+                Spacing = new Vector2(5),
+                Children = new Drawable[]
                 {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
-                    Font = OsuFont.Numeric.With(weight: FontWeight.Bold, size: 12),
-                    Colour = colours.YellowDark,
-                    Text = @"DEVELOPER BUILD",
-                },
-                new Sprite
-                {
-                    Anchor = Anchor.BottomCentre,
-                    Origin = Anchor.BottomCentre,
-                    Texture = textures.Get(@"Menu/dev-build-footer"),
-                    Scale = new Vector2(0.4f, 1),
-                    Y = 2,
-                },
+                    new SpriteIcon
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        Icon = FontAwesome.Solid.Hammer,
+                        Shadow = true,
+                        Size = new Vector2(20),
+                    },
+                    new OsuSpriteText
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.CentreRight,
+                        Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 16),
+                        Text = @"Development Build",
+                    },
+                }
             });
         }
 
