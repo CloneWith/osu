@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -11,14 +12,13 @@ using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
+using osu.Game.Screens.Footer;
 using osu.Game.Screens.Select;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseSongSelect : SongSelect
+    public partial class ShowcaseSongSelect : SongSelect, ISongSelect
     {
-        public override bool AllowEditing => false;
-
         public event Action<SelectResult>? OnSelect;
 
         [Resolved]
@@ -40,18 +40,7 @@ namespace osu.Game.Screens.TournamentShowcase
             targetRuleset.BindTo(rulesetInfo);
         }
 
-        protected override BeatmapDetailArea CreateBeatmapDetailArea()
-        {
-            return new ShowcaseBeatmapDetailArea
-            {
-                Leaderboard =
-                {
-                    ScoreSelected = scoreSelected
-                }
-            };
-        }
-
-        protected override bool OnStart()
+        protected override void OnStart()
         {
             applyCommonInfo();
 
@@ -61,7 +50,32 @@ namespace osu.Game.Screens.TournamentShowcase
 
             OnSelect?.Invoke(status);
             this.Exit();
-            return true;
+        }
+
+        public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => [];
+
+        void ISongSelect.PresentScore(ScoreInfo score)
+        {
+            if (score.BeatmapInfo == null)
+                return;
+
+            if (!score.Passed)
+            {
+                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                {
+                    HeaderText = @"Failed Score",
+                    BodyText = @"Use a passed score to guarantee the showcase running properly."
+                });
+                return;
+            }
+
+            applyCommonInfo();
+            status |= SelectResult.ScoreUpdated;
+            targetScore.Value = score;
+            targetRuleset.Value = score.Ruleset;
+
+            OnSelect?.Invoke(status);
+            this.Exit();
         }
 
         private void applyCommonInfo()
@@ -80,30 +94,6 @@ namespace osu.Game.Screens.TournamentShowcase
             targetRuleset.Value = Ruleset.Value;
             targetMods.Clear();
             targetMods.AddRange(Mods.Value);
-        }
-
-        private void scoreSelected(ScoreInfo s)
-        {
-            if (s.BeatmapInfo != null)
-            {
-                if (!s.Passed)
-                {
-                    dialogOverlay?.Push(new ProfileCheckFailedDialog
-                    {
-                        HeaderText = @"Failed Score",
-                        BodyText = @"Use a passed score to guarantee the showcase running properly."
-                    });
-                    return;
-                }
-
-                applyCommonInfo();
-                status |= SelectResult.ScoreUpdated;
-                targetScore.Value = s;
-                targetRuleset.Value = s.Ruleset;
-
-                OnSelect?.Invoke(status);
-                this.Exit();
-            }
         }
     }
 

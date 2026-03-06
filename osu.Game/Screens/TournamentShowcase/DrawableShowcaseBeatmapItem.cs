@@ -35,7 +35,7 @@ using osu.Game.Overlays.BeatmapSet;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Play.HUD;
-using osu.Game.Screens.SelectV2;
+using osu.Game.Screens.Select;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
@@ -278,7 +278,7 @@ namespace osu.Game.Screens.TournamentShowcase
             recordScoreContainer.Clear();
 
             recordScoreContainer.Child = item.ShowcaseScore != null
-                ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
+                ? new BeatmapLeaderboardScore(item.ShowcaseScore)
                 : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
 
             modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
