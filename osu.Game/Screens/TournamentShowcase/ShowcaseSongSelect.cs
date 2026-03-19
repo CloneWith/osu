@@ -54,7 +54,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => [];
 
-        void ISongSelect.PresentScore(ScoreInfo score)
+        void ISongSelect.PresentScore(ScoreInfo score, ScorePresentType presentType)
         {
             if (score.BeatmapInfo == null)
                 return;
