@@ -37,6 +37,7 @@ using osu.Game.Utils;
 using osuTK.Input;
 using Realms;
 using Realms.Exceptions;
+using RuntimeInfo = osu.Framework.RuntimeInfo;
 
 namespace osu.Game.Database
 {
@@ -338,6 +339,9 @@ namespace osu.Game.Database
             }
             catch (Exception e)
             {
+                if (tryFallbackToDefaultStorage(e))
+                    return getRealmInstance();
+
                 // See https://github.com/realm/realm-core/blob/master/src%2Frealm%2Fobject-store%2Fobject_store.cpp#L1016-L1022
                 // This is the best way we can detect a schema version downgrade.
                 if (e.Message.StartsWith(@"Provided schema version", StringComparison.Ordinal))
@@ -378,6 +382,30 @@ namespace osu.Game.Database
                 return getRealmInstance();
             }
         }
+
+        private bool tryFallbackToDefaultStorage(Exception exception)
+        {
+            if (RuntimeInfo.OS != RuntimeInfo.Platform.Android)
+                return false;
+
+            if (storage is not IO.OsuStorage osuStorage || string.IsNullOrEmpty(osuStorage.CustomStoragePath))
+                return false;
+
+            string rootExceptionMessage = exception.GetBaseException().Message;
+
+            if (!isStoragePermissionFailure(rootExceptionMessage))
+                return false;
+
+            Logger.Error(exception, $"Realm startup failed for custom storage path '{osuStorage.CustomStoragePath}'. Falling back to default app storage.");
+
+            osuStorage.ResetCustomStoragePath();
+            return true;
+        }
+
+        private static bool isStoragePermissionFailure(string message)
+            => message.Contains("Operation not permitted", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Permission denied", StringComparison.OrdinalIgnoreCase)
+               || message.Contains("Read-only file system", StringComparison.OrdinalIgnoreCase);
 
         private void cleanupPendingDeletions(Realm realm)
         {

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
@@ -65,12 +64,9 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
         private MasterGameplayClockContainer masterClockContainer = null!;
         private FillFlowContainer leaderboardFlow = null!; // now used to load invisible chat component
         private SpectatorSyncManager syncManager = null!;
-        private PlayerSettingsOverlay settingsOverlay = null!;
         private PlayerGrid grid = null!;
         private readonly TournamentSpectatorStatisticsTracker statisticsTracker;
         private PlayerArea? currentAudioSource;
-
-        private Bindable<bool> showSettingsOverlay = null!;
 
         private readonly Room room;
 
@@ -150,13 +146,8 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
                 },
                 syncManager = new SpectatorSyncManager(masterClockContainer)
                 {
-                    ReadyToStart = () =>
-                    {
-                        performInitialSeek();
-                        setSettingsVisibility(showSettingsOverlay.Value);
-                    },
+                    ReadyToStart = performInitialSeek,
                 },
-                settingsOverlay = new PlayerSettingsOverlay()
             };
 
             for (int i = 0; i < Math.Min(PlayerGrid.MAX_PLAYERS, UserIds.Count); i++)
@@ -185,8 +176,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
 
             BackButtonVisibility.Value = false;
 
-            showSettingsOverlay = configManager.GetBindable<bool>(OsuSetting.ReplaySettingsOverlay);
-            showSettingsOverlay.BindValueChanged(vce => setSettingsVisibility(vce.NewValue));
+            configManager.GetBindable<bool>(OsuSetting.ReplaySettingsOverlay);
 
             masterClockContainer.Reset();
 
@@ -199,14 +189,6 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
             multiplayerClient.ResultsReady -= onResultsReady;
 
             base.Dispose(isDisposing);
-        }
-
-        private void setSettingsVisibility(bool visible)
-        {
-            if (visible)
-                settingsOverlay.Show();
-            else
-                settingsOverlay.Hide();
         }
 
         protected override void Update()

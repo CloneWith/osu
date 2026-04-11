@@ -10,6 +10,7 @@ using osu.Framework.Testing;
 using osu.Framework.Utils;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Gameplay;
 using osu.Game.Tournament.Screens.Gameplay.Components;

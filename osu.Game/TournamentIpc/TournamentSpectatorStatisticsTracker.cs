@@ -11,12 +11,11 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Logging;
 using osu.Framework.Timing;
 using osu.Game.Configuration;
-using osu.Game.Database;
 using osu.Game.Online.API;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Online.Spectator;
 using osu.Game.Rulesets.Scoring;
-using osu.Game.Screens.Select.Leaderboards;
+using osu.Game.Screens.Play.Leaderboards;
 
 namespace osu.Game.TournamentIpc
 {
@@ -31,17 +30,8 @@ namespace osu.Game.TournamentIpc
 
         private bool hasTeams => TeamScores.Count > 0;
 
-        [Resolved]
-        private SpectatorClient spectatorClient { get; set; } = null!;
-
         [Resolved(canBeNull: true)]
         protected TournamentFileBasedIPC? TournamentIpc { get; private set; }
-
-        [Resolved]
-        private MultiplayerClient multiplayerClient { get; set; } = null!;
-
-        [Resolved]
-        private UserLookupCache userLookupCache { get; set; } = null!;
 
         private SpectatorScoreProcessor scoreProcessor = null!;
 

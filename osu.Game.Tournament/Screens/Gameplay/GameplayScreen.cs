@@ -14,6 +14,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.MapPool;
@@ -135,8 +136,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 }
             });
 
-            State.BindValueChanged(state => chatToggle.Current.Value = State.Value == TourneyState.Idle, true);
-            chatToggle.Current.BindValueChanged(v => State.Value = v.NewValue ? TourneyState.Idle : TourneyState.Playing);
+            State.BindValueChanged(state => chatToggle.Current.Value = State.Value == TourneyState.Lobby, true);
+            chatToggle.Current.BindValueChanged(v => State.Value = v.NewValue ? TourneyState.Lobby : TourneyState.Playing);
 
             LadderInfo.ChromaKeyWidth.BindValueChanged(width => chroma.Width = width.NewValue, true);
 
