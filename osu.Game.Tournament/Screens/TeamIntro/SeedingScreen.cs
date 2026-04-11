@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Diagnostics;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -10,11 +11,25 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics;
-using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Ladder.Components;
 using osuTK;
+
+internal static class BindableListExtensions
+{
+    public static (T? previous, T? next) GetPreviousAndNext<T>(this BindableList<T> list, T currentElement)
+    {
+        int currentIndex = list.IndexOf(currentElement);
+
+        T? previousElement = currentIndex != -1 && currentIndex > 0 ? list[currentIndex - 1] : list.FirstOrDefault();
+        T? nextElement = currentIndex != -1 && currentIndex < list.Count - 1 ? list[currentIndex + 1] : list.LastOrDefault();
+
+        return (previousElement, nextElement);
+    }
+}
 
 namespace osu.Game.Tournament.Screens.TeamIntro
 {
@@ -63,12 +78,39 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                         {
                             LabelText = "Show specific team",
                             Current = currentTeam,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = "Move to team above",
+                            Action = () => currentTeam.Value = LadderInfo.Teams!.GetPreviousAndNext(currentTeam.Value).previous,
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = "Move to team below",
+                            Action = () => currentTeam.Value = LadderInfo.Teams!.GetPreviousAndNext(currentTeam.Value).next,
+                        },
+                        new TournamentSpriteText
+                        {
+                            Margin = new MarginPadding { Top = 12 },
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Text = "Text foreground colour",
+                            Font = OsuFont.GetFont(weight: FontWeight.Bold, size: 14)
+                        },
+                        new OsuColourPicker
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Width = 1.0f,
+                            Current = { BindTarget = LadderInfo.TextForegroundColour }
                         }
                     }
                 }
             };
 
             currentTeam.BindValueChanged(teamChanged, true);
+            LadderInfo.Use1V1Mode.BindValueChanged(_ => updateTeamDisplay());
         }
 
         private void teamChanged(ValueChangedEvent<TournamentTeam?> team) => updateTeamDisplay();
@@ -109,7 +151,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
 
             mainContainer.Children = new Drawable[]
             {
-                new LeftInfo(currentTeam.Value) { Position = new Vector2(55, 150), },
+                new LeftInfo(currentTeam.Value, LadderInfo.Use1V1Mode.Value) { Position = new Vector2(55, 150), },
                 new RightInfo(currentTeam.Value) { Position = new Vector2(500, 150), },
             };
         });
@@ -254,7 +296,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
 
         private partial class LeftInfo : CompositeDrawable
         {
-            public LeftInfo(TournamentTeam? team)
+            public LeftInfo(TournamentTeam? team, bool use1V1Mode)
             {
                 FillFlowContainer fill;
 
@@ -272,13 +314,16 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                         Children = new Drawable[]
                         {
                             new TeamDisplay(team) { Margin = new MarginPadding { Bottom = 30 } },
-                            new RowDisplay("Average Rank:", $"#{team.AverageRank:#,0}"),
+                            new RowDisplay(use1V1Mode ? "Rank:" : "Average Rank:", $"#{team.AverageRank:#,0}"),
                             new RowDisplay("Seed:", team.Seed.Value),
                             new RowDisplay("Last year's placing:", team.LastYearPlacing.Value),
                             new Container { Margin = new MarginPadding { Bottom = 30 } },
                         }
                     },
                 };
+
+                if (use1V1Mode)
+                    return;
 
                 foreach (var p in team.Players)
                     fill.Add(new RowDisplay(p.Username, p.Rank?.ToString("\\##,0") ?? "-"));
@@ -329,7 +374,7 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                         Children = new Drawable[]
                         {
                             Flag,
-                            new OsuSpriteText
+                            new TournamentSpriteText
                             {
                                 Text = team?.FullName.Value ?? "???",
                                 Font = OsuFont.Torus.With(size: 32, weight: FontWeight.SemiBold),

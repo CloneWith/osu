@@ -16,7 +16,8 @@ namespace osu.Game.Tournament.Components
 {
     public partial class TournamentMatchChatDisplay : StandAloneChatDisplay
     {
-        private readonly Bindable<string> channelName = new Bindable<string>();
+        private readonly Bindable<string> chatChannel = new Bindable<string>();
+        private readonly BindableList<Message> lazerIpcChatMessages = new BindableList<Message>();
 
         private ChannelManager? manager;
 
@@ -34,31 +35,72 @@ namespace osu.Game.Tournament.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load(MatchIPCInfo ipc, IAPIProvider api)
+        private void load(LegacyMatchIPCInfo? legacyIpc, MatchIPCInfo? lazerIpc, IAPIProvider api)
         {
-            AddInternal(manager = new ChannelManager(api));
-            Channel.BindTo(manager.CurrentChannel);
+            if (lazerIpc != null)
+                lazerIpcChatMessages.BindTo(lazerIpc.ChatMessages);
 
-            channelName.BindTo(ipc.ChatChannel);
-            channelName.BindValueChanged(c =>
+            ladderInfo.UseLazerIpc.BindValueChanged(useLazerIpcValueChanged =>
             {
-                if (int.TryParse(c.OldValue, out int oldChannelId) && oldChannelId > 0)
+                switch (useLazerIpcValueChanged.NewValue)
                 {
-                    var joinedChannel = manager.JoinedChannels.SingleOrDefault(ch => ch.Id == oldChannelId);
-                    if (joinedChannel != null)
-                        manager.LeaveChannel(joinedChannel);
-                }
-
-                if (int.TryParse(c.NewValue, out int newChannelId) && newChannelId > 0)
-                {
-                    var channel = new Channel
+                    case false:
                     {
-                        Id = newChannelId,
-                        Type = ChannelType.Public
-                    };
+                        lazerIpcChatMessages.UnbindEvents();
 
-                    manager.JoinChannel(channel);
-                    manager.CurrentChannel.Value = channel;
+                        if (legacyIpc == null) return;
+
+                        chatChannel.BindTo(legacyIpc.ChatChannel);
+                        chatChannel.BindValueChanged(c =>
+                        {
+                            if (string.IsNullOrWhiteSpace(c.NewValue))
+                                return;
+
+                            int id = int.Parse(c.NewValue);
+
+                            if (id <= 0) return;
+
+                            if (manager == null)
+                            {
+                                AddInternal(manager = new ChannelManager(api));
+                            }
+
+                            Channel.BindTo(manager.CurrentChannel);
+
+                            foreach (var ch in manager.JoinedChannels.ToList())
+                                manager.LeaveChannel(ch);
+
+                            var channel = new Channel
+                            {
+                                Id = id,
+                                Type = ChannelType.Public
+                            };
+
+                            manager.JoinChannel(channel);
+                            manager.CurrentChannel.Value = channel;
+                        }, true);
+                        break;
+                    }
+
+                    case true:
+                    {
+                        chatChannel.UnbindAll();
+                        Channel.UnbindBindings();
+                        manager?.Dispose();
+                        Channel.Value = new Channel();
+
+                        lazerIpcChatMessages.BindCollectionChanged((_, collectionChangedEventArgs) =>
+                        {
+                            if (collectionChangedEventArgs.NewItems == null || collectionChangedEventArgs.NewItems.Count == 0)
+                            {
+                                Channel.Value = new Channel();
+                                return;
+                            }
+
+                            Channel.Value.AddNewMessages(collectionChangedEventArgs.NewItems.OfType<Message>().ToArray());
+                        }, true);
+                        break;
+                    }
                 }
             }, true);
         }

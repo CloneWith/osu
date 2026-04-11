@@ -16,9 +16,38 @@ namespace osu.Game.Tournament.Screens.Ladder
 
         public override bool ReceivePositionalInputAt(Vector2 screenSpacePos) => true;
 
-        private Vector2 target;
+         public Action? TargetChanged;
+        public Action? ScaleChanged;
 
-        private float scale = 1;
+        private Vector2 targetPosition;
+
+        public Vector2 TargetPosition
+        {
+            get => targetPosition;
+            private set
+            {
+                if (targetPosition == value)
+                    return;
+
+                targetPosition = value;
+                TargetChanged?.Invoke();
+            }
+        }
+
+        private float targetScale = 1;
+
+        public float TargetScale
+        {
+            get => targetScale;
+            private set
+            {
+                if (targetScale == value)
+                    return;
+
+                targetScale = value;
+                ScaleChanged?.Invoke();
+            }
+        }
 
         protected override bool ComputeIsMaskedAway(RectangleF maskingBounds) => false;
 
@@ -26,18 +55,41 @@ namespace osu.Game.Tournament.Screens.Ladder
 
         protected override void OnDrag(DragEvent e)
         {
-            this.MoveTo(target += e.Delta, 1000, Easing.OutQuint);
+            this.MoveTo(TargetPosition += e.Delta, 1000, Easing.OutQuint);
         }
 
-        private const float min_scale = 0.6f;
+        public void SetPosition(Vector2 position, float duration = 1000, Easing easing = Easing.OutQuint)
+        {
+            this.MoveTo(TargetPosition = position, duration, easing);
+        }
+
+        public void AdjustPosition(Vector2 delta, float duration = 1000, Easing easing = Easing.OutQuint)
+        {
+            this.MoveTo(TargetPosition += delta, duration, easing);
+        }
+
+        public void SetScale(float newScale, float duration = 1000, Easing easing = Easing.OutQuint)
+        {
+            newScale = Math.Clamp(newScale, min_scale, max_scale);
+
+            SetPosition(TargetPosition - Parent!.DrawSize / 2f * (newScale - TargetScale));
+            this.ScaleTo(TargetScale = newScale, duration, easing);
+        }
+
+        public void AdjustScale(float scaleDelta, float duration = 1000, Easing easing = Easing.OutQuint)
+        {
+            SetScale(TargetScale + scaleDelta, duration, easing);
+        }
+
+        private const float min_scale = 0.3f;
         private const float max_scale = 1.4f;
 
         protected override bool OnScroll(ScrollEvent e)
         {
-            float newScale = Math.Clamp(scale + e.ScrollDelta.Y / 15 * scale, min_scale, max_scale);
+            float newScale = Math.Clamp(TargetScale + e.ScrollDelta.Y / 15 * TargetScale, min_scale, max_scale);
 
-            this.MoveTo(target -= e.MousePosition * (newScale - scale), 1000, Easing.OutQuint);
-            this.ScaleTo(scale = newScale, 1000, Easing.OutQuint);
+            this.MoveTo(TargetPosition -= e.MousePosition * (newScale - TargetScale), 1000, Easing.OutQuint);
+            this.ScaleTo(TargetScale = newScale, 1000, Easing.OutQuint);
 
             return true;
         }

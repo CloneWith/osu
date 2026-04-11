@@ -118,6 +118,7 @@ namespace osu.Game.Screens.Play
             Children = new[]
             {
                 CreateFailingLayer(),
+                // CreateComboBreakLayer(),
                 //Needs to be initialized before skinnable drawables.
                 judgementCountController = new JudgementCountController(),
                 clicksPerSecondController = new ClicksPerSecondController(),
@@ -368,6 +369,8 @@ namespace osu.Game.Screens.Play
         {
             ShowHealth = { BindTarget = ShowHealthBar }
         };
+
+        // protected ComboBreakLayer CreateComboBreakLayer() => new ComboBreakLayer();
 
         protected HoldForMenuButton CreateHoldForMenuButton() => new HoldForMenuButton(!configuration.AllowRestart)
         {

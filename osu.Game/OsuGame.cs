@@ -360,7 +360,6 @@ namespace osu.Game
 
             if (host.Window != null)
             {
-                host.Window.CursorState |= CursorState.Hidden;
                 host.Window.DragDrop += onWindowDragDrop;
             }
         }
@@ -1052,6 +1051,11 @@ namespace osu.Game
         {
             base.LoadComplete();
 
+            GlobalCursorDisplay.MenuCursor.AlwaysPresent = true; // required for tooltip display
+
+            // we don't want to show the menu cursor as it would appear on stream output.
+            GlobalCursorDisplay.MenuCursor.Alpha = 0;
+
             // The next time this is updated is in UpdateAfterChildren, which occurs too late and results
             // in the cursor being shown for a few frames during the intro.
             // This prevents the cursor from showing until we have a screen with CursorVisible = true
@@ -1068,7 +1072,7 @@ namespace osu.Game
             ScoreDownloader.PostNotification = n => Notifications.Post(n);
 
             ScoreManager.PostNotification = n => Notifications.Post(n);
-            ScoreManager.PresentImport = items => PresentScore(items.First().Value);
+            ScoreManager.PresentImport = items => PresentScore(items.First().Value, ScorePresentType.Gameplay);
 
             MultiplayerClient.PostNotification = n => Notifications.Post(n);
             MultiplayerClient.PresentMatch = PresentMultiplayerMatch;

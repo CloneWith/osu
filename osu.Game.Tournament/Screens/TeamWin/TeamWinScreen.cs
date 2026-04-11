@@ -8,6 +8,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Game.Graphics;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
+using osu.Game.Tournament.Screens.Gameplay.Components;
 using osuTK;
 
 namespace osu.Game.Tournament.Screens.TeamWin
@@ -17,6 +18,9 @@ namespace osu.Game.Tournament.Screens.TeamWin
         private Container mainContainer = null!;
 
         private readonly Bindable<bool> currentCompleted = new Bindable<bool>();
+
+        [Resolved]
+        private LadderInfo ladderInfo { get; set; } = null!;
 
         private TourneyVideo blueWinVideo = null!;
         private TourneyVideo redWinVideo = null!;
@@ -86,6 +90,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 firstDisplay = false;
             }
 
+            Drawable teamDisplay = ladderInfo.Use1V1Mode.Value ? new DrawableTeamTitleWithHeader(match.Winner, match.WinnerColour) : new DrawableTeamWithPlayers(match.Winner, match.WinnerColour);
+
             mainContainer.Children = new Drawable[]
             {
                 new DrawableTeamFlag(match.Winner)
@@ -114,7 +120,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Font = OsuFont.Torus.With(size: 100, weight: FontWeight.Bold),
                             Margin = new MarginPadding { Bottom = 50 },
                         },
-                        new DrawableTeamWithPlayers(match.Winner, match.WinnerColour)
+                        teamDisplay
                     }
                 },
             };

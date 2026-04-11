@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Game.Rulesets;
+using osu.Game.Tournament.Components;
 
 namespace osu.Game.Tournament.Models
 {
@@ -33,6 +35,24 @@ namespace osu.Game.Tournament.Models
             MaxValue = 1366,
         };
 
+        public Bindable<int> ShowcaseChromaWidth = new BindableInt(1366)
+        {
+            MinValue = 480,
+            MaxValue = 1366,
+        };
+
+        public Bindable<int> ShowcaseChromaHeight = new BindableInt(TournamentSceneManager.STREAM_AREA_HEIGHT - (int)SongBar.HEIGHT)
+        {
+            MinValue = 270,
+            MaxValue = TournamentSceneManager.STREAM_AREA_HEIGHT - (int)SongBar.HEIGHT
+        };
+
+        public Bindable<int> ShowcaseChromaVerticalOffset = new BindableInt()
+        {
+            MinValue = 0,
+            MaxValue = TournamentSceneManager.STREAM_AREA_HEIGHT - (int)SongBar.HEIGHT - 270
+        };
+
         public Bindable<int> PlayersPerTeam = new BindableInt(4)
         {
             MinValue = 3,
@@ -41,8 +61,19 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> AutoProgressScreens = new BindableBool(true);
 
+        public Bindable<bool> UseLazerIpc = new Bindable<bool>(true);
+
+        public Bindable<bool> Use1V1Mode = new Bindable<bool>(false);
+
         public Bindable<bool> SplitMapPoolByMods = new BindableBool(true);
 
         public Bindable<bool> DisplayTeamSeeds = new BindableBool();
+
+        /// <summary>
+        /// Now used for set cumulative scoring
+        /// </summary>
+        public Bindable<bool> CumulativeScore = new BindableBool();
+
+        public Bindable<Colour4> TextForegroundColour = new Bindable<Colour4>(Colour4.White);
     }
 }

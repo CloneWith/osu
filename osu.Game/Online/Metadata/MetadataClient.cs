@@ -19,8 +19,8 @@ namespace osu.Game.Online.Metadata
     {
         public abstract IBindable<bool> IsConnected { get; }
 
-        [Resolved]
-        private IAPIProvider api { get; set; } = null!;
+        [Resolved(CanBeNull = true)]
+        private IAPIProvider? api { get; set; }
 
         private readonly IBindableList<APIRelation> localFriends = new BindableList<APIRelation>();
 
@@ -75,7 +75,7 @@ namespace osu.Game.Online.Metadata
         /// <returns>The user presence, or null if not available or the user's offline.</returns>
         public UserPresence? GetPresence(int userId)
         {
-            if (userId == api.LocalUser.Value.OnlineID)
+            if (userId == api?.LocalUser.Value.OnlineID)
                 return LocalUserPresence;
 
             if (FriendPresences.TryGetValue(userId, out UserPresence presence))

@@ -46,14 +46,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
                 InternalChild = Content = content;
 
                 Masking = true;
-                CornerRadius = 5;
-
-                EdgeEffect = new EdgeEffectParameters
-                {
-                    Type = EdgeEffectType.Shadow,
-                    Radius = 10,
-                    Colour = Colour4.Black.Opacity(0.2f),
-                };
+                CornerRadius = 0;
             }
 
             protected override void Update()

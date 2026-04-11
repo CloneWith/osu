@@ -7,13 +7,18 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
+using osu.Framework.Platform;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Editors.Components;
 using osuTK;
@@ -23,6 +28,51 @@ namespace osu.Game.Tournament.Screens.Editors
     public partial class RoundEditorScreen : TournamentEditorScreen<RoundEditorScreen.RoundRow, TournamentRound>
     {
         protected override BindableList<TournamentRound> Storage => LadderInfo.Rounds;
+
+        [Resolved]
+        private Clipboard clipboard { get; set; } = null!;
+
+        private OsuTextBox md5TextBox = null!;
+        private readonly IBindable<TournamentBeatmap?> beatmap = new Bindable<TournamentBeatmap?>();
+
+        [BackgroundDependencyLoader]
+        private void load(LegacyMatchIPCInfo legacyIpc, MatchIPCInfo lazerIpc)
+        {
+            ControlPanel.Add(new OsuSpriteText
+            {
+                Text = "Current beatmap MD5:"
+            });
+            ControlPanel.Add(md5TextBox = new OsuTextBox
+            {
+                RelativeSizeAxes = Axes.X,
+            });
+            ControlPanel.Add(new TourneyButton
+            {
+                Text = "Copy MD5 to clipboard",
+                Action = () =>
+                {
+                    clipboard.SetText(beatmap.Value?.MD5Hash ?? string.Empty);
+                }
+            });
+
+            md5TextBox.OnCommit += (sender, newText) =>
+            {
+                Logger.Log($"sender: {sender.Text}, new text: {newText}");
+
+                if (!newText)
+                    return;
+
+                sender.Text = beatmap.Value?.MD5Hash ?? string.Empty;
+            };
+
+            LadderInfo.UseLazerIpc.BindValueChanged(vce =>
+            {
+                beatmap.UnbindAll();
+                beatmap.BindTo(vce.NewValue ? lazerIpc.Beatmap : legacyIpc.Beatmap);
+            }, true);
+
+            beatmap.BindValueChanged(vce => md5TextBox.Text = vce.NewValue?.MD5Hash ?? string.Empty, true);
+        }
 
         public partial class RoundRow : CompositeDrawable, IModelBacked<TournamentRound>
         {
@@ -122,6 +172,30 @@ namespace osu.Game.Tournament.Screens.Editors
                 AutoSizeAxes = Axes.Y;
             }
 
+            protected override void LoadComplete()
+            {
+                base.LoadComplete();
+
+                Model.Beatmaps.BindCollectionChanged((_, _) =>
+                {
+                    // recompute mod slots
+                    string? currentMods = null;
+                    int modSlotIndex = 1;
+
+                    foreach (var b in Model.Beatmaps)
+                    {
+                        if (currentMods != b.Mods)
+                        {
+                            currentMods = b.Mods;
+                            modSlotIndex = 1;
+                        }
+
+                        b.SlotName = currentMods == "TB" ? currentMods : $"{currentMods}{modSlotIndex}";
+                        modSlotIndex++;
+                    }
+                }, true);
+            }
+
             public partial class RoundBeatmapEditor : CompositeDrawable
             {
                 private readonly TournamentRound round;
@@ -160,6 +234,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     protected IAPIProvider API { get; private set; } = null!;
 
                     private readonly Bindable<int?> beatmapId = new Bindable<int?>();
+                    private readonly Bindable<string> beatmapMd5 = new Bindable<string>(string.Empty);
 
                     private readonly Bindable<string> mods = new Bindable<string>(string.Empty);
 
@@ -197,14 +272,21 @@ namespace osu.Game.Tournament.Screens.Editors
                                     {
                                         LabelText = "Beatmap ID",
                                         RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Width = 160,
                                         Current = beatmapId,
+                                    },
+                                    new SettingsTextBox
+                                    {
+                                        LabelText = "Beatmap MD5 (fallback)",
+                                        RelativeSizeAxes = Axes.None,
+                                        Width = 320,
+                                        Current = beatmapMd5,
                                     },
                                     new SettingsTextBox
                                     {
                                         LabelText = "Mods",
                                         RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Width = 120,
                                         Current = mods,
                                     },
                                     drawableContainer = new Container
@@ -218,8 +300,8 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.None,
-                                Width = 150,
-                                Text = "Delete Beatmap",
+                                Width = 120,
+                                Text = "Remove",
                                 Action = () =>
                                 {
                                     Expire();
@@ -262,6 +344,9 @@ namespace osu.Game.Tournament.Screens.Editors
 
                             API.Queue(req);
                         }, true);
+
+                        beatmapMd5.Value = Model.MD5;
+                        beatmapMd5.BindValueChanged(md5String => Model.MD5 = md5String.NewValue);
 
                         mods.Value = Model.Mods;
                         mods.BindValueChanged(modString => Model.Mods = modString.NewValue);

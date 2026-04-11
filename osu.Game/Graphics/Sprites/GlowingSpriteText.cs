@@ -25,7 +25,7 @@ namespace osu.Game.Graphics.Sprites
         public FontUsage Font
         {
             get => text.Font;
-            set => text.Font = value.With(fixedWidth: true);
+            set => text.Font = value;
         }
 
         public Vector2 TextSize

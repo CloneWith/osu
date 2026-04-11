@@ -26,7 +26,10 @@ namespace osu.Game.Tournament.Tests
         protected LadderInfo Ladder { get; private set; } = new LadderInfo();
 
         [Cached]
-        protected MatchIPCInfo IPCInfo { get; private set; } = new MatchIPCInfo();
+        protected LegacyMatchIPCInfo IPCInfo { get; private set; } = new LegacyMatchIPCInfo();
+
+        [Cached]
+        protected MatchIPCInfo LazerIPCInfo { get; private set; } = new MatchIPCInfo();
 
         [Resolved]
         private RulesetStore rulesetStore { get; set; } = null!;
@@ -54,7 +57,13 @@ namespace osu.Game.Tournament.Tests
         [SetUpSteps]
         public virtual void SetUpSteps()
         {
-            AddStep("set current match", () => Ladder.CurrentMatch.Value = match);
+            AddStep("set current match", () =>
+            {
+                match.Team1Score.Value = 0;
+                match.Team2Score.Value = 0;
+                match.MapScores.Clear();
+                Ladder.CurrentMatch.Value = match;
+            });
         }
 
         public static TournamentMatch CreateSampleMatch() => new TournamentMatch
@@ -153,16 +162,27 @@ namespace osu.Game.Tournament.Tests
             },
             Round =
             {
-                Value = new TournamentRound { Name = { Value = "Quarterfinals" } },
+                Value = new TournamentRound
+                {
+                    Name = { Value = "Quarterfinals" },
+                    Beatmaps =
+                    {
+                        new RoundBeatmap { ID = 1, SlotName = "NM1" },
+                        new RoundBeatmap { ID = 2, SlotName = "NM2" },
+                        new RoundBeatmap { ID = 3, SlotName = "HD1" },
+                        new RoundBeatmap { ID = 4, SlotName = "HD2" },
+                        new RoundBeatmap { ID = 5, SlotName = "TB1" },
+                    }
+                },
             }
         };
 
-        public static TournamentBeatmap CreateSampleBeatmap() =>
+        public static TournamentBeatmap CreateSampleBeatmap(string? title = null) =>
             new TournamentBeatmap
             {
                 Metadata = new BeatmapMetadata
                 {
-                    Title = "Test Title",
+                    Title = title ?? "Test Title",
                     Artist = "Test Artist",
                 },
                 OnlineID = RNG.Next(0, 1000000),

@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -99,7 +100,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
         {
         }
 
-        private partial class SettingsRoundDropdown : SettingsDropdown<TournamentRound?>
+        public partial class SettingsRoundDropdown : SettingsDropdown<TournamentRound?>
         {
             public SettingsRoundDropdown(BindableList<TournamentRound> rounds)
             {
@@ -145,6 +146,57 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                     Control.RemoveDropdownItem(round);
                     Control.AddDropdownItem(round);
                 });
+            }
+        }
+
+        public sealed partial class SettingMapScoresDropdown : SettingsDropdown<string?>
+        {
+            [Resolved]
+            private LadderInfo ladder { get; set; } = null!;
+
+            private readonly BindableDictionary<string, Tuple<long, long>> mapScores = new BindableDictionary<string, Tuple<long, long>>();
+
+            public SettingMapScoresDropdown()
+            {
+                Current = new Bindable<string?>();
+
+                Control.AddDropdownItem("");
+            }
+
+            protected override void LoadComplete()
+            {
+                base.LoadComplete();
+
+                ladder.CurrentMatch.BindValueChanged(match =>
+                {
+                    mapScores.UnbindBindings();
+
+                    if (match.NewValue == null)
+                        return;
+
+                    Control.ClearItems();
+                    Control.AddDropdownItem("");
+
+                    mapScores.BindTo(match.NewValue.MapScores);
+                }, true);
+
+                mapScores.CollectionChanged += (_, args) =>
+                {
+                    switch (args.Action)
+                    {
+                        case NotifyDictionaryChangedAction.Add:
+                            Debug.Assert(args.NewItems != null);
+
+                            args.NewItems.Select(n => n.Key).ForEach(Control.AddDropdownItem);
+                            break;
+
+                        case NotifyDictionaryChangedAction.Remove:
+                            Debug.Assert(args.OldItems != null);
+
+                            args.OldItems.Select(n => n.Key).ForEach(i => Control.RemoveDropdownItem(i));
+                            break;
+                    }
+                };
             }
         }
     }

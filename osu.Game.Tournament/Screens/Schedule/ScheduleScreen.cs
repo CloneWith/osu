@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Ladder.Components;
@@ -23,6 +24,7 @@ namespace osu.Game.Tournament.Screens.Schedule
     {
         private readonly BindableList<TournamentMatch> allMatches = new BindableList<TournamentMatch>();
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
+        private OsuCheckbox matchCompleteOverride = null!;
         private Container mainContainer = null!;
         private LadderInfo ladder = null!;
 
@@ -97,6 +99,16 @@ namespace osu.Game.Tournament.Screens.Schedule
                         }
                     }
                 },
+                new ControlPanel
+                {
+                    Children = new Drawable[]
+                    {
+                        matchCompleteOverride = new OsuCheckbox
+                        {
+                            LabelText = "match complete?",
+                        },
+                    }
+                }
             };
         }
 
@@ -108,7 +120,18 @@ namespace osu.Game.Tournament.Screens.Schedule
             allMatches.BindCollectionChanged((_, _) => refresh());
 
             currentMatch.BindTo(ladder.CurrentMatch);
-            currentMatch.BindValueChanged(_ => refresh(), true);
+            currentMatch.BindValueChanged(vce =>
+            {
+                refresh();
+
+                if (vce.OldValue != null)
+                    matchCompleteOverride.Current.UnbindFrom(vce.OldValue.Completed);
+
+                if (vce.NewValue != null)
+                {
+                    matchCompleteOverride.Current.BindTo(vce.NewValue.Completed);
+                }
+            }, true);
         }
 
         private void refresh()
@@ -154,13 +177,13 @@ namespace osu.Game.Tournament.Screens.Schedule
                                 new ScheduleContainer("recent matches")
                                 {
                                     RelativeSizeAxes = Axes.Both,
-                                    Width = 0.4f,
+                                    Width = 0.5f,
                                     ChildrenEnumerable = recent.Select(p => new ScheduleMatch(p))
                                 },
                                 new ScheduleContainer("upcoming matches")
                                 {
                                     RelativeSizeAxes = Axes.Both,
-                                    Width = 0.6f,
+                                    Width = 0.5f,
                                     ChildrenEnumerable = upcoming.Select(p => new ScheduleMatch(p))
                                 },
                             }
@@ -240,7 +263,6 @@ namespace osu.Game.Tournament.Screens.Schedule
                     {
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopLeft,
-                        Colour = OsuColour.Gray(0.7f),
                         Alpha = conditional ? 0.6f : 1,
                         Font = OsuFont.Torus,
                         Margin = new MarginPadding { Horizontal = 10, Vertical = 5 },
@@ -249,7 +271,6 @@ namespace osu.Game.Tournament.Screens.Schedule
                     {
                         Anchor = Anchor.BottomRight,
                         Origin = Anchor.BottomLeft,
-                        Colour = OsuColour.Gray(0.7f),
                         Alpha = conditional ? 0.6f : 1,
                         Margin = new MarginPadding { Horizontal = 10, Vertical = 5 },
                         Text = match.Date.Value.ToUniversalTime().ToString("HH:mm UTC") + (conditional ? " (conditional)" : "")

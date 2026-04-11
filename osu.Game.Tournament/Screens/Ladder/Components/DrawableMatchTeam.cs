@@ -12,6 +12,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Game.Graphics;
+using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Models;
@@ -24,13 +25,26 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 {
     public partial class DrawableMatchTeam : DrawableTournamentTeam, IHasContextMenu
     {
+        public partial class MatchTeamCumulativeScoreCounter : CommaSeparatedScoreCounter
+        {
+            public OsuSpriteText DisplayedSpriteText = null!;
+
+            protected override double RollingDuration => 0;
+
+            protected override OsuSpriteText CreateSpriteText() => base.CreateSpriteText().With(s =>
+            {
+                DisplayedSpriteText = s;
+                DisplayedSpriteText.Font = OsuFont.Torus.With(size: 22);
+            });
+        }
+
         private readonly TournamentMatch match;
         private readonly bool losers;
-        private TournamentSpriteText scoreText = null!;
+        private MatchTeamCumulativeScoreCounter scoreText = null!;
         private Box background = null!;
         private Box backgroundRight = null!;
 
-        private readonly Bindable<int?> score = new Bindable<int?>();
+        private readonly Bindable<long?> score = new Bindable<long?>();
         private readonly BindableBool completed = new BindableBool();
 
         private Color4 colourWinner;
@@ -39,12 +53,10 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
         private LadderEditorScreen ladderEditor = null!;
 
         [Resolved]
-        private LadderInfo? ladderInfo { get; set; }
+        private LadderInfo ladderInfo { get; set; } = null!;
 
         private void setCurrent()
         {
-            if (ladderInfo == null) return;
-
             //todo: tournamentgamebase?
             if (ladderInfo.CurrentMatch.Value != null)
                 ladderInfo.CurrentMatch.Value.Current.Value = false;
@@ -61,7 +73,6 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
         {
             this.match = match;
             this.losers = losers;
-            Size = new Vector2(150, 40);
 
             Flag.Scale = new Vector2(0.54f);
             Flag.Anchor = Flag.Origin = Anchor.CentreLeft;
@@ -86,6 +97,11 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                 ? Color4Extensions.FromHex("#8E7F48")
                 : Color4Extensions.FromHex("#1462AA");
 
+            ladderInfo.Use1V1Mode.BindValueChanged(use1V1 =>
+            {
+                Size = new Vector2(use1V1.NewValue ? 260 : 180, 40);
+            }, true);
+
             InternalChildren = new Drawable[]
             {
                 background = new Box
@@ -105,10 +121,10 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                 new Container
                 {
                     Masking = true,
-                    Width = 0.3f,
+                    Width = 64,
                     Anchor = Anchor.CentreRight,
                     Origin = Anchor.CentreRight,
-                    RelativeSizeAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.Y,
                     Children = new Drawable[]
                     {
                         backgroundRight = new Box
@@ -117,12 +133,11 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                             Alpha = 0.8f,
                             RelativeSizeAxes = Axes.Both,
                         },
-                        scoreText = new TournamentSpriteText
+                        scoreText = new MatchTeamCumulativeScoreCounter
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
-                            Font = OsuFont.Torus.With(size: 22),
-                        }
+                        },
                     }
                 }
             };
@@ -131,7 +146,18 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 
             score.BindValueChanged(val =>
             {
-                scoreText.Text = val.NewValue?.ToString() ?? string.Empty;
+                switch (val.NewValue)
+                {
+                    case 0:
+                    case null:
+                        scoreText.DisplayedSpriteText.Text = val.NewValue?.ToString() ?? "";
+                        break;
+
+                    default:
+                        scoreText.Current.Value = (double)val.NewValue;
+                        break;
+                }
+
                 updateWinStyle();
             }, true);
         }
@@ -183,7 +209,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 
             AcronymText.Colour = winner ? Color4.Black : Color4.White;
 
-            scoreText.Font = scoreText.Font.With(weight: winner ? FontWeight.Bold : FontWeight.Regular);
+            scoreText.DisplayedSpriteText.Font = scoreText.DisplayedSpriteText.Font.With(weight: winner ? FontWeight.Bold : FontWeight.Regular);
         }
 
         public MenuItem[] ContextMenuItems

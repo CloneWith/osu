@@ -30,12 +30,50 @@ namespace osu.Game.Tournament.Tests.Screens
                         new SeedingResult
                         {
                             // Mod intentionally left blank.
-                            Seed = { Value = 4 }
+                            Seed = { Value = 1 }
                         },
                         new SeedingResult
                         {
                             Mod = { Value = "DT" },
-                            Seed = { Value = 8 }
+                            Seed = { Value = 2 }
+                        }
+                    }
+                },
+                new TournamentTeam
+                {
+                    FullName = { Value = @"bbbbb" },
+                    Acronym = { Value = "BBB" },
+                    Seed = { Value = @"2" },
+                    SeedingResults =
+                    {
+                        new SeedingResult
+                        {
+                            // Mod intentionally left blank.
+                            Seed = { Value = 2 }
+                        },
+                        new SeedingResult
+                        {
+                            Mod = { Value = "DT" },
+                            Seed = { Value = 3 }
+                        }
+                    }
+                },
+                new TournamentTeam
+                {
+                    FullName = { Value = @"CCC" },
+                    Acronym = { Value = "C" },
+                    Seed = { Value = @"3" },
+                    SeedingResults =
+                    {
+                        new SeedingResult
+                        {
+                            // Mod intentionally left blank.
+                            Seed = { Value = 3 }
+                        },
+                        new SeedingResult
+                        {
+                            Mod = { Value = "DT" },
+                            Seed = { Value = 4 }
                         }
                     }
                 },
@@ -61,8 +99,13 @@ namespace osu.Game.Tournament.Tests.Screens
         [Test]
         public void TestBasic()
         {
-            AddStep("set team to Japan", () =>
-                this.ChildrenOfType<SettingsTeamDropdown>().Single().Current.Value = ladder.Teams.Single(t => t.FullName.Value == "Japan"));
+            AddStep("create seeding screen", () => Add(new SeedingScreen
+            {
+                FillMode = FillMode.Fit,
+                FillAspectRatio = 16 / 9f
+            }));
+
+            AddStep("set team to Japan", () => this.ChildrenOfType<SettingsTeamDropdown>().Single().Current.Value = ladder.Teams.First());
         }
 
         [Test]

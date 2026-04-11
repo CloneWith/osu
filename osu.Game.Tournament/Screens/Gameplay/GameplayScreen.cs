@@ -1,20 +1,24 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Logging;
 using osu.Framework.Threading;
+using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
-using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.MapPool;
 using osu.Game.Tournament.Screens.TeamWin;
+using osu.Game.TournamentIpc;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Gameplay
@@ -24,7 +28,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
         private readonly BindableBool warmup = new BindableBool();
 
         public readonly Bindable<TourneyState> State = new Bindable<TourneyState>();
-        private MatchIPCInfo ipc = null!;
+        public readonly Bindable<LegacyTourneyState> LegacyState = new Bindable<LegacyTourneyState>();
+        public readonly Bindable<TourneyState> LazerState = new Bindable<TourneyState>();
+        private OsuCheckbox matchCompleteOverride = null!;
+        private LegacyMatchIPCInfo legacyIpc = null!;
+        private MatchIPCInfo lazerIpc = null!;
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
@@ -35,9 +43,10 @@ namespace osu.Game.Tournament.Screens.Gameplay
         private Drawable chroma = null!;
 
         [BackgroundDependencyLoader]
-        private void load(MatchIPCInfo ipc)
+        private void load(LegacyMatchIPCInfo legacyIpc, MatchIPCInfo lazerIpc)
         {
-            this.ipc = ipc;
+            this.legacyIpc = legacyIpc;
+            this.lazerIpc = lazerIpc;
 
             LabelledSwitchButton chatToggle;
 
@@ -51,6 +60,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 header = new MatchHeader
                 {
                     ShowLogo = false,
+                    ShowMatchRound = false,
                 },
                 new Container
                 {
@@ -117,6 +127,10 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             Current = LadderInfo.PlayersPerTeam,
                             KeyboardStep = 1,
                         },
+                        matchCompleteOverride = new OsuCheckbox
+                        {
+                            LabelText = "match complete?",
+                        },
                     }
                 }
             });
@@ -133,8 +147,21 @@ namespace osu.Game.Tournament.Screens.Gameplay
         {
             base.LoadComplete();
 
-            State.BindTo(ipc.State);
-            State.BindValueChanged(_ => updateState(), true);
+            LadderInfo.UseLazerIpc.BindValueChanged(vce =>
+            {
+                LegacyState.UnbindAll();
+                LazerState.UnbindAll();
+
+                if (vce.NewValue)
+                {
+                    LazerState.BindTo(lazerIpc.State);
+                    LazerState.BindValueChanged(_ => updateStateLazer(), true);
+                    return;
+                }
+
+                LegacyState.BindTo(legacyIpc.State);
+                LegacyState.BindValueChanged(_ => updateStateLegacy(), true);
+            }, true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -146,6 +173,10 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             warmup.Value = match.NewValue.Team1Score.Value + match.NewValue.Team2Score.Value == 0;
             scheduledScreenChange?.Cancel();
+
+            if (match.OldValue != null)
+                matchCompleteOverride.Current.UnbindFrom(match.OldValue.Completed);
+            matchCompleteOverride.Current.BindTo(match.NewValue.Completed);
         }
 
         private ScheduledDelegate? scheduledScreenChange;
@@ -153,7 +184,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
         private TournamentMatchScoreDisplay scoreDisplay = null!;
 
-        private TourneyState lastState;
+        private LegacyTourneyState lastLegacyState;
+        private TourneyState lastLazerState;
         private MatchHeader header = null!;
 
         private void contract()
@@ -185,45 +217,134 @@ namespace osu.Game.Tournament.Screens.Gameplay
             }
         }
 
-        private void updateState()
+        private void advanceAfterRanking(float delayBeforeProgression)
         {
+            if (CurrentMatch.Value?.Completed.Value == true)
+                scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(TeamWinScreen)); }, delayBeforeProgression);
+            else if (CurrentMatch.Value?.Completed.Value == false)
+                scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(MapPoolScreen)); }, delayBeforeProgression);
+        }
+
+        // kind of an ugly copy and paste from updateStateLegacy
+        private void updateStateLazer()
+        {
+            Logger.Log($"lazer ipc state changed: {LazerState.Value}");
+
             try
             {
                 scheduledScreenChange?.Cancel();
 
-                if (State.Value == TourneyState.Ranking)
+                if (LazerState.Value == TourneyState.Ranking)
                 {
                     if (warmup.Value || CurrentMatch.Value == null) return;
 
-                    if (ipc.Score1.Value > ipc.Score2.Value)
-                        CurrentMatch.Value.Team1Score.Value++;
+                    if (LadderInfo.CumulativeScore.Value)
+                    {
+                        int mapId = lazerIpc.Beatmap.Value?.OnlineID ?? 0;
+
+                        if (mapId > 0)
+                        {
+                            var roundMap = CurrentMatch.Value.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == mapId);
+
+                            if (roundMap != null)
+                            {
+                                CurrentMatch.Value.MapScores[roundMap.SlotName] = new Tuple<long, long>(lazerIpc.Score1.Value, lazerIpc.Score2.Value);
+
+                                // The following is ugly, but it will do for now.
+                                var currentSet = MatchSet.FindSetByMapId(CurrentMatch.Value, mapId);
+
+                                if (currentSet != null)
+                                {
+                                    if ((currentSet.IsTiebreaker == false && mapId == currentSet.Map2Id.Value) || mapId == currentSet.Map3Id.Value)
+                                    {
+                                        // add point to match, the set is complete
+                                        var scores = currentSet.GetSetScores(CurrentMatch.Value);
+
+                                        if (scores != null)
+                                        {
+                                            if (scores.Item1 > scores.Item2)
+                                                CurrentMatch.Value.Team1Score.Value++;
+                                            else
+                                                CurrentMatch.Value.Team2Score.Value++;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     else
-                        CurrentMatch.Value.Team2Score.Value++;
+                    {
+                        if (lazerIpc.Score1.Value > lazerIpc.Score2.Value)
+                            CurrentMatch.Value.Team1Score.Value++;
+                        else
+                            CurrentMatch.Value.Team2Score.Value++;
+                    }
                 }
 
-                switch (State.Value)
+                switch (LazerState.Value)
                 {
-                    case TourneyState.Idle:
+                    case TourneyState.Lobby:
                         contract();
 
-                        if (LadderInfo.AutoProgressScreens.Value)
+                        if (LadderInfo.AutoProgressScreens.Value
+                            && lastLazerState == TourneyState.Ranking
+                            && !warmup.Value)
                         {
-                            const float delay_before_progression = 4000;
-
                             // if we've returned to idle and the last screen was ranking
                             // we should automatically proceed after a short delay
-                            if (lastState == TourneyState.Ranking && !warmup.Value)
-                            {
-                                if (CurrentMatch.Value?.Completed.Value == true)
-                                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(TeamWinScreen)); }, delay_before_progression);
-                                else if (CurrentMatch.Value?.Completed.Value == false)
-                                    scheduledScreenChange = Scheduler.AddDelayed(() => { sceneManager?.SetScreen(typeof(MapPoolScreen)); }, delay_before_progression);
-                            }
+                            advanceAfterRanking(50);
                         }
 
                         break;
 
                     case TourneyState.Ranking:
+                        scheduledContract = Scheduler.AddDelayed(contract, 10_000);
+                        break;
+
+                    default:
+                        expand();
+                        break;
+                }
+            }
+            finally
+            {
+                lastLazerState = LazerState.Value;
+            }
+        }
+
+        private void updateStateLegacy()
+        {
+            try
+            {
+                scheduledScreenChange?.Cancel();
+
+                if (LegacyState.Value == LegacyTourneyState.Ranking)
+                {
+                    if (warmup.Value || CurrentMatch.Value == null) return;
+
+                    if (legacyIpc.Score1.Value > legacyIpc.Score2.Value)
+                        CurrentMatch.Value.Team1Score.Value++;
+                    else
+                        CurrentMatch.Value.Team2Score.Value++;
+                }
+
+                switch (LegacyState.Value)
+                {
+                    case LegacyTourneyState.Idle:
+                        contract();
+
+                        if (LadderInfo.AutoProgressScreens.Value
+                            && lastLegacyState == LegacyTourneyState.Ranking
+                            && !warmup.Value)
+                        {
+                            // if we've returned to idle and the last screen was ranking
+                            // we should automatically proceed after a short delay
+                            advanceAfterRanking(4000);
+                        }
+
+                        break;
+
+                    case LegacyTourneyState.Ranking:
                         scheduledContract = Scheduler.AddDelayed(contract, 10000);
                         break;
 
@@ -234,7 +355,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             }
             finally
             {
-                lastState = State.Value;
+                lastLegacyState = LegacyState.Value;
             }
         }
 
@@ -246,7 +367,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
         public override void Show()
         {
-            updateState();
+            if (LadderInfo.UseLazerIpc.Value)
+                updateStateLazer();
+            else
+                updateStateLegacy();
+
             base.Show();
         }
 

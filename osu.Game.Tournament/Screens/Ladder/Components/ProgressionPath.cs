@@ -1,6 +1,8 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Lines;
@@ -33,27 +35,81 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 
             float padding = q1.Width / 20;
 
-            bool progressionToRight = q2.TopLeft.X > q1.TopLeft.X;
+            bool progressionToRight = q2.Centre.X > q1.Centre.X;
 
-            if (!progressionToRight)
-                (q2, q1) = (q1, q2);
+            // Check for vertical alignment - are they roughly stacked?
+            // Calculate horizontal overlap between the matches
+            float minRightX = Math.Min(q1.TopRight.X, q2.TopRight.X);
+            float maxLeftX = Math.Max(q1.TopLeft.X, q2.TopLeft.X);
+            float horizontalOverlap = minRightX - maxLeftX;
 
-            var c1 = getCenteredVector(q1.TopRight, q1.BottomRight) + new Vector2(padding, 0);
-            var c2 = getCenteredVector(q2.TopLeft, q2.BottomLeft) - new Vector2(padding, 0);
+            bool isVerticallyStacked = horizontalOverlap > q1.Width * 0.5; // Significant overlap
 
-            var p1 = c1;
-            var p2 = p1 + new Vector2(padding, 0);
+            Vector2 sourcePoint, destPoint;
 
-            if (p2.X > c2.X)
+            if (isVerticallyStacked)
             {
-                c2 = getCenteredVector(q2.TopRight, q2.BottomRight) + new Vector2(padding, 0);
-                p2.X = c2.X + padding;
+                // For vertically stacked matches, use the same side for both
+                if (progressionToRight)
+                {
+                    sourcePoint = getCenteredVector(q1.TopRight, q1.BottomRight) + new Vector2(padding, 0);
+                    destPoint = getCenteredVector(q2.TopRight, q2.BottomRight) + new Vector2(padding, 0);
+                }
+                else
+                {
+                    sourcePoint = getCenteredVector(q1.TopLeft, q1.BottomLeft) - new Vector2(padding, 0);
+                    destPoint = getCenteredVector(q2.TopLeft, q2.BottomLeft) - new Vector2(padding, 0);
+                }
+            }
+            else
+            {
+                // Normal case, source exit depends on relative position
+                if (progressionToRight)
+                {
+                    sourcePoint = getCenteredVector(q1.TopRight, q1.BottomRight) + new Vector2(padding, 0);
+                    destPoint = getCenteredVector(q2.TopLeft, q2.BottomLeft) - new Vector2(padding, 0);
+                }
+                else
+                {
+                    sourcePoint = getCenteredVector(q1.TopLeft, q1.BottomLeft) - new Vector2(padding, 0);
+                    destPoint = getCenteredVector(q2.TopRight, q2.BottomRight) + new Vector2(padding, 0);
+                }
             }
 
-            var p3 = new Vector2(p2.X, c2.Y);
-            var p4 = new Vector2(c2.X, p3.Y);
+            List<Vector2> pathPoints = new List<Vector2> { sourcePoint };
 
-            var points = new[] { p1, p2, p3, p4 };
+            // use a U-shaped path for vertically stacked matches
+            if (isVerticallyStacked)
+            {
+                pathPoints.Add(new Vector2(destPoint.X + (progressionToRight ? padding : -padding), sourcePoint.Y));
+                pathPoints.Add(new Vector2(destPoint.X + (progressionToRight ? padding : -padding), destPoint.Y));
+            }
+            else // regular path
+            {
+                float horizontalSpace = Math.Abs(destPoint.X - sourcePoint.X);
+
+                if (horizontalSpace >= 2 * padding)
+                {
+                    float elbowX = progressionToRight
+                                       ? sourcePoint.X + padding
+                                       : sourcePoint.X - padding;
+
+                    pathPoints.Add(new Vector2(elbowX, sourcePoint.Y));
+                    pathPoints.Add(new Vector2(elbowX, destPoint.Y));
+                }
+                else
+                {
+                    // Limited horizontal space - use a mid-point for the vertical segment
+                    float midX = (sourcePoint.X + destPoint.X) / 2;
+
+                    pathPoints.Add(new Vector2(midX, sourcePoint.Y));
+                    pathPoints.Add(new Vector2(midX, destPoint.Y));
+                }
+            }
+
+            pathPoints.Add(destPoint);
+
+            var points = pathPoints.ToArray();
 
             float minX = points.Min(p => p.X);
             float minY = points.Min(p => p.Y);

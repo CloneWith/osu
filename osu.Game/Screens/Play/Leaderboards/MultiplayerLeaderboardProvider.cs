@@ -214,7 +214,7 @@ namespace osu.Game.Screens.Play.Leaderboards
             }
         }
 
-        protected class TrackedUserData
+        public class TrackedUserData
         {
             public readonly MultiplayerRoomUser User;
             public readonly SpectatorScoreProcessor ScoreProcessor;

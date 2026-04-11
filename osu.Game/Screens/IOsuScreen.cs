@@ -31,6 +31,8 @@ namespace osu.Game.Screens
         /// </remarks>
         bool AllowUserExit { get; }
 
+        bool ShowBackButton { get; }
+
         /// <summary>
         /// Whether a footer (and a back button) should be displayed underneath the screen.
         /// </summary>

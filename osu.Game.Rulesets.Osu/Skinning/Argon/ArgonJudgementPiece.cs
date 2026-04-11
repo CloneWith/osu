@@ -85,10 +85,10 @@ namespace osu.Game.Rulesets.Osu.Skinning.Argon
             }
             else
             {
-                this.FadeOutFromOne(800);
+                this.FadeOutFromOne(1200, Easing.InQuint);
 
                 JudgementText
-                    .FadeInFromZero(300, Easing.OutQuint)
+                    .FadeInFromZero(100, Easing.OutQuint)
                     .ScaleTo(Vector2.One)
                     .ScaleTo(new Vector2(1.2f), 1800, Easing.OutQuint);
             }

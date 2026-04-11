@@ -15,6 +15,7 @@ namespace osu.Game.Tournament.Tests.Screens
         public override void SetUpSteps()
         {
             AddStep("clear matches", () => Ladder.Matches.Clear());
+            AddStep("reset 1v1 state", () => Ladder.Use1V1Mode.Value = Ladder.Use1V1Mode.Default);
 
             base.SetUpSteps();
         }
@@ -69,6 +70,34 @@ namespace osu.Game.Tournament.Tests.Screens
 
                 Ladder.Matches.Add(tournamentMatch);
             });
+        }
+
+        [Test]
+        public void TestBothRecentAndUpcomingIn1V1()
+        {
+            AddStep("Add recent match", () =>
+            {
+                var tournamentMatch = CreateSampleMatch();
+
+                tournamentMatch.Date.Value = DateTimeOffset.UtcNow;
+                tournamentMatch.Completed.Value = true;
+                tournamentMatch.Team1Score.Value = tournamentMatch.PointsToWin;
+                tournamentMatch.Team2Score.Value = tournamentMatch.PointsToWin / 2;
+
+                Ladder.Matches.Add(tournamentMatch);
+            });
+
+            AddStep("Add upcoming match", () =>
+            {
+                var tournamentMatch = CreateSampleMatch();
+
+                tournamentMatch.Date.Value = DateTimeOffset.UtcNow.AddMinutes(5);
+                tournamentMatch.Completed.Value = false;
+
+                Ladder.Matches.Add(tournamentMatch);
+            });
+
+            AddStep("Enable 1v1 mode", () => Ladder.Use1V1Mode.Value = true);
         }
 
         private void setMatchDate(TimeSpan relativeTime)

@@ -17,10 +17,10 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
 {
     public partial class TeamScore : CompositeDrawable
     {
-        private readonly Bindable<int?> currentTeamScore = new Bindable<int?>();
+        private readonly Bindable<long?> currentTeamScore = new Bindable<long?>();
         private readonly StarCounter counter;
 
-        public TeamScore(Bindable<int?> score, TeamColour colour, int count)
+        public TeamScore(Bindable<long?> score, TeamColour colour, int count)
         {
             bool flip = colour == TeamColour.Blue;
             var anchor = flip ? Anchor.TopRight : Anchor.TopLeft;
@@ -37,7 +37,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             currentTeamScore.BindTo(score);
         }
 
-        private void scoreChanged(ValueChangedEvent<int?> score) => counter.Current = score.NewValue ?? 0;
+        private void scoreChanged(ValueChangedEvent<long?> score) => counter.Current = score.NewValue ?? 0;
 
         public partial class TeamScoreStarCounter : StarCounter
         {

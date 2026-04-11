@@ -119,6 +119,8 @@ namespace osu.Game
 
         public bool IsDeployedBuild => AssemblyVersion.Major > 0;
 
+        internal const string BUILD_SUFFIX = @"LGA";
+
         public virtual string Version
         {
             get
@@ -135,7 +137,7 @@ namespace osu.Game
                     return informationalVersion.Split('+').First();
 
                 Version version = AssemblyVersion;
-                return $@"{version.Major}.{version.Minor}.{version.Build}-lazer";
+                return $@"{version.Major}.{version.Minor}.{version.Build}-{BUILD_SUFFIX}";
             }
         }
 
@@ -253,11 +255,19 @@ namespace osu.Game
         /// </remarks>
         protected virtual int UnhandledExceptionsBeforeCrash => DebugUtils.IsDebugBuild ? 0 : 1;
 
+        protected bool SkipHubConnections = false;
+
         public OsuGameBase()
         {
             Name = GAME_NAME;
 
             allowableExceptions = UnhandledExceptionsBeforeCrash;
+        }
+
+        public OsuGameBase(bool skipHubConnections)
+            : this()
+        {
+            SkipHubConnections = skipHubConnections;
         }
 
         [BackgroundDependencyLoader]
@@ -380,9 +390,12 @@ namespace osu.Game
             if (API is APIAccess apiAccess)
                 base.Content.Add(apiAccess);
 
-            base.Content.Add(SpectatorClient);
-            base.Content.Add(MultiplayerClient);
-            base.Content.Add(metadataClient);
+            if (!SkipHubConnections)
+            {
+                base.Content.Add(SpectatorClient);
+                base.Content.Add(MultiplayerClient);
+                base.Content.Add(metadataClient);
+            }
 
             base.Content.Add(rulesetConfigCache);
 

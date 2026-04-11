@@ -21,9 +21,9 @@ namespace osu.Desktop
     public static class Program
     {
 #if DEBUG
-        private const string base_game_name = @"osu-development";
+        private const string base_game_name = @"osu-tournament-development";
 #else
-        private const string base_game_name = @"osu";
+        private const string base_game_name = @"osu-tournament";
 #endif
 
         private static LegacyTcpIpcProvider? legacyIpc;
@@ -102,7 +102,7 @@ namespace osu.Desktop
             var hostOptions = new HostOptions
             {
                 IPCPipeName = !tournamentClient ? OsuGame.IPC_PIPE_NAME : null,
-                FriendlyGameName = OsuGameBase.GAME_NAME,
+                FriendlyGameName = !tournamentClient ? OsuGameBase.GAME_NAME : $"{OsuGameBase.GAME_NAME} - Tournament Client",
             };
 
             using (DesktopGameHost host = Host.GetSuitableDesktopHost(gameName, hostOptions))

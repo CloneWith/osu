@@ -26,9 +26,10 @@ namespace osu.Game.Tournament.Screens.Setup
 
         private LoginOverlay? loginOverlay;
         private ResolutionSelector resolution = null!;
+        private ActionableInfo stableIpcPicker = null!;
 
         [Resolved]
-        private MatchIPCInfo ipc { get; set; } = null!;
+        private LegacyMatchIPCInfo ipc { get; set; } = null!;
 
         [Resolved]
         private StableInfo stableInfo { get; set; } = null!;
@@ -75,20 +76,38 @@ namespace osu.Game.Tournament.Screens.Setup
             localUser.BindValueChanged(_ => Schedule(reload));
             stableInfo.OnStableInfoSaved += () => Schedule(reload);
             reload();
+
+            LadderInfo.UseLazerIpc.BindValueChanged(vce =>
+            {
+                if (vce.NewValue)
+                {
+                    stableIpcPicker.FadeOut(250);
+                    return;
+                }
+
+                stableIpcPicker.FadeIn(250);
+            }, true);
         }
 
         private void reload()
         {
-            var fileBasedIpc = ipc as FileBasedIPC;
+            var fileBasedIpc = ipc as LegacyFileBasedIPC;
             fillFlow.Children = new Drawable[]
             {
-                new ActionableInfo
+                new LabelledSwitchButton
                 {
-                    Label = "Current IPC source",
+                    Label = "Use Lazer IPC",
+                    Description = "Turn this off if using legacy IPC source with an osu! stable tournament client",
+                    Current = LadderInfo.UseLazerIpc,
+                },
+                stableIpcPicker = new ActionableInfo
+                {
+                    Label = "Current osu!stable IPC source",
                     ButtonText = "Change source",
                     Action = () => sceneManager?.SetScreen(new StablePathSelectScreen()),
                     Value = fileBasedIpc?.IPCStorage?.GetFullPath(string.Empty) ?? "Not found",
                     Failing = fileBasedIpc?.IPCStorage == null,
+                    Alpha = LadderInfo.UseLazerIpc.Value ? 0 : 1,
                     Description =
                         "The osu!stable installation which is currently being used as a data source. If a source is not found, make sure you have created an empty ipc.txt in your stable cutting-edge installation."
                 },
@@ -149,6 +168,26 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = "Team seeds will display alongside each team at the top in gameplay/map pool screens.",
                     Current = LadderInfo.DisplayTeamSeeds,
                 },
+                new LabelledSwitchButton
+                {
+                    Label = "Use cumulative score",
+                    Description = "Instead of a single point per map won, a team's points value tracks the total score achieved on each map.",
+                    Current = LadderInfo.CumulativeScore
+                },
+                new LabelledSwitchButton
+                {
+                    Label = "1v1 mode",
+                    Description = "Text elements referring to \"Team\"s will be updated to \"Player\"s and team players lists will be hidden",
+                    Current = LadderInfo.Use1V1Mode
+                },
+                new LabelledColourPicker
+                {
+                    Label = "Default text colour",
+                    LabelAnchor = Anchor.TopLeft,
+                    LabelOrigin = Anchor.TopLeft,
+                    Description = "The colour text elements will have if they use the default white colour. Will not affect elements which use a different colour.",
+                    Current = { BindTarget = LadderInfo.TextForegroundColour }
+                }
             };
         }
 

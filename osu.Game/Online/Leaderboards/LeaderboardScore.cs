@@ -231,7 +231,7 @@ namespace osu.Game.Online.Leaderboards
                                             TextColour = Color4.White,
                                             GlowColour = Color4Extensions.FromHex(@"83ccfa"),
                                             Current = scoreManager.GetBindableTotalScoreString(Score),
-                                            Font = OsuFont.Numeric.With(size: 23),
+                                            Font = OsuFont.Numeric.With(size: 23, fixedWidth: true),
                                             Margin = new MarginPadding { Top = 1 },
                                         },
                                         RankContainer = new Container

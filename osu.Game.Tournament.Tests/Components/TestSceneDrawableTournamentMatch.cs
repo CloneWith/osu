@@ -6,6 +6,7 @@ using NUnit.Framework;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
+using osu.Framework.Utils;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Ladder.Components;
 
@@ -25,7 +26,7 @@ namespace osu.Game.Tournament.Tests.Components
             AddStep("setup test", () =>
             {
                 match1 = new TournamentMatch(
-                    new TournamentTeam { FlagName = { Value = "AU" }, FullName = { Value = "Australia" }, },
+                    new TournamentTeam { FlagName = { Value = "AU" }, FullName = { Value = "Australia" }, Acronym = { Value = "SERBIATRUCKER13" } },
                     new TournamentTeam { FlagName = { Value = "JP" }, FullName = { Value = "Japan" }, Acronym = { Value = "JPN" } })
                 {
                     Team1Score = { Value = 4 },
@@ -91,6 +92,15 @@ namespace osu.Game.Tournament.Tests.Components
 
             AddStep("select as current", () => match1.Current.Value = true);
             AddStep("select as editing", () => this.ChildrenOfType<DrawableTournamentMatch>().Last().Selected = true);
+        }
+
+        private void incrementScoresRandom(TournamentMatch match1)
+        {
+            int rand1 = RNG.Next(100_000, 800_000);
+            int rand2 = RNG.Next(100_000, 800_000);
+
+            match1.Team1Score.Value += rand1;
+            match1.Team2Score.Value += rand2;
         }
     }
 }

@@ -161,6 +161,16 @@ namespace osu.Game.Graphics.UserInterfaceV2
             set => labelText.Text = value;
         }
 
+        public Anchor LabelAnchor
+        {
+            set => labelText.Anchor = value;
+        }
+
+        public Anchor LabelOrigin
+        {
+            set => labelText.Origin = value;
+        }
+
         public LocalisableString Description
         {
             set

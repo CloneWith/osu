@@ -15,6 +15,9 @@ namespace osu.Game.Tournament.Screens.TeamIntro
     {
         private Container mainContainer = null!;
 
+        [Resolved]
+        private LadderInfo ladderInfo { get; set; } = null!;
+
         [BackgroundDependencyLoader]
         private void load()
         {
@@ -47,7 +50,17 @@ namespace osu.Game.Tournament.Screens.TeamIntro
 
             const float y_offset = 460;
 
-            mainContainer.Children = new Drawable[]
+            Drawable team1Display = ladderInfo.Use1V1Mode.Value
+                                        ? new DrawableTeamTitleWithHeader(match.NewValue.Team1.Value, TeamColour.Red)
+                                        : new DrawableTeamWithPlayers(match.NewValue.Team1.Value, TeamColour.Red);
+            Drawable team2Display = ladderInfo.Use1V1Mode.Value
+                                        ? new DrawableTeamTitleWithHeader(match.NewValue.Team2.Value, TeamColour.Blue)
+                                        : new DrawableTeamWithPlayers(match.NewValue.Team2.Value, TeamColour.Blue);
+
+            team1Display.Position = new Vector2(165, y_offset);
+            team2Display.Position = new Vector2(740, y_offset);
+
+            mainContainer.Children = new[]
             {
                 new RoundDisplay(match.NewValue)
                 {
@@ -57,18 +70,12 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                 {
                     Position = new Vector2(165, y_flag_offset),
                 },
-                new DrawableTeamWithPlayers(match.NewValue.Team1.Value, TeamColour.Red)
-                {
-                    Position = new Vector2(165, y_offset),
-                },
+                team1Display,
                 new DrawableTeamFlag(match.NewValue.Team2.Value)
                 {
                     Position = new Vector2(740, y_flag_offset),
                 },
-                new DrawableTeamWithPlayers(match.NewValue.Team2.Value, TeamColour.Blue)
-                {
-                    Position = new Vector2(740, y_offset),
-                },
+                team2Display,
             };
         }
     }

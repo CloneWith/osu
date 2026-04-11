@@ -36,20 +36,24 @@ namespace osu.Game.Tournament.Models
 
         public string? Team1Acronym;
 
-        public readonly Bindable<int?> Team1Score = new Bindable<int?>();
+        public readonly Bindable<long?> Team1Score = new Bindable<long?>();
 
         [JsonIgnore]
         public readonly Bindable<TournamentTeam?> Team2 = new Bindable<TournamentTeam?>();
 
         public string? Team2Acronym;
 
-        public readonly Bindable<int?> Team2Score = new Bindable<int?>();
+        public readonly Bindable<long?> Team2Score = new Bindable<long?>();
 
         public readonly Bindable<bool> Completed = new Bindable<bool>();
 
         public readonly Bindable<bool> Losers = new Bindable<bool>();
 
         public readonly ObservableCollection<BeatmapChoice> PicksBans = new ObservableCollection<BeatmapChoice>();
+
+        public readonly ObservableCollection<MatchSet> Sets = new ObservableCollection<MatchSet>();
+
+        public readonly BindableDictionary<string, Tuple<long, long>> MapScores = new BindableDictionary<string, Tuple<long, long>>();
 
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();

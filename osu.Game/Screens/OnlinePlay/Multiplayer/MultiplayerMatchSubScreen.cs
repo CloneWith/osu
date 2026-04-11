@@ -41,6 +41,7 @@ using osu.Game.Screens.OnlinePlay.Multiplayer.Spectate;
 using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Users;
 using osu.Game.Utils;
+using osu.Game.TournamentIpc;
 using osuTK;
 using ParticipantsList = osu.Game.Screens.OnlinePlay.Multiplayer.Participants.ParticipantsList;
 
@@ -134,6 +135,9 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
 
         [Resolved]
         private OsuGame? game { get; set; }
+
+        [Resolved]
+        protected TournamentFileBasedIPC? TournamentIpc { get; private set; }
 
         [Cached(typeof(OnlinePlayBeatmapAvailabilityTracker))]
         private readonly OnlinePlayBeatmapAvailabilityTracker beatmapAvailabilityTracker = new MultiplayerBeatmapAvailabilityTracker();
@@ -438,6 +442,14 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
             client.UserModsChanged += onUserModsChanged;
             client.LoadRequested += onLoadRequested;
             client.MatchEvent += onMatchEvent;
+
+            if (TournamentIpc != null)
+            {
+                TournamentIpc.RegisterMultiplayerRoomClient(client);
+                Logger.Log($"({nameof(MultiplayerMatchSubScreen)}) tourney state changed to: {TourneyState.Lobby}");
+                TournamentIpc.TourneyState.Value = TourneyState.Lobby;
+                TournamentIpc.TourneyState.TriggerChange();
+            }
 
             beatmapAvailabilityTracker.Availability.BindValueChanged(onBeatmapAvailabilityChanged, true);
 
@@ -772,6 +784,11 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
 
         public override void OnResuming(ScreenTransitionEvent e)
         {
+            // this is a bit of a hack.
+            // wanted to use roomUpdated from multiplayer client for all state updates, but it does not fire between spectator screen and roomsubscreen since there isn't any room update
+            if (TournamentIpc != null)
+                TournamentIpc.TourneyState.Value = TourneyState.Lobby;
+
             base.OnResuming(e);
             beginHandlingTrack();
 

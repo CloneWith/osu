@@ -17,6 +17,8 @@ namespace osu.Game.Tournament.Screens
 
             CurrentMatch.BindTo(LadderInfo.CurrentMatch);
             CurrentMatch.BindValueChanged(CurrentMatchChanged, true);
+
+            LadderInfo.Use1V1Mode.BindValueChanged(_ => CurrentMatch.TriggerChange());
         }
 
         protected virtual void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
