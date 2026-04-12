@@ -18,6 +18,7 @@ using osu.Game.Beatmaps.Legacy;
 using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Rulesets;
@@ -154,9 +155,7 @@ namespace osu.Game.Tournament.Components
             {
                 new Box
                 {
-                    Colour = colours.Gray3,
-                    RelativeSizeAxes = Axes.Both,
-                    Alpha = 0.4f,
+                    Colour = colours.Gray3, RelativeSizeAxes = Axes.Both, Alpha = 0.4f,
                 },
                 flow = new FillFlowContainer
                 {
@@ -167,7 +166,6 @@ namespace osu.Game.Tournament.Components
                     LayoutDuration = 300,
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
-
                     Children = new Drawable[]
                     {
                         new Container
@@ -177,21 +175,15 @@ namespace osu.Game.Tournament.Components
                             Width = 0.5f,
                             Anchor = Anchor.BottomRight,
                             Origin = Anchor.BottomRight,
-
                             Children = new Drawable[]
                             {
                                 new GridContainer
                                 {
                                     RelativeSizeAxes = Axes.Both,
-
                                     ColumnDimensions = new[]
                                     {
-                                        new Dimension(),
-                                        new Dimension(),
-                                        new Dimension(GridSizeMode.AutoSize),
-                                        new Dimension(GridSizeMode.Absolute, size: HEIGHT)
+                                        new Dimension(), new Dimension(), new Dimension(GridSizeMode.AutoSize), new Dimension(GridSizeMode.Absolute, size: HEIGHT)
                                     },
-
                                     Content = new[]
                                     {
                                         new Drawable[]
@@ -205,8 +197,7 @@ namespace osu.Game.Tournament.Components
                                                 Direction = FillDirection.Vertical,
                                                 Children = new Drawable[]
                                                 {
-                                                    diffPiece1 = new DiffPiece(),
-                                                    diffPiece2 = new DiffPiece()
+                                                    diffPiece1 = new DiffPiece(), diffPiece2 = new DiffPiece()
                                                 }
                                             },
                                             new FillFlowContainer
@@ -218,8 +209,7 @@ namespace osu.Game.Tournament.Components
                                                 Direction = FillDirection.Vertical,
                                                 Children = new Drawable[]
                                                 {
-                                                    diffPiece3 = new DiffPiece(),
-                                                    diffPiece4 = new DiffPiece(),
+                                                    diffPiece3 = new DiffPiece(), diffPiece4 = new DiffPiece(),
                                                 }
                                             },
                                             poolSlots = new FillFlowContainer<FillFlowContainer<GlowingSpriteText>>
@@ -228,7 +218,10 @@ namespace osu.Game.Tournament.Components
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Direction = FillDirection.Vertical,
-                                                Margin = new MarginPadding { Horizontal = 16 },
+                                                Margin = new MarginPadding
+                                                {
+                                                    Horizontal = 16
+                                                },
                                             },
                                             new Container
                                             {
@@ -237,9 +230,7 @@ namespace osu.Game.Tournament.Components
                                                 {
                                                     new Box
                                                     {
-                                                        Colour = Color4.Black,
-                                                        RelativeSizeAxes = Axes.Both,
-                                                        Alpha = 0.1f,
+                                                        Colour = Color4.Black, RelativeSizeAxes = Axes.Both, Alpha = 0.1f,
                                                     },
                                                     new FumoLogo("header-logo")
                                                     {
@@ -282,17 +273,17 @@ namespace osu.Game.Tournament.Components
                 {
                     Artist = "unknown",
                     Title = "no beatmap selected",
-                    Author = new RealmUser { Username = "unknown" },
+                    Author = new RealmUser
+                    {
+                        Username = "unknown"
+                    },
                 },
                 DifficultyName = "unknown",
                 BeatmapSet = new BeatmapSetInfo(),
                 StarRating = 0,
                 Difficulty = new BeatmapDifficulty
                 {
-                    CircleSize = 0,
-                    DrainRate = 0,
-                    OverallDifficulty = 0,
-                    ApproachRate = 0,
+                    CircleSize = 0, DrainRate = 0, OverallDifficulty = 0, ApproachRate = 0,
                 },
             };
 
@@ -344,9 +335,7 @@ namespace osu.Game.Tournament.Components
                 default:
                     stats = new (string heading, string content)[]
                     {
-                        ("CS", $"{adjustedDifficulty.CircleSize:0.#}"),
-                        ("AR", $"{adjustedDifficulty.ApproachRate:0.#}"),
-                        ("OD", $"{adjustedDifficulty.OverallDifficulty:0.#}"),
+                        ("CS", $"{adjustedDifficulty.CircleSize:0.#}"), ("AR", $"{adjustedDifficulty.ApproachRate:0.#}"), ("OD", $"{adjustedDifficulty.OverallDifficulty:0.#}"),
                     };
                     break;
 
@@ -354,16 +343,14 @@ namespace osu.Game.Tournament.Components
                 case 3:
                     stats = new (string heading, string content)[]
                     {
-                        ("OD", $"{adjustedDifficulty.OverallDifficulty:0.#}"),
-                        ("HP", $"{adjustedDifficulty.DrainRate:0.#}")
+                        ("OD", $"{adjustedDifficulty.OverallDifficulty:0.#}"), ("HP", $"{adjustedDifficulty.DrainRate:0.#}")
                     };
                     break;
 
                 case 2:
                     stats = new (string heading, string content)[]
                     {
-                        ("CS", $"{adjustedDifficulty.CircleSize:0.#}"),
-                        ("AR", $"{adjustedDifficulty.ApproachRate:0.#}"),
+                        ("CS", $"{adjustedDifficulty.CircleSize:0.#}"), ("AR", $"{adjustedDifficulty.ApproachRate:0.#}"),
                     };
                     break;
             }
@@ -384,16 +371,13 @@ namespace osu.Game.Tournament.Components
                 bool isSameBeatmap = false;
 
                 // Check if the beatmap has a valid OnlineID and if it matches the old beatmap's OnlineID
-                if (beatmap?.OnlineID > 0 &&
-                    beatmap?.OnlineID != null &&
-                    beatmap?.OnlineID == oldBeatmap?.OnlineID)
+                if (beatmap?.OnlineID > 0 && beatmap?.OnlineID != null && beatmap?.OnlineID == oldBeatmap?.OnlineID)
                 {
                     isSameBeatmap = true;
                 }
 
                 // Check if the beatmap has the same MD5 hash as the old beatmap and ensure the MD5 hash is not null or empty
-                else if (beatmap?.MD5Hash == oldBeatmap?.MD5Hash &&
-                         !string.IsNullOrEmpty(beatmap?.MD5Hash))
+                else if (beatmap?.MD5Hash == oldBeatmap?.MD5Hash && !string.IsNullOrEmpty(beatmap?.MD5Hash))
                 {
                     isSameBeatmap = true;
                 }
@@ -435,9 +419,7 @@ namespace osu.Game.Tournament.Components
 
                 var glowText = new GlowingSpriteText
                 {
-                    Text = poolSlotsText[key],
-                    Font = OsuFont.GetFont(weight: FontWeight.SemiBold),
-                    GlowColour = Color4Extensions.FromHex("#FFFFFF").Opacity(0.2f),
+                    Text = poolSlotsText[key], Font = OsuFont.GetFont(weight: FontWeight.SemiBold), GlowColour = Color4Extensions.FromHex("#FFFFFF").Opacity(0.2f),
                 };
                 currentFlow.Add(glowText);
 
@@ -482,7 +464,10 @@ namespace osu.Game.Tournament.Components
 
             public DiffPiece()
             {
-                Margin = new MarginPadding { Horizontal = 15, Vertical = 1 };
+                Margin = new MarginPadding
+                {
+                    Horizontal = 15, Vertical = 1
+                };
                 AutoSizeAxes = Axes.Both;
             }
 
@@ -508,9 +493,15 @@ namespace osu.Game.Tournament.Components
                         });
                     }
 
-                    AddText(new TournamentSpriteText { Text = heading }, s => cp(s, false));
+                    AddText(new TournamentSpriteText
+                    {
+                        Text = heading
+                    }, s => cp(s, false));
                     AddText(" ", s => cp(s, false));
-                    AddText(new TournamentSpriteText { Text = content }, s => cp(s, true));
+                    AddText(new TournamentSpriteText
+                    {
+                        Text = content
+                    }, s => cp(s, true));
                 }
             }
 

@@ -213,7 +213,9 @@ namespace osu.Game.Tournament.Components
                 match.PreparationMode.BindValueChanged(_ => updateActiveState());
                 match.Completed.BindValueChanged(_ => updateActiveState());
                 currentTeam.BindTo(colour == TeamColour.Red ? match.Team1 : match.Team2);
-                coupletCounter.Current.BindTo(colour == TeamColour.Red ? match.Team1Score : match.Team2Score);
+
+                // TODO: CoupletCounter won't work since the definition of TeamXScore has changed.
+                // coupletCounter.Current.BindTo(colour == TeamColour.Red ? match.Team1Score : match.Team2Score);
                 coupletCounter.CircleCount = match.PointsToWin;
             }
 

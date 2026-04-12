@@ -19,7 +19,6 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
-using osu.Game.Tournament.Screens.Board;
 using osu.Game.Tournament.Screens.MapPool;
 using osuTK;
 using osuTK.Graphics;
@@ -212,7 +211,7 @@ namespace osu.Game.Tournament.Screens.Countdown
             countdown.OnCompleted += () =>
             {
                 if (LadderInfo.AutoProgressScreens.Value)
-                    sceneManager?.ScheduleScreenChange(currentMatch.Value?.Round.Value?.UseBoard.Value == true ? typeof(BoardScreen) : typeof(MapPoolScreen), 10000);
+                    sceneManager?.ScheduleScreenChange(typeof(MapPoolScreen), 10000);
             };
 
             allMatches.BindTo(LadderInfo.Matches);

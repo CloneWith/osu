@@ -144,7 +144,6 @@ namespace osu.Game.Tournament
 
         public const int RESERVED_BEATMAP_ID = -1;
 
-        public const int BOARD_BEST_OF = 9;
         public const int TIE_BREAKER_ROUND = 17;
 
         public static readonly List<string> SPECIAL_MODS = ["HR", "HD", "DT", "FL"];

@@ -237,12 +237,6 @@ namespace osu.Game.Tournament
                 addedInfo |= await AddRoundBeatmaps().ConfigureAwait(false);
                 addedInfo |= await AddSeedingBeatmaps().ConfigureAwait(false);
 
-                foreach (var match in ladder.Matches)
-                {
-                    match.ChessHistory.Clear();
-                    match.ChessHistory.AddRange(HistoryExtensions.Convert(match.ChessPlacements.ToList(), match.Round.Value?.Beatmaps.ToList()));
-                }
-
                 if (addedInfo)
                     saveChanges(false);
 

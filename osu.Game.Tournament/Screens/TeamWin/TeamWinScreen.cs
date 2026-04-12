@@ -20,7 +20,6 @@ using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
-using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osuTK;
 using osuTK.Graphics;
@@ -215,9 +214,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
                                         Shadow = false,
-                                        Icon = match?.Round.Value?.UseBoard.Value == true
-                                            ? FontAwesome.Solid.ChessBoard
-                                            : FontAwesome.Solid.Trophy,
+                                        Icon = FontAwesome.Solid.Trophy,
                                         Colour = FumoColours.SunshineYellow.Regular,
                                         Margin = new MarginPadding { Horizontal = 20 },
                                     },
@@ -363,13 +360,6 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopRight,
                         Position = new Vector2(-50, 150),
-                    },
-                    new FumoChessBoard
-                    {
-                        Anchor = Anchor.BottomRight,
-                        Origin = Anchor.BottomRight,
-                        Position = new Vector2(-50, -50),
-                        Scale = new Vector2(0.5f),
                     },
                     new FillFlowContainer
                     {

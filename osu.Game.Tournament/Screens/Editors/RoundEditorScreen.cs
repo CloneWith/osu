@@ -15,7 +15,6 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
 using osu.Game.Graphics.Sprites;
-using osu.Game.Graphics.UserInterface;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
@@ -107,7 +106,6 @@ namespace osu.Game.Tournament.Screens.Editors
                 Model.Name.Default = Model.Name.Value;
                 Model.Description.Default = Model.Description.Value;
                 Model.StartDate.Default = Model.StartDate.Value;
-                Model.UseBoard.Default = Model.UseBoard.Value;
                 Model.BanCount.Default = Model.BanCount.Value;
                 Model.BestOf.Default = Model.BestOf.Value;
 
@@ -170,13 +168,6 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Caption = RoundEditorStrings.BestOf,
                                 Width = 0.48f,
                                 Current = Model.BestOf,
-                                Alpha = Model.UseBoard.Value ? 0 : 1,
-                            },
-                            new FormCheckBox
-                            {
-                                Caption = RoundEditorStrings.BoardMode,
-                                Width = 0.48f,
-                                Current = Model.UseBoard,
                             },
                             new DangerousSettingsButton
                             {

@@ -82,12 +82,12 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             switch (e.Button)
             {
                 case MouseButton.Left:
-                    if (currentMatch.Value?.Round.Value?.UseBoard.Value != true && currentTeamScore.Value < currentMatch.Value?.PointsToWin)
+                    if (currentTeamScore.Value < currentMatch.Value?.PointsToWin)
                         currentTeamScore.Value++;
                     return true;
 
                 case MouseButton.Right:
-                    if (currentMatch.Value?.Round.Value?.UseBoard.Value != true && currentTeamScore.Value > 0)
+                    if (currentTeamScore.Value > 0)
                         currentTeamScore.Value--;
                     return true;
             }
