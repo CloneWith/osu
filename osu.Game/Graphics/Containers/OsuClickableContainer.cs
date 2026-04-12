@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
@@ -28,7 +29,8 @@ namespace osu.Game.Graphics.Containers
 
         protected override Container<Drawable> Content => content;
 
-        protected virtual HoverSounds CreateHoverSounds(HoverSampleSet sampleSet) => new HoverClickSounds(sampleSet) { Enabled = { BindTarget = Enabled } };
+        protected virtual HoverSounds CreateHoverSounds(HoverSampleSet sampleSet) => new HoverClickSounds(sampleSet)
+            { Enabled = { BindTarget = sampleSet is HoverSampleSet.Muted ? new BindableBool() : Enabled } };
 
         public OsuClickableContainer(HoverSampleSet sampleSet = HoverSampleSet.Default)
         {

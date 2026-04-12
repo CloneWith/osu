@@ -20,7 +20,11 @@ namespace osu.Game.Utils
             // this works around https://github.com/xamarin/xamarin-android/issues/2012 and https://github.com/Humanizr/Humanizer/issues/690#issuecomment-368536282
             try
             {
-                return input.Humanize();
+                var targetCulture = CultureInfo.CurrentCulture;
+                if (targetCulture.Name == "zh")
+                    targetCulture = new CultureInfo("zh-CN");
+
+                return input.Humanize(culture: targetCulture);
             }
             catch (ArgumentException)
             {
@@ -42,7 +46,11 @@ namespace osu.Game.Utils
             // this works around https://github.com/xamarin/xamarin-android/issues/2012 and https://github.com/Humanizr/Humanizer/issues/690#issuecomment-368536282
             try
             {
-                return input.Humanize(precision: precision, maxUnit: maxUnit, minUnit: minUnit);
+                var targetCulture = CultureInfo.CurrentCulture;
+                if (targetCulture.Name == "zh")
+                    targetCulture = new CultureInfo("zh-CN");
+
+                return input.Humanize(culture: targetCulture, precision: precision, maxUnit: maxUnit, minUnit: minUnit);
             }
             catch (ArgumentException)
             {

@@ -7,11 +7,9 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Tournament.Components;
-using osu.Framework.Graphics.Shapes;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Ladder.Components;
-using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Showcase
 {
@@ -26,7 +24,7 @@ namespace osu.Game.Tournament.Screens.Showcase
             AddRangeInternal(new Drawable[]
             {
                 new TournamentLogo(),
-                new TourneyVideo("showcase")
+                new TourneyBackground(BackgroundType.Showcase)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -35,7 +33,7 @@ namespace osu.Game.Tournament.Screens.Showcase
                 {
                     Padding = new MarginPadding { Bottom = SongBar.HEIGHT },
                     RelativeSizeAxes = Axes.Both,
-                    Child = chroma = new Box
+                    Child = chroma = new ChromaBox
                     {
                         // chroma key area for stable gameplay
                         Name = "chroma",
@@ -43,7 +41,6 @@ namespace osu.Game.Tournament.Screens.Showcase
                         Origin = Anchor.BottomCentre,
                         Height = 512,
                         Y = 0,
-                        Colour = new Color4(0, 255, 0, 255),
                     }
                 },
                 new ControlPanel

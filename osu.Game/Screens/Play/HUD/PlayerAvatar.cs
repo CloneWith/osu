@@ -27,6 +27,9 @@ namespace osu.Game.Screens.Play.HUD
             Precision = 0.01f
         };
 
+        [SettingSource("Always show current user")]
+        public BindableBool UseCurrentUser { get; } = new BindableBool();
+
         private readonly UpdateableAvatar avatar;
 
         private const float default_size = 80f;
@@ -62,7 +65,12 @@ namespace osu.Game.Screens.Play.HUD
         [BackgroundDependencyLoader]
         private void load()
         {
-            if (gameplayState != null)
+            updateAvatar();
+        }
+
+        private void updateAvatar()
+        {
+            if (gameplayState != null && !UseCurrentUser.Value)
                 avatar.User = gameplayState.Score.ScoreInfo.User;
             else
             {
@@ -75,6 +83,7 @@ namespace osu.Game.Screens.Play.HUD
         {
             base.LoadComplete();
 
+            UseCurrentUser.BindValueChanged(_ => updateAvatar());
             CornerRadius.BindValueChanged(e => cornerContainer.CornerRadius = e.NewValue * default_size, true);
         }
 

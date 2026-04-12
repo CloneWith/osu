@@ -24,17 +24,27 @@ using osu.Game.Tournament.Screens.Setup;
 using osu.Game.Tournament.Screens.Showcase;
 using osu.Game.Tournament.Screens.TeamIntro;
 using osu.Game.Tournament.Screens.TeamWin;
+using osu.Game.Tournament.Screens.Board;
 using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
+using osu.Game.Tournament.Models;
+using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Overlays;
+using osu.Game.Overlays.Settings;
+using osu.Game.Overlays.Toolbar;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Screens.Countdown;
 
 namespace osu.Game.Tournament
 {
     [Cached]
     public partial class TournamentSceneManager : CompositeDrawable
     {
-        private Container screens = null!;
-        private TourneyVideo video = null!;
+        private Container<TournamentScreen> screens = null!;
+        private TourneyBackground background = null!;
 
         public const int CONTROL_AREA_WIDTH = 200;
 
@@ -45,11 +55,32 @@ namespace osu.Game.Tournament
 
         public const int REQUIRED_WIDTH = CONTROL_AREA_WIDTH * 2 + STREAM_AREA_WIDTH;
 
+        public bool ShowChat
+        {
+            get => showChat;
+            set
+            {
+                showChat = value;
+
+                if (currentScreen is GameplayScreen)
+                    chatContainer.MoveToY(value ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200, 500, Easing.OutQuint);
+            }
+        }
+
+        private bool showChat = true;
+
+        private ScheduledDelegate? scheduledScreenChange;
+
         [Cached]
-        private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay();
+        private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
+
+        [Cached]
+        private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         private Container chatContainer = null!;
+
         private FillFlowContainer buttons = null!;
+        private SidebarTimer timer = null!;
 
         public TournamentSceneManager()
         {
@@ -57,7 +88,7 @@ namespace osu.Game.Tournament
         }
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(TournamentGameBase gameBase)
         {
             InternalChildren = new Drawable[]
             {
@@ -70,7 +101,6 @@ namespace osu.Game.Tournament
                     Anchor = Anchor.TopLeft,
                     Origin = Anchor.TopLeft,
                     Width = STREAM_AREA_WIDTH,
-                    //Masking = true,
                     Children = new Drawable[]
                     {
                         new Box
@@ -80,15 +110,15 @@ namespace osu.Game.Tournament
                             RelativeSizeAxes = Axes.Both,
                             Width = 10,
                         },
-                        video = new TourneyVideo("main", true)
+                        background = new TourneyBackground(BackgroundType.Main, drawFallbackGradient: true)
                         {
                             Loop = true,
                             RelativeSizeAxes = Axes.Both,
                         },
-                        screens = new Container
+                        screens = new Container<TournamentScreen>
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Children = new Drawable[]
+                            Children = new TournamentScreen[]
                             {
                                 new SetupScreen(),
                                 new ScheduleScreen(),
@@ -96,24 +126,36 @@ namespace osu.Game.Tournament
                                 new LadderEditorScreen(),
                                 new TeamEditorScreen(),
                                 new RoundEditorScreen(),
+                                new PunishmentEditorScreen(),
+                                new CountdownScreen(),
                                 new ShowcaseScreen(),
                                 new MapPoolScreen(),
                                 new TeamIntroScreen(),
                                 new SeedingScreen(),
                                 new DrawingsScreen(),
                                 new GameplayScreen(),
-                                new TeamWinScreen()
-                            }
+                                new TeamWinScreen(),
+                                new BoardScreen(),
+                            },
                         },
-                        chatContainer = new Container
+                        defaultProxyChatContainer = new Container
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Child = chat
+                            Child = chatContainer = new Container
+                            {
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
+                                RelativeSizeAxes = Axes.None,
+                                Width = STREAM_AREA_WIDTH,
+                                Height = 480,
+                                Child = chat,
+                            },
                         },
-                    }
+                    },
                 },
                 new Container
                 {
+                    Name = "Left Sidebar",
                     RelativeSizeAxes = Axes.Y,
                     Width = CONTROL_AREA_WIDTH,
                     Children = new Drawable[]
@@ -123,34 +165,120 @@ namespace osu.Game.Tournament
                             Colour = Color4.Black,
                             RelativeSizeAxes = Axes.Both,
                         },
-                        buttons = new FillFlowContainer
+                        new GridContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Direction = FillDirection.Vertical,
-                            Spacing = new Vector2(5),
-                            Padding = new MarginPadding(5),
-                            Children = new Drawable[]
+                            RowDimensions =
+                            [
+                                new Dimension(GridSizeMode.AutoSize),
+                                new Dimension(),
+                                new Dimension(GridSizeMode.AutoSize),
+                            ],
+                            Content = new Drawable[][]
                             {
-                                new ScreenButton(typeof(SetupScreen)) { Text = "Setup", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(TeamEditorScreen)) { Text = "Team Editor", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(RoundEditorScreen)) { Text = "Rounds Editor", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(LadderEditorScreen)) { Text = "Bracket Editor", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = "Schedule", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(LadderScreen), Key.B) { Text = "Bracket", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = "Team Intro", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(SeedingScreen), Key.D) { Text = "Seeding", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = "Map Pool", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(GameplayScreen), Key.G) { Text = "Gameplay", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = "Win", RequestSelection = SetScreen },
-                                new Separator(),
-                                new ScreenButton(typeof(DrawingsScreen)) { Text = "Drawings", RequestSelection = SetScreen },
-                                new ScreenButton(typeof(ShowcaseScreen)) { Text = "Showcase", RequestSelection = SetScreen },
-                            }
+                                [
+                                    new SidebarPart
+                                    {
+                                        Name = "Top Area",
+                                        Children = new Drawable[]
+                                        {
+                                            new ToolbarClock
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                AutoSizeAxes = Axes.X,
+                                                RelativeSizeAxes = Axes.None,
+                                                Height = 50,
+                                                Scale = new Vector2(1.25f),
+                                            },
+                                            timer = new SidebarTimer
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                RelativeSizeAxes = Axes.X,
+                                            },
+                                        },
+                                    },
+                                ],
+                                [
+                                    new OsuScrollContainer
+                                    {
+                                        Name = "Scrollable Area",
+                                        RelativeSizeAxes = Axes.Both,
+                                        ScrollbarVisible = false,
+                                        Child = buttons = new FillFlowContainer
+                                        {
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Direction = FillDirection.Vertical,
+                                            Spacing = new Vector2(5),
+                                            Padding = new MarginPadding(5),
+                                            Children = new Drawable[]
+                                            {
+                                                new ScreenButton(typeof(SetupScreen)) { Text = ScreenStrings.Setup, RequestSelection = SetScreen },
+                                                new FoldableSectionHeader(ScreenStrings.SectionSetup, HoverSampleSet.Muted)
+                                                {
+                                                    Children = new Drawable[]
+                                                    {
+                                                        new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(RoundEditorScreen)) { Text = ScreenStrings.RoundsEditor, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(LadderEditorScreen)) { Text = ScreenStrings.BracketEditor, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(PunishmentEditorScreen)) { Text = ScreenStrings.PunishmentEditor, RequestSelection = SetScreen },
+                                                    },
+                                                },
+                                                new FoldableSectionHeader(ScreenStrings.SectionBeforeMatch, HoverSampleSet.Muted)
+                                                {
+                                                    Children = new Drawable[]
+                                                    {
+                                                        new ScreenButton(typeof(ScheduleScreen), Key.S) { Text = ScreenStrings.Schedule, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(LadderScreen), Key.R) { Text = ScreenStrings.Bracket, RequestSelection = SetScreen },
+                                                        new Separator(),
+                                                        new ScreenButton(typeof(TeamIntroScreen), Key.I) { Text = ScreenStrings.TeamIntro, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(SeedingScreen), Key.D) { Text = ScreenStrings.Seeding, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(CountdownScreen), Key.C) { Text = ScreenStrings.Countdown, RequestSelection = SetScreen },
+                                                        new Separator(),
+                                                    }
+                                                },
+                                                new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(GameplayScreen), Key.G) { Text = ScreenStrings.Gameplay, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = ScreenStrings.Win, RequestSelection = SetScreen },
+                                                new Separator(),
+                                                new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
+                                            },
+                                        },
+                                    },
+                                ],
+                                [
+                                    new SidebarPart
+                                    {
+                                        Name = "Bottom Area",
+                                        Children = new Drawable[]
+                                        {
+                                            new TournamentSpriteText
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                Text = BaseStrings.ClientName,
+                                                Font = OsuFont.GetFont(size: 20, weight: FontWeight.SemiBold),
+                                                Colour = colourProvider.Colour1,
+                                            },
+                                            new TournamentSpriteText
+                                            {
+                                                Anchor = Anchor.TopCentre,
+                                                Origin = Anchor.TopCentre,
+                                                Text = gameBase.Version,
+                                                Font = OsuFont.GetFont(size: 18, weight: FontWeight.SemiBold),
+                                                Margin = new MarginPadding { Bottom = 5 },
+                                            },
+                                        },
+                                    },
+                                ],
+                            },
                         },
                     },
                 },
@@ -160,26 +288,86 @@ namespace osu.Game.Tournament
                 drawable.Hide();
 
             SetScreen(typeof(SetupScreen));
+
+            defaultProxyChatContainer.Add(proxyChatContainer = chatContainer.CreateProxy());
+            timer.OnCancel += () => scheduledScreenChange?.Cancel();
+        }
+
+        private partial class SidebarPart : FillFlowContainer
+        {
+            public SidebarPart()
+            {
+                Anchor = Anchor.TopCentre;
+                Origin = Anchor.TopCentre;
+                RelativeSizeAxes = Axes.X;
+                AutoSizeAxes = Axes.Y;
+                Direction = FillDirection.Vertical;
+                Spacing = new Vector2(5);
+                Padding = new MarginPadding(5);
+            }
         }
 
         private float depth;
 
-        private Drawable? currentScreen;
+        private TournamentScreen? currentScreen;
         private ScheduledDelegate? scheduledHide;
 
-        private Drawable? temporaryScreen;
+        private TournamentScreen? temporaryScreen;
 
-        public void SetScreen(Drawable screen)
+        private Container defaultProxyChatContainer = null!;
+        private Container? currentProxyChatContainer;
+        private Drawable proxyChatContainer = null!;
+
+        public Drawable ProxyChatToContainer(Container c)
+        {
+            if (currentProxyChatContainer != null)
+                throw new InvalidOperationException("Previous proxy usage was not returned");
+
+            currentProxyChatContainer = c;
+
+            defaultProxyChatContainer.Remove(proxyChatContainer, false);
+            currentProxyChatContainer.Add(proxyChatContainer);
+            return proxyChatContainer;
+        }
+
+        public void ReturnProxyChat()
+        {
+            if (currentProxyChatContainer == null)
+                return;
+
+            currentProxyChatContainer.Remove(proxyChatContainer, false);
+            currentProxyChatContainer = null;
+
+            defaultProxyChatContainer.Add(proxyChatContainer);
+        }
+
+        public void ScheduleScreenChange(Type screenType, int time)
+        {
+            scheduledScreenChange?.Cancel();
+
+            // Need to set timer first since it calls OnCancel
+            timer.TimerTime = time;
+            scheduledScreenChange = Scheduler.AddDelayed(() => { SetScreen(screenType); }, time);
+
+            timer.ActiveText = $"-> {screenType.Name}";
+            timer.Start();
+        }
+
+        public void CancelScreenChange() => timer.Stop();
+
+        public void SetScreen(TournamentScreen screen)
         {
             currentScreen?.Hide();
             currentScreen = null;
 
             screens.Add(temporaryScreen = screen);
+            temporaryScreen.Show();
         }
 
         public void SetScreen(Type screenType)
         {
             temporaryScreen?.Expire();
+            ReturnProxyChat();
 
             var target = screens.FirstOrDefault(s => s.GetType() == screenType);
 
@@ -195,9 +383,9 @@ namespace osu.Game.Tournament
             var lastScreen = currentScreen;
             currentScreen = target;
 
-            if (currentScreen.ChildrenOfType<TourneyVideo>().FirstOrDefault()?.VideoAvailable == true)
+            if (currentScreen.ChildrenOfType<TourneyBackground>().FirstOrDefault()?.BackgroundAvailable == true)
             {
-                video.FadeOut(200);
+                background.FadeOut(200);
 
                 // delay the hide to avoid a double-fade transition.
                 scheduledHide = Scheduler.AddDelayed(() => lastScreen?.Hide(), TournamentScreen.FADE_DELAY);
@@ -205,62 +393,97 @@ namespace osu.Game.Tournament
             else
             {
                 lastScreen?.Hide();
-                video.Show();
+                background.Show();
             }
 
             screens.ChangeChildDepth(currentScreen, depth--);
             currentScreen.Show();
 
-            switch (currentScreen)
+            chatContainer.FadeOut(TournamentScreen.FADE_DELAY / 2);
+
+            using (chatContainer.BeginDelayedSequence(TournamentScreen.FADE_DELAY / 2))
             {
-                case MapPoolScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(1, 500, Easing.OutQuint);
-                    break;
+                switch (currentScreen)
+                {
+                    case MapPoolScreen:
+                        chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
+                        chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH);
+                        chatContainer.ResizeHeightTo(144);
+                        chatContainer.MoveTo(new Vector2(0, STREAM_AREA_HEIGHT - 144));
+                        chat.ChangeRadius(0);
+                        break;
 
-                case GameplayScreen:
-                    chatContainer.FadeIn(TournamentScreen.FADE_DELAY);
-                    chatContainer.ResizeWidthTo(0.5f, 500, Easing.OutQuint);
-                    break;
+                    case GameplayScreen:
+                        chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
+                        chatContainer.ResizeWidthTo(STREAM_AREA_WIDTH / 2f);
+                        chatContainer.ResizeHeightTo(144);
+                        chatContainer.MoveTo(new Vector2(0, showChat ? STREAM_AREA_HEIGHT - 144 : STREAM_AREA_HEIGHT + 200));
+                        chat.ChangeRadius(0);
+                        break;
 
-                default:
-                    chatContainer.FadeOut(TournamentScreen.FADE_DELAY);
-                    break;
+                    case BoardScreen:
+                        chatContainer.FadeIn(TournamentScreen.FADE_DELAY / 2);
+                        chatContainer.MoveTo(new Vector2(30, 100 + 466));
+                        chatContainer.ResizeWidthTo(350);
+                        chatContainer.ResizeHeightTo(192);
+                        chat.ChangeRadius(10);
+                        break;
+                }
             }
 
-            foreach (var s in buttons.OfType<ScreenButton>())
-                s.IsSelected = screenType == s.Type;
+            foreach (var s in buttons.Children)
+            {
+                switch (s)
+                {
+                    case ScreenButton button:
+                        button.Selected = screenType == button.Type;
+                        break;
+
+                    case FoldableSectionHeader section:
+                        foreach (var b in section.OfType<ScreenButton>())
+                            b.Selected = screenType == b.Type;
+                        break;
+                }
+            }
         }
 
         private partial class Separator : CompositeDrawable
         {
             public Separator()
             {
+                Anchor = Anchor.TopCentre;
+                Origin = Anchor.TopCentre;
                 RelativeSizeAxes = Axes.X;
-                Height = 20;
+                Height = 5;
             }
         }
 
-        private partial class ScreenButton : TourneyButton
+        private partial class ScreenButton : SidebarIconButton
         {
             public readonly Type Type;
 
             private readonly Key? shortcutKey;
+            private readonly CircularContainer? keyIndicator;
 
             public ScreenButton(Type type, Key? shortcutKey = null)
+                : base(null)
             {
+                Anchor = Anchor.TopCentre;
+                Origin = Anchor.TopCentre;
+
                 this.shortcutKey = shortcutKey;
+                Height = 46;
+
+                Padding = new MarginPadding(0);
 
                 Type = type;
-
-                BackgroundColour = OsuColour.Gray(0.2f);
                 Action = () => RequestSelection?.Invoke(type);
 
                 RelativeSizeAxes = Axes.X;
 
                 if (shortcutKey != null)
                 {
-                    Add(new CircularContainer
+                    Add(keyIndicator = new CircularContainer
                     {
                         Anchor = Anchor.CentreLeft,
                         Origin = Anchor.CentreLeft,
@@ -291,7 +514,7 @@ namespace osu.Game.Tournament
 
             protected override bool OnKeyDown(KeyDownEvent e)
             {
-                if (e.Key == shortcutKey)
+                if (e.Key == shortcutKey && !e.Repeat)
                 {
                     TriggerClick();
                     return true;
@@ -300,23 +523,16 @@ namespace osu.Game.Tournament
                 return base.OnKeyDown(e);
             }
 
-            private bool isSelected;
+            protected override void UpdateState()
+            {
+                base.UpdateState();
+
+                keyIndicator?.MoveToX(Selected ? 15 : 0, 150, Easing.OutQuint);
+            }
 
             public Action<Type>? RequestSelection;
-
-            public bool IsSelected
-            {
-                get => isSelected;
-                set
-                {
-                    if (value == isSelected)
-                        return;
-
-                    isSelected = value;
-                    BackgroundColour = isSelected ? Color4.SkyBlue : OsuColour.Gray(0.2f);
-                    SpriteText.Colour = isSelected ? Color4.Black : Color4.White;
-                }
-            }
         }
+
+        public void ReloadChat() => chat.ReloadChannel();
     }
 }

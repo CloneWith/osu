@@ -15,6 +15,7 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.MapPool;
@@ -38,9 +39,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
 
-        [Resolved]
-        private TournamentMatchChatDisplay chat { get; set; } = null!;
-
+        private LabelledSwitchButton warmupToggle = null!;
         private Drawable chroma = null!;
 
         [BackgroundDependencyLoader]
@@ -53,7 +52,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             AddRangeInternal(new Drawable[]
             {
-                new TourneyVideo("gameplay")
+                new TourneyBackground(BackgroundType.Gameplay)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -77,17 +76,18 @@ namespace osu.Game.Tournament.Screens.Gameplay
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
                             Height = 512,
+                            Width = 1366,
                             Children = new Drawable[]
                             {
                                 new ChromaArea
                                 {
-                                    Name = "Left chroma",
+                                    Name = "Left PlayerArea",
                                     RelativeSizeAxes = Axes.Both,
                                     Width = 0.5f,
                                 },
                                 new ChromaArea
                                 {
-                                    Name = "Right chroma",
+                                    Name = "Right PlayerArea",
                                     RelativeSizeAxes = Axes.Both,
                                     Anchor = Anchor.TopRight,
                                     Origin = Anchor.TopRight,
@@ -103,28 +103,44 @@ namespace osu.Game.Tournament.Screens.Gameplay
                     Anchor = Anchor.BottomCentre,
                     Origin = Anchor.TopCentre,
                 },
-                new ControlPanel
+                chatBackground = new EmptyBox
+                {
+                    Name = "chat Background",
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    RelativeSizeAxes = Axes.X,
+                    Width = 0.5f,
+                    Height = 144,
+                },
+                new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {
-                        new LabelledSwitchButton
+                        warmupToggle = new LabelledSwitchButton
                         {
-                            Label = "Warmup",
+                            RelativeSizeAxes = Axes.X,
+                            Label = GameplayScreenStrings.WarmupStage,
                             Current = warmup,
                         },
                         chatToggle = new LabelledSwitchButton
                         {
-                            Label = "Show chat",
+                            RelativeSizeAxes = Axes.X,
+                            Label = GameplayScreenStrings.ToggleChat,
+                        },
+                        new LabelledSwitchButton
+                        {
+                            Label = GameplayScreenStrings.BlueChroma,
+                            Current = LadderInfo.UseBlueChroma,
                         },
                         new SettingsSlider<int>
                         {
-                            LabelText = "Chroma width",
+                            LabelText = $"{(OperatingSystem.IsWindows() ? "Player Area" : "Chroma")} width",
                             Current = LadderInfo.ChromaKeyWidth,
                             KeyboardStep = 1,
                         },
                         new SettingsSlider<int>
                         {
-                            LabelText = "Players per team",
+                            LabelText = GameplayScreenStrings.PlayersPerTeam,
                             Current = LadderInfo.PlayersPerTeam,
                             KeyboardStep = 1,
                         },
@@ -141,7 +157,17 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             LadderInfo.ChromaKeyWidth.BindValueChanged(width => chroma.Width = width.NewValue, true);
 
-            warmup.BindValueChanged(w => header.ShowScores = !w.NewValue, true);
+            warmup.BindValueChanged(w =>
+            {
+                header.ShowScores = !w.NewValue;
+            }, true);
+        }
+
+        private void updateWarmup()
+        {
+            warmup.Value = warmupToggle.Current.Value;
+            updateStateLazer();
+            warmupToggle.Current.Value = warmup.Value;
         }
 
         protected override void LoadComplete()
@@ -163,6 +189,8 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 LegacyState.BindTo(legacyIpc.State);
                 LegacyState.BindValueChanged(_ => updateStateLegacy(), true);
             }, true);
+
+            warmupToggle.Current.BindValueChanged(_ => updateWarmup(), true);
         }
 
         protected override void CurrentMatchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -173,11 +201,11 @@ namespace osu.Game.Tournament.Screens.Gameplay
                 return;
 
             warmup.Value = match.NewValue.Team1Score.Value + match.NewValue.Team2Score.Value == 0;
-            scheduledScreenChange?.Cancel();
 
             if (match.OldValue != null)
                 matchCompleteOverride.Current.UnbindFrom(match.OldValue.Completed);
             matchCompleteOverride.Current.BindTo(match.NewValue.Completed);
+            sceneManager?.CancelScreenChange();
         }
 
         private ScheduledDelegate? scheduledScreenChange;
@@ -188,6 +216,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
         private LegacyTourneyState lastLegacyState;
         private TourneyState lastLazerState;
         private MatchHeader header = null!;
+        private EmptyBox chatBackground = null!;
 
         private void contract()
         {
@@ -198,8 +227,10 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             SongBar.Expanded = false;
             scoreDisplay.FadeOut(100);
-            using (chat.BeginDelayedSequence(500))
-                chat.Expand();
+
+            if (sceneManager != null)
+                sceneManager.ShowChat = true;
+            chatBackground.MoveToY(0, 500, Easing.OutQuint);
         }
 
         private void expand()
@@ -209,7 +240,9 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             scheduledContract?.Cancel();
 
-            chat.Contract();
+            if (sceneManager != null)
+                sceneManager.ShowChat = false;
+            chatBackground.MoveToY(200, 500, Easing.OutQuint);
 
             using (BeginDelayedSequence(300))
             {
@@ -233,7 +266,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             try
             {
-                scheduledScreenChange?.Cancel();
+                sceneManager?.CancelScreenChange();
 
                 if (LazerState.Value == TourneyState.Ranking)
                 {
@@ -362,7 +395,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
         public override void Hide()
         {
-            scheduledScreenChange?.Cancel();
+            sceneManager?.CancelScreenChange();
             base.Hide();
         }
 
@@ -381,11 +414,15 @@ namespace osu.Game.Tournament.Screens.Gameplay
             [Resolved]
             private LadderInfo ladder { get; set; } = null!;
 
+            private readonly Color4 chromaGreen = new Color4(0, 255, 0, 255);
+            private readonly Color4 chromaBlue = new Color4(0, 0, 255, 255);
+
             [BackgroundDependencyLoader]
             private void load()
             {
                 // chroma key area for stable gameplay
-                Colour = new Color4(0, 255, 0, 255);
+                ladder.UseBlueChroma.BindValueChanged(e =>
+                    this.FadeColour(e.NewValue ? chromaBlue : chromaGreen, 300, Easing.OutQuint), true);
 
                 ladder.PlayersPerTeam.BindValueChanged(performLayout, true);
             }

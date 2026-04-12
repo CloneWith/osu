@@ -1,0 +1,266 @@
+// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// See the LICENCE file in the repository root for full licence text.
+
+using osu.Framework.Localisation;
+
+namespace osu.Game.Tournament.Localisation
+{
+    public class BaseStrings
+    {
+        private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Base";
+
+        /// <summary>
+        /// "OFFC Tournament Client"
+        /// </summary>
+        public static LocalisableString ClientName => new TranslatableString(getKey(@"client_name"), @"OFFC Tournament Client");
+
+        /// <summary>
+        /// "Populating user stats"
+        /// </summary>
+        public static LocalisableString PopulatingUserStats => new TranslatableString(getKey(@"populating_user_stats"),
+            @"Populating user stats");
+
+        /// <summary>
+        /// "Populating round beatmaps"
+        /// </summary>
+        public static LocalisableString PopulatingRoundBeatmaps => new TranslatableString(getKey(@"populating_round_beatmaps"),
+            @"Populating round beatmaps");
+
+        /// <summary>
+        /// "Populating seeding beatmaps"
+        /// </summary>
+        public static LocalisableString PopulatingSeedingBeatmaps => new TranslatableString(getKey(@"populating_seeding_beatmaps"),
+            @"Populating seeding beatmaps");
+
+        /// <summary>
+        /// "Your {0} file could not be parsed. Please check runtime.log for more details."
+        /// </summary>
+        public static LocalisableString BracketErrorWarning(string bracketName) => new TranslatableString(getKey(@"bracket_error_warning"),
+            @"Your {0} file could not be parsed. Please check runtime.log for more details.", bracketName);
+
+        /// <summary>
+        /// "Choose a match first from the brackets screen"
+        /// </summary>
+        public static LocalisableString NoMatchWarning => new TranslatableString(getKey(@"no_match_warning"),
+            @"Choose a match first from the brackets screen");
+
+        /// <summary>
+        /// "Cannot access current match, sorry ;w;"
+        /// </summary>
+        public static LocalisableString MatchUnavailableWarning => new TranslatableString(getKey(@"match_unavailable_warning"),
+            @"Cannot access current match, sorry ;w;");
+
+        /// <summary>
+        /// "This round isn&#39;t set up for board view..."
+        /// </summary>
+        public static LocalisableString BoardModeUnsetWarning => new TranslatableString(getKey(@"board_mode_unset_warning"),
+            @"This round isn't set up for board view...");
+
+        /// <summary>
+        /// "Please make the window wider for better control."
+        /// </summary>
+        public static LocalisableString AspectRatioWarning => new TranslatableString(getKey(@"aspect_ratio_warning"), @"Please make the window wider for better control.");
+
+        /// <summary>
+        /// "Control Panel"
+        /// </summary>
+        public static LocalisableString ControlPanel => new TranslatableString(getKey(@"control_panel"), @"Control Panel");
+
+        /// <summary>
+        /// "Save Changes"
+        /// </summary>
+        public static LocalisableString SaveChanges => new TranslatableString(getKey(@"save_changes"), @"Save Changes");
+
+        /// <summary>
+        /// "Fetch Data"
+        /// </summary>
+        public static LocalisableString FetchData => new TranslatableString(getKey(@"fetch_data"), @"Fetch Data");
+
+        /// <summary>
+        /// "Okay"
+        /// </summary>
+        public static LocalisableString Okay => new TranslatableString(getKey(@"okay"), @"Okay");
+
+        /// <summary>
+        /// "Cancel"
+        /// </summary>
+        public static LocalisableString Cancel => new TranslatableString(getKey(@"cancel"), @"Cancel");
+
+        /// <summary>
+        /// "Unknown"
+        /// </summary>
+        public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
+
+        /// <summary>
+        /// "Add New"
+        /// </summary>
+        public static LocalisableString AddNew => new TranslatableString(getKey(@"add_new"), @"Add New");
+
+        /// <summary>
+        /// "Clear All"
+        /// </summary>
+        public static LocalisableString Clear => new TranslatableString(getKey(@"clear"), @"Clear All");
+
+        /// <summary>
+        /// "Refresh"
+        /// </summary>
+        public static LocalisableString Refresh => new TranslatableString(getKey(@"refresh"), @"Refresh");
+
+        /// <summary>
+        /// "Reset"
+        /// </summary>
+        public static LocalisableString Reset => new TranslatableString(getKey(@"reset"), @"Reset");
+
+        /// <summary>
+        /// "Remove"
+        /// </summary>
+        public static LocalisableString Remove => new TranslatableString(getKey(@"remove"), @"Remove");
+
+        /// <summary>
+        /// "User ID"
+        /// </summary>
+        public static LocalisableString UserID => new TranslatableString(getKey(@"user_id"), @"User ID");
+
+        /// <summary>
+        /// "Role"
+        /// </summary>
+        public static LocalisableString UserRole => new TranslatableString(getKey(@"user_role"), @"Role");
+
+        /// <summary>
+        /// "Team Member"
+        /// </summary>
+        public static LocalisableString TeamMember => new TranslatableString(getKey(@"team_member"), @"Team Member");
+
+        /// <summary>
+        /// "Strategist"
+        /// </summary>
+        public static LocalisableString TeamStrategist => new TranslatableString(getKey(@"team_strategist"), @"Strategist");
+
+        /// <summary>
+        /// "Team Leader"
+        /// </summary>
+        public static LocalisableString TeamLeader => new TranslatableString(getKey(@"team_leader"), @"Team Leader");
+
+        /// <summary>
+        /// "Beatmap ID"
+        /// </summary>
+        public static LocalisableString BeatmapID => new TranslatableString(getKey(@"beatmap_id"), @"Beatmap ID");
+
+        /// <summary>
+        /// "Seed"
+        /// </summary>
+        public static LocalisableString Seed => new TranslatableString(getKey(@"seed"), @"Seed");
+
+        /// <summary>
+        /// "Score"
+        /// </summary>
+        public static LocalisableString Score => new TranslatableString(getKey(@"score"), @"Score");
+
+        /// <summary>
+        /// "Round"
+        /// </summary>
+        public static LocalisableString Round => new TranslatableString(getKey(@"round"), @"Round");
+
+        /// <summary>
+        /// "Team Red"
+        /// </summary>
+        public static LocalisableString TeamRed => new TranslatableString(getKey(@"team_red"), @"Team Red");
+
+        /// <summary>
+        /// "Team Blue"
+        /// </summary>
+        public static LocalisableString TeamBlue => new TranslatableString(getKey(@"team_blue"), @"Team Blue");
+
+        /// <summary>
+        /// "Red"
+        /// </summary>
+        public static LocalisableString TeamRedShort => new TranslatableString(getKey(@"team_red_short"), @"Red");
+
+        /// <summary>
+        /// "Blue"
+        /// </summary>
+        public static LocalisableString TeamBlueShort => new TranslatableString(getKey(@"team_blue_short"), @"Blue");
+
+        /// <summary>
+        /// "Mod"
+        /// </summary>
+        public static LocalisableString BeatmapMod => new TranslatableString(getKey(@"beatmap_mod"), @"Mod");
+
+        /// <summary>
+        /// "Add beatmap"
+        /// </summary>
+        public static LocalisableString AddBeatmap => new TranslatableString(getKey(@"add_beatmap"), @"Add beatmap");
+
+        /// <summary>
+        /// "Unknown Round"
+        /// </summary>
+        public static LocalisableString UnknownRound => new TranslatableString(getKey(@"unknown_round"), @"Unknown Round");
+
+        /// <summary>
+        /// "Task completed!"
+        /// </summary>
+        public static LocalisableString TaskCompleted => new TranslatableString(getKey(@"task_completed"), @"Task completed!");
+
+        /// <summary>
+        /// "This task has failed."
+        /// </summary>
+        public static LocalisableString TaskFailed => new TranslatableString(getKey(@"task_failed"), @"This task has failed.");
+
+        /// <summary>
+        /// "Please wait..."
+        /// </summary>
+        public static LocalisableString PleaseWait => new TranslatableString(getKey(@"please_wait"), @"Please wait...");
+
+        /// <summary>
+        /// "Fetching..."
+        /// </summary>
+        public static LocalisableString FetchingHeader => new TranslatableString(getKey(@"fetching_header"), @"Fetching...");
+
+        /// <summary>
+        /// "Fetching data from server, please wait..."
+        /// </summary>
+        public static LocalisableString FetchingDescription => new TranslatableString(getKey(@"fetching_description"), @"Fetching data from server, please wait...");
+
+        /// <summary>
+        /// "Action not permitted"
+        /// </summary>
+        public static LocalisableString ActionNotPermitted => new TranslatableString(getKey(@"action_not_permitted"), @"Action not permitted");
+
+        /// <summary>
+        /// "No beatmap available!"
+        /// </summary>
+        public static LocalisableString NoBeatmapAvailable => new TranslatableString(getKey(@"no_beatmap_available"), @"No beatmap available!");
+
+        /// <summary>
+        /// "Debug Settings"
+        /// </summary>
+        public static LocalisableString DebugSettings => new TranslatableString(getKey(@"debug_settings"), @"Debug Settings");
+
+        /// <summary>
+        /// "No pending screens!"
+        /// </summary>
+        public static LocalisableString IdleScreenTimer => new TranslatableString(getKey(@"idle_screen_timer"), @"No pending screens!");
+
+        /// <summary>
+        /// "Screen changed"
+        /// </summary>
+        public static LocalisableString ScreenChanged => new TranslatableString(getKey(@"screen_changed"), @"Screen changed");
+
+        /// <summary>
+        /// "Punishments"
+        /// </summary>
+        public static LocalisableString Punishment => new TranslatableString(getKey(@"punishment"), @"Punishments");
+
+        /// <summary>
+        /// "Disqualified"
+        /// </summary>
+        public static LocalisableString Disqualified => new TranslatableString(getKey(@"disqualified"), @"Disqualified");
+
+        /// <summary>
+        /// "Players and staffs, thanks for your support!"
+        /// </summary>
+        public static LocalisableString Thanks => new TranslatableString(getKey(@"thanks"), @"Players and staffs, thanks for your support!");
+
+        private static string getKey(string key) => $@"{prefix}:{key}";
+    }
+}

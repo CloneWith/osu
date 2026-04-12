@@ -242,6 +242,9 @@ namespace osu.Game.Configuration
             // intentionally uses `DateTime?` and not `DateTimeOffset?` because the latter fails due to `DateTimeOffset` not implementing `IConvertible`
             SetDefault(OsuSetting.LastOnlineTagsPopulation, (DateTime?)null);
 
+            SetDefault(OsuSetting.DoNotDisturb, false);
+            SetDefault(OsuSetting.PersistentNotifications, false);
+
             SetDefault(OsuSetting.DashboardSortMode, UserSortCriteria.LastVisit);
             SetDefault(OsuSetting.DashboardDisplayStyle, OverlayPanelDisplayStyle.Card);
         }
@@ -501,6 +504,9 @@ namespace osu.Game.Configuration
         /// Custom API endpoint URL.
         /// </summary>
         CustomApiUrl,
+
+        DoNotDisturb,
+        PersistentNotifications,
 
         DashboardSortMode,
         DashboardDisplayStyle,

@@ -195,6 +195,6 @@ namespace osu.Game.Tournament.Tests.Screens
                 () => this.ChildrenOfType<TeamScore>().All(score => score.Alpha == (visible ? 1 : 0)));
 
         private void toggleWarmup()
-            => AddStep("toggle warmup", () => this.ChildrenOfType<LabelledSwitchButton>().First().ChildrenOfType<SwitchButton>().First().TriggerClick());
+            => AddStep("toggle warmup", () => this.ChildrenOfType<SwitchButton>().First().TriggerClick());
     }
 }

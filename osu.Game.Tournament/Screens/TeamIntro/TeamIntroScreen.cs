@@ -25,11 +25,12 @@ namespace osu.Game.Tournament.Screens.TeamIntro
 
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo("teamintro")
+                new TourneyBackground(BackgroundType.TeamIntro)
                 {
                     RelativeSizeAxes = Axes.Both,
                     Loop = true,
                 },
+                new TeamGradientBackground(),
                 mainContainer = new Container
                 {
                     RelativeSizeAxes = Axes.Both,

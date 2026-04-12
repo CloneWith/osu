@@ -13,11 +13,16 @@ namespace osu.Game.Tournament.Screens
     {
         public const double FADE_DELAY = 200;
 
+        public bool HadBeenSelected { get; protected set; }
+
         [Resolved]
         protected LadderInfo LadderInfo { get; private set; } = null!;
 
         [Cached]
         protected readonly OverlayColourProvider ColourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
+
+        [Resolved]
+        protected TournamentSceneManager? SceneManager { get; private set; }
 
         protected TournamentScreen()
         {
@@ -27,8 +32,24 @@ namespace osu.Game.Tournament.Screens
             FillAspectRatio = 16 / 9f;
         }
 
+        /// <summary>
+        /// Called when the screen is selected the first time in this session.
+        /// </summary>
+        protected virtual void OnFirstSelected()
+        {
+        }
+
+        public void ResetSelectStatus() => HadBeenSelected = false;
+
         public override void Hide() => this.FadeOut(FADE_DELAY);
 
-        public override void Show() => this.FadeIn(FADE_DELAY);
+        public override void Show()
+        {
+            this.FadeIn(FADE_DELAY);
+            if (HadBeenSelected) return;
+
+            HadBeenSelected = true;
+            OnFirstSelected();
+        }
     }
 }

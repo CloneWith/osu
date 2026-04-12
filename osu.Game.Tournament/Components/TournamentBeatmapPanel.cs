@@ -22,7 +22,8 @@ namespace osu.Game.Tournament.Components
     {
         public readonly IBeatmapInfo? Beatmap;
 
-        private readonly string mod;
+        private string modIndex;
+        private string mod;
 
         public const float HEIGHT = 50;
         public const float WIDTH = 400;
@@ -34,9 +35,10 @@ namespace osu.Game.Tournament.Components
         private TournamentProtectIcon protectIcon = null!;
         private FillFlowContainer rightFlow = null!;
 
-        public TournamentBeatmapPanel(IBeatmapInfo? beatmap, string mod = "")
+        public TournamentBeatmapPanel(IBeatmapInfo? beatmap, string mod = "", string index = "")
         {
             Beatmap = beatmap;
+            modIndex = index;
             this.mod = mod;
 
             Width = WIDTH;
@@ -50,6 +52,18 @@ namespace osu.Game.Tournament.Components
             currentMatch.BindTo(ladder.CurrentMatch);
 
             Masking = true;
+
+            // Try to get mod information from map pool
+            if (Beatmap != null && string.IsNullOrEmpty(mod) && string.IsNullOrEmpty(modIndex))
+            {
+                var match = currentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == Beatmap.OnlineID);
+
+                if (match != null)
+                {
+                    mod = match.Mods;
+                    modIndex = match.ModIndex;
+                }
+            }
 
             AddRangeInternal(new Drawable[]
             {

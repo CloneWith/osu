@@ -69,7 +69,7 @@ namespace osu.Game.Graphics
         /// <summary>
         /// Default font face for UI and game elements.
         /// </summary>
-        public static FontUsage Torus => GetFont(Typeface.Torus, weight: FontWeight.Regular);
+        public static FontUsage Torus => GetFont(Typeface.HarmonyTorus, weight: FontWeight.Regular);
 
         /// <summary>
         /// Default font face with alternate character set for headings and flair text.
@@ -77,6 +77,8 @@ namespace osu.Game.Graphics
         public static FontUsage TorusAlternate => GetFont(Typeface.TorusAlternate, weight: FontWeight.Regular);
 
         public static FontUsage Inter => GetFont(Typeface.Inter, weight: FontWeight.Regular);
+
+        public static FontUsage KaushanScript => GetFont(Typeface.KaushanScript, weight: FontWeight.Regular);
 
         /// <summary>
         /// Retrieves a <see cref="FontUsage"/>.
@@ -87,7 +89,7 @@ namespace osu.Game.Graphics
         /// <param name="italics">Whether the font is italic.</param>
         /// <param name="fixedWidth">Whether all characters should be spaced the same distance apart.</param>
         /// <returns>The <see cref="FontUsage"/>.</returns>
-        public static FontUsage GetFont(Typeface typeface = Typeface.Torus, float size = DEFAULT_FONT_SIZE, FontWeight weight = FontWeight.Medium, bool italics = false, bool fixedWidth = false)
+        public static FontUsage GetFont(Typeface typeface = Typeface.HarmonyTorus, float size = DEFAULT_FONT_SIZE, FontWeight weight = FontWeight.Medium, bool italics = false, bool fixedWidth = false)
         {
             string familyString = GetFamilyString(typeface);
             return new FontUsage(familyString, size, GetWeightString(familyString, weight), getItalics(italics), fixedWidth);
@@ -120,6 +122,12 @@ namespace osu.Game.Graphics
 
                 case Typeface.Inter:
                     return @"Inter";
+
+                case Typeface.HarmonyTorus:
+                    return @"HarmonyTorus";
+
+                case Typeface.KaushanScript:
+                    return @"KaushanScript";
             }
 
             return null;
@@ -170,6 +178,10 @@ namespace osu.Game.Graphics
         [Description("Torus (alternate)")]
         TorusAlternate,
         Inter,
+        HarmonyTorus,
+
+        [Description("Kaushan Script")]
+        KaushanScript,
     }
 
     public enum FontWeight

@@ -23,6 +23,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
     {
         public readonly TournamentMatch Match;
         private readonly bool editor;
+        private readonly bool interactive;
         protected readonly FillFlowContainer<DrawableMatchTeam> Flow;
         private readonly Drawable selectionBox;
         private readonly Drawable currentMatchSelectionBox;
@@ -34,10 +35,11 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
         [Resolved]
         private LadderInfo? ladderInfo { get; set; }
 
-        public DrawableTournamentMatch(TournamentMatch match, bool editor = false)
+        public DrawableTournamentMatch(TournamentMatch match, bool editor = false, bool interactive = true)
         {
             Match = match;
             this.editor = editor;
+            this.interactive = interactive;
 
             AutoSizeAxes = Axes.Both;
 
@@ -239,8 +241,9 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
             int instantWinAmount = Match.Round.Value.BestOf.Value / 2;
 
             Match.Completed.Value = Match.Round.Value.BestOf.Value > 0
-                                    && (Match.Team1Score.Value + Match.Team2Score.Value >= Match.Round.Value.BestOf.Value || Match.Team1Score.Value > instantWinAmount
-                                                                                                                          || Match.Team2Score.Value > instantWinAmount);
+                                    && (Match.Team1Score.Value + Match.Team2Score.Value >= Match.Round.Value.BestOf.Value
+                                        || Match.Team1Score.Value > instantWinAmount
+                                        || Match.Team2Score.Value > instantWinAmount);
         }
 
         protected override void LoadComplete()
@@ -279,19 +282,19 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 
             Flow.Children = new[]
             {
-                new DrawableMatchTeam(Match.Team1.Value, Match, Match.Losers.Value),
-                new DrawableMatchTeam(Match.Team2.Value, Match, Match.Losers.Value)
+                new DrawableMatchTeam(Match.Team1.Value, Match, Match.Losers.Value, interactive),
+                new DrawableMatchTeam(Match.Team2.Value, Match, Match.Losers.Value, interactive)
             };
 
             SchedulerAfterChildren.Add(() => Scheduler.Add(updateProgression));
             updateWinConditions();
         }
 
-        protected override bool OnMouseDown(MouseDownEvent e) => e.Button == MouseButton.Left && editorInfo != null;
+        protected override bool OnMouseDown(MouseDownEvent e) => interactive && e.Button == MouseButton.Left && editorInfo != null;
 
         protected override bool OnKeyDown(KeyDownEvent e)
         {
-            if (Selected && editorInfo != null && e.Key == Key.Delete)
+            if (interactive && Selected && editorInfo != null && e.Key == Key.Delete)
             {
                 Remove();
                 return true;
@@ -302,7 +305,7 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
 
         protected override bool OnClick(ClickEvent e)
         {
-            if (editorInfo == null || Match is ConditionalTournamentMatch || e.Button != MouseButton.Left)
+            if (!interactive || editorInfo == null || Match is ConditionalTournamentMatch || e.Button != MouseButton.Left)
                 return false;
 
             Selected = true;

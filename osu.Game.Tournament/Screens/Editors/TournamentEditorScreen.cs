@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
@@ -15,6 +16,7 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Screens.Editors.Components;
 using osuTK;
 
@@ -35,6 +37,8 @@ namespace osu.Game.Tournament.Screens.Editors
         private TournamentSceneManager? sceneManager { get; set; }
 
         protected ControlPanel ControlPanel = null!;
+
+        protected Action<bool>? FetchAction;
 
         private readonly TournamentScreen? parentScreen;
 
@@ -69,21 +73,21 @@ namespace osu.Game.Tournament.Screens.Editors
                         Padding = new MarginPadding(20),
                     },
                 },
-                ControlPanel = new ControlPanel
+                ControlPanel = new ControlPanel(true, FetchAction)
                 {
                     Children = new Drawable[]
                     {
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Add new",
+                            Text = BaseStrings.AddNew,
                             Action = () => Storage.Add(new TModel())
                         },
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
                             BackgroundColour = colours.DangerousButtonColour,
-                            Text = "Clear all",
+                            Text = BaseStrings.Clear,
                             Action = () =>
                             {
                                 dialogOverlay?.Push(new TournamentClearAllDialog(() => Storage.Clear()));
@@ -123,6 +127,14 @@ namespace osu.Game.Tournament.Screens.Editors
                         break;
                 }
             };
+
+            foreach (var model in Storage)
+                flow.Add(CreateDrawable(model));
+        }
+
+        protected void RefreshFlow()
+        {
+            flow.Clear();
 
             foreach (var model in Storage)
                 flow.Add(CreateDrawable(model));

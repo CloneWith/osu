@@ -642,6 +642,10 @@ namespace osu.Game.Beatmaps
                 {
                     Guid id = beatmapInfo.ID;
                     beatmapInfo = Realm.Run(r => r.Find<BeatmapInfo>(id)?.Detach()) ?? beatmapInfo;
+
+                    BeatmapInfo info = beatmapInfo;
+                    beatmapInfo = Realm.Run(r => r.All<BeatmapInfo>().FirstOrDefault(bi => bi.Hash == info.Hash)?.Detach())
+                                  ?? beatmapInfo;
                 }
 
                 Debug.Assert(beatmapInfo.IsManaged != true);

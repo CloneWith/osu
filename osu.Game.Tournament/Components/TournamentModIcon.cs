@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
@@ -31,6 +32,8 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load(TextureStore textures, LadderInfo ladderInfo)
         {
+            if (modAcronym.IsNull()) return;
+
             var customTexture = textures.Get($"Mods/{modAcronym}");
 
             if (customTexture != null)

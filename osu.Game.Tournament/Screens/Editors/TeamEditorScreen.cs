@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions;
@@ -11,8 +12,12 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Editors.Components;
 using osu.Game.Tournament.Screens.Drawings.Components;
@@ -25,14 +30,30 @@ namespace osu.Game.Tournament.Screens.Editors
     {
         protected override BindableList<TournamentTeam> Storage => LadderInfo.Teams;
 
+        [Resolved]
+        private TournamentGameBase? tournamentGame { get; set; }
+
+        [Resolved]
+        private IDialogOverlay? dialogOverlay { get; set; }
+
+        public TeamEditorScreen()
+        {
+            FetchAction = fetchAll => Task.Run(() => tournamentGame?.AddPlayers(fetchAll))
+                                          .ContinueWith(_ => Scheduler.Add(RefreshFlow));
+        }
+
         [BackgroundDependencyLoader]
         private void load()
         {
-            ControlPanel.Add(new TourneyButton
+            ControlPanel.Add(new DangerousSettingsButton
             {
                 RelativeSizeAxes = Axes.X,
-                Text = "Add all countries",
-                Action = addAllCountries
+                Text = TeamEditorStrings.AddAllCountries,
+                Action = () => dialogOverlay?.Push(new AddAllDialog(() =>
+                {
+                    Expire();
+                    addAllCountries();
+                }))
             });
         }
 
@@ -69,11 +90,15 @@ namespace osu.Game.Tournament.Screens.Editors
             [Resolved]
             private LadderInfo ladderInfo { get; set; } = null!;
 
-            private readonly SettingsTextBox acronymTextBox;
-
             public TeamRow(TournamentTeam team, TournamentScreen parent)
             {
                 Model = team;
+
+                Model.FullName.Default = Model.FullName.Value;
+                Model.Acronym.Default = Model.Acronym.Value;
+                Model.FlagName.Default = Model.FlagName.Value;
+                Model.LastYearPlacing.Default = Model.LastYearPlacing.Value;
+                Model.Seed.Default = Model.Seed.Value;
 
                 Masking = true;
                 CornerRadius = 10;
@@ -106,96 +131,68 @@ namespace osu.Game.Tournament.Screens.Editors
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new SettingsTextBox
+                            new SectionHeader(TeamEditorStrings.TeamInfoHeader),
+                            new FormTextBox
                             {
-                                LabelText = "Name",
+                                Caption = TeamEditorStrings.TeamName,
+                                Width = 0.2f,
+                                Current = Model.FullName,
+                            },
+                            new FormTextBox
+                            {
+                                Caption = TeamEditorStrings.TeamAcronym,
+                                Width = 0.2f,
+                                Current = Model.Acronym,
+                            },
+                            new FormTextBox
+                            {
+                                Caption = TeamEditorStrings.TeamFlag,
+                                Width = 0.2f,
+                                Current = Model.FlagName,
+                            },
+                            new FormTextBox
+                            {
+                                Caption = TeamEditorStrings.TeamSeed,
+                                Width = 0.2f,
+                                Current = Model.Seed,
+                            },
+                            new DangerousSettingsButton
+                            {
+                                Width = 0.2f,
+                                Text = TeamEditorStrings.DeleteTeam,
+                                Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
+                                {
+                                    Expire();
+                                    ladderInfo.Teams.Remove(Model);
+                                })),
+                            },
+                            new FormTextBox
+                            {
+                                Caption = TeamEditorStrings.LastYearPlacement,
                                 Width = 0.33f,
-                                Current = Model.FullName
-                            },
-                            acronymTextBox = new SettingsTextBox
-                            {
-                                LabelText = "Acronym",
-                                Width = 0.25f,
-                                Current = Model.Acronym
-                            },
-                            new SettingsTextBox
-                            {
-                                LabelText = "Flag",
-                                Width = 0.25f,
-                                Current = Model.FlagName
+                                Current = Model.LastYearPlacing,
+                                TabbableContentContainer = this,
                             },
                             new SettingsButton
                             {
-                                Width = 0.33f,
-                                Margin = new MarginPadding { Top = 20 },
-                                Text = "Edit seeding results",
+                                Width = 0.2f,
+                                Margin = new MarginPadding { Left = 10 },
+                                Text = TeamEditorStrings.EditSeedingResults,
                                 Action = () =>
                                 {
                                     sceneManager?.SetScreen(new SeedingEditorScreen(team, parent));
-                                }
-                            },
-                            new SettingsTextBox
-                            {
-                                LabelText = "Seed",
-                                Width = 0.25f,
-                                Current = Model.Seed
-                            },
-                            new SettingsTextBox
-                            {
-                                LabelText = "Last Year Placement",
-                                Width = 0.25f,
-                                Current = Model.LastYearPlacing
+                                },
                             },
                             playerEditor,
                             new SettingsButton
                             {
-                                Text = "Add player",
-                                Action = playerEditor.CreateNew
-                            },
-                            new Container
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Children = new Drawable[]
-                                {
-                                    new DangerousSettingsButton
-                                    {
-                                        Width = 0.2f,
-                                        Text = "Delete Team",
-                                        Anchor = Anchor.TopRight,
-                                        Origin = Anchor.TopRight,
-                                        Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
-                                        {
-                                            Expire();
-                                            ladderInfo.Teams.Remove(Model);
-                                        })),
-                                    },
-                                }
+                                Text = TeamEditorStrings.AddPlayer,
+                                Margin = new MarginPadding { Top = 10, Bottom = 10 },
+                                Action = () => playerEditor.CreateNew(),
                             },
                         }
                     },
                 };
-            }
-
-            protected override void LoadComplete()
-            {
-                base.LoadComplete();
-
-                Model.Acronym.BindValueChanged(acronym =>
-                {
-                    var teamsWithSameAcronym = ladderInfo.Teams
-                                                         .Where(t => t.Acronym.Value == acronym.NewValue && t != Model)
-                                                         .ToList();
-
-                    if (teamsWithSameAcronym.Count > 0)
-                    {
-                        acronymTextBox.SetNoticeText(
-                            $"Acronym '{acronym.NewValue}' is already in use by team{(teamsWithSameAcronym.Count > 1 ? "s" : "")}:\n"
-                            + $"{string.Join(",\n", teamsWithSameAcronym)}", true);
-                    }
-                    else
-                        acronymTextBox.ClearNoticeText();
-                }, true);
             }
 
             public partial class PlayerEditor : CompositeDrawable
@@ -214,11 +211,13 @@ namespace osu.Game.Tournament.Screens.Editors
                     {
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
+                        Direction = FillDirection.Full,
                         Padding = new MarginPadding(5),
                         Spacing = new Vector2(5),
-                        ChildrenEnumerable = team.Players.Select(p => new PlayerRow(team, p))
+                        Child = new SectionHeader(TeamEditorStrings.PlayerListHeader),
                     };
+
+                    flow.AddRange(team.Players.Select(p => new PlayerRow(team, p)));
                 }
 
                 public void CreateNew()
@@ -235,7 +234,11 @@ namespace osu.Game.Tournament.Screens.Editors
                     [Resolved]
                     private TournamentGameBase game { get; set; } = null!;
 
+                    [Resolved]
+                    private IDialogOverlay? dialogOverlay { get; set; }
+
                     private readonly Bindable<int?> playerId = new Bindable<int?>();
+                    private readonly Bindable<UserRole> role = new Bindable<UserRole>();
 
                     private readonly Container userPanelContainer;
 
@@ -244,6 +247,7 @@ namespace osu.Game.Tournament.Screens.Editors
                         this.user = user;
 
                         RelativeSizeAxes = Axes.X;
+                        Width = 0.49f;
                         AutoSizeAxes = Axes.Y;
 
                         Masking = true;
@@ -258,27 +262,46 @@ namespace osu.Game.Tournament.Screens.Editors
                             },
                             new FillFlowContainer
                             {
-                                Margin = new MarginPadding(5),
-                                Padding = new MarginPadding { Right = 60 },
-                                Spacing = new Vector2(5),
-                                Direction = FillDirection.Horizontal,
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
+                                Direction = FillDirection.Vertical,
+                                Spacing = new Vector2(5),
+                                Margin = new MarginPadding(5),
+                                // Leave space for the remove button
+                                Padding = new MarginPadding { Right = 150 },
                                 Children = new Drawable[]
                                 {
-                                    new SettingsNumberBox
+                                    new GridContainer
                                     {
-                                        LabelText = "User ID",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 200,
-                                        Current = playerId,
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        RowDimensions = [new Dimension(GridSizeMode.AutoSize)],
+                                        ColumnDimensions =
+                                        [
+                                            new Dimension(),
+                                            new Dimension(GridSizeMode.Absolute, 350),
+                                        ],
+                                        Content = new Drawable[][]
+                                        {
+                                            [
+                                                new SettingsNumberBox
+                                                {
+                                                    LabelText = BaseStrings.UserID,
+                                                    Current = playerId,
+                                                },
+                                                userPanelContainer = new Container
+                                                {
+                                                    RelativeSizeAxes = Axes.Both,
+                                                },
+                                            ],
+                                        }
                                     },
-                                    userPanelContainer = new Container
+                                    new FormEnumDropdown<UserRole>
                                     {
-                                        Width = 400,
-                                        RelativeSizeAxes = Axes.Y,
+                                        Caption = BaseStrings.UserRole,
+                                        Current = role,
                                     },
-                                }
+                                },
                             },
                             new DangerousSettingsButton
                             {
@@ -286,12 +309,12 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.None,
                                 Width = 150,
-                                Text = "Delete Player",
-                                Action = () =>
+                                Text = BaseStrings.Remove,
+                                Action = () => dialogOverlay?.Push(new DeletePlayerDialog(user, () =>
                                 {
                                     Expire();
                                     team.Players.Remove(user);
-                                },
+                                }))
                             }
                         };
                     }
@@ -299,7 +322,10 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        playerId.Value = user.OnlineID;
+                        role.Default = role.Value = user.Role;
+                        playerId.Default = playerId.Value = user.OnlineID;
+
+                        role.BindValueChanged(r => user.Role = r.NewValue);
                         playerId.BindValueChanged(id =>
                         {
                             user.OnlineID = id.NewValue ?? 0;
@@ -319,8 +345,9 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     private void updatePanel() => Scheduler.AddOnce(() =>
                     {
-                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser())
+                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), 60, mode: ListDisplayMode.Statistics)
                         {
+                            RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
                             Scale = new Vector2(1f),

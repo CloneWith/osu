@@ -25,16 +25,15 @@ namespace osu.Game.Tournament.Components
         public DrawableTeamFlag(TournamentTeam? team)
         {
             this.team = team;
+
+            Size = new Vector2(75, 54);
+            Masking = true;
+            CornerRadius = 5;
         }
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            if (team == null) return;
-
-            Size = new Vector2(75, 54);
-            Masking = true;
-            CornerRadius = 5;
             Children = new Drawable[]
             {
                 flagSprite = new Sprite
@@ -46,7 +45,14 @@ namespace osu.Game.Tournament.Components
                 },
             };
 
-            (flag = team.FlagName.GetBoundCopy()).BindValueChanged(_ => flagSprite.Texture = textures.Get($@"Flags/{team.FlagName}"), true);
+            if (team != null)
+            {
+                (flag = team.FlagName.GetBoundCopy()).BindValueChanged(_ => flagSprite.Texture = textures.Get($@"Flags/{team.FlagName}"), true);
+            }
+            else
+            {
+                flagSprite.Texture = textures.Get(@"Flags/alt") ?? textures.Get(@"Flags/__");
+            }
         }
     }
 }

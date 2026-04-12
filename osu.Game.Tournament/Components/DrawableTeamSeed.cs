@@ -4,6 +4,7 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Game.Tournament.Models;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
@@ -14,19 +15,23 @@ namespace osu.Game.Tournament.Components
         private IBindable<string> seed = null!;
         private Bindable<bool> displaySeed = null!;
 
-        public DrawableTeamSeed(TournamentTeam? team)
+        public DrawableTeamSeed(TournamentTeam? team, bool noBackground = true, TeamColour colour = TeamColour.Neutral)
         {
             this.team = team;
+            Background.Alpha = noBackground ? 0 : 1;
+
+            InnerText.Text = "#?";
+            InnerText.Font = InnerText.Font.With(size: 36);
+            InnerText.Colour = colour switch
+            {
+                TeamColour.Red => TournamentGame.COLOUR_RED,
+                TeamColour.Blue => TournamentGame.COLOUR_BLUE,
+                _ => noBackground ? Color4.White : Color4.Black,
+            };
         }
 
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
-
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            Text.Font = Text.Font.With(size: 36);
-        }
 
         protected override void LoadComplete()
         {
@@ -36,7 +41,7 @@ namespace osu.Game.Tournament.Components
                 return;
 
             seed = team.Seed.GetBoundCopy();
-            seed.BindValueChanged(s => Text.Text = s.NewValue, true);
+            seed.BindValueChanged(s => InnerText.Text = s.NewValue, true);
 
             displaySeed = ladder.DisplayTeamSeeds.GetBoundCopy();
             displaySeed.BindValueChanged(v => Alpha = v.NewValue ? 1 : 0, true);

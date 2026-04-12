@@ -105,6 +105,10 @@ namespace osu.Game.Overlays.Chat
             }
         }
 
+        public bool EnableBackgroundAlternating = true;
+
+        public bool IsBackgroundInverted;
+
         private bool isMention;
 
         /// <summary>
@@ -195,7 +199,7 @@ namespace osu.Game.Overlays.Chat
                                 Anchor = Anchor.TopRight,
                                 Margin = new MarginPadding { Horizontal = Spacing },
                                 AccentColour = UsernameColour,
-                                Inverted = !string.IsNullOrEmpty(message.Sender.Colour),
+                                Inverted = IsBackgroundInverted || !string.IsNullOrEmpty(message.Sender.Colour),
                             },
                             drawableContentFlow = new LinkFlowContainer(styleMessageContent)
                             {
@@ -345,7 +349,7 @@ namespace osu.Game.Overlays.Chat
         private void updateBackground()
         {
             if (background != null)
-                background.Alpha = alternatingBackground ? 0.2f : 0;
+                background.Alpha = EnableBackgroundAlternating && alternatingBackground ? 0.2f : 0;
         }
     }
 }

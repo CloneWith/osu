@@ -71,6 +71,18 @@ namespace osu.Game.Tournament.Models
 
         public readonly Bindable<DateTimeOffset> Date = new Bindable<DateTimeOffset>(DateTimeOffset.Now);
 
+        public readonly BindableBool IsFinalStage = new BindableBool();
+
+        public readonly BindableBool PreparationMode = new BindableBool(true);
+
+        public readonly BindableInt CurrentRoundIndex = new BindableInt(-3)
+        {
+            MinValue = -3,
+            MaxValue = 17,
+        };
+
+        public TeamColour CurrentTeam => Math.Abs(CurrentRoundIndex.Value) % 2 == 1 ? TeamColour.Red : TeamColour.Blue;
+
         [JsonProperty]
         public readonly BindableList<ConditionalTournamentMatch> ConditionalMatches = new BindableList<ConditionalTournamentMatch>();
 
@@ -80,6 +92,11 @@ namespace osu.Game.Tournament.Models
         {
             Team1.BindValueChanged(t => Team1Acronym = t.NewValue?.Acronym.Value, true);
             Team2.BindValueChanged(t => Team2Acronym = t.NewValue?.Acronym.Value, true);
+            Round.BindValueChanged(r =>
+            {
+                if (r.NewValue != null)
+                    CurrentRoundIndex.MinValue = -(r.NewValue.BanCount.Value * 2 - 1);
+            });
         }
 
         public TournamentMatch(TournamentTeam? team1 = null, TournamentTeam? team2 = null)
@@ -95,7 +112,8 @@ namespace osu.Game.Tournament.Models
         [JsonIgnore]
         public TournamentTeam? Loser => !Completed.Value ? null : Team1Score.Value > Team2Score.Value ? Team2.Value : Team1.Value;
 
-        public TeamColour WinnerColour => Winner == Team1.Value ? TeamColour.Red : TeamColour.Blue;
+        public TeamColour WinnerColour => Winner == null ? TeamColour.None
+            : Winner == Team1.Value ? TeamColour.Red : TeamColour.Blue;
 
         public int PointsToWin => Round.Value?.BestOf.Value / 2 + 1 ?? 0;
 

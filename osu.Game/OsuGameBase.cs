@@ -63,6 +63,7 @@ using osu.Game.Resources;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
+using osu.Game.Screens.TournamentShowcase;
 using osu.Game.Skinning;
 using osu.Game.Utils;
 using RuntimeInfo = osu.Framework.RuntimeInfo;
@@ -313,6 +314,7 @@ namespace osu.Game
             }
 
             Resources.AddStore(new DllResourceStore(OsuResources.ResourceAssembly));
+            Resources.AddStore(new DllResourceStore(Game.Resources.Custom.CustomResources.ResourceAssembly));
 
             dependencies.Cache(realm = new RealmAccess(Storage, CLIENT_DATABASE_FILENAME, Host.UpdateThread));
 
@@ -472,6 +474,11 @@ namespace osu.Game
 
             dependencies.Cache(globalBindings);
 
+            ShowcaseStorage showcaseStorage = new ShowcaseStorage(Storage);
+
+            dependencies.Cache(showcaseStorage);
+            Textures.AddTextureSource(new TextureLoaderStore(new StorageBackedResourceStore(showcaseStorage)));
+
             Ruleset.BindValueChanged(onRulesetChanged);
             Beatmap.BindValueChanged(onBeatmapChanged);
 
@@ -530,6 +537,13 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Inter/Inter-Bold");
             AddFont(Resources, @"Fonts/Inter/Inter-BoldItalic");
 
+            AddFont(Resources, @"Fonts/KaushanScript/KaushanScript-Regular");
+
+            // Use HarmonyOS Sans as primary font for CJK characters
+            AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Regular");
+            AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-SemiBold");
+            AddFont(Resources, @"Fonts/HarmonyTorus/HarmonyTorus-Bold");
+
             AddFont(Resources, @"Fonts/Noto/Noto-Basic");
             AddFont(Resources, @"Fonts/Noto/Noto-Bopomofo");
             AddFont(Resources, @"Fonts/Noto/Noto-CJK-Basic");
@@ -542,6 +556,7 @@ namespace osu.Game
             AddFont(Resources, @"Fonts/Venera/Venera-Black");
 
             Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
+            Fonts.AddStore(new FumoIcon.FumoIconStore(Textures));
         }
 
         protected override void LoadComplete()

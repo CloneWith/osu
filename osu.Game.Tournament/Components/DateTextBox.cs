@@ -4,12 +4,11 @@
 using System;
 using System.Globalization;
 using osu.Framework.Bindables;
-using osu.Game.Graphics.UserInterface;
-using osu.Game.Overlays.Settings;
+using osu.Game.Graphics.UserInterfaceV2;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class DateTextBox : SettingsTextBox
+    public partial class DateTextBox : FormTextBox
     {
         private readonly BindableWithCurrent<DateTimeOffset> current = new BindableWithCurrent<DateTimeOffset>(DateTimeOffset.Now);
 
@@ -24,9 +23,9 @@ namespace osu.Game.Tournament.Components
             base.Current = new Bindable<string>(string.Empty);
 
             current.BindValueChanged(dto =>
-                base.Current.Value = dto.NewValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ", DateTimeFormatInfo.InvariantInfo), true);
+                base.Current.Value = dto.NewValue.ToString("yyyy-MM-ddTHH:mm:sszzz", DateTimeFormatInfo.InvariantInfo), true);
 
-            ((OsuTextBox)Control).OnCommit += (sender, _) =>
+            OnCommit += (sender, _) =>
             {
                 try
                 {

@@ -19,17 +19,18 @@ namespace osu.Game.Tournament.Components
             this.colour = colour;
             Background.Colour = TournamentGame.GetTeamColour(colour);
 
-            Text.Colour = TournamentGame.TEXT_COLOUR;
-            Text.Scale = new Vector2(0.6f);
+            InnerText.Colour = TournamentGame.TEXT_COLOUR;
+            InnerText.Text = $"Team {colour}".ToUpperInvariant();
+            InnerText.Scale = new Vector2(0.6f);
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
 
-            ladder.Use1V1Mode.BindValueChanged(use1V1 => Text.Text = use1V1.NewValue
-                                                                         ? $"{colour} player".ToUpperInvariant()
-                                                                         : $"Team {colour}".ToUpperInvariant(),
+            ladder.Use1V1Mode.BindValueChanged(use1V1 => InnerText.Text = use1V1.NewValue
+                    ? $"{colour} player".ToUpperInvariant()
+                    : $"Team {colour}".ToUpperInvariant(),
                 true);
         }
     }

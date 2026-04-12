@@ -8,9 +8,19 @@ namespace osu.Game.Tournament.Models
     public class RoundBeatmap
     {
         public int ID;
+        public string ModIndex = string.Empty;
         public string MD5 = string.Empty;
         public string Mods = string.Empty;
         public string SlotName = string.Empty;
+
+        public string DifficultyField = string.Empty;
+
+        public double? StarRatingWithMod;
+        public int MaxCombo;
+
+        // Board view specific
+        public int BoardX = -1;
+        public int BoardY = -1;
 
         [JsonProperty("BeatmapInfo")]
         public TournamentBeatmap? Beatmap;

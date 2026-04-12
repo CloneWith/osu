@@ -54,6 +54,11 @@ namespace osu.Game.Tournament.Models
         [JsonConverter(typeof(LastYearPlacingConverter))]
         public Bindable<string> LastYearPlacing = new Bindable<string>(@"N/A");
 
+        /// <summary>
+        /// The team's rating information.
+        /// </summary>
+        public RatingInfo Ratings { get; set; } = new RatingInfo();
+
         [JsonProperty]
         public BindableList<TournamentUser> Players { get; } = new BindableList<TournamentUser>();
 

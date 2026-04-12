@@ -16,7 +16,7 @@ namespace osu.Game.Tournament.Screens.Ladder
 
         public override bool ReceivePositionalInputAt(Vector2 screenSpacePos) => true;
 
-         public Action? TargetChanged;
+        public Action? TargetChanged;
         public Action? ScaleChanged;
 
         private Vector2 targetPosition;

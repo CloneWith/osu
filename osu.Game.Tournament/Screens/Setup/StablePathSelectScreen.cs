@@ -13,8 +13,9 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
-using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.IPC;
+using osu.Game.Tournament.Localisation.Screens;
 using osuTK;
 
 namespace osu.Game.Tournament.Screens.Setup
@@ -31,7 +32,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         private OsuDirectorySelector directorySelector = null!;
-        private DialogOverlay? overlay;
+        private DialogOverlay? dialogOverlay;
 
         [BackgroundDependencyLoader(true)]
         private void load(Storage storage, OsuColour colours)
@@ -73,8 +74,8 @@ namespace osu.Game.Tournament.Screens.Setup
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        Text = "Please select a new location",
-                                        Font = OsuFont.Default.With(size: 40)
+                                        Text = StablePathSelectStrings.PathSelectTitle,
+                                        Font = OsuFont.Default.With(size: 40),
                                     },
                                 },
                                 new Drawable[]
@@ -99,16 +100,16 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 300,
-                                                Text = "Select stable path",
-                                                Action = ChangePath
+                                                Text = StablePathSelectStrings.SelectStablePath,
+                                                Action = ChangePath,
                                             },
                                             new RoundedButton
                                             {
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 Width = 300,
-                                                Text = "Auto detect",
-                                                Action = AutoDetect
+                                                Text = StablePathSelectStrings.AutoDetect,
+                                                Action = AutoDetect,
                                             },
                                         }
                                     }
@@ -122,8 +123,9 @@ namespace osu.Game.Tournament.Screens.Setup
                     Anchor = Anchor.BottomLeft,
                     Origin = Anchor.BottomLeft,
                     State = { Value = Visibility.Visible },
-                    Action = () => sceneManager?.SetScreen(typeof(SetupScreen))
-                }
+                    Action = () => sceneManager?.SetScreen(typeof(SetupScreen)),
+                },
+                dialogOverlay = new DialogOverlay(),
             });
         }
 
@@ -135,9 +137,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
             if (!fileBasedIpc?.SetIPCLocation(target) ?? true)
             {
-                overlay = new DialogOverlay();
-                overlay.Push(new IPCErrorDialog("This is an invalid IPC Directory", "Select a directory that contains an osu! stable cutting edge installation and make sure it has an empty ipc.txt file in it."));
-                AddInternal(overlay);
+                dialogOverlay?.Push(new IPCErrorDialog(StablePathSelectStrings.InvalidDirectoryTitle, StablePathSelectStrings.InvalidDirectoryText));
                 Logger.Log("Folder is not an osu! stable CE directory");
                 return;
             }
@@ -151,9 +151,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
             if (!fileBasedIpc?.AutoDetectIPCLocation() ?? true)
             {
-                overlay = new DialogOverlay();
-                overlay.Push(new IPCErrorDialog("Failed to auto detect", "An osu! stable cutting-edge installation could not be auto detected.\nPlease try and manually point to the directory."));
-                AddInternal(overlay);
+                dialogOverlay?.Push(new IPCErrorDialog(StablePathSelectStrings.DetectFailureTitle, StablePathSelectStrings.DetectFailureText));
             }
             else
             {

@@ -21,7 +21,6 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Models;
 using osu.Game.Online.API;
 using osu.Game.Rulesets;
-using osu.Game.Screens.Menu;
 using osu.Game.Tournament.Models;
 using osu.Game.Utils;
 using osuTK;
@@ -164,6 +163,8 @@ namespace osu.Game.Tournament.Components
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Full,
+                    LayoutEasing = Easing.OutQuint,
+                    LayoutDuration = 300,
                     Anchor = Anchor.BottomRight,
                     Origin = Anchor.BottomRight,
 
@@ -240,7 +241,7 @@ namespace osu.Game.Tournament.Components
                                                         RelativeSizeAxes = Axes.Both,
                                                         Alpha = 0.1f,
                                                     },
-                                                    new OsuLogo
+                                                    new FumoLogo("header-logo")
                                                     {
                                                         Triangles = false,
                                                         Scale = new Vector2(0.08f),

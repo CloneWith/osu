@@ -12,6 +12,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.UserInterface;
 
 namespace osu.Game.Overlays.Settings
 {
@@ -55,7 +56,8 @@ namespace osu.Game.Overlays.Settings
             }
         }
 
-        public SidebarIconButton()
+        public SidebarIconButton(HoverSampleSet? hoverSounds = HoverSampleSet.ButtonSidebar)
+            : base(hoverSounds)
         {
             RelativeSizeAxes = Axes.X;
             Height = 46;

@@ -113,7 +113,6 @@ namespace osu.Game.Screens.Select
                     {
                         RelativeSizeAxes = Axes.Both,
                         ScrollbarVisible = false,
-                        Shear = OsuGame.SHEAR,
                         Child = scoresContainer = new Container
                         {
                             RelativeSizeAxes = Axes.X,
@@ -122,7 +121,7 @@ namespace osu.Game.Screens.Select
                             {
                                 Top = 5,
                                 // Left padding offsets the shear to create a visually appealing list display.
-                                Left = 80f,
+                                Left = 20f,
                                 // Bottom padding ensures the last entry's full width is displayed
                                 // (ie it is fully on screen after shear is considered).
                                 Bottom = BeatmapLeaderboardScore.HEIGHT * 3
@@ -135,7 +134,6 @@ namespace osu.Game.Screens.Select
                         Origin = Anchor.BottomLeft,
                         RelativeSizeAxes = Axes.X,
                         Height = personal_best_height,
-                        Shear = OsuGame.SHEAR,
                         Margin = new MarginPadding
                         {
                             Left = -40f,

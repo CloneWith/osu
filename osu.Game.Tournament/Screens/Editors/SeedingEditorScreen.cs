@@ -2,17 +2,23 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Linq;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
+using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -24,10 +30,18 @@ namespace osu.Game.Tournament.Screens.Editors
 
         protected override BindableList<SeedingResult> Storage => team.SeedingResults;
 
+        [Resolved]
+        private TournamentGameBase? tournamentGame { get; set; }
+
+        private const float shared_relative_width = 0.15f;
+
         public SeedingEditorScreen(TournamentTeam team, TournamentScreen parentScreen)
             : base(parentScreen)
         {
             this.team = team;
+
+            FetchAction = fetchAll => Task.Run(() => tournamentGame?.AddSeedingBeatmaps(fetchAll))
+                                          .ContinueWith(_ => Scheduler.Add(RefreshFlow));
         }
 
         public partial class SeedingResultRow : CompositeDrawable, IModelBacked<SeedingResult>
@@ -43,7 +57,7 @@ namespace osu.Game.Tournament.Screens.Editors
 
                 SeedingBeatmapEditor beatmapEditor = new SeedingBeatmapEditor(round)
                 {
-                    Width = 0.95f
+                    Width = 0.98f
                 };
 
                 InternalChildren = new Drawable[]
@@ -56,48 +70,50 @@ namespace osu.Game.Tournament.Screens.Editors
                     new FillFlowContainer
                     {
                         Margin = new MarginPadding(5),
-                        Padding = new MarginPadding { Right = 160 },
-                        Spacing = new Vector2(5),
+                        Spacing = new Vector2(10),
                         Direction = FillDirection.Full,
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Children = new Drawable[]
                         {
-                            new SettingsTextBox
+                            new SectionHeader(TeamEditorStrings.SeedingEntryHeader),
+                            new FormTextBox
                             {
-                                LabelText = "Mod",
+                                Caption = BaseStrings.BeatmapMod,
                                 Width = 0.33f,
-                                Current = Model.Mod
+                                Current = Model.Mod,
                             },
-                            new SettingsSlider<int>
+                            new FormSliderBar<int>
                             {
-                                LabelText = "Seed",
+                                Caption = BaseStrings.Seed,
                                 Width = 0.33f,
-                                Current = Model.Seed
+                                Current = Model.Seed,
                             },
                             new SettingsButton
                             {
                                 Width = 0.2f,
                                 Margin = new MarginPadding(10),
-                                Text = "Add beatmap",
-                                Action = beatmapEditor.CreateNew
+                                Text = BaseStrings.AddBeatmap,
+                                Action = () => beatmapEditor.CreateNew(),
                             },
-                            beatmapEditor
+                            beatmapEditor,
                         }
                     },
-                    new DangerousSettingsButton
+                    new IconButton
                     {
-                        Anchor = Anchor.CentreRight,
-                        Origin = Anchor.CentreRight,
+                        Anchor = Anchor.TopRight,
+                        Origin = Anchor.TopRight,
                         RelativeSizeAxes = Axes.None,
-                        Width = 150,
-                        Text = "Delete result",
+                        Icon = FontAwesome.Solid.TimesCircle,
+                        IconScale = new Vector2(1.75f),
+                        Size = new Vector2(60),
+                        TooltipText = BaseStrings.Remove,
                         Action = () =>
                         {
                             Expire();
                             team.SeedingResults.Remove(Model);
                         },
-                    }
+                    },
                 };
 
                 RelativeSizeAxes = Axes.X;
@@ -118,11 +134,15 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     InternalChild = flow = new FillFlowContainer
                     {
+                        Margin = new MarginPadding(5),
+                        Spacing = new Vector2(10),
                         RelativeSizeAxes = Axes.X,
                         AutoSizeAxes = Axes.Y,
                         Direction = FillDirection.Vertical,
-                        ChildrenEnumerable = round.Beatmaps.Select(p => new SeedingBeatmapRow(round, p))
+                        Child = new SectionHeader(TeamEditorStrings.SeedingBeatmapsHeader),
                     };
+
+                    flow.AddRange(round.Beatmaps.Select(p => new SeedingBeatmapRow(round, p)));
                 }
 
                 public void CreateNew()
@@ -144,7 +164,7 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     private readonly Bindable<string> score = new Bindable<string>(string.Empty);
 
-                    private readonly Container drawableContainer;
+                    private readonly Container mapCardContainer;
 
                     public SeedingBeatmapRow(SeedingResult result, SeedingBeatmap beatmap)
                     {
@@ -168,47 +188,57 @@ namespace osu.Game.Tournament.Screens.Editors
                             },
                             new FillFlowContainer
                             {
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft,
                                 Margin = new MarginPadding(5),
-                                Padding = new MarginPadding { Right = 160 },
+                                // Padding = new MarginPadding { Right = 160 },
                                 Spacing = new Vector2(5),
                                 Direction = FillDirection.Horizontal,
-                                AutoSizeAxes = Axes.Both,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
                                 Children = new Drawable[]
                                 {
                                     new SettingsNumberBox
                                     {
-                                        LabelText = "Beatmap ID",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        LabelText = BaseStrings.BeatmapID,
+                                        Width = shared_relative_width,
                                         Current = beatmapId,
                                     },
                                     new SettingsSlider<int>
                                     {
-                                        LabelText = "Seed",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 200,
-                                        Current = beatmap.Seed
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        LabelText = BaseStrings.Seed,
+                                        Width = shared_relative_width,
+                                        Current = beatmap.Seed,
                                     },
                                     new SettingsTextBox
                                     {
-                                        LabelText = "Score",
-                                        RelativeSizeAxes = Axes.None,
-                                        Width = 200,
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        LabelText = BaseStrings.Score,
+                                        Width = shared_relative_width,
                                         Current = score,
                                     },
-                                    drawableContainer = new Container
+                                    mapCardContainer = new Container
                                     {
-                                        Size = new Vector2(100, 70),
+                                        Anchor = Anchor.CentreLeft,
+                                        Origin = Anchor.CentreLeft,
+                                        Size = new Vector2(1.5f, 1f),
                                     },
                                 }
                             },
-                            new DangerousSettingsButton
+                            new IconButton
                             {
                                 Anchor = Anchor.CentreRight,
                                 Origin = Anchor.CentreRight,
                                 RelativeSizeAxes = Axes.None,
-                                Width = 150,
-                                Text = "Delete Beatmap",
+                                Icon = FontAwesome.Solid.TimesCircle,
+                                IconScale = new Vector2(1.25f),
+                                Size = new Vector2(45),
+                                Margin = new MarginPadding { Right = 10 },
                                 Action = () =>
                                 {
                                     Expire();
@@ -221,7 +251,7 @@ namespace osu.Game.Tournament.Screens.Editors
                     [BackgroundDependencyLoader]
                     private void load()
                     {
-                        beatmapId.Value = Model.ID;
+                        beatmapId.Default = beatmapId.Value = Model.ID;
                         beatmapId.BindValueChanged(id =>
                         {
                             Model.ID = id.NewValue ?? 0;
@@ -252,21 +282,21 @@ namespace osu.Game.Tournament.Screens.Editors
                             API.Queue(req);
                         }, true);
 
-                        score.Value = Model.Score.ToString();
+                        score.Default = score.Value = Model.Score.ToString();
                         score.BindValueChanged(str => long.TryParse(str.NewValue, out Model.Score));
                     }
 
                     private void updatePanel()
                     {
-                        drawableContainer.Clear();
+                        mapCardContainer.Clear();
 
                         if (Model.Beatmap != null)
                         {
-                            drawableContainer.Child = new TournamentBeatmapPanel(Model.Beatmap, result.Mod.Value)
+                            mapCardContainer.Child = new TournamentBeatmapPanel(Model.Beatmap, result.Mod.Value)
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Width = 300
+                                RelativeSizeAxes = Axes.Both
                             };
                         }
                     }

@@ -84,6 +84,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             }
         }
 
+        // TODO: Remove duplicate
         private bool showMatchRound = true;
 
         public bool ShowMatchRound
@@ -96,6 +97,23 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
                     return;
 
                 showMatchRound = value;
+
+                if (IsLoaded)
+                    updateDisplay();
+            }
+        }
+
+        private bool showRound = true;
+
+        public bool ShowRound
+        {
+            get => showRound;
+            set
+            {
+                if (value == showRound)
+                    return;
+
+                showRound = value;
 
                 if (IsLoaded)
                     updateDisplay();
@@ -135,7 +153,8 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            Scale = new Vector2(0.4f)
+                            Scale = new Vector2(0.4f),
+                            Alpha = showRound ? 1 : 0
                         },
                         cumulativeScoreDiffCounterContainer = new FillFlowContainer
                         {
@@ -259,7 +278,9 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             cumulativeScoreDiffCounterContainer.FadeTo(showScores && useCumulativeScore.Value ? 1 : 0, 200);
 
             logo.Alpha = showLogo ? 1 : 0;
-            roundDisplay.Alpha = showMatchRound ? 1 : 0;
+
+            if (!showRound) roundDisplay.FadeOut(duration: 200, easing: Easing.OutCubic);
+            else roundDisplay.FadeIn(duration: 200, easing: Easing.InCubic);
         }
     }
 }

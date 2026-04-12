@@ -13,9 +13,11 @@ using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IPC;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Gameplay;
 using osu.Game.Tournament.Screens.Gameplay.Components;
@@ -80,7 +82,7 @@ namespace osu.Game.Tournament.Screens.MapPool
         {
             InternalChildren = new Drawable[]
             {
-                new TourneyVideo("mappool")
+                new TourneyBackground(BackgroundType.MapPool)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
@@ -172,15 +174,16 @@ namespace osu.Game.Tournament.Screens.MapPool
                         }
                     }
                 },
-
-                // currentMapIndicator = new SpriteIcon
-                // {
-                //     Icon = FontAwesome.Solid.AngleDoubleRight,
-                //     Width = 16f,
-                //     Height = 16f,
-                //     Alpha = 0
-                // },
-                new ControlPanel
+                new EmptyBox
+                {
+                    Name = "chat Background",
+                    Anchor = Anchor.BottomLeft,
+                    Origin = Anchor.BottomLeft,
+                    RelativeSizeAxes = Axes.X,
+                    Alpha = 0.8f,
+                    Height = 144,
+                },
+                new ControlPanel(true)
                 {
                     Children = new Drawable[]
                     {
@@ -231,13 +234,20 @@ namespace osu.Game.Tournament.Screens.MapPool
                         new TourneyButton
                         {
                             RelativeSizeAxes = Axes.X,
-                            Text = "Reset",
+                            Text = BaseStrings.Refresh,
+                            BackgroundColour = Color4.Orange,
+                            Action = updatePoolDisplay
+                        },
+                        new TourneyButton
+                        {
+                            RelativeSizeAxes = Axes.X,
+                            Text = BaseStrings.Reset,
                             Action = reset
                         },
                         new ControlPanel.Spacer(),
-                        new OsuCheckbox
+                        new LabelledSwitchButton
                         {
-                            LabelText = "Split display by mods",
+                            Label = "Split by mods",
                             Current = LadderInfo.SplitMapPoolByMods,
                         },
                     },
@@ -449,10 +459,10 @@ namespace osu.Game.Tournament.Screens.MapPool
             if (set != null)
             {
                 set.Winner = e.Button == MouseButton.Middle
-                                 ? null
-                                 : e.Button == MouseButton.Left
-                                     ? TeamColour.Red
-                                     : TeamColour.Blue;
+                    ? null
+                    : e.Button == MouseButton.Left
+                        ? TeamColour.Red
+                        : TeamColour.Blue;
                 return true;
             }
 
@@ -495,7 +505,7 @@ namespace osu.Game.Tournament.Screens.MapPool
             {
                 Team = pickColour,
                 Type = pickType,
-                BeatmapID = beatmapId
+                BeatmapID = beatmapId,
             });
 
             updateSets();
@@ -544,10 +554,10 @@ namespace osu.Game.Tournament.Screens.MapPool
 
                 // index `(TiebreakerSetIndex + 1) * 2` should be the 3rd map of the last set
                 var setSlotBindable = currentSet.IsTiebreaker && pickIndex == (TiebreakerSetIndex + 1) * 2
-                                          ? currentSet.Map3Id
-                                          : setSlot == 0
-                                              ? currentSet.Map1Id
-                                              : currentSet.Map2Id;
+                    ? currentSet.Map3Id
+                    : setSlot == 0
+                        ? currentSet.Map1Id
+                        : currentSet.Map2Id;
 
                 if (setSlotBindable.Value != picks[pickIndex].BeatmapID)
                 {
@@ -651,7 +661,7 @@ namespace osu.Game.Tournament.Screens.MapPool
                         currentMods = b.Mods;
                     }
 
-                    currentFlow.Add(new TournamentBeatmapPanel(b.Beatmap, b.Mods)
+                    currentFlow.Add(new TournamentBeatmapPanel(b.Beatmap, b.Mods, b.ModIndex)
                     {
                         Anchor = Anchor.TopCentre,
                         Origin = Anchor.TopCentre,

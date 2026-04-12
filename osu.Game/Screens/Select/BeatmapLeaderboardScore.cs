@@ -128,7 +128,7 @@ namespace osu.Game.Screens.Select
             return inputRectangle.Contains(ToLocalSpace(screenSpacePos));
         }
 
-        public BeatmapLeaderboardScore(ScoreInfo score, bool sheared = true)
+        public BeatmapLeaderboardScore(ScoreInfo score, bool sheared = false)
         {
             Score = score;
 
