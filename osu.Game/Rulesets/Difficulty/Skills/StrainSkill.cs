@@ -64,16 +64,21 @@ namespace osu.Game.Rulesets.Difficulty.Skills
             ObjectStrains.Add(strain);
         }
 
+        public virtual double CountTopWeightedStrains()
+        {
+            return CountTopWeightedStrains(DifficultyValue());
+        }
+
         /// <summary>
         /// Calculates the number of strains weighted against the top strain.
         /// The result is scaled by clock rate as it affects the total number of strains.
         /// </summary>
-        public virtual double CountTopWeightedStrains()
+        public virtual double CountTopWeightedStrains(double difficultyValue)
         {
             if (ObjectStrains.Count == 0)
                 return 0.0;
 
-            double consistentTopStrain = DifficultyValue() / 10; // What would the top strain be if all strain values were identical
+            double consistentTopStrain = difficultyValue / 10; // What would the top strain be if all strain values were identical
 
             if (consistentTopStrain == 0)
                 return ObjectStrains.Count;

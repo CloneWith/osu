@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics;
@@ -12,13 +13,15 @@ using osuTK;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Sample;
+using osu.Framework.Extensions;
 using osu.Framework.Graphics.Cursor;
 using osu.Framework.Localisation;
+using osu.Game.Extensions;
 using osu.Game.Graphics.Containers;
 
 namespace osu.Game.Overlays
 {
-    public partial class OverlayRulesetTabItem : TabItem<RulesetInfo>, IHasTooltip
+    public partial class OverlayRulesetTabItem : TabItem<RulesetInfo>, IHasTooltip, IHasPopover
     {
         private Color4 accentColour;
 
@@ -39,13 +42,17 @@ namespace osu.Game.Overlays
 
         private readonly Drawable icon;
 
-        public LocalisableString TooltipText => Value.Name;
+        public LocalisableString TooltipText => !Value.HasSpecialRuleset() ? Value.Name : string.Empty;
 
         private Sample selectSample = null!;
 
-        public OverlayRulesetTabItem(RulesetInfo value)
+        private readonly OverlayRulesetSelector overlayRulesetSelector;
+
+        public OverlayRulesetTabItem(RulesetInfo value, OverlayRulesetSelector overlayRulesetSelector)
             : base(value)
         {
+            this.overlayRulesetSelector = overlayRulesetSelector;
+
             AutoSizeAxes = Axes.Both;
 
             AddRangeInternal(new Drawable[]
@@ -87,6 +94,7 @@ namespace osu.Game.Overlays
         {
             base.OnHover(e);
             updateState();
+            this.ShowPopover();
             return true;
         }
 
@@ -107,6 +115,17 @@ namespace osu.Game.Overlays
             AccentColour = Enabled.Value ? getActiveColour() : colourProvider.Foreground1;
         }
 
-        private Color4 getActiveColour() => IsHovered || Active.Value ? Color4.White : colourProvider.Highlight1;
+        protected bool IsActive => IsHovered || Active.Value;
+
+        protected bool IsCurrentRuleset => Value == null || overlayRulesetSelector.Current.Value == null || !Value.HasSpecialRuleset()
+            ? IsActive
+            : overlayRulesetSelector.Current.Value.CreateNormalRuleset().Equals(Value);
+
+        private Color4 getActiveColour() => IsActive || IsCurrentRuleset ? Color4.White : colourProvider.Highlight1;
+
+        public Popover? GetPopover()
+        {
+            return Value.HasSpecialRuleset() ? new RulesetsPopover(Value, overlayRulesetSelector) : null;
+        }
     }
 }

@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -55,10 +56,9 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             var aimWithoutSliders = skills.OfType<Aim>().Single(a => !a.IncludeSliders);
             var speed = skills.OfType<Speed>().Single();
             var flashlight = skills.OfType<Flashlight>().SingleOrDefault();
+            var relax = skills.OfType<Relax>().SingleOrDefault();
 
             double speedNotes = speed.RelevantNoteCount();
-
-            double aimDifficultStrainCount = aim.CountTopWeightedStrains();
             double speedDifficultStrainCount = speed.CountTopWeightedStrains();
 
             double aimNoSlidersTopWeightedSliderCount = aimWithoutSliders.CountTopWeightedSliders();
@@ -83,11 +83,22 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             double drainRate = beatmap.Difficulty.DrainRate;
 
             double aimDifficultyValue = aim.DifficultyValue();
+
+            if (relax is not null)
+            {
+                aimDifficultyValue = relax.DifficultyValue();
+                difficultSliders = relax.GetDifficultSliders();
+            }
+
+            double aimDifficultStrainCount = aim.CountTopWeightedStrains(aimDifficultyValue);
+
             double aimNoSlidersDifficultyValue = aimWithoutSliders.DifficultyValue();
             double speedDifficultyValue = speed.DifficultyValue();
 
             double mechanicalDifficultyRating = calculateMechanicalDifficultyRating(aimDifficultyValue, speedDifficultyValue);
-            double sliderFactor = aimDifficultyValue > 0 ? OsuRatingCalculator.CalculateDifficultyRating(aimNoSlidersDifficultyValue) / OsuRatingCalculator.CalculateDifficultyRating(aimDifficultyValue) : 1;
+            double sliderFactor = aimDifficultyValue > 0
+                ? OsuRatingCalculator.CalculateDifficultyRating(aimNoSlidersDifficultyValue) / OsuRatingCalculator.CalculateDifficultyRating(aimDifficultyValue)
+                : 1;
 
             var osuRatingCalculator = new OsuRatingCalculator(mods, totalHits, approachRate, overallDifficulty, mechanicalDifficultyRating, sliderFactor);
 
@@ -189,6 +200,9 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             if (mods.Any(h => h is OsuModFlashlight))
                 skills.Add(new Flashlight(mods));
 
+            if (mods.Any(h => h is OsuModRelax))
+                skills.Add(new Relax(mods, true));
+
             return skills.ToArray();
         }
 
@@ -199,6 +213,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             new OsuModHalfTime(),
             new OsuModEasy(),
             new OsuModHardRock(),
+            new OsuModRelax(),
             new OsuModFlashlight(),
             new OsuModHidden(),
         };

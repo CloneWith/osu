@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics;
@@ -19,7 +20,7 @@ namespace osu.Game.Overlays
             AutoSizeAxes = Axes.Both;
         }
 
-        protected override TabItem<RulesetInfo> CreateTabItem(RulesetInfo value) => new OverlayRulesetTabItem(value);
+        protected override TabItem<RulesetInfo> CreateTabItem(RulesetInfo value) => new OverlayRulesetTabItem(value, this);
 
         protected override TabFillFlowContainer CreateTabFlow() => new TabFillFlowContainer
         {

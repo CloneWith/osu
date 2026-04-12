@@ -3,10 +3,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Authors>ppy Pty Ltd, GooGuTeam</Authors>
+    <Description>Orginal Copyright: Copyright (c) 2026 ppy Pty Ltd
+Orginal code from: https://github.com/ppy/osu
+Modified by GooGuTeam</Description>
+    <Copyright>Copyright (c) 2026 ppy Pty Ltd, GooGuTeam</Copyright>
+    <PackageProjectUrl>https://github.com/GooGuTeam/osu</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/GooGuTeam/osu</RepositoryUrl>
+    <PackageReleaseNotes>Orginal Copyright: Copyright (c) 2026 ppy Pty Ltd
+Modified by GooGuTeam</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Label="Nuget">
     <Title>osu!</Title>
-    <PackageId>ppy.osu.Game</PackageId>
+    <PackageId>g0v0.osu.Game</PackageId>
     <Version>0.0.0</Version>
     <PackageIcon>icon.png</PackageIcon>
     <IsPackable>true</IsPackable>

@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -40,9 +41,6 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             if (mods.Any(m => m is OsuModTouchDevice))
                 aimRating = Math.Pow(aimRating, 0.8);
 
-            if (mods.Any(m => m is OsuModRelax))
-                aimRating *= 0.9;
-
             if (mods.Any(m => m is OsuModMagnetised))
             {
                 float magnetisedStrength = mods.OfType<OsuModMagnetised>().First().AttractionStrength.Value;
@@ -55,13 +53,21 @@ namespace osu.Game.Rulesets.Osu.Difficulty
                                              (totalHits > 2000 ? Math.Log10(totalHits / 2000.0) * 0.5 : 0.0);
 
             double approachRateFactor = 0.0;
-            if (approachRate > 10.33)
-                approachRateFactor = 0.3 * (approachRate - 10.33);
-            else if (approachRate < 8.0)
-                approachRateFactor = 0.05 * (8.0 - approachRate);
 
-            if (mods.Any(h => h is OsuModRelax))
-                approachRateFactor = 0.0;
+            switch (approachRate)
+            {
+                case > 10.33:
+                    approachRateFactor = 0.3 * (approachRate - 10.33);
+                    break;
+
+                // R* Low AR Override from Akatsuki
+                case < 8.0:
+                {
+                    double lowArFactorBase = mods.Any(h => h is OsuModRelax) ? 0.025 : 0.05;
+                    approachRateFactor = lowArFactorBase * (8.0 - approachRate);
+                    break;
+                }
+            }
 
             ratingMultiplier += approachRateFactor * approachRateLengthBonus; // Buff for longer maps with high AR.
 
@@ -186,11 +192,19 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             // NOTE: TC's effect is only noticeable in performance calculations until lazer mods are accounted for server-side.
             bool isAlwaysPartiallyVisible = mods.OfType<OsuModHidden>().Any(m => m.OnlyFadeApproachCircles.Value) || mods.OfType<OsuModTraceable>().Any();
 
+            bool isRelax = mods.OfType<OsuModRelax>().Any();
+
             // Start from normal curve, rewarding lower AR up to AR7
-            // TC forcefully requires a lower reading bonus for now as it's post-applied in PP which makes it multiplicative with the regular AR bonuses
-            // This means it has an advantage over HD, so we decrease the multiplier to compensate
-            // This should be removed once we're able to apply TC bonuses in SR (depends on real-time difficulty calculations being possible)
-            double readingBonus = (isAlwaysPartiallyVisible ? 0.025 : 0.04) * (12.0 - Math.Max(approachRate, 7));
+            double readingBonus;
+
+            if (isRelax)
+            {
+                readingBonus = 0.05 * (11.0 - Math.Max(approachRate, 7));
+            }
+            else
+            {
+                readingBonus = (isAlwaysPartiallyVisible ? 0.025 : 0.04) * (12.0 - Math.Max(approachRate, 7));
+            }
 
             readingBonus *= visibilityFactor;
 

@@ -1,9 +1,14 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Linq;
 using JetBrains.Annotations;
+using osu.Game.Extensions;
 using osu.Game.Rulesets.Difficulty;
+using osu.Game.Rulesets.Mods;
+using osu.Game.Scoring;
 using Realms;
 
 namespace osu.Game.Rulesets
@@ -11,6 +16,21 @@ namespace osu.Game.Rulesets
     [MapTo("Ruleset")]
     public class RulesetInfo : RealmObject, IEquatable<RulesetInfo>, IComparable<RulesetInfo>, IRulesetInfo
     {
+        public const string OSU_MODE_SHORTNAME = "osu";
+        public const string TAIKO_MODE_SHORTNAME = "taiko";
+        public const string CATCH_MODE_SHORTNAME = "fruits";
+
+        // https://github.com/GooGuTeam/g0v0-server/blob/main/README.en.md#supported-rulesets
+        public const string OSU_RELAX_MODE_SHORTNAME = "osurx";
+        public const string OSU_AUTOPILOT_MODE_SHORTNAME = "osuap";
+        public const string TAIKO_RELAX_MODE_SHORTNAME = "taikorx";
+        public const string CATCH_RELAX_MODE_SHORTNAME = "fruitsrx";
+
+        public const int OSU_RELAX_ONLINE_ID = 4;
+        public const int OSU_AUTOPILOT_ONLINE_ID = 5;
+        public const int TAIKO_RELAX_ONLINE_ID = 6;
+        public const int CATCH_RELAX_ONLINE_ID = 7;
+
         [PrimaryKey]
         public string ShortName { get; set; } = string.Empty;
 
@@ -114,6 +134,50 @@ namespace osu.Game.Rulesets
             // ruleset.RulesetInfo = this;
 
             return ruleset;
+        }
+
+        public RulesetInfo CreateSpecialRuleset(string newShortName, int onlineId)
+        {
+            string suffix = newShortName[^2..].ToUpperInvariant();
+
+            var newRuleset = Clone();
+            newRuleset.OnlineID = onlineId;
+            newRuleset.ShortName = newShortName;
+            newRuleset.Name = $"{newRuleset.Name} ({suffix})";
+            return newRuleset;
+        }
+
+        public RulesetInfo? CreateSpecialRulesetByScore(ScoreInfo score)
+        {
+            if (!score.Ruleset.HasSpecialRuleset()) { return null; }
+
+            return score.Ruleset.ShortName switch
+            {
+                OSU_MODE_SHORTNAME when score.Mods.OfType<ModRelax>().Any() => CreateSpecialRuleset(OSU_RELAX_MODE_SHORTNAME, OSU_RELAX_ONLINE_ID),
+                OSU_MODE_SHORTNAME when score.APIMods.Any(m => m.Acronym == "AP") => CreateSpecialRuleset(OSU_AUTOPILOT_MODE_SHORTNAME, OSU_AUTOPILOT_ONLINE_ID),
+                TAIKO_MODE_SHORTNAME when score.Mods.OfType<ModRelax>().Any() => CreateSpecialRuleset(TAIKO_RELAX_MODE_SHORTNAME, TAIKO_RELAX_ONLINE_ID),
+                CATCH_MODE_SHORTNAME when score.Mods.OfType<ModRelax>().Any() => CreateSpecialRuleset(CATCH_RELAX_MODE_SHORTNAME, CATCH_RELAX_ONLINE_ID),
+                _ => null
+            };
+        }
+
+        public RulesetInfo CreateNormalRuleset()
+        {
+            string baseShortName = ShortName.Length > 4 ? ShortName[..^2] : ShortName;
+
+            var newRuleset = Clone();
+            newRuleset.OnlineID = OnlineID switch
+            {
+                OSU_RELAX_ONLINE_ID or OSU_AUTOPILOT_ONLINE_ID => 0,
+                TAIKO_RELAX_ONLINE_ID => 1,
+                CATCH_RELAX_ONLINE_ID => 2,
+                _ => OnlineID,
+            };
+            newRuleset.ShortName = baseShortName;
+            newRuleset.Name = newRuleset.Name.Contains('(')
+                ? newRuleset.Name[..newRuleset.Name.LastIndexOf(" (", StringComparison.Ordinal)]
+                : newRuleset.Name;
+            return newRuleset;
         }
     }
 }

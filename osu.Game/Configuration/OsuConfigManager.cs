@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -90,6 +91,8 @@ namespace osu.Game.Configuration
                     SetValue(OsuSetting.SavePassword, false);
                 }
             };
+
+            SetDefault(OsuSetting.CustomApiUrl, string.Empty);
 
             SetDefault(OsuSetting.ExternalLinkWarning, true);
             SetDefault(OsuSetting.PreferNoVideo, false);
@@ -230,6 +233,9 @@ namespace osu.Game.Configuration
 
             SetDefault(OsuSetting.EditorSubmissionNotifyOnDiscussionReplies, true);
             SetDefault(OsuSetting.EditorSubmissionLoadInBrowserAfterSubmission, true);
+
+            // GU specific settings
+            SetDefault(OsuSetting.DisableAutomaticUpdates, false);
 
             SetDefault(OsuSetting.WasSupporter, false);
 
@@ -491,7 +497,17 @@ namespace osu.Game.Configuration
 
         AutomaticallyAdjustBeatmapOffset,
 
+        /// <summary>
+        /// Custom API endpoint URL.
+        /// </summary>
+        CustomApiUrl,
+
         DashboardSortMode,
         DashboardDisplayStyle,
+
+        /// <summary>
+        /// Disables automatic updates for the GU version.
+        /// </summary>
+        DisableAutomaticUpdates
     }
 }

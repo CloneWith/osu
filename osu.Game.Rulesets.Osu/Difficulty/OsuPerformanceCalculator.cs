@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -52,6 +53,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         private double mehHitWindow;
         private double overallDifficulty;
         private double approachRate;
+        private double circleSize;
 
         private double? speedDeviation;
 
@@ -67,6 +69,8 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         {
             var osuAttributes = (OsuDifficultyAttributes)attributes;
 
+            bool isRelax = score.Mods.Any(m => m is OsuModRelax);
+
             usingClassicSliderAccuracy = score.Mods.OfType<OsuModClassic>().Any(m => m.NoSliderHeadAccuracy.Value);
             usingScoreV2 = score.Mods.Any(m => m is ModScoreV2);
 
@@ -81,6 +85,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             effectiveMissCount = countMiss;
 
             var difficulty = score.BeatmapInfo!.Difficulty.Clone();
+            float originalApproachRate = difficulty.ApproachRate;
 
             score.Mods.OfType<IApplicableToDifficulty>().ForEach(m => m.ApplyToDifficulty(difficulty));
 
@@ -95,6 +100,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
 
             approachRate = OsuDifficultyCalculator.CalculateRateAdjustedApproachRate(difficulty.ApproachRate, clockRate);
             overallDifficulty = OsuDifficultyCalculator.CalculateRateAdjustedOverallDifficulty(difficulty.OverallDifficulty, clockRate);
+            circleSize = difficulty.CircleSize;
 
             double comboBasedEstimatedMissCount = calculateComboBasedEstimatedMissCount(osuAttributes);
             double? scoreBasedEstimatedMissCount = null;
@@ -123,24 +129,18 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             if (score.Mods.Any(m => m is OsuModSpunOut) && totalHits > 0)
                 multiplier *= 1.0 - Math.Pow((double)osuAttributes.SpinnerCount / totalHits, 0.85);
 
-            if (score.Mods.Any(h => h is OsuModRelax))
-            {
-                // https://www.desmos.com/calculator/vspzsop6td
-                // we use OD13.3 as maximum since it's the value at which great hitwidow becomes 0
-                // this is well beyond currently maximum achievable OD which is 12.17 (DTx2 + DA with OD11)
-                double okMultiplier = 0.75 * Math.Max(0.0, overallDifficulty > 0.0 ? 1 - overallDifficulty / 13.33 : 1.0);
-                double mehMultiplier = Math.Max(0.0, overallDifficulty > 0.0 ? 1 - Math.Pow(overallDifficulty / 13.33, 5) : 1.0);
-
-                // As we're adding Oks and Mehs to an approximated number of combo breaks the result can be higher than total hits in specific scenarios (which breaks some calculations) so we need to clamp it.
-                effectiveMissCount = Math.Min(effectiveMissCount + countOk * okMultiplier + countMeh * mehMultiplier, totalHits);
-            }
-
             speedDeviation = calculateSpeedDeviation(osuAttributes);
 
-            double aimValue = computeAimValue(score, osuAttributes);
+            double aimValue = computeAimValue(score, osuAttributes, isRelax, (approachRate / originalApproachRate) >= ModEasy.ADJUST_RATIO);
             double speedValue = computeSpeedValue(score, osuAttributes);
             double accuracyValue = computeAccuracyValue(score, osuAttributes);
             double flashlightValue = computeFlashlightValue(score, osuAttributes);
+
+            if (isRelax)
+            {
+                aimValue *= 1.715;
+                accuracyValue *= 1.52;
+            }
 
             double totalValue =
                 Math.Pow(
@@ -166,7 +166,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             };
         }
 
-        private double computeAimValue(ScoreInfo score, OsuDifficultyAttributes attributes)
+        private double computeAimValue(ScoreInfo score, OsuDifficultyAttributes attributes, bool isRelax, bool hasEasyBonus = false)
         {
             if (score.Mods.Any(h => h is OsuModAutopilot))
                 return 0.0;
@@ -196,7 +196,8 @@ namespace osu.Game.Rulesets.Osu.Difficulty
 
             double aimValue = OsuStrainSkill.DifficultyToPerformance(aimDifficulty);
 
-            double lengthBonus = 0.95 + 0.4 * Math.Min(1.0, totalHits / 2000.0) +
+            double lengthBonusBase = isRelax ? 0.88 : 0.95;
+            double lengthBonus = lengthBonusBase + 0.4 * Math.Min(1.0, totalHits / 2000.0) +
                                  (totalHits > 2000 ? Math.Log10(totalHits / 2000.0) * 0.5 : 0.0);
             aimValue *= lengthBonus;
 
@@ -206,7 +207,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
 
                 double relevantMissCount = Math.Min(effectiveMissCount + aimEstimatedSliderBreaks, totalImperfectHits + countSliderTickMiss);
 
-                aimValue *= calculateMissPenalty(relevantMissCount, attributes.AimDifficultStrainCount);
+                aimValue *= calculateMissPenalty(relevantMissCount, attributes.AimDifficultStrainCount, totalHits, isRelax);
             }
 
             // TC bonuses are excluded when blinds is present as the increased visual difficulty is unimportant when notes cannot be seen.
@@ -217,7 +218,37 @@ namespace osu.Game.Rulesets.Osu.Difficulty
                 aimValue *= 1.0 + OsuRatingCalculator.CalculateVisibilityBonus(score.Mods, approachRate, sliderFactor: attributes.SliderFactor);
             }
 
-            aimValue *= accuracy;
+            // R* EZ bonus
+            if (isRelax && hasEasyBonus)
+            {
+                double baseBuff = 1.08;
+
+                if (approachRate <= 8.0)
+                    baseBuff += (7.0 - approachRate) / 100.0;
+
+                aimValue *= baseBuff;
+            }
+
+            // R* Precision buff (reading)
+            if (isRelax && circleSize > 5.58)
+            {
+                aimValue *= Math.Pow(Math.Pow(circleSize - 5.46, 1.8) + 1.0, 0.03);
+
+                // R* Special buff for high CS and high AR
+                if (approachRate > 10.8)
+                {
+                    aimValue *= 1.0 + (approachRate - 10.8);
+                    aimValue *= 1.0 + Math.Clamp(circleSize - 6.0, 0.0, 0.2);
+                }
+            }
+
+            // R* Tweak acc bonus for RX
+            aimValue *= isRelax ? 0.3 + accuracy / 2.0 : accuracy;
+            // It is important to consider accuracy difficulty when scaling with accuracy.
+            aimValue *= 0.98 + Math.Pow(Math.Max(0.0, overallDifficulty), 2) / 2500.0;
+            // R* Bonus bonus normal clock rate scores
+            if (isRelax && clockRate <= 1.0)
+                aimValue *= 1.20;
 
             return aimValue;
         }
@@ -239,7 +270,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
 
                 double relevantMissCount = Math.Min(effectiveMissCount + speedEstimatedSliderBreaks, totalImperfectHits + countSliderTickMiss);
 
-                speedValue *= calculateMissPenalty(relevantMissCount, attributes.SpeedDifficultStrainCount);
+                speedValue *= calculateMissPenalty(relevantMissCount, attributes.SpeedDifficultStrainCount, totalHits, false);
             }
 
             // TC bonuses are excluded when blinds is present as the increased visual difficulty is unimportant when notes cannot be seen.
@@ -271,9 +302,6 @@ namespace osu.Game.Rulesets.Osu.Difficulty
 
         private double computeAccuracyValue(ScoreInfo score, OsuDifficultyAttributes attributes)
         {
-            if (score.Mods.Any(h => h is OsuModRelax))
-                return 0.0;
-
             // This percentage only considers HitCircles of any value - in this part of the calculation we focus on hitting the timing hit window.
             double betterAccuracyPercentage;
             int amountHitObjectsWithAccuracy = attributes.HitCircleCount;
@@ -492,7 +520,22 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         // Miss penalty assumes that a player will miss on the hardest parts of a map,
         // so we use the amount of relatively difficult sections to adjust miss penalty
         // to make it more punishing on maps with lower amount of hard sections.
-        private double calculateMissPenalty(double missCount, double difficultStrainCount) => 0.96 / ((missCount / (4 * Math.Pow(Math.Log(difficultStrainCount), 0.94))) + 1);
+        private double calculateMissPenalty(double missCount, double difficultStrainCount, double totalHits, bool isRelax)
+        {
+            if (isRelax)
+            {
+                if (totalHits <= 0)
+                    return 1.0;
+
+                double missPortion = missCount / totalHits;
+                missPortion = Math.Clamp(missPortion, 0.0, 1.0);
+
+                return 0.97 * Math.Pow(1.0 - Math.Pow(missPortion, 0.5), 1.0 + missCount / 1.5);
+            }
+
+            return 0.96 / ((missCount / (4 * Math.Pow(Math.Log(difficultStrainCount), 0.94))) + 1);
+        }
+
         private double getComboScalingFactor(OsuDifficultyAttributes attributes) => attributes.MaxCombo <= 0 ? 1.0 : Math.Min(Math.Pow(scoreMaxCombo, 0.8) / Math.Pow(attributes.MaxCombo, 0.8), 1.0);
 
         private int totalHits => countGreat + countOk + countMeh + countMiss;

@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using osu.Game.Graphics;
 using osu.Game.IO;
 using osu.Game.Localisation;
 using osu.Game.Online.Chat;
+using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Utils;
 using SharpCompress.Archives.Zip;
@@ -32,7 +34,7 @@ namespace osu.Game.Overlays.Settings.Sections.General
         protected override LocalisableString Header => GeneralSettingsStrings.QuickActionsHeader;
 
         [BackgroundDependencyLoader]
-        private void load(OsuColour colours, Storage storage)
+        private void load(OsuColour colours, Storage storage, IDialogOverlay? dialogOverlay)
         {
             AddRange(new Drawable[]
             {
@@ -55,7 +57,9 @@ namespace osu.Game.Overlays.Settings.Sections.General
                     Text = GeneralSettingsStrings.ReportIssue,
                     TooltipText = GeneralSettingsStrings.ReportIssueTooltip,
                     BackgroundColour = colours.YellowDarker,
-                    Action = () => game?.OpenUrlExternally(@"https://osu.ppy.sh/community/forums/topics/create?forum_id=5", LinkWarnMode.NeverWarn)
+                    Action = () => dialogOverlay?.Push(new IssueReportDialog(() =>
+                        game?.OpenUrlExternally(@"https://github.com/GooGuTeam/osu/issues", LinkWarnMode.NeverWarn)
+                    )),
                 },
             });
 

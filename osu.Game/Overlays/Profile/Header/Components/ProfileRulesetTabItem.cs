@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Graphics;
@@ -42,8 +43,8 @@ namespace osu.Game.Overlays.Profile.Header.Components
 
         private readonly SpriteIcon icon;
 
-        public ProfileRulesetTabItem(RulesetInfo value)
-            : base(value)
+        public ProfileRulesetTabItem(RulesetInfo value, OverlayRulesetSelector overlayRulesetSelector)
+            : base(value, overlayRulesetSelector)
         {
             Add(icon = new DefaultRulesetIcon { Alpha = 0 });
         }

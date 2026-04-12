@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -173,12 +174,9 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         protected override void PerformFail()
         {
             // base logic intentionally suppressed - failing in multiplayer only marks the score with F rank
-            // see also: `MultiSpectatorPlayer.PerformFail()`
+            // see also: `MultiSpectatorPlayer.OnFail()`
             ScoreProcessor.FailScore(Score.ScoreInfo);
         }
-
-        protected override void ConcludeFailedScore(Score score)
-            => throw new NotSupportedException($"{nameof(MultiplayerPlayer)} should never be calling {nameof(ConcludeFailedScore)}. Failing in multiplayer only marks the score with F rank.");
 
         private void failAndBail(string? message = null)
         {

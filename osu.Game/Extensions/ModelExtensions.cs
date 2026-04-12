@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System.IO;
@@ -74,6 +75,17 @@ namespace osu.Game.Extensions
         /// Check whether this <see cref="IRulesetInfo"/>'s online ID is within the range that defines it as a legacy ruleset (ie. either osu!, osu!taiko, osu!catch or osu!mania).
         /// </summary>
         public static bool IsLegacyRuleset(this IRulesetInfo ruleset) => ruleset.OnlineID >= 0 && ruleset.OnlineID <= ILegacyRuleset.MAX_LEGACY_RULESET_ID;
+
+        /// <summary>
+        /// Check whether this <see cref="IRulesetInfo"/> represents a special ruleset (ie. any of the relax or autopilot modes).
+        /// </summary>
+        public static bool IsSpecialRuleset(this IRulesetInfo ruleset) => ruleset.ShortName is RulesetInfo.OSU_RELAX_MODE_SHORTNAME or RulesetInfo.OSU_AUTOPILOT_MODE_SHORTNAME
+            or RulesetInfo.TAIKO_RELAX_MODE_SHORTNAME or RulesetInfo.CATCH_RELAX_MODE_SHORTNAME;
+
+        /// <summary>
+        /// Check whether this <see cref="IRulesetInfo"/> has special rulesets associated with it (ie. is either osu!, osu!taiko, or osu!catch).
+        /// </summary>
+        public static bool HasSpecialRuleset(this IRulesetInfo ruleset) => ruleset.ShortName is RulesetInfo.OSU_MODE_SHORTNAME or RulesetInfo.TAIKO_MODE_SHORTNAME or RulesetInfo.CATCH_MODE_SHORTNAME;
 
         /// <summary>
         /// Check whether the online ID of two <see cref="IBeatmapSetInfo"/>s match.

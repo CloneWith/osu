@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -21,9 +22,9 @@ namespace osu.Desktop
     public static class Program
     {
 #if DEBUG
-        private const string base_game_name = @"osu-tournament-development";
+        private const string base_game_name = @"osu-xgtc-development";
 #else
-        private const string base_game_name = @"osu-tournament";
+        private const string base_game_name = @"osu-xgtc";
 #endif
 
         private static LegacyTcpIpcProvider? legacyIpc;

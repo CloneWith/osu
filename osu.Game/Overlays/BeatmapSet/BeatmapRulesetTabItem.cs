@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -27,8 +28,8 @@ namespace osu.Game.Overlays.BeatmapSet
         private OsuSpriteText count;
         private Container countContainer;
 
-        public BeatmapRulesetTabItem(RulesetInfo value)
-            : base(value)
+        public BeatmapRulesetTabItem(RulesetInfo value, OverlayRulesetSelector overlayRulesetSelector)
+            : base(value, overlayRulesetSelector)
         {
         }
 

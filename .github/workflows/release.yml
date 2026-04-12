@@ -1,0 +1,529 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*-lazer'
+
+env:
+  DOTNET_VERSION: '8.0.x'
+
+jobs:
+  version:
+    name: Compute version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      semver: ${{ steps.version.outputs.semver }}
+      nugetVersion: ${{ steps.version.outputs.nugetVersion }}
+      velopackVersion: ${{ steps.version.outputs.velopackVersion }}
+      assemblyVersion: ${{ steps.version.outputs.assemblyVersion }}
+      fileVersion: ${{ steps.version.outputs.fileVersion }}
+      androidVersionCode: ${{ steps.version.outputs.androidVersionCode }}
+    steps:
+      - name: Determine version
+        id: version
+        shell: bash
+        run: |
+          VERSION="${{ github.ref_name }}"
+          SEMVER=${VERSION#v}
+          NUMERIC=${SEMVER%%-*}
+          PARTS=$(echo "$NUMERIC" | awk -F. '{print NF}')
+          if [[ $PARTS -eq 1 ]]; then NUMERIC="$NUMERIC.0.0.0"; fi
+          if [[ $PARTS -eq 2 ]]; then NUMERIC="$NUMERIC.0.0"; fi
+          if [[ $PARTS -eq 3 ]]; then NUMERIC="$NUMERIC.0"; fi
+
+          VERSION_NUMBERS=$(echo "$SEMVER" | sed 's/-.*$//' | tr -d '.')
+          ANDROID_VERSION_CODE="$VERSION_NUMBERS"
+
+          # nugetVersion uses 3-part version from the tag date (e.g. v2026.321.1-lazer -> 2026.321.1)
+          NUGET_VERSION=$(echo "${SEMVER%%-*}" | awk -F. '{print $1"."$2"."$3}')
+          # Velopack requires 3-part semver without pre-release
+          VELOPACK_VERSION=$(echo "$NUMERIC" | awk -F. '{print $1"."$2"."$3}')
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "semver=$SEMVER" >> $GITHUB_OUTPUT
+          echo "nugetVersion=$NUGET_VERSION" >> $GITHUB_OUTPUT
+          echo "velopackVersion=$VELOPACK_VERSION" >> $GITHUB_OUTPUT
+          echo "assemblyVersion=$NUMERIC" >> $GITHUB_OUTPUT
+          echo "fileVersion=$NUMERIC" >> $GITHUB_OUTPUT
+          echo "androidVersionCode=$ANDROID_VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "Computed version: $VERSION (semver: $SEMVER, nuget: $NUGET_VERSION, velopack: $VELOPACK_VERSION, assembly/file: $NUMERIC, android: $ANDROID_VERSION_CODE)"
+
+  nuget:
+    name: Pack & Publish NuGet
+    needs: version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Pack
+        run: |
+          dotnet pack -c Release osu.Game \
+            /p:Version=${{ needs.version.outputs.nugetVersion }} \
+            /p:GenerateDocumentationFile=true \
+            /p:IncludeSymbols=true \
+            /p:SymbolPackageFormat=snupkg \
+            -o artifacts
+
+          dotnet pack -c Release osu.Game.Rulesets.Osu \
+            /p:Version=${{ needs.version.outputs.nugetVersion }} \
+            /p:GenerateDocumentationFile=true \
+            /p:IncludeSymbols=true \
+            /p:SymbolPackageFormat=snupkg \
+            -o artifacts
+
+      - name: Upload NuGet artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+      - name: Publish to NuGet.org
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json --skip-duplicate
+
+  build:
+    name: Build ${{ matrix.artifact-name }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    concurrency:
+      group: build-${{ matrix.os }}-${{ matrix.runtime }}
+      cancel-in-progress: false
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+            artifact-name: osu-gu-windows
+            executable: "osu!.exe"
+          - os: ubuntu-latest
+            runtime: linux-x64
+            artifact-name: osu-gu-linux
+            executable: "osu!"
+          - os: macos-latest
+            runtime: osx-x64
+            artifact-name: osu-gu-macos-intel
+            executable: "osu!"
+          - os: macos-latest
+            runtime: osx-arm64
+            artifact-name: osu-gu-macos-apple-silicon
+            executable: "osu!"
+          - os: ubuntu-latest
+            runtime: android
+            artifact-name: osu-gu-android
+            executable: osu.Android-Signed.apk
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Setup Java for Android (Android only)
+        if: matrix.runtime == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+
+      - name: Setup Android SDK (Android only)
+        if: matrix.runtime == 'android'
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 8512546
+
+      - name: Accept Android SDK licenses (Android only)
+        if: matrix.runtime == 'android'
+        shell: bash
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Install Android workload (Android only)
+        if: matrix.runtime == 'android'
+        shell: bash
+        run: |
+          dotnet workload install android
+          dotnet workload list
+          echo "Android SDK Root: $ANDROID_SDK_ROOT"
+          echo "Java Home: $JAVA_HOME"
+          # Ensure required Android platform is installed
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platforms;android-34" "build-tools;34.0.0" || true
+
+      - name: Install Velopack CLI
+        if: matrix.runtime != 'android'
+        shell: bash
+        run: dotnet tool install -g vpk
+
+      - name: Create macOS icon (macOS only)
+        if: matrix.os == 'macos-latest'
+        continue-on-error: true
+        shell: bash
+        run: |
+          if [ -f "osu.Desktop/lazer.ico" ]; then
+            echo "Converting lazer.ico to lazer.icns for macOS..."
+            sips -s format png osu.Desktop/lazer.ico --out temp_icon.png || {
+              echo "Warning: Failed to convert ico to png, trying alternative method..."
+              cp osu.Desktop/lazer.ico osu.Desktop/lazer.icns
+              echo "Using .ico file as fallback for macOS icon"
+              exit 0
+            }
+            mkdir -p lazer.iconset
+            sips -z 16 16     temp_icon.png --out lazer.iconset/icon_16x16.png
+            sips -z 32 32     temp_icon.png --out lazer.iconset/icon_16x16@2x.png
+            sips -z 32 32     temp_icon.png --out lazer.iconset/icon_32x32.png
+            sips -z 64 64     temp_icon.png --out lazer.iconset/icon_32x32@2x.png
+            sips -z 128 128   temp_icon.png --out lazer.iconset/icon_128x128.png
+            sips -z 256 256   temp_icon.png --out lazer.iconset/icon_128x128@2x.png
+            sips -z 256 256   temp_icon.png --out lazer.iconset/icon_256x256.png
+            sips -z 512 512   temp_icon.png --out lazer.iconset/icon_256x256@2x.png
+            sips -z 512 512   temp_icon.png --out lazer.iconset/icon_512x512.png
+            cp lazer.iconset/icon_512x512.png lazer.iconset/icon_512x512@2x.png
+            iconutil -c icns lazer.iconset || {
+              echo "Warning: iconutil failed, using fallback method..."
+              cp osu.Desktop/lazer.ico osu.Desktop/lazer.icns
+              rm -f temp_icon.png
+              rm -rf lazer.iconset
+              exit 0
+            }
+            cp lazer.icns osu.Desktop/lazer.icns
+            rm -f temp_icon.png
+            rm -rf lazer.iconset
+            echo "Successfully created lazer.icns"
+          else
+            echo "Warning: lazer.ico not found, creating placeholder icns"
+            touch osu.Desktop/lazer.icns
+          fi
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+            ~/.local/share/NuGet/v3-cache
+            ~/.cache/NuGet/v3-cache
+          key: ${{ runner.os }}-${{ matrix.runtime }}-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.runtime }}-nuget-${{ hashFiles('**/*.csproj') }}
+            ${{ runner.os }}-${{ matrix.runtime }}-nuget-
+            ${{ runner.os }}-nuget-
+
+      - name: Show version
+        shell: bash
+        run: |
+          echo "Building version: ${{ needs.version.outputs.version }} (semver: ${{ needs.version.outputs.semver }}, assembly/file: ${{ needs.version.outputs.fileVersion }}, android: ${{ needs.version.outputs.androidVersionCode }})"
+
+      - name: Clean previous build artifacts
+        shell: bash
+        run: |
+          echo "Cleaning previous build artifacts for ${{ matrix.runtime }}"
+          if [[ "${{ matrix.runtime }}" == "android" ]]; then
+            rm -rf osu.Android/bin osu.Android/obj
+          else
+            rm -rf osu.Desktop/bin osu.Desktop/obj
+          fi
+          rm -rf publish/${{ matrix.runtime }}
+
+      - name: Restore dependencies
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          echo "Restoring packages for runtime: ${{ matrix.runtime }}"
+          if [[ "${{ matrix.runtime }}" == "android" ]]; then
+            dotnet restore osu.Android/osu.Android.csproj \
+              --verbosity normal \
+              --no-cache \
+              --force
+          else
+            dotnet restore osu.Desktop/osu.Desktop.csproj \
+              --runtime ${{ matrix.runtime }} \
+              --verbosity normal \
+              --no-cache \
+              --force
+          fi
+
+      - name: Setup Android signing (Android only)
+        if: matrix.runtime == 'android'
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "Setting up Android keystore for signing..."
+          if [[ -n "$ANDROID_KEYSTORE_BASE64" ]]; then
+            echo "Using keystore from GitHub Secrets"
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > osu.keystore
+
+            if [[ ! -f "osu.keystore" ]] || [[ ! -s "osu.keystore" ]]; then
+              echo "ERROR: Failed to decode keystore from base64"
+              exit 1
+            fi
+
+            if [[ -z "$ANDROID_KEYSTORE_PASSWORD" ]] || [[ -z "$ANDROID_KEY_ALIAS" ]] || [[ -z "$ANDROID_KEY_PASSWORD" ]]; then
+              echo "ERROR: Android signing secrets are incomplete!"
+              echo "Required secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD"
+              exit 1
+            fi
+
+            echo "Verifying keystore integrity..."
+            keytool -list -keystore osu.keystore -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" || {
+              echo "ERROR: Cannot access keystore with provided credentials"
+              exit 1
+            }
+
+            echo "Keystore setup successful"
+          else
+            echo "No keystore found in secrets, creating temporary one..."
+            keytool -genkey -v \
+              -keystore osu.keystore \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -alias osu \
+              -storepass temp123 \
+              -keypass temp123 \
+              -dname "CN=osu-gu-temp,OU=osu-gu,O=osu-gu,L=Unknown,S=Unknown,C=Unknown"
+            echo "WARNING: Using temporary keystore! Please configure ANDROID_KEYSTORE_BASE64 secret for production builds."
+          fi
+
+      - name: Build and publish
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "Building for runtime: ${{ matrix.runtime }}"
+          if [[ "${{ matrix.runtime }}" == "android" ]]; then
+            KEYSTORE_PASS="${ANDROID_KEYSTORE_PASSWORD:-temp123}"
+            KEY_ALIAS="${ANDROID_KEY_ALIAS:-osu}"
+            # PKCS12 keystores require key password == store password
+            KEY_PASS="$KEYSTORE_PASS"
+
+            echo "Using Java version: $(java -version 2>&1 | head -n 1)"
+            echo "Android SDK Root: $ANDROID_SDK_ROOT"
+            echo "Keystore file exists: $(test -f osu.keystore && echo 'Yes' || echo 'No')"
+            echo "Using key alias: $KEY_ALIAS"
+
+            if [[ ! -f "osu.keystore" ]]; then
+              echo "ERROR: Keystore file not found!"
+              exit 1
+            fi
+
+            dotnet publish osu.Android/osu.Android.csproj \
+              --configuration Release \
+              --verbosity normal \
+              --no-restore \
+              -p:Version=${{ needs.version.outputs.semver }} \
+              -p:ApplicationVersion=${{ needs.version.outputs.androidVersionCode }} \
+              -p:ApplicationDisplayVersion=${{ needs.version.outputs.semver }} \
+              -p:AndroidSdkDirectory=$ANDROID_SDK_ROOT \
+              -p:AndroidKeyStore=true \
+              -p:AndroidSigningKeyStore=$(pwd)/osu.keystore \
+              -p:AndroidSigningKeyAlias="$KEY_ALIAS" \
+              -p:AndroidSigningKeyPass="$KEY_PASS" \
+              -p:AndroidSigningStorePass="$KEYSTORE_PASS" \
+              -p:AndroidPackageFormat=apk
+
+            mkdir -p "publish/${{ matrix.runtime }}"
+
+            APK_FILE=$(find osu.Android/bin/Release/ -name "*-Signed.apk" | head -1)
+            if [[ -z "$APK_FILE" ]]; then
+              echo "ERROR: No Signed APK file found after build!"
+              exit 1
+            fi
+
+            echo "Found APK: $APK_FILE"
+            cp "$APK_FILE" "publish/${{ matrix.runtime }}/${{ matrix.executable }}"
+
+            if command -v aapt2 &> /dev/null; then
+              echo "Verifying APK signature..."
+              aapt2 dump badging "publish/${{ matrix.runtime }}/${{ matrix.executable }}" | grep -E "application-label|package" || true
+            fi
+          else
+            dotnet publish osu.Desktop/osu.Desktop.csproj \
+              --self-contained \
+              --runtime ${{ matrix.runtime }} \
+              --configuration Release \
+              --output "publish/${{ matrix.runtime }}" \
+              --no-restore \
+              --verbosity normal \
+              -p:PublishSingleFile=false \
+              -p:PublishTrimmed=false \
+              -p:Version=${{ needs.version.outputs.semver }} \
+              -p:FileVersion=${{ needs.version.outputs.fileVersion }} \
+              -p:AssemblyVersion=${{ needs.version.outputs.assemblyVersion }} \
+              -p:InformationalVersion=${{ needs.version.outputs.version }}
+          fi
+
+      - name: Set executable permissions (Linux/macOS)
+        if: (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest') && matrix.runtime != 'android'
+        shell: bash
+        run: chmod +x "publish/${{ matrix.runtime }}/${{ matrix.executable }}"
+
+      - name: Create Velopack package
+        if: matrix.runtime != 'android'
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            ICON_FILE="osu.Desktop/lazer.ico"
+            if [ -f "osu.Desktop/lazer.icns" ] && [ -s "osu.Desktop/lazer.icns" ]; then
+              ICON_FILE="osu.Desktop/lazer.icns"
+              echo "Using lazer.icns for macOS packaging"
+            else
+              echo "Using lazer.ico as fallback for macOS packaging"
+            fi
+
+            CHANNEL="osx-x64"
+            if [[ "${{ matrix.runtime }}" == "osx-arm64" ]]; then CHANNEL="osx-arm64"; fi
+
+            vpk pack \
+              -u "osu-lazer-gu" \
+              -v "${{ needs.version.outputs.velopackVersion }}" \
+              -p "publish/${{ matrix.runtime }}" \
+              -e "${{ matrix.executable }}" \
+              --packAuthors "osu! GooGuTeam" \
+              --packTitle "osu! GU" \
+              -i "$ICON_FILE" \
+              -c "$CHANNEL"
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            vpk pack \
+              -u "osu-lazer-gu" \
+              -v "${{ needs.version.outputs.velopackVersion }}" \
+              -p "publish/${{ matrix.runtime }}" \
+              -e "${{ matrix.executable }}" \
+              --packAuthors "osu! GooGuTeam" \
+              --packTitle "osu! GU" \
+              -i "osu.Desktop/lazer.ico" \
+              -c "win"
+          else
+            vpk pack \
+              -u "osu-lazer-gu" \
+              -v "${{ needs.version.outputs.velopackVersion }}" \
+              -p "publish/${{ matrix.runtime }}" \
+              -e "${{ matrix.executable }}" \
+              --packAuthors "osu! GooGuTeam" \
+              --packTitle "osu! GU" \
+              -i "osu.Desktop/lazer.ico" \
+              -c "linux"
+          fi
+
+      - name: Normalize asset names
+        shell: bash
+        run: |
+          shopt -s nullglob
+          # Windows installer rename
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            if [ -f "Releases/Setup.exe" ]; then
+              mv -f Releases/Setup.exe Releases/osu-lazer-gu-win-Setup.exe
+            fi
+          fi
+          # macOS zip rename
+          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            if [[ "${{ matrix.runtime }}" == "osx-x64" ]]; then
+              for f in Releases/*osx-x64*.zip; do mv -f "$f" Releases/osu.app.Intel.zip; done
+              for f in Releases/*.nupkg; do
+                if [[ "$f" == *osx*full.nupkg ]] && [[ "$f" != *arm64* ]]; then
+                  base=$(basename "$f")
+                  mv -f "$f" "Releases/${base/osx-full.nupkg/osx-x64-full.nupkg}"
+                fi
+              done
+            else
+              for f in Releases/*osx-arm64*.zip; do mv -f "$f" Releases/osu.app.Apple.Silicon.zip; done
+              for f in Releases/*.nupkg; do
+                if [[ "$f" == *osx*full.nupkg ]]; then
+                  base=$(basename "$f")
+                  if [[ "$base" != *osx-arm64-full.nupkg ]]; then
+                    mv -f "$f" "Releases/${base/osx-full.nupkg/osx-arm64-full.nupkg}"
+                  fi
+                fi
+              done
+            fi
+          fi
+          # Linux AppImage rename
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]] && [[ "${{ matrix.runtime }}" == "linux-x64" ]]; then
+            for f in Releases/*.AppImage; do mv -f "$f" Releases/osu.AppImage; done
+          fi
+          # Android APK rename
+          if [[ "${{ matrix.runtime }}" == "android" ]]; then
+            mkdir -p Releases
+            if [ -f "publish/${{ matrix.runtime }}/${{ matrix.executable }}" ]; then
+              cp "publish/${{ matrix.runtime }}/${{ matrix.executable }}" "Releases/osu-gu.apk"
+            fi
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}-${{ needs.version.outputs.version }}
+          path: |
+            publish/${{ matrix.runtime }}/
+            Releases/
+          retention-days: 30
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.artifact-name }}
+          path: Releases/
+          retention-days: 90
+
+  release:
+    name: Create GitHub Release
+    needs: [version, nuget, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'installer-*'
+          merge-multiple: true
+          path: artifacts
+
+      - name: Collect release files
+        shell: bash
+        run: |
+          mkdir -p release-files
+          shopt -s globstar nullglob
+          for f in artifacts/**/*; do
+            if [ -f "$f" ]; then
+              cp -f "$f" release-files/
+            fi
+          done
+          echo "Collected files:" && ls -al release-files || true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: osu! GU ${{ needs.version.outputs.version }}
+          files: release-files/**
+          draft: false
+          prerelease: ${{ contains(needs.version.outputs.version, 'alpha') || contains(needs.version.outputs.version, 'beta') || contains(needs.version.outputs.version, 'rc') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

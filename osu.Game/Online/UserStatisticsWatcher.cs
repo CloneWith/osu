@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
@@ -69,7 +70,7 @@ namespace osu.Game.Online
             if (!watchedScores.Remove(scoreId, out var scoreInfo))
                 return;
 
-            statisticsProvider.RefetchStatistics(scoreInfo.Ruleset, u => Schedule(() =>
+            statisticsProvider.RefetchStatistics(scoreInfo, u => Schedule(() =>
             {
                 if (u.OldStatistics != null)
                     latestUpdate.Value = new ScoreBasedUserStatisticsUpdate(scoreInfo, u.OldStatistics, u.NewStatistics);

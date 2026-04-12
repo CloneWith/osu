@@ -2,17 +2,48 @@
   <img width="500" alt="osu! logo" src="assets/lazer.png">
 </p>
 
-# osu!
+# osu! GU
 
-[![Build status](https://github.com/ppy/osu/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/ppy/osu/actions/workflows/ci.yml)
-[![GitHub release](https://img.shields.io/github/release/ppy/osu.svg)](https://github.com/ppy/osu/releases/latest)
-[![CodeFactor](https://www.codefactor.io/repository/github/ppy/osu/badge)](https://www.codefactor.io/repository/github/ppy/osu)
-[![dev chat](https://discordapp.com/api/guilds/188630481301012481/widget.png?style=shield)](https://discord.gg/ppy)
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/osu-web/localized.svg)](https://crowdin.com/project/osu-web)
+> This is a fork of [ppy/osu](https://github.com/ppy/osu) maintained by **GooGuTeam**. It includes the following changes on top of the upstream osu!(lazer) client to work better with [g0v0-server](https://github.com/GooGuTeam/g0v0-server).
 
-A free-to-win rhythm game. Rhythm is just a *click* away!
+## Changes from upstream
 
-This is the future – and final – iteration of the [osu!](https://osu.ppy.sh) game client which marks the beginning of an open era! Currently known by and released under the release codename "*lazer*". As in sharper than cutting-edge.
+### Custom API server
+
+- Players can specify a custom API server URL in **Settings > Online > Web**, allowing connection to third-party servers.
+- URL validation, debouncing, and a restart-required notice are provided in the settings UI.
+
+### Special rulesets (Relax / Autopilot)
+
+- Added first-class support for **Relax (RX)** and **Autopilot (AP)** as special game modes.
+- Dedicated difficulty and performance (PP) calculators for the osu! Relax mode, including a standalone `RelaxAimEvaluator`, `RelaxRhythmEvaluator`, and `Relax` difficulty skill.
+- Profile and overlay ruleset selectors display special rulesets with a popover menu, and user statistics are fetched per special ruleset.
+
+### Ruleset hash validation
+
+- The client computes and sends SHA-256 hashes of loaded rulesets to the server via API requests and SignalR headers, enabling server-side integrity verification.
+- When the server reports a ruleset is outdated, players receive an in-game notification with a direct download link.
+
+### Server info notification
+
+- On startup, a notification is displayed showing the currently connected server information.
+
+### Issue reporting
+
+- The "Report an issue" button now opens a confirmation dialog before redirecting to the GooGuTeam GitHub Issues page.
+
+### Update source
+
+- Desktop update checks and mobile update notifications point to the **GooGuTeam/osu** GitHub repository.
+- A new **Disable automatic updates** option is available in the update settings.
+
+### Error reporting
+
+- Client-side crash reports are sent to a GooGuTeam-hosted Glitchtip instance instead of the upstream Sentry endpoint.
+
+---
+
+*All other gameplay, UI, and framework behaviour remains identical to upstream osu!(lazer).*
 
 ## Status
 
@@ -141,6 +172,8 @@ We love to reward quality contributions. If you have made a large contribution, 
 ## Licence
 
 *osu!*'s code and framework are licensed under the [MIT licence](https://opensource.org/licenses/MIT). Please see [the licence file](LICENCE) for more information. [tl;dr](https://tldrlegal.com/license/mit-license) you can do whatever you want as long as you include the original copyright and license notice in any copy of the software/source.
+
+Code modified or created by GooGuTeam remains under the MIT License.
 
 Please note that this *does not cover* the usage of the "osu!" or "ppy" branding in any software, resources, advertising or promotion, as this is protected by trademark law.
 

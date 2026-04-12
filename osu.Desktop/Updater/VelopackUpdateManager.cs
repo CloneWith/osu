@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -8,6 +9,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Game;
+using osu.Game.Configuration;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Screens.Play;
@@ -28,6 +30,9 @@ namespace osu.Desktop.Updater
         [Resolved]
         private ILocalUserPlayInfo? localUserInfo { get; set; }
 
+        [Resolved]
+        private OsuConfigManager config { get; set; } = null!;
+
         private bool isInGameplay => localUserInfo?.PlayingState.Value != LocalUserPlayingState.NotPlaying;
 
         private ScheduledDelegate? scheduledBackgroundCheck;
@@ -46,6 +51,13 @@ namespace osu.Desktop.Updater
         {
             scheduledBackgroundCheck?.Cancel();
 
+            // Check if automatic updates are disabled in GU settings
+            if (config.Get<bool>(OsuSetting.DisableAutomaticUpdates))
+            {
+                log("Automatic updates are disabled in settings");
+                return false;
+            }
+
             if (isInGameplay)
             {
                 log("Update check cancelled - user is in gameplay");
@@ -55,7 +67,7 @@ namespace osu.Desktop.Updater
 
             try
             {
-                IUpdateSource updateSource = new GithubSource(@"https://github.com/ppy/osu", null, ReleaseStream.Value == Game.Configuration.ReleaseStream.Tachyon);
+                IUpdateSource updateSource = new GithubSource(@"https://github.com/GooGuTeam/osu", null, ReleaseStream.Value == Game.Configuration.ReleaseStream.Tachyon);
                 Velopack.UpdateManager updateManager = new Velopack.UpdateManager(updateSource, new UpdateOptions
                 {
                     AllowVersionDowngrade = true

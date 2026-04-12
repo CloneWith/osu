@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -149,7 +150,18 @@ namespace osu.Game.Overlays
             if (changeOverlayColours(profileHue))
                 recreateBaseContent();
 
-            var actualRuleset = rulesets.GetRuleset(userRuleset?.ShortName ?? loadedUser.PlayMode).AsNonNull();
+            RulesetInfo? actualRuleset = rulesets.GetRuleset(userRuleset?.ShortName ?? loadedUser.PlayMode);
+
+            switch (actualRuleset)
+            {
+                case null when userRuleset != null && userRuleset.IsSpecialRuleset():
+                    actualRuleset = rulesets.GetRuleset(userRuleset.ShortName[..^2]).AsNonNull().CreateSpecialRuleset(userRuleset.ShortName, userRuleset.OnlineID);
+                    break;
+
+                case null:
+                    actualRuleset = rulesets.GetRuleset(loadedUser.PlayMode).AsNonNull();
+                    break;
+            }
 
             var userProfile = new UserProfileData(loadedUser, actualRuleset);
             Header.User.Value = userProfile;

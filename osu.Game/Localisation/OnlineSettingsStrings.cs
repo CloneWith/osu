@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Localisation;
@@ -93,6 +94,54 @@ namespace osu.Game.Localisation
         /// "Hide country flags"
         /// </summary>
         public static LocalisableString HideCountryFlags => new TranslatableString(getKey(@"hide_country_flags"), @"Hide country flags");
+
+        /// <summary>
+        /// "Custom API server URL"
+        /// </summary>
+        public static LocalisableString CustomApiUrl => new TranslatableString(getKey(@"custom_api_url"), @"Custom API server URL");
+
+        /// <summary>
+        /// "A restart is required for this setting to take effect."
+        /// </summary>
+        public static LocalisableString CustomApiUrlRestartRequired => new TranslatableString(getKey(@"custom_api_url_restart_required"), @"A restart is required for this setting to take effect.");
+
+        /// <summary>
+        /// "The game will be restarted to apply the new API server settings."
+        /// </summary>
+        public static LocalisableString CustomApiUrlRestartMessage => new TranslatableString(getKey(@"custom_api_url_restart_message"), @"The game will be restarted to apply the new API server settings.");
+
+        /// <summary>
+        /// "Invalid custom API server address. Enter only a hostname, optionally with a port. Paths are not allowed."
+        /// </summary>
+        public static LocalisableString CustomApiUrlInvalid => new TranslatableString(
+            getKey(@"custom_api_url_invalid"),
+            @"Invalid custom API server address. Enter only a hostname, optionally with a port. Paths are not allowed."
+        );
+
+        /// <summary>
+        /// "Connected to default server"
+        /// </summary>
+        public static LocalisableString ConnectedToDefaultServer => new TranslatableString(getKey(@"connected_to_default_server"), @"Connected to default server");
+
+        /// <summary>
+        /// "Current server: {0}"
+        /// </summary>
+        public static LocalisableString CurrentServer(string serverName) => new TranslatableString(getKey(@"current_server"), @"Current server: {0}", serverName);
+
+        /// <summary>
+        /// "Official server (osu.ppy.sh)"
+        /// </summary>
+        public static LocalisableString OfficialServer => new TranslatableString(getKey(@"official_server"), @"Official server (osu.ppy.sh)");
+
+        /// <summary>
+        /// "Development server (dev.ppy.sh)"
+        /// </summary>
+        public static LocalisableString DevelopmentServer => new TranslatableString(getKey(@"development_server"), @"Development server (dev.ppy.sh)");
+
+        /// <summary>
+        /// "Default server"
+        /// </summary>
+        public static LocalisableString DefaultServer => new TranslatableString(getKey(@"default_server"), @"Default server");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Threading.Tasks;
@@ -46,6 +47,13 @@ namespace osu.Game.Overlays.Settings.Sections.General
             config.BindWith(OsuSetting.ReleaseStream, configReleaseStream);
 
             bool isDesktop = RuntimeInfo.IsDesktop;
+
+            Add(new SettingsCheckbox
+            {
+                LabelText = "Disable automatic updates (GU)",
+                Current = config.GetBindable<bool>(OsuSetting.DisableAutomaticUpdates),
+                Keywords = new[] { "update", "automatic", "disable", "gu" },
+            });
 
             // For simplicity, hide the concept of release streams from mobile users.
             if (isDesktop)

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -30,9 +32,35 @@ namespace osu.Game.Overlays.Profile.Header.Components
             });
         }
 
+        private List<RulesetInfo> getItemsWithSpecialRulesets()
+        {
+            var baseItems = Items.ToList();
+
+            foreach (var ruleset in Rulesets.AvailableRulesets)
+            {
+                switch (ruleset.ShortName)
+                {
+                    case RulesetInfo.OSU_MODE_SHORTNAME:
+                        baseItems.Add(ruleset.CreateSpecialRuleset(RulesetInfo.OSU_RELAX_MODE_SHORTNAME, RulesetInfo.OSU_RELAX_ONLINE_ID));
+                        baseItems.Add(ruleset.CreateSpecialRuleset(RulesetInfo.OSU_AUTOPILOT_MODE_SHORTNAME, RulesetInfo.OSU_AUTOPILOT_ONLINE_ID));
+                        break;
+
+                    case RulesetInfo.TAIKO_MODE_SHORTNAME:
+                        baseItems.Add(ruleset.CreateSpecialRuleset(RulesetInfo.TAIKO_RELAX_MODE_SHORTNAME, RulesetInfo.TAIKO_RELAX_ONLINE_ID));
+                        break;
+
+                    case RulesetInfo.CATCH_MODE_SHORTNAME:
+                        baseItems.Add(ruleset.CreateSpecialRuleset(RulesetInfo.CATCH_RELAX_MODE_SHORTNAME, RulesetInfo.CATCH_RELAX_ONLINE_ID));
+                        break;
+                }
+            }
+
+            return baseItems;
+        }
+
         private void updateState(UserProfileData? user)
         {
-            Current.Value = Items.SingleOrDefault(ruleset => user?.Ruleset.MatchesOnlineID(ruleset) == true);
+            Current.Value = getItemsWithSpecialRulesets().SingleOrDefault(ruleset => user?.Ruleset.MatchesOnlineID(ruleset) == true);
             SetDefaultRuleset(Rulesets.GetRuleset(user?.User.PlayMode ?? @"osu").AsNonNull());
         }
 
@@ -42,6 +70,6 @@ namespace osu.Game.Overlays.Profile.Header.Components
                 ((ProfileRulesetTabItem)tabItem).IsDefault = ((ProfileRulesetTabItem)tabItem).Value.Equals(ruleset);
         }
 
-        protected override TabItem<RulesetInfo> CreateTabItem(RulesetInfo value) => new ProfileRulesetTabItem(value);
+        protected override TabItem<RulesetInfo> CreateTabItem(RulesetInfo value) => new ProfileRulesetTabItem(value, this);
     }
 }

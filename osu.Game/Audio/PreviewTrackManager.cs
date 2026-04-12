@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
@@ -8,6 +9,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
 using osu.Game.Beatmaps;
+using osu.Game.Configuration;
 using osu.Game.Online;
 
 namespace osu.Game.Audio
@@ -30,9 +32,9 @@ namespace osu.Game.Audio
         }
 
         [BackgroundDependencyLoader]
-        private void load(AudioManager audioManager)
+        private void load(AudioManager audioManager, OsuConfigManager config)
         {
-            trackStore = audioManager.GetTrackStore(new TrustedDomainOnlineStore());
+            trackStore = audioManager.GetTrackStore(new TrustedDomainOnlineStore(config));
         }
 
         /// <summary>

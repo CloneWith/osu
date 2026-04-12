@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -1297,6 +1298,9 @@ namespace osu.Game
 
             // Importantly, this should be run after binding PostNotification to the import handlers so they can present the import after game startup.
             handleStartupImport();
+
+            // Show server information notification on startup
+            showServerInfoNotification();
         }
 
         private void handleBackButton()
@@ -1329,6 +1333,15 @@ namespace osu.Game
                     }
                 }
             }
+        }
+
+        private void showServerInfoNotification()
+        {
+            Scheduler.AddDelayed(() =>
+            {
+                string currentServerUrl = API.Endpoints.APIUrl;
+                Notifications.Post(new ServerInfoNotification(currentServerUrl));
+            }, 2000);
         }
 
         private void showOverlayAboveOthers(OverlayContainer overlay, OverlayContainer[] otherOverlays)

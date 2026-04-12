@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -12,6 +13,7 @@ using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
 using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Rulesets;
+using osu.Game.Scoring;
 using osu.Game.Users;
 
 namespace osu.Game.Online
@@ -69,7 +71,25 @@ namespace osu.Game.Online
                 return;
 
             foreach (var ruleset in rulesets.AvailableRulesets.Where(r => r.IsLegacyRuleset()))
+            {
                 RefetchStatistics(ruleset);
+
+                switch (ruleset.ShortName)
+                {
+                    case RulesetInfo.OSU_MODE_SHORTNAME:
+                        RefetchStatistics(ruleset.CreateSpecialRuleset(RulesetInfo.OSU_RELAX_MODE_SHORTNAME, RulesetInfo.OSU_RELAX_ONLINE_ID));
+                        RefetchStatistics(ruleset.CreateSpecialRuleset(RulesetInfo.OSU_AUTOPILOT_MODE_SHORTNAME, RulesetInfo.OSU_AUTOPILOT_ONLINE_ID));
+                        break;
+
+                    case RulesetInfo.TAIKO_MODE_SHORTNAME:
+                        RefetchStatistics(ruleset.CreateSpecialRuleset(RulesetInfo.TAIKO_RELAX_MODE_SHORTNAME, RulesetInfo.TAIKO_RELAX_ONLINE_ID));
+                        break;
+
+                    case RulesetInfo.CATCH_MODE_SHORTNAME:
+                        RefetchStatistics(ruleset.CreateSpecialRuleset(RulesetInfo.CATCH_RELAX_MODE_SHORTNAME, RulesetInfo.CATCH_RELAX_ONLINE_ID));
+                        break;
+                }
+            }
         }
 
         public void RefetchStatistics(RulesetInfo ruleset, Action<UserStatisticsUpdate>? callback = null)
@@ -80,6 +100,12 @@ namespace osu.Game.Online
             var request = new GetUserRequest(api.LocalUser.Value.Id, ruleset);
             request.Success += u => UpdateStatistics(u.Statistics, ruleset, callback);
             api.Queue(request);
+        }
+
+        public void RefetchStatistics(ScoreInfo score, Action<UserStatisticsUpdate>? callback = null)
+        {
+            var specialRuleset = score.Ruleset.CreateSpecialRulesetByScore(score);
+            RefetchStatistics(specialRuleset ?? score.Ruleset, callback);
         }
 
         protected void UpdateStatistics(UserStatistics newStatistics, RulesetInfo ruleset, Action<UserStatisticsUpdate>? callback = null)

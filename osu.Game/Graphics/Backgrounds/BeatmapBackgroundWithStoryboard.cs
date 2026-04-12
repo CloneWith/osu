@@ -21,7 +21,6 @@ namespace osu.Game.Graphics.Backgrounds
     public partial class BeatmapBackgroundWithStoryboard : BeatmapBackground
     {
         private readonly InterpolatingFramedClock storyboardClock;
-
         public readonly AudioContainer Storyboard;
 
         private DrawableStoryboard? drawableStoryboard;
@@ -30,7 +29,6 @@ namespace osu.Game.Graphics.Backgrounds
         public Action? StoryboardLoaded { get; set; }
 
         public readonly BindableBool ShowStoryboard = new BindableBool(true);
-
         [Resolved(CanBeNull = true)]
         private MusicController? musicController { get; set; }
 

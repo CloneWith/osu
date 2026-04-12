@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -77,9 +78,9 @@ namespace osu.Game
     public partial class OsuGameBase : Framework.Game, ICanAcceptFiles, IBeatSyncProvider
     {
 #if DEBUG
-        public const string GAME_NAME = "osu! (development)";
+        public const string GAME_NAME = "osu! GU (development)";
 #else
-        public const string GAME_NAME = "osu!";
+        public const string GAME_NAME = "osu! GU";
 #endif
 
         public const string OSU_PROTOCOL = "osu://";
@@ -105,10 +106,35 @@ namespace osu.Game
 
         public virtual bool UseDevelopmentServer => DebugUtils.IsDebugBuild;
 
-        public virtual EndpointConfiguration CreateEndpoints() =>
-            UseDevelopmentServer ? new DevelopmentEndpointConfiguration() : new ProductionEndpointConfiguration();
+        public virtual EndpointConfiguration CreateEndpoints()
+        {
+            // EndpointConfiguration config = UseDevelopmentServer ? new DevelopmentEndpointConfiguration() : new ProductionEndpointConfiguration();
+            EndpointConfiguration config = new ProductionEndpointConfiguration();
 
-        protected override OnlineStore CreateOnlineStore() => new TrustedDomainOnlineStore();
+            string customUrl = LocalConfig?.Get<string>(OsuSetting.CustomApiUrl);
+
+            if (!string.IsNullOrEmpty(customUrl))
+            {
+                customUrl = customUrl.TrimEnd('/');
+
+                // Ensure the custom URL has a protocol scheme
+                if (!customUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && !customUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    customUrl = "https://" + customUrl;
+                }
+
+                config.APIUrl = customUrl;
+                config.WebsiteUrl = customUrl;
+                config.SpectatorUrl = $"{customUrl}/signalr/spectator";
+                config.MultiplayerUrl = $"{customUrl}/signalr/multiplayer";
+                config.MetadataUrl = $"{customUrl}/signalr/metadata";
+                config.BeatmapSubmissionServiceUrl = $"{customUrl}/beatmap-submission";
+            }
+
+            return config;
+        }
+
+        protected override OnlineStore CreateOnlineStore() => new TrustedDomainOnlineStore(LocalConfig);
 
         public virtual Version AssemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();
 
@@ -164,6 +190,7 @@ namespace osu.Game
         protected SkinManager SkinManager { get; private set; }
 
         protected RealmRulesetStore RulesetStore { get; private set; }
+        protected RulesetHashCache RulesetHashCache { get; private set; }
 
         protected RealmKeyBindingStore KeyBindingStore { get; private set; }
 
@@ -292,6 +319,8 @@ namespace osu.Game
             dependencies.CacheAs<RulesetStore>(RulesetStore = new RealmRulesetStore(realm, Storage));
             dependencies.CacheAs<IRulesetStore>(RulesetStore);
 
+            dependencies.CacheAs(RulesetHashCache = new RulesetHashCache(RulesetStore));
+
             Decoder.RegisterDependencies(RulesetStore);
 
             dependencies.CacheAs(Storage);
@@ -325,7 +354,7 @@ namespace osu.Game
 
             CurrentLanguage.BindValueChanged(val => frameworkLocale.Value = val.NewValue.ToCultureCode());
 
-            dependencies.CacheAs(API ??= new APIAccess(this, LocalConfig, endpoints, VersionHash));
+            dependencies.CacheAs(API ??= new APIAccess(this, LocalConfig, endpoints, VersionHash, RulesetHashCache));
 
             var defaultBeatmap = new DummyWorkingBeatmap(Audio, Textures);
 

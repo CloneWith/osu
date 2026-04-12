@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -34,7 +35,7 @@ namespace osu.Game.Updater
         [BackgroundDependencyLoader]
         private void load(OsuGameBase game)
         {
-            version = game.Version.Split('-').First();
+            version = game.Version.TrimStart('v').Split('-').First();
             stream = Enum.TryParse(game.Version.Split('-').Last(), true, out ReleaseStream s) ? s : Configuration.ReleaseStream.Lazer;
         }
 
@@ -44,7 +45,7 @@ namespace osu.Game.Updater
             {
                 bool includePrerelease = stream == Configuration.ReleaseStream.Tachyon;
 
-                OsuJsonWebRequest<GitHubRelease[]> releasesRequest = new OsuJsonWebRequest<GitHubRelease[]>("https://api.github.com/repos/ppy/osu/releases?per_page=10&page=1");
+                OsuJsonWebRequest<GitHubRelease[]> releasesRequest = new OsuJsonWebRequest<GitHubRelease[]>("https://api.github.com/repos/GooGuTeam/osu/releases?per_page=10&page=1");
                 await releasesRequest.PerformAsync(cancellationToken).ConfigureAwait(false);
 
                 GitHubRelease[] releases = releasesRequest.ResponseObject;
@@ -53,7 +54,7 @@ namespace osu.Game.Updater
                 if (latest == null)
                     return false;
 
-                string latestTagName = latest.TagName.Split('-').First();
+                string latestTagName = latest.TagName.TrimStart('v').Split('-').First();
 
                 if (latestTagName != version && tryGetBestUrl(latest, out string? url))
                 {
