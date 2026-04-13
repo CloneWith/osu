@@ -12,6 +12,7 @@ using osu.Framework.Threading;
 using osu.Game.Configuration;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
+using osu.Game.Online.API;
 
 namespace osu.Game.Overlays.Settings.Sections.Online
 {
@@ -19,13 +20,12 @@ namespace osu.Game.Overlays.Settings.Sections.Online
     {
         protected override LocalisableString Header => OnlineSettingsStrings.WebHeader;
 
-        [Resolved]
-        private OsuGame? game { get; set; }
+        private FormTextBox customApiUrlTextBox = null!;
 
-        private SettingsTextBox customApiUrlTextBox = null!;
+        private readonly Bindable<SettingsNote.Data?> customApiNote = new Bindable<SettingsNote.Data?>();
 
         [BackgroundDependencyLoader]
-        private void load(OsuConfigManager config)
+        private void load(OsuConfigManager config, IAPIProvider api)
         {
             Children = new Drawable[]
             {
@@ -58,11 +58,16 @@ namespace osu.Game.Overlays.Settings.Sections.Online
                 {
                     Keywords = new[] { "nsfw", "18+", "offensive" }
                 },
-                customApiUrlTextBox = new SettingsTextBox
+                new SettingsItemV2(customApiUrlTextBox = new FormTextBox
                 {
-                    LabelText = OnlineSettingsStrings.CustomApiUrl,
-                    Current = config.GetBindable<string>(OsuSetting.CustomApiUrl)
-                }
+                    Caption = OnlineSettingsStrings.CustomApiUrl,
+                    Current = config.GetBindable<string>(OsuSetting.CustomApiUrl),
+                    PlaceholderText = api.Endpoints.APIUrl,
+                })
+                {
+                    Keywords = new[] { "api", "server", "custom", "endpoint" },
+                    Note = { BindTarget = customApiNote },
+                },
             };
 
             customApiUrlTextBox.Current.BindValueChanged(onCustomApiUrlChanged, true);
@@ -73,20 +78,16 @@ namespace osu.Game.Overlays.Settings.Sections.Online
         private ScheduledDelegate? pendingValidation;
         private const double debounce_delay = 500;
 
-        private static readonly Regex hostPortPattern = new Regex(
+        private static readonly Regex host_port_pattern = new Regex(
             pattern:
-            @"^(?:" +
-            @"(?:(?:[A-Za-z0-9-]+)\.)+[A-Za-z0-9-]+" +
-            @"|" +
-            @"(?:(?:25[0-5]|2[0-4]\d|1?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|1?\d{1,2})" +
-            @")(?::(?<port>\d{1,5}))?$",
+            @"^(?:" + @"(?:(?:[A-Za-z0-9-]+)\.)+[A-Za-z0-9-]+" + @"|" + @"(?:(?:25[0-5]|2[0-4]\d|1?\d{1,2})\.){3}(?:25[0-5]|2[0-4]\d|1?\d{1,2})" + @")(?::(?<port>\d{1,5}))?$",
             options: RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private void onCustomApiUrlChanged(ValueChangedEvent<string> e)
         {
             if (isInitialLoad)
             {
-                var initRaw = (e.NewValue ?? string.Empty).Trim();
+                string initRaw = e.NewValue.Trim();
                 lastApiUrl = normalizeToHttps(initRaw);
                 isInitialLoad = false;
                 return;
@@ -100,7 +101,7 @@ namespace osu.Game.Overlays.Settings.Sections.Online
                 if (string.IsNullOrWhiteSpace(rawInput))
                 {
                     maybeShowRestartIfChanged(string.Empty);
-                    customApiUrlTextBox.SetNoticeText(string.Empty, false);
+                    customApiNote.Value = null;
                     return;
                 }
 
@@ -108,19 +109,19 @@ namespace osu.Game.Overlays.Settings.Sections.Online
 
                 if (!isValidHostPort(hostPort))
                 {
-                    customApiUrlTextBox.SetNoticeText(OnlineSettingsStrings.CustomApiUrlInvalid, true);
+                    customApiNote.Value = new SettingsNote.Data(OnlineSettingsStrings.CustomApiUrlInvalid, SettingsNote.Type.Critical);
                     return;
                 }
 
                 string normalised = "https://" + hostPort;
-                customApiUrlTextBox.SetNoticeText(string.Empty, false);
+                customApiNote.Value = null;
                 maybeShowRestartIfChanged(normalised);
             }, debounce_delay);
         }
 
         private static bool isValidHostPort(string hostPort)
         {
-            var m = hostPortPattern.Match(hostPort);
+            var m = host_port_pattern.Match(hostPort);
             if (!m.Success) return false;
 
             var g = m.Groups["port"];
@@ -159,7 +160,7 @@ namespace osu.Game.Overlays.Settings.Sections.Online
             if (!string.Equals(lastApiUrl, normalizedNewValue, StringComparison.OrdinalIgnoreCase))
             {
                 lastApiUrl = normalizedNewValue;
-                customApiUrlTextBox.SetNoticeText(OnlineSettingsStrings.CustomApiUrlRestartRequired, false);
+                customApiNote.Value = new SettingsNote.Data(OnlineSettingsStrings.CustomApiUrlRestartRequired, SettingsNote.Type.Informational);
             }
         }
     }
