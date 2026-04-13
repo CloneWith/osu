@@ -4,7 +4,6 @@
 
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
@@ -13,7 +12,6 @@ using osu.Framework.Statistics;
 using osu.Game.Graphics;
 using osu.Game.IO;
 using osu.Game.Localisation;
-using osu.Game.Online.Chat;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Utils;
 using SharpCompress.Archives.Zip;
@@ -27,13 +25,10 @@ namespace osu.Game.Overlays.Settings.Sections.General
         [Resolved(CanBeNull = true)]
         private FirstRunSetupOverlay? firstRunSetupOverlay { get; set; }
 
-        [Resolved(CanBeNull = true)]
-        private OsuGame? game { get; set; }
-
         protected override LocalisableString Header => GeneralSettingsStrings.QuickActionsHeader;
 
         [BackgroundDependencyLoader]
-        private void load(OsuColour colours, Storage storage, IDialogOverlay? dialogOverlay)
+        private void load(OsuColour colours, Storage storage)
         {
             AddRange(new Drawable[]
             {
@@ -46,28 +41,11 @@ namespace osu.Game.Overlays.Settings.Sections.General
                 },
                 new SettingsButtonV2
                 {
-                    Text = GeneralSettingsStrings.LearnMoreAboutLazer,
-                    TooltipText = GeneralSettingsStrings.LearnMoreAboutLazerTooltip,
-                    BackgroundColour = colours.YellowDark,
-                    Action = () => game?.ShowWiki(@"Help_centre/Upgrading_to_lazer")
-                },
-                new SettingsButtonV2
-                {
-                    Text = GeneralSettingsStrings.ReportIssue,
-                    TooltipText = GeneralSettingsStrings.ReportIssueTooltip,
+                    Text = GeneralSettingsStrings.ExportLogs,
                     BackgroundColour = colours.YellowDarker,
-                    Action = () => dialogOverlay?.Push(new IssueReportDialog(() =>
-                        game?.OpenUrlExternally(@"https://github.com/GooGuTeam/osu/issues", LinkWarnMode.NeverWarn)
-                    )),
-                },
-            });
-
-            Add(new SettingsButtonV2
-            {
-                Text = GeneralSettingsStrings.ExportLogs,
-                BackgroundColour = colours.YellowDarker.Darken(0.5f),
-                Keywords = new[] { @"bug", "report", "logs", "files" },
-                Action = () => Task.Run(exportLogs),
+                    Keywords = new[] { @"bug", "report", "logs", "files" },
+                    Action = () => Task.Run(exportLogs),
+                }
             });
 
             exportStorage = (storage as OsuStorage)?.GetExportStorage() ?? storage.GetStorageForDirectory(@"exports");
