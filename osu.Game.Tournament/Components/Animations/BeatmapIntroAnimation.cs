@@ -275,7 +275,7 @@ namespace osu.Game.Tournament.Components.Animations
                                                 },
                                                 new TruncatingSpriteText
                                                 {
-                                                    Text = BoardStrings.RoundActionPrompt(TournamentGame.GetTeamString(colour), InstructionsStrings.PickShort),
+                                                    Text = BoardStrings.RoundActionPrompt(TournamentExtensions.GetTeamString(colour), InstructionsStrings.PickShort),
                                                     Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold),
                                                     MaxWidth = horizontal_info_size,
                                                     Colour = themeColour,

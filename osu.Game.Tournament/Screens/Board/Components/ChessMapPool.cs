@@ -100,7 +100,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                     AutoSizeAxes = Axes.Y,
                                     Direction = FillDirection.Vertical,
                                     Spacing = new Vector2(15),
-                                    ChildrenEnumerable = TournamentGame.MODS.Select(kv => new ModMapSection(kv.Key, kv.Value)
+                                    ChildrenEnumerable = TournamentExtensions.MODS.Select(kv => new ModMapSection(kv.Key, kv.Value)
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Width = 1,
@@ -188,7 +188,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 return;
             }
 
-            var shiroRecord = ladder.CurrentMatch.Value.ChessPlacements.LastOrDefault(c => c.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
+            var shiroRecord = ladder.CurrentMatch.Value.ChessPlacements.LastOrDefault(c => c.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID);
 
             if (shiroRecord == null)
             {
@@ -212,13 +212,13 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
                 case ChoiceType.RedWin:
                     shiroStatusText.Text = BoardStrings.ShiroHeldBy(BaseStrings.TeamRed);
-                    backgroundColour = TournamentGame.COLOUR_RED;
+                    backgroundColour = TournamentExtensions.COLOUR_RED;
                     textColour = Color4.White;
                     break;
 
                 case ChoiceType.BlueWin:
                     shiroStatusText.Text = BoardStrings.ShiroHeldBy(BaseStrings.TeamBlue);
-                    backgroundColour = TournamentGame.COLOUR_BLUE;
+                    backgroundColour = TournamentExtensions.COLOUR_BLUE;
                     textColour = Color4.White;
                     break;
 

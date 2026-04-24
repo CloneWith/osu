@@ -303,14 +303,14 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Ban",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        BackgroundColour = TournamentExtensions.COLOUR_RED,
                                         Action = () => setMode(TeamColour.Red, RoundStep.Ban),
                                     },
                                     buttonBlueBan = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Ban",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        BackgroundColour = TournamentExtensions.COLOUR_BLUE,
                                         Action = () => setMode(TeamColour.Blue, RoundStep.Ban),
                                     },
                                 },
@@ -328,14 +328,14 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Pick",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        BackgroundColour = TournamentExtensions.COLOUR_RED,
                                         Action = () => setMode(TeamColour.Red, RoundStep.Pick),
                                     },
                                     buttonBluePick = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Pick",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        BackgroundColour = TournamentExtensions.COLOUR_BLUE,
                                         Action = () => setMode(TeamColour.Blue, RoundStep.Pick),
                                     },
                                 },
@@ -353,14 +353,14 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Win",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        BackgroundColour = TournamentExtensions.COLOUR_RED,
                                         Action = () => setMode(TeamColour.Red, RoundStep.Win),
                                     },
                                     buttonBlueWin = new TourneyButton
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Win",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        BackgroundColour = TournamentExtensions.COLOUR_BLUE,
                                         Action = () => setMode(TeamColour.Blue, RoundStep.Win),
                                     },
                                 },
@@ -403,7 +403,7 @@ namespace osu.Game.Tournament.Screens.Board
                             BackgroundColour = FumoColours.DeepPurple.Regular,
                             Action = () =>
                             {
-                                if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID) != false)
+                                if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID) != false)
                                 {
                                     updateActionText(BoardStrings.ShiroExistsPrompt, true);
                                     return;
@@ -471,7 +471,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Red Win",
-                                        BackgroundColour = TournamentGame.COLOUR_RED,
+                                        BackgroundColour = TournamentExtensions.COLOUR_RED,
                                         Action = () => setWin(TeamColour.Red),
                                         Enabled = { Value = false },
                                     },
@@ -479,7 +479,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         RelativeSizeAxes = Axes.X,
                                         Text = "Blue Win",
-                                        BackgroundColour = TournamentGame.COLOUR_BLUE,
+                                        BackgroundColour = TournamentExtensions.COLOUR_BLUE,
                                         Action = () => setWin(TeamColour.Blue),
                                         Enabled = { Value = false },
                                     },
@@ -679,7 +679,7 @@ namespace osu.Game.Tournament.Screens.Board
 
         private void activateShiro()
         {
-            var shiro = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID);
+            var shiro = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID);
 
             // Don't activate if a Shiro is not found or already in a Win state.
             if (shiro == null)
@@ -705,7 +705,7 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
-            addWinPlacement(TournamentGame.RESERVED_BEATMAP_ID, true);
+            addWinPlacement(TournamentExtensions.RESERVED_BEATMAP_ID, true);
             consumeSelected();
 
             // Only this function escapes the normal interaction route, needed to detect winner separately.
@@ -831,7 +831,7 @@ namespace osu.Game.Tournament.Screens.Board
             // 2. Available space check per specific area
             bool stepsAvailable = false;
 
-            foreach (string k in TournamentGame.MODS.Select(m => m.Key))
+            foreach (string k in TournamentExtensions.MODS.Select(m => m.Key))
             {
                 bool condition(DrawableBoardBlock b) => k switch
                 {
@@ -992,7 +992,7 @@ namespace osu.Game.Tournament.Screens.Board
                                     {
                                         case TeamColour.None:
                                             pickTeam = currentRoundIndex.Value % 2 == 1 ? TeamColour.Red : TeamColour.Blue;
-                                            succeeded |= addPlacement(TournamentGame.RESERVED_BEATMAP_ID, block);
+                                            succeeded |= addPlacement(TournamentExtensions.RESERVED_BEATMAP_ID, block);
 
                                             // Reset active mode only when auto progressing is not enabled
                                             if (succeeded && !LadderInfo.AutoProgressRound.Value)
@@ -1126,7 +1126,7 @@ namespace osu.Game.Tournament.Screens.Board
             CurrentMatch.Value.ChessPlacements.Remove(placement);
 
             // Decrement round when the revoked placement is a Shiro, or in a Win status.
-            if (placement.BeatmapID == TournamentGame.RESERVED_BEATMAP_ID
+            if (placement.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID
                 || placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                 setNextMode(undo: true);
 
@@ -1279,7 +1279,7 @@ namespace osu.Game.Tournament.Screens.Board
             if (chess != null)
             {
                 chess.OwnerTeam = pickTeam;
-                chess.CurrentType = TournamentGame.ToChoiceType(pickType, pickTeam);
+                chess.CurrentType = TournamentExtensions.ToChoiceType(pickType, pickTeam);
             }
 
             updateOwnerSample?.Play();
@@ -1351,11 +1351,11 @@ namespace osu.Game.Tournament.Screens.Board
                 }
 
                 CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block?.BoardRow, block?.BoardColumn,
-                    pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam), beatmapId));
+                    pickTeam, TournamentExtensions.ToChoiceType(pickType, pickTeam), beatmapId));
 
                 var fetched = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
 
-                CurrentMatch.Value.ChessHistory.Add(new History(HistoryType.Normal, pickTeam, TournamentGame.ToChoiceType(pickType, pickTeam),
+                CurrentMatch.Value.ChessHistory.Add(new History(HistoryType.Normal, pickTeam, TournamentExtensions.ToChoiceType(pickType, pickTeam),
                     fetched?.Mods, fetched?.ModIndex, block?.BoardRow ?? -1, block?.BoardColumn ?? -1, []));
             }
 

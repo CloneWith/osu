@@ -110,7 +110,7 @@ namespace osu.Game.Tournament.Components
         {
             ModName = mod;
             ModIndex = index;
-            BeatmapID = target?.BeatmapID ?? TournamentGame.RESERVED_BEATMAP_ID;
+            BeatmapID = target?.BeatmapID ?? TournamentExtensions.RESERVED_BEATMAP_ID;
             ownerTeam = target?.OwnerTeam ?? TeamColour.Neutral;
             currentType = target?.CurrentType ?? ChoiceType.Neutral;
 

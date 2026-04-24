@@ -21,7 +21,6 @@ using osu.Framework.Platform;
 using osu.Game.Database;
 using osu.Game.Extensions;
 using osu.Game.Graphics;
-using osu.Game.Localisation;
 using osu.Game.Online;
 using osu.Game.Online.API.Requests;
 using osu.Game.Tournament.Components;
@@ -120,35 +119,6 @@ namespace osu.Game.Tournament
             // Use an initial title first.
             if (Host.Window != null)
                 Host.Window.Title = $"{WINDOW_TITLE} - {Version}";
-
-            #region Localisation Initialization
-
-            // These code is directly taken from OsuGame.
-            var languages = Enum.GetValues<Language>();
-
-            var mappings = languages.Select(language =>
-            {
-#if DEBUG
-                if (language == Language.debug)
-                    return new LocaleMapping("debug", new DebugLocalisationStore());
-#endif
-
-                string cultureCode = language.ToCultureCode();
-
-                try
-                {
-                    return new LocaleMapping(new ResourceManagerLocalisationStore(cultureCode));
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex, $"Could not load localisations for language \"{cultureCode}\"");
-                    return null;
-                }
-            }).Where(m => m != null);
-
-            Localisation.AddLocaleMappings(mappings!);
-
-            #endregion
 
             Task.Run(readBracket);
         }

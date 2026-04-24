@@ -354,7 +354,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         EdgeEffect = new EdgeEffectParameters
                         {
                             Type = EdgeEffectType.Glow,
-                            Colour = TournamentGame.GetTeamColour(match.WinnerColour).MultiplyAlpha(0.5f),
+                            Colour = TournamentExtensions.GetTeamColour(match.WinnerColour).MultiplyAlpha(0.5f),
                             Radius = 10,
                         },
                     },
@@ -470,7 +470,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             blueWinBackground.FadeIn(1000, Easing.OutQuint);
                         mainContainer.FadeIn(1600, Easing.OutQuint);
                         colourMask.FadeTo(0.6f, 1500, Easing.OutQuint);
-                        Color4 targetColour = TournamentGame.GetTeamColour(match.WinnerColour);
+                        Color4 targetColour = TournamentExtensions.GetTeamColour(match.WinnerColour);
                         colourMask.FadeColour(ColourInfo.GradientHorizontal(targetColour,
                             targetColour.Opacity(0)), 2000, Easing.OutQuint);
                         winnerTriangles.Delay(1000).FadeTo(0.6f, 2000, Easing.OutQuint);

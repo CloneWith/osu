@@ -199,7 +199,7 @@ namespace osu.Game.Tournament.Components
 
                 BorderThickness = 6;
 
-                BorderColour = TournamentGame.GetTeamColour(newChoice.Team);
+                BorderColour = TournamentExtensions.GetTeamColour(newChoice.Team);
 
                 switch (newChoice.Type)
                 {

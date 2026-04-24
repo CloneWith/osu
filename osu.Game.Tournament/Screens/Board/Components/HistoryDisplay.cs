@@ -209,13 +209,13 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 topSpinner.FadeColour(Color4.White, 500, Easing.OutQuint);
                 topSpinner.FadeTo(e.NewValue ? 0 : 1, 500, Easing.OutQuint);
                 winnerIcon.FadeTo(e.NewValue ? 1 : 0, 500, Easing.OutQuint);
-                currentStatusText.FadeColour(e.NewValue ? TournamentGame.GetTeamColour(currentMatch.Value.WinnerColour) : Color4.White, 500, Easing.OutQuint);
+                currentStatusText.FadeColour(e.NewValue ? TournamentExtensions.GetTeamColour(currentMatch.Value.WinnerColour) : Color4.White, 500, Easing.OutQuint);
                 currentStatusText.Text = e.NewValue
                     ? HistoryStrings.MatchEnded(currentMatch.Value.WinnerColour)
                     : HistoryStrings.MatchInProgress;
 
                 if (e.NewValue)
-                    winnerIcon.FadeColour(TournamentGame.GetTeamColour(currentMatch.Value.WinnerColour), 500, Easing.OutQuint);
+                    winnerIcon.FadeColour(TournamentExtensions.GetTeamColour(currentMatch.Value.WinnerColour), 500, Easing.OutQuint);
             }, true);
         }
     }

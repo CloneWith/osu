@@ -29,7 +29,7 @@ namespace osu.Game.Tournament.Localisation
         /// "Match concluded, {0} wins!"
         /// </summary>
         public static LocalisableString MatchEnded(TeamColour winner) => new TranslatableString(getKey(@"match_ended"),
-            @"Match concluded, {0} wins!", TournamentGame.GetTeamString(winner));
+            @"Match concluded, {0} wins!", TournamentExtensions.GetTeamString(winner));
 
         /// <summary>
         /// " banned "

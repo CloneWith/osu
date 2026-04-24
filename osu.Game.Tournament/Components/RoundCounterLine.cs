@@ -132,7 +132,7 @@ namespace osu.Game.Tournament.Components
             int index = currentMatch.CurrentRoundIndex.Value;
             roundIndexText.Text = index <= 0 ? @"..." : index.ToString();
 
-            if (index == TournamentGame.TIE_BREAKER_ROUND)
+            if (index == TournamentExtensions.TIE_BREAKER_ROUND)
             {
                 counterBackground.FadeColour(Color4.Orange, 500, Easing.OutQuint);
                 actionText.Text = @"TieBreaker!";
@@ -140,13 +140,13 @@ namespace osu.Game.Tournament.Components
             }
             else
             {
-                LocalisableString teamString = TournamentGame.GetTeamString(currentMatch.CurrentTeam);
+                LocalisableString teamString = TournamentExtensions.GetTeamString(currentMatch.CurrentTeam);
 
-                counterBackground.FadeColour(TournamentGame.GetTeamColour(currentMatch.CurrentTeam), 500, Easing.OutQuint);
+                counterBackground.FadeColour(TournamentExtensions.GetTeamColour(currentMatch.CurrentTeam), 500, Easing.OutQuint);
                 actionText.Text = BoardStrings.RoundActionPrompt(teamString,
                     index <= 0 ? InstructionsStrings.BanShort : InstructionsStrings.PickShort);
 
-                actionText.Colour = TournamentGame.GetTeamColour(currentMatch.CurrentTeam);
+                actionText.Colour = TournamentExtensions.GetTeamColour(currentMatch.CurrentTeam);
             }
 
             actionText.FlashColour(Color4.White, 600, Easing.OutQuint);

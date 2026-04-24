@@ -37,7 +37,7 @@ namespace osu.Game.Tournament.Models
         public readonly int BoardColumn;
 
         public ChessPlacement(int? boardRow, int? boardColumn, TeamColour ownerTeam = TeamColour.Neutral, ChoiceType type = ChoiceType.Neutral,
-                              int beatmapID = TournamentGame.RESERVED_BEATMAP_ID)
+                              int beatmapID = TournamentExtensions.RESERVED_BEATMAP_ID)
         {
             BeatmapID = beatmapID;
             OwnerTeam = ownerTeam;

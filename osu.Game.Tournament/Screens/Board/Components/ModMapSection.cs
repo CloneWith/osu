@@ -72,7 +72,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         Origin = Anchor.CentreLeft,
                         Scale = new Vector2(0.75f),
                         AccentColour = colourScheme.Accent,
-                        Icon = TournamentGame.GetModIcon(ModAcronym),
+                        Icon = TournamentExtensions.GetModIcon(ModAcronym),
                         IconSize = 30,
                         Text = ModName,
                     },

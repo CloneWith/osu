@@ -46,8 +46,8 @@ namespace osu.Game.Tournament.Models
 
             bool notDraw = team == TeamColour.Red || team == TeamColour.Blue;
 
-            teamPrompt = TournamentGame.GetTeamString(team);
-            shortTeamPrompt = TournamentGame.GetTeamString(team, true);
+            teamPrompt = TournamentExtensions.GetTeamString(team);
+            shortTeamPrompt = TournamentExtensions.GetTeamString(team, true);
 
             switch (RoundStep)
             {

@@ -84,7 +84,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                     new Circle
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Colour = TournamentGame.GetTeamColour(History.Team),
+                                        Colour = TournamentExtensions.GetTeamColour(History.Team),
                                     },
                                     new TournamentSpriteText
                                     {
@@ -115,12 +115,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 _ => FontAwesome.Solid.Fire,
             };
 
-            icon.Colour = TournamentGame.GetTeamColour(History.Team);
+            icon.Colour = TournamentExtensions.GetTeamColour(History.Team);
 
-            descriptionText.AddText(TournamentGame.GetTeamString(History.Team, true), t =>
+            descriptionText.AddText(TournamentExtensions.GetTeamString(History.Team, true), t =>
             {
                 textFormat.Invoke(t);
-                t.Colour = TournamentGame.GetTeamColour(History.Team);
+                t.Colour = TournamentExtensions.GetTeamColour(History.Team);
             });
 
             switch (History.Type)

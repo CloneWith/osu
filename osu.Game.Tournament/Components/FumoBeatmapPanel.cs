@@ -266,9 +266,9 @@ namespace osu.Game.Tournament.Components
             updateBorder();
             updateState(false);
 
-            if (Beatmap.StarRatingWithMod == null && Beatmap.Beatmap != null && TournamentGame.SPECIAL_MODS.Contains(Beatmap.Mods))
+            if (Beatmap.StarRatingWithMod == null && Beatmap.Beatmap != null && TournamentExtensions.SPECIAL_MODS.Contains(Beatmap.Mods))
             {
-                var request = new GetBeatmapAttributesRequest(Beatmap.Beatmap.OnlineID, TournamentGame.ToModEnum(Beatmap.Mods));
+                var request = new GetBeatmapAttributesRequest(Beatmap.Beatmap.OnlineID, TournamentExtensions.ToModEnum(Beatmap.Mods));
 
                 request.Success += result =>
                 {
@@ -358,12 +358,12 @@ namespace osu.Game.Tournament.Components
                 switch (newPlacement.CurrentType)
                 {
                     case ChoiceType.Ban:
-                        pillBg.FadeColour(TournamentGame.GetTeamColour(newPlacement.OwnerTeam), 300, Easing.OutQuint);
+                        pillBg.FadeColour(TournamentExtensions.GetTeamColour(newPlacement.OwnerTeam), 300, Easing.OutQuint);
                         break;
 
                     case ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed:
-                        trophyBg.FadeColour(TournamentGame.GetTypeColour(newPlacement.CurrentType), 300, Easing.OutQuint);
-                        trophyIcon.FadeColour(newPlacement.CurrentType is ChoiceType.Consumed ? TournamentGame.GetTeamColour(newPlacement.OwnerTeam) : Color4.White,
+                        trophyBg.FadeColour(TournamentExtensions.GetTypeColour(newPlacement.CurrentType), 300, Easing.OutQuint);
+                        trophyIcon.FadeColour(newPlacement.CurrentType is ChoiceType.Consumed ? TournamentExtensions.GetTeamColour(newPlacement.OwnerTeam) : Color4.White,
                             300, Easing.OutQuint);
                         break;
                 }
@@ -384,7 +384,7 @@ namespace osu.Game.Tournament.Components
         /// <param name="placement">The chess placement.</param>
         private void runAnimation(ChessPlacement placement)
         {
-            LocalisableString choiceText = TournamentGame.GetTeamString(placement.OwnerTeam, true, @"Map");
+            LocalisableString choiceText = TournamentExtensions.GetTeamString(placement.OwnerTeam, true, @"Map");
 
             // Initialize animation
             switch (placement.CurrentType)
@@ -425,8 +425,8 @@ namespace osu.Game.Tournament.Components
             {
                 ChoiceType.Pick => Color4.White,
                 ChoiceType.Ban or ChoiceType.Consumed => Color4.Gray,
-                ChoiceType.RedWin => TournamentGame.GetTeamColour(TeamColour.Red),
-                ChoiceType.BlueWin => TournamentGame.GetTeamColour(TeamColour.Blue),
+                ChoiceType.RedWin => TournamentExtensions.GetTeamColour(TeamColour.Red),
+                ChoiceType.BlueWin => TournamentExtensions.GetTeamColour(TeamColour.Blue),
                 _ => Color4.White,
             };
 

@@ -207,7 +207,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
             // Flash when new changes are made.
             bool shouldFlash = newBpChoice != bpChoice;
 
-            LocalisableString choiceText = TournamentGame.GetTeamString(newBpChoice?.Team, true, @"Map");
+            LocalisableString choiceText = TournamentExtensions.GetTeamString(newBpChoice?.Team, true, @"Map");
 
             if (newBpChoice != null)
             {
@@ -220,7 +220,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
                 if (pickerChoice != null)
                 {
-                    BorderColour = TournamentGame.GetTeamColour(pickerChoice.Team);
+                    BorderColour = TournamentExtensions.GetTeamColour(pickerChoice.Team);
                 }
                 else
                 {
@@ -236,10 +236,10 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         Alpha = 1f;
                         backgroundAddition.FadeTo(newAlpha: 0, duration: 150, easing: Easing.InCubic);
                         icon.Icon = FontAwesome.Solid.Check;
-                        BorderColour = TournamentGame.GetTeamColour(newBpChoice.Team);
+                        BorderColour = TournamentExtensions.GetTeamColour(newBpChoice.Team);
                         BorderThickness = 4;
                         instructText.Text = $"{choiceText} picked!";
-                        if (shouldFlash) runAnimation(TournamentGame.GetTeamColour(newBpChoice.Team), false);
+                        if (shouldFlash) runAnimation(TournamentExtensions.GetTeamColour(newBpChoice.Team), false);
                         break;
 
                     // Ban: All darker

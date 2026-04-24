@@ -169,7 +169,7 @@ namespace osu.Game.Tournament.Screens.Editors
                 Model.UseBoard.BindValueChanged(e =>
                 {
                     if (e.NewValue)
-                        Model.BestOf.Value = TournamentGame.BOARD_BEST_OF;
+                        Model.BestOf.Value = TournamentExtensions.BOARD_BEST_OF;
 
                     bestOfSlider.FadeTo(e.NewValue ? 0 : 1);
                 }, true);

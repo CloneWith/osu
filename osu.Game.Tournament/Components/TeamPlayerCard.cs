@@ -222,8 +222,8 @@ namespace osu.Game.Tournament.Components
                     _ => FumoColours.DeepPurple.Regular,
                 };
 
-                topMask.Alpha = penalty >= TournamentGame.PUNISHMENT_THRESHOLD ? 1 : 0;
-                punishmentText.Text = penalty >= TournamentGame.PUNISHMENT_THRESHOLD ? BaseStrings.Disqualified : BaseStrings.Punishment;
+                topMask.Alpha = penalty >= TournamentExtensions.PUNISHMENT_THRESHOLD ? 1 : 0;
+                punishmentText.Text = penalty >= TournamentExtensions.PUNISHMENT_THRESHOLD ? BaseStrings.Disqualified : BaseStrings.Punishment;
 
                 if (penalty > 3)
                 {

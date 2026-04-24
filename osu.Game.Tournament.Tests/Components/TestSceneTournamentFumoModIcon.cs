@@ -40,19 +40,19 @@ namespace osu.Game.Tournament.Tests.Components
         [Test]
         public void TestIconColourChange()
         {
-            AddStep("change main background colour", () => fillFlow.Children.First().MainBackgroundColour = Color4.SkyBlue);
-            AddStep("change icon colour", () => fillFlow.Children.First().MainIconColour = Color4Extensions.FromHex("#535353"));
-            AddStep("change badge background colour", () => fillFlow.Children.First().BadgeBackgroundColour = Color4Extensions.FromHex("#535353"));
-            AddStep("change badge text colour", () => fillFlow.Children.First().BadgeTextColour = Color4.SkyBlue);
+            AddStep("change main background colour", () => fillFlow.Children[0].MainBackgroundColour = Color4.SkyBlue);
+            AddStep("change icon colour", () => fillFlow.Children[0].MainIconColour = Color4Extensions.FromHex("#535353"));
+            AddStep("change badge background colour", () => fillFlow.Children[0].BadgeBackgroundColour = Color4Extensions.FromHex("#535353"));
+            AddStep("change badge text colour", () => fillFlow.Children[0].BadgeTextColour = Color4.SkyBlue);
         }
 
         [Test]
         public void TestIconTextureChange()
         {
-            AddStep("use texture as icon", () => fillFlow.Children.First().Texture = textureStore.Get("Icons/check-circle"));
-            AddAssert("SpriteIcon component is hidden", () => fillFlow.Children.First().ChildrenOfType<SpriteIcon>().First().Alpha == 0);
-            AddStep("use builtin icon type", () => fillFlow.Children.First().Icon = FontAwesome.Regular.CheckCircle);
-            AddAssert("Sprite component is hidden", () => fillFlow.Children.First().ChildrenOfType<Sprite>().First(s => s.Name == "Sprite Icon").Alpha == 0);
+            AddStep("use texture as icon", () => fillFlow.Children[0].Texture = textureStore.Get("Icons/check-circle"));
+            AddAssert("SpriteIcon component is hidden", () => fillFlow.Children[0].ChildrenOfType<SpriteIcon>().First().Alpha == 0);
+            AddStep("use builtin icon type", () => fillFlow.Children[0].Icon = FontAwesome.Regular.CheckCircle);
+            AddAssert("Sprite component is hidden", () => fillFlow.Children[0].ChildrenOfType<Sprite>().First(s => s.Name == "Sprite Icon").Alpha == 0);
         }
 
         [BackgroundDependencyLoader]

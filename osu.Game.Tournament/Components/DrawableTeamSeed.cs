@@ -24,8 +24,8 @@ namespace osu.Game.Tournament.Components
             InnerText.Font = InnerText.Font.With(size: 36);
             InnerText.Colour = colour switch
             {
-                TeamColour.Red => TournamentGame.COLOUR_RED,
-                TeamColour.Blue => TournamentGame.COLOUR_BLUE,
+                TeamColour.Red => TournamentExtensions.COLOUR_RED,
+                TeamColour.Blue => TournamentExtensions.COLOUR_BLUE,
                 _ => noBackground ? Color4.White : Color4.Black,
             };
         }
