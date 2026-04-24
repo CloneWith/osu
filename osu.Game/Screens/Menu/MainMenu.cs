@@ -121,7 +121,7 @@ namespace osu.Game.Screens.Menu
         private IDisposable logoProxy;
 
         [BackgroundDependencyLoader(true)]
-        private void load(BeatmapListingOverlay beatmapListing, SettingsOverlay settings, OsuConfigManager config, SessionStatics statics, AudioManager audio)
+        private void load(SettingsOverlay settings, OsuConfigManager config, SessionStatics statics, AudioManager audio)
         {
             holdDelay = config.GetBindable<double>(OsuSetting.UIHoldActivationDelay);
             loginDisplayed = statics.GetBindable<bool>(Static.LoginOverlayDisplayed);
@@ -333,11 +333,11 @@ namespace osu.Game.Screens.Menu
         {
             if (loginDisplayed.Value) return;
 
-            if (!api.IsLoggedIn || api.State.Value == APIState.RequiresSecondFactorAuth)
-            {
-                Scheduler.AddDelayed(() => login?.Show(), 500);
-                loginDisplayed.Value = true;
-            }
+            if (api.State.Value != APIState.RequiresSecondFactorAuth)
+                return;
+
+            Scheduler.AddDelayed(() => login?.Show(), 500);
+            loginDisplayed.Value = true;
         }
 
         protected override void LogoSuspending(OsuLogo logo)
