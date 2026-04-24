@@ -33,7 +33,7 @@ using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseBeatmapInfoWedge : CompositeDrawable
+    public partial class ShowcaseBeatmapWedge : CompositeDrawable
     {
         private const float border_weight = 2;
 
@@ -79,7 +79,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private bool shouldShowShowcaseInfo => Target.Value != null
                                                && (!string.IsNullOrWhiteSpace(Target.Value.DiffField.Value) || !string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value));
 
-        public ShowcaseBeatmapInfoWedge()
+        public ShowcaseBeatmapWedge()
         {
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -398,45 +398,10 @@ namespace osu.Game.Screens.TournamentShowcase
                 return;
             }
 
-            BeatmapDifficulty originalDifficulty = beatmap.Value.BeatmapInfo.Difficulty;
-            BeatmapDifficulty adjustedDifficulty = new BeatmapDifficulty(originalDifficulty);
-
-            foreach (var mod in mods.Value.OfType<IApplicableToDifficulty>())
-                mod.ApplyToDifficulty(adjustedDifficulty);
-
             Ruleset rulesetInstance = ruleset.Value.CreateInstance();
 
-            adjustedDifficulty = rulesetInstance.GetAdjustedDisplayDifficulty(beatmap.Value.BeatmapInfo, mods.Value);
-
-            BeatmapTitleWedge.StatisticDifficulty.Data firstStatistic;
-
-            switch (ruleset.Value.OnlineID)
-            {
-                case 3:
-                    // Account for mania differences locally for now.
-                    // Eventually this should be handled in a more modular way, allowing rulesets to return arbitrary difficulty attributes.
-                    ILegacyRuleset legacyRuleset = (ILegacyRuleset)rulesetInstance;
-
-                    // For the time being, the key count is static no matter what, because:
-                    // - The method doesn't have knowledge of the active keymods. Doing so may require considerations for filtering.
-                    // - Using the difficulty adjustment mod to adjust OD doesn't have an effect on conversion.
-                    int keyCount = legacyRuleset.GetKeyCount(beatmap.Value.BeatmapInfo, mods.Value);
-
-                    firstStatistic = new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsCsMania, keyCount, keyCount, 10);
-                    break;
-
-                default:
-                    firstStatistic = new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsCs, originalDifficulty.CircleSize, adjustedDifficulty.CircleSize, 10);
-                    break;
-            }
-
-            difficultyStatisticsDisplay.Statistics = new[]
-            {
-                firstStatistic,
-                new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsAr, originalDifficulty.ApproachRate, adjustedDifficulty.ApproachRate, 10),
-                new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsAccuracy, originalDifficulty.OverallDifficulty, adjustedDifficulty.OverallDifficulty, 10),
-                new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsDrain, originalDifficulty.DrainRate, adjustedDifficulty.DrainRate, 10),
-            };
+            var displayAttributes = rulesetInstance.GetBeatmapAttributesForDisplay(beatmap.Value.BeatmapInfo, mods.Value).ToList();
+            difficultyStatisticsDisplay.Statistics = displayAttributes.Select(a => new BeatmapTitleWedge.StatisticDifficulty.Data(a)).ToList();
         });
 
         private CancellationTokenSource? lengthBpmCancellationSource;
