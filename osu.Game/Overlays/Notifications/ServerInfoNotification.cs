@@ -25,26 +25,26 @@ namespace osu.Game.Overlays.Notifications
         {
             Icon = FontAwesome.Solid.Server;
             IconContent.Colour = colours.BlueLight;
-            Text = GetServerDisplayText(serverUrl);
+            Text = getServerDisplayText(serverUrl);
         }
 
-        private static LocalisableString GetServerDisplayText(string serverUrl)
+        private static LocalisableString getServerDisplayText(string serverUrl)
         {
             if (string.IsNullOrEmpty(serverUrl))
                 return OnlineSettingsStrings.ConnectedToDefaultServer;
 
-            string displayName = ExtractDisplayName(serverUrl);
+            string displayName = extractDisplayName(serverUrl);
             return OnlineSettingsStrings.CurrentServer(displayName);
         }
 
-        private static string ExtractDisplayName(string url)
+        private static string extractDisplayName(string url)
         {
             if (string.IsNullOrEmpty(url))
                 return OnlineSettingsStrings.DefaultServer.ToString();
 
             try
             {
-                string cleanUrl = url.Replace("https://", "").Replace("http://", "");
+                string cleanUrl = url.Replace(@"https://", "").Replace(@"http://", "");
 
                 int pathIndex = cleanUrl.IndexOf('/');
                 if (pathIndex > 0)
@@ -52,8 +52,8 @@ namespace osu.Game.Overlays.Notifications
 
                 return cleanUrl.ToLowerInvariant() switch
                 {
-                    "osu.ppy.sh" => OnlineSettingsStrings.OfficialServer.ToString(),
-                    "dev.ppy.sh" => OnlineSettingsStrings.DevelopmentServer.ToString(),
+                    @"osu.ppy.sh" => OnlineSettingsStrings.OfficialServer.ToString(),
+                    @"dev.ppy.sh" => OnlineSettingsStrings.DevelopmentServer.ToString(),
                     _ => cleanUrl
                 };
             }

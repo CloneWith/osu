@@ -188,7 +188,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Text = TeamEditorStrings.AddPlayer,
                                 Margin = new MarginPadding { Top = 10, Bottom = 10 },
-                                Action = () => playerEditor.CreateNew(),
+                                Action = playerEditor.CreateNew,
                             },
                         }
                     },

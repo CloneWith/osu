@@ -91,8 +91,8 @@ namespace osu.Game.Tournament.Screens.Ladder.Components
                 if (horizontalSpace >= 2 * padding)
                 {
                     float elbowX = progressionToRight
-                                       ? sourcePoint.X + padding
-                                       : sourcePoint.X - padding;
+                        ? sourcePoint.X + padding
+                        : sourcePoint.X - padding;
 
                     pathPoints.Add(new Vector2(elbowX, sourcePoint.Y));
                     pathPoints.Add(new Vector2(elbowX, destPoint.Y));

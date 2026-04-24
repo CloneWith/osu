@@ -107,7 +107,7 @@ namespace osu.Game.Tournament.IPC
                                 }
                                 else
                                 {
-                                    Logger.Log($"Couldn't parse mods into apimods?");
+                                    Logger.Log("Couldn't parse mods into apimods?");
                                 }
                             }
                             catch (Exception e)

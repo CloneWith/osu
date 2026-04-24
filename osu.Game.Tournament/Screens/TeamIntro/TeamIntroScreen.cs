@@ -52,11 +52,11 @@ namespace osu.Game.Tournament.Screens.TeamIntro
             const float y_offset = 460;
 
             Drawable team1Display = ladderInfo.Use1V1Mode.Value
-                                        ? new DrawableTeamTitleWithHeader(match.NewValue.Team1.Value, TeamColour.Red)
-                                        : new DrawableTeamWithPlayers(match.NewValue.Team1.Value, TeamColour.Red);
+                ? new DrawableTeamTitleWithHeader(match.NewValue.Team1.Value, TeamColour.Red)
+                : new DrawableTeamWithPlayers(match.NewValue.Team1.Value, TeamColour.Red);
             Drawable team2Display = ladderInfo.Use1V1Mode.Value
-                                        ? new DrawableTeamTitleWithHeader(match.NewValue.Team2.Value, TeamColour.Blue)
-                                        : new DrawableTeamWithPlayers(match.NewValue.Team2.Value, TeamColour.Blue);
+                ? new DrawableTeamTitleWithHeader(match.NewValue.Team2.Value, TeamColour.Blue)
+                : new DrawableTeamWithPlayers(match.NewValue.Team2.Value, TeamColour.Blue);
 
             team1Display.Position = new Vector2(165, y_offset);
             team2Display.Position = new Vector2(740, y_offset);

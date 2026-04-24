@@ -62,7 +62,7 @@ namespace osu.Game.Screens.Spectate
         /// <param name="users">The users to spectate.</param>
         protected SpectatorScreen(params int[] users)
         {
-            this.userIds.AddRange(users);
+            userIds.AddRange(users);
         }
 
         protected override void LoadComplete()

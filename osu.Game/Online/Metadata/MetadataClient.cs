@@ -28,7 +28,9 @@ namespace osu.Game.Online.Metadata
         {
             base.LoadComplete();
 
-            localFriends.BindTo(api.LocalUserState.Friends);
+            if (api != null)
+                localFriends.BindTo(api.LocalUserState.Friends);
+
             localFriends.BindCollectionChanged((_, _) => RefreshFriends().FireAndForget());
         }
 

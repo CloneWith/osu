@@ -40,7 +40,7 @@ namespace osu.Game.Tournament.Components
             public readonly Bindable<long?> ScoreBlue = new Bindable<long?>();
 
             private TournamentSpriteText slotText = null!;
-            private long mapId = 0;
+            private long mapId;
 
             public long MapID
             {
@@ -216,7 +216,7 @@ namespace osu.Game.Tournament.Components
         public const float HEIGHT = TournamentBeatmapPanel.HEIGHT;
         public const float WIDTH = TournamentBeatmapPanel.WIDTH;
 
-        private TeamColour? winnerColour = null;
+        private TeamColour? winnerColour;
 
         public TeamColour? Winner
         {

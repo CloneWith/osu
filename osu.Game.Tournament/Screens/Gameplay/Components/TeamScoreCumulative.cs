@@ -25,7 +25,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
 
-        private readonly BindableDictionary<string,Tuple<long,long>> mapScores = new BindableDictionary<string, Tuple<long, long>>();
+        private readonly BindableDictionary<string, Tuple<long, long>> mapScores = new BindableDictionary<string, Tuple<long, long>>();
         private readonly IBindable<TournamentBeatmap?> beatmap = new Bindable<TournamentBeatmap?>();
         private readonly TeamColour teamColour;
 

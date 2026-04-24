@@ -283,7 +283,7 @@ namespace osu.Game
         /// </remarks>
         protected virtual int UnhandledExceptionsBeforeCrash => DebugUtils.IsDebugBuild ? 0 : 1;
 
-        protected bool SkipHubConnections = false;
+        protected bool SkipHubConnections;
 
         public OsuGameBase()
         {
