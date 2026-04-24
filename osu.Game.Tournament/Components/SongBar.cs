@@ -283,7 +283,10 @@ namespace osu.Game.Tournament.Components
                 StarRating = 0,
                 Difficulty = new BeatmapDifficulty
                 {
-                    CircleSize = 0, DrainRate = 0, OverallDifficulty = 0, ApproachRate = 0,
+                    CircleSize = 0,
+                    DrainRate = 0,
+                    OverallDifficulty = 0,
+                    ApproachRate = 0,
                 },
             };
 
@@ -419,7 +422,9 @@ namespace osu.Game.Tournament.Components
 
                 var glowText = new GlowingSpriteText
                 {
-                    Text = poolSlotsText[key], Font = OsuFont.GetFont(weight: FontWeight.SemiBold), GlowColour = Color4Extensions.FromHex("#FFFFFF").Opacity(0.2f),
+                    Text = poolSlotsText[key],
+                    Font = OsuFont.GetFont(weight: FontWeight.SemiBold),
+                    GlowColour = Color4Extensions.FromHex("#FFFFFF").Opacity(0.2f),
                 };
                 currentFlow.Add(glowText);
 
@@ -466,7 +471,8 @@ namespace osu.Game.Tournament.Components
             {
                 Margin = new MarginPadding
                 {
-                    Horizontal = 15, Vertical = 1
+                    Horizontal = 15,
+                    Vertical = 1,
                 };
                 AutoSizeAxes = Axes.Both;
             }

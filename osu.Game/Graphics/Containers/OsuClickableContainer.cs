@@ -17,7 +17,10 @@ namespace osu.Game.Graphics.Containers
     {
         private readonly HoverSampleSet sampleSet;
 
-        private readonly Container content = new Container { RelativeSizeAxes = Axes.Both };
+        private readonly Container content = new Container
+        {
+            RelativeSizeAxes = Axes.Both
+        };
 
         private HoverSounds samples = null!;
 
@@ -30,7 +33,12 @@ namespace osu.Game.Graphics.Containers
         protected override Container<Drawable> Content => content;
 
         protected virtual HoverSounds CreateHoverSounds(HoverSampleSet sampleSet) => new HoverClickSounds(sampleSet)
-            { Enabled = { BindTarget = sampleSet is HoverSampleSet.Muted ? new BindableBool() : Enabled } };
+        {
+            Enabled =
+            {
+                BindTarget = sampleSet is HoverSampleSet.Muted ? new BindableBool() : Enabled,
+            }
+        };
 
         public OsuClickableContainer(HoverSampleSet sampleSet = HoverSampleSet.Default)
         {

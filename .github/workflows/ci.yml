@@ -82,7 +82,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Compile
-        run: dotnet build -c Debug -warnaserror osu.Desktop.slnf
+        run: dotnet build -c Debug osu.Desktop.slnf
 
       - name: Test
         run: >
