@@ -141,7 +141,7 @@ namespace osu.Game.Tournament.Tests.Components
             }));
 
             AddAssert("message from team red is red color", () =>
-                this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentGame.COLOUR_RED));
+                this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentExtensions.COLOUR_RED));
 
             AddStep("message from team red", () => testChannel.AddNewMessages(new Message(nextMessageId())
             {
@@ -156,7 +156,7 @@ namespace osu.Game.Tournament.Tests.Components
             }));
 
             AddAssert("message from team blue is blue color", () =>
-                this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentGame.COLOUR_BLUE));
+                this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentExtensions.COLOUR_BLUE));
 
             var userWithCustomColour = blueUserWithCustomColour.ToAPIUser();
             userWithCustomColour.Colour = "#e45678";
@@ -168,7 +168,7 @@ namespace osu.Game.Tournament.Tests.Components
             }));
 
             AddAssert("message from team blue is blue color", () =>
-                this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentGame.COLOUR_BLUE));
+                this.ChildrenOfType<DrawableChatUsername>().Last().AccentColour, () => Is.EqualTo(TournamentExtensions.COLOUR_BLUE));
 
             AddAssert("message from user with custom colour is inverted", () =>
                 this.ChildrenOfType<DrawableChatUsername>().Last().Inverted, () => Is.EqualTo(true));

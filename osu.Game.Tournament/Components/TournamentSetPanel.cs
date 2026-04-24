@@ -367,7 +367,7 @@ namespace osu.Game.Tournament.Components
             {
                 BorderThickness = 6;
 
-                BorderColour = TournamentGame.GetTeamColour((TeamColour)winnerColour);
+                BorderColour = TournamentExtensions.GetTeamColour((TeamColour)winnerColour);
             }
             else
             {

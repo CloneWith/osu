@@ -143,7 +143,7 @@ namespace osu.Game.Tournament.Screens.Schedule
             IEnumerable<ConditionalTournamentMatch> conditionals =
                 allMatches
                     .Where(m => !m.Completed.Value && (m.Team1.Value == null || m.Team2.Value == null) && Math.Abs(m.Date.Value.DayOfYear - DateTimeOffset.UtcNow.DayOfYear) < days_for_displays)
-                    .SelectMany(m => m.ConditionalMatches.Where(cp => m.Acronyms.TrueForAll(a => cp.Acronyms.Contains(a))));
+                    .SelectMany<TournamentMatch, ConditionalTournamentMatch>(m => m.ConditionalMatches.Where(cp => m.Acronyms.TrueForAll(a => cp.Acronyms.Contains(a))));
 
             IEnumerable<TournamentMatch> upcoming =
                 allMatches
@@ -225,7 +225,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
                             Text = currentMatch.Value.Team1.Value?.FullName.Value ?? string.Empty,
-                            BackgroundColour = TournamentGame.COLOUR_RED,
+                            BackgroundColour = TournamentExtensions.COLOUR_RED,
                             TextColour = Color4.White,
                         },
                         new TournamentSpriteText
@@ -240,7 +240,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
                             Text = currentMatch.Value.Team2.Value?.FullName.Value ?? string.Empty,
-                            BackgroundColour = TournamentGame.COLOUR_BLUE,
+                            BackgroundColour = TournamentExtensions.COLOUR_BLUE,
                             TextColour = Color4.White,
                         },
                         new FillFlowContainer

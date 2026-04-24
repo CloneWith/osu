@@ -57,12 +57,12 @@ namespace osu.Game.Tournament.Components
             {
                 Background = new Box
                 {
-                    Colour = TournamentGame.ELEMENT_BACKGROUND_COLOUR,
+                    Colour = TournamentExtensions.ELEMENT_BACKGROUND_COLOUR,
                     RelativeSizeAxes = Axes.Both,
                 },
                 InnerText = new TournamentSpriteText
                 {
-                    Colour = TournamentGame.ELEMENT_FOREGROUND_COLOUR,
+                    Colour = TournamentExtensions.ELEMENT_FOREGROUND_COLOUR,
                     Font = OsuFont.Torus.With(weight: textWeight, size: fontSize),
                     Padding = new MarginPadding { Left = 10, Right = 20 },
                 }

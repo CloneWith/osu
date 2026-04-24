@@ -213,7 +213,7 @@ namespace osu.Game.Tournament.Components
                     flash.FadeOutFromOne(500).Loop(0, 10);
 
                 borderBox.BorderThickness = 6;
-                borderBox.BorderColour = TournamentGame.GetTeamColour(newChoice.Team);
+                borderBox.BorderColour = TournamentExtensions.GetTeamColour(newChoice.Team);
 
                 switch (newChoice.Type)
                 {

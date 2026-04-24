@@ -94,7 +94,7 @@ namespace osu.Game.Tournament.Components
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Colour = TournamentGame.GetTeamColour(colour),
+                            Colour = TournamentExtensions.GetTeamColour(colour),
                             Alpha = 0,
                         },
                         activeIcon = new SpriteIcon
@@ -133,14 +133,14 @@ namespace osu.Game.Tournament.Components
                                     Origin = anchor,
                                     RelativeSizeAxes = Axes.X,
                                     Height = 4,
-                                    Colour = TournamentGame.GetTeamColour(colour),
+                                    Colour = TournamentExtensions.GetTeamColour(colour),
                                 },
                                 teamNameText = new OsuSpriteText
                                 {
                                     Anchor = anchor,
                                     Origin = anchor,
                                     Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Bold),
-                                    Colour = TournamentGame.GetTeamColour(colour),
+                                    Colour = TournamentExtensions.GetTeamColour(colour),
                                 },
                             },
                         },
@@ -199,7 +199,7 @@ namespace osu.Game.Tournament.Components
         private void updateActiveState()
             => IsActive = currentMatch.Value?.PreparationMode.Value == false
                           && currentMatch.Value?.Completed.Value == false
-                          && currentMatch.Value.CurrentRoundIndex.Value != TournamentGame.TIE_BREAKER_ROUND
+                          && currentMatch.Value.CurrentRoundIndex.Value != TournamentExtensions.TIE_BREAKER_ROUND
                           && currentMatch.Value.CurrentTeam == colour;
 
         private void updateMatch()

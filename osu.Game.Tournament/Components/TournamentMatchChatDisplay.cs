@@ -145,9 +145,9 @@ namespace osu.Game.Tournament.Components
                 if (info.CurrentMatch.Value is not TournamentMatch match) return;
 
                 if (match.Team1.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
-                    UsernameColour = TournamentGame.COLOUR_RED;
+                    UsernameColour = TournamentExtensions.COLOUR_RED;
                 else if (match.Team2.Value?.Players.Any(u => u.OnlineID == Message.Sender.OnlineID) == true)
-                    UsernameColour = TournamentGame.COLOUR_BLUE;
+                    UsernameColour = TournamentExtensions.COLOUR_BLUE;
             }
         }
     }

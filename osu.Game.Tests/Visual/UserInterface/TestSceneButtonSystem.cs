@@ -68,12 +68,6 @@ namespace osu.Game.Tests.Visual.UserInterface
         }
 
         [TestCase(Key.P, Key.P)]
-        [TestCase(Key.M, Key.M, Key.L)]
-        [TestCase(Key.M, Key.M, Key.M)]
-        [TestCase(Key.L, Key.L)]
-        [TestCase(Key.B, Key.E, Key.B)]
-        [TestCase(Key.S, Key.E, Key.S)]
-        [TestCase(Key.D)]
         [TestCase(Key.Q)]
         [TestCase(Key.O)]
         public void TestShortcutKeys(params Key[] keys)
@@ -94,20 +88,8 @@ namespace osu.Game.Tests.Visual.UserInterface
                         buttons.OnMultiplayer = action;
                         break;
 
-                    case Key.L:
-                        buttons.OnPlaylists = action;
-                        break;
-
-                    case Key.B:
-                        buttons.OnEditBeatmap = action;
-                        break;
-
                     case Key.S:
                         buttons.OnEditSkin = action;
-                        break;
-
-                    case Key.D:
-                        buttons.OnBeatmapListing = action;
                         break;
 
                     case Key.Q:

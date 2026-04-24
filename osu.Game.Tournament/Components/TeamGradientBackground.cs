@@ -37,8 +37,8 @@ namespace osu.Game.Tournament.Components
                     RelativeSizeAxes = Axes.Both,
                     Width = 0.3f,
                     Shear = OsuGame.SHEAR,
-                    Colour = ColourInfo.GradientHorizontal(TournamentGame.COLOUR_RED,
-                        TournamentGame.COLOUR_RED.Opacity(0)),
+                    Colour = ColourInfo.GradientHorizontal(TournamentExtensions.COLOUR_RED,
+                        TournamentExtensions.COLOUR_RED.Opacity(0)),
                 },
                 blueArea = new Box
                 {
@@ -48,8 +48,8 @@ namespace osu.Game.Tournament.Components
                     RelativeSizeAxes = Axes.Both,
                     Width = 0.3f,
                     Shear = OsuGame.SHEAR,
-                    Colour = ColourInfo.GradientHorizontal(TournamentGame.COLOUR_BLUE.Opacity(0),
-                        TournamentGame.COLOUR_BLUE),
+                    Colour = ColourInfo.GradientHorizontal(TournamentExtensions.COLOUR_BLUE.Opacity(0),
+                        TournamentExtensions.COLOUR_BLUE),
                 },
             };
         }

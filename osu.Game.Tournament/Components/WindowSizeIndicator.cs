@@ -89,7 +89,7 @@ namespace osu.Game.Tournament.Components
                                     widthText = new TournamentSpriteText
                                     {
                                         Text = sizeBindable.Value.Width.ToString(),
-                                        Colour = TournamentGame.TEXT_COLOUR,
+                                        Colour = TournamentExtensions.TEXT_COLOUR,
                                         Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
                                     },
                                 },
@@ -109,7 +109,7 @@ namespace osu.Game.Tournament.Components
                                     heightText = new TournamentSpriteText
                                     {
                                         Text = sizeBindable.Value.Height.ToString(),
-                                        Colour = TournamentGame.TEXT_COLOUR,
+                                        Colour = TournamentExtensions.TEXT_COLOUR,
                                         Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold),
                                     },
                                 },

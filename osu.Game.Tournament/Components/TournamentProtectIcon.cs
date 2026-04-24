@@ -90,7 +90,7 @@ namespace osu.Game.Tournament.Components
                 return;
             }
 
-            backgroundColour = TournamentGame.GetTeamColour((TeamColour)TeamColour);
+            backgroundColour = TournamentExtensions.GetTeamColour((TeamColour)TeamColour);
 
             protectIcon.Colour = Interpolation.ValueAt<Colour4>(0.1f, Colour4.Black, backgroundColour, 0, 1);
             background.Colour = backgroundColour;

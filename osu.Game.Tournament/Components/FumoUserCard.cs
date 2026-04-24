@@ -37,7 +37,7 @@ namespace osu.Game.Tournament.Components
 
             this.user = user;
             apiUser = user.ToAPIUser();
-            accentColour = TournamentGame.GetTeamColour(colour);
+            accentColour = TournamentExtensions.GetTeamColour(colour);
 
             Size = new Vector2(360, 100);
         }

@@ -36,10 +36,7 @@ using osu.Game.Overlays.SkinEditor;
 using osu.Game.Overlays.Volume;
 using osu.Game.Rulesets;
 using osu.Game.Screens.Backgrounds;
-using osu.Game.Screens.Edit;
-using osu.Game.Screens.OnlinePlay.DailyChallenge;
 using osu.Game.Screens.OnlinePlay.Multiplayer;
-using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Screens.Select;
 using osu.Game.Seasonal;
 using osu.Game.Screens.TournamentShowcase;
@@ -150,27 +147,12 @@ namespace osu.Game.Screens.Menu
                     {
                         Buttons = new ButtonSystem
                         {
-                            OnEditBeatmap = () =>
-                            {
-                                Beatmap.SetDefault();
-                                this.Push(new EditorLoader());
-                            },
                             OnEditSkin = () =>
                             {
                                 skinEditor?.Show();
                             },
                             OnSolo = loadSongSelect,
                             OnMultiplayer = () => this.Push(new Multiplayer()),
-                            OnQuickPlay = loadQuickPlay,
-                            OnRankedPlay = loadRankedPlay,
-                            OnPlaylists = () => this.Push(new Playlists()),
-                            OnDailyChallenge = room =>
-                            {
-                                if (statics.Get<bool>(Static.DailyChallengeIntroPlayed))
-                                    this.Push(new DailyChallenge(room));
-                                else
-                                    this.Push(new DailyChallengeIntro(room));
-                            },
                             OnTournamentShowcase = () => this.Push(new ShowcaseConfigScreen()),
                             OnExit = e =>
                             {
@@ -240,7 +222,6 @@ namespace osu.Game.Screens.Menu
             };
 
             Buttons.OnSettings = () => settings?.ToggleVisibility();
-            Buttons.OnBeatmapListing = () => beatmapListing?.ToggleVisibility();
 
             reappearSampleSwoosh = audio.Samples.Get(@"Menu/reappear-swoosh");
         }

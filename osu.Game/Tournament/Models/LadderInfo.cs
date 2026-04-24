@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Rulesets;
-using osu.Game.Tournament.Components;
 
 namespace osu.Game.Tournament.Models
 {
@@ -44,35 +43,22 @@ namespace osu.Game.Tournament.Models
             MaxValue = 1366,
         };
 
-        public Bindable<int> ShowcaseChromaHeight = new BindableInt(TournamentSceneManager.STREAM_AREA_HEIGHT - (int)SongBar.HEIGHT)
+        public Bindable<int> ShowcaseChromaHeight = new BindableInt(TournamentExtensions.STREAM_AREA_HEIGHT - (int)TournamentExtensions.SONGBAR_HEIGHT)
         {
             MinValue = 270,
-            MaxValue = TournamentSceneManager.STREAM_AREA_HEIGHT - (int)SongBar.HEIGHT
+            MaxValue = TournamentExtensions.STREAM_AREA_HEIGHT - (int)TournamentExtensions.SONGBAR_HEIGHT
         };
 
         public Bindable<int> ShowcaseChromaVerticalOffset = new BindableInt
         {
             MinValue = 0,
-            MaxValue = TournamentSceneManager.STREAM_AREA_HEIGHT - (int)SongBar.HEIGHT - 270
-        };
-
-        public BindableInt FrameRate = new BindableInt(60)
-        {
-            MinValue = 30,
-            MaxValue = 360,
-            Default = 60,
+            MaxValue = TournamentExtensions.STREAM_AREA_HEIGHT - (int)TournamentExtensions.SONGBAR_HEIGHT - 270
         };
 
         public Bindable<int> PlayersPerTeam = new BindableInt(4)
         {
             MinValue = 1,
             MaxValue = 4,
-        };
-
-        public Bindable<int> MainBoardSize = new BindableInt(570)
-        {
-            MinValue = 300,
-            MaxValue = 570,
         };
 
         public Bindable<bool> UseUtcTime = new BindableBool();
