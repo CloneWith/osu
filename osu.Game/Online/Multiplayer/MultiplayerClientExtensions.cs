@@ -25,7 +25,7 @@ namespace osu.Game.Online.Multiplayer
 
                     // OnlineStatusNotifier is already letting users know about interruptions to connections.
                     // Silence these because it gets very spammy otherwise.
-                    if (SentryLogger.IsLocalUserConnectivityException(exception))
+                    if (ExceptionUtils.IsLocalUserConnectivityException(exception))
                         return;
 
                     if (exception.GetHubExceptionMessage() is string message)
