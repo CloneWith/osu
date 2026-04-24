@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
+using osu.Desktop.IPC;
 using osu.Desktop.Performance;
 using osu.Desktop.Security;
 using osu.Framework.Platform;
@@ -38,6 +39,8 @@ namespace osu.Desktop
         private readonly HighPerformanceSessionManager highPerformanceSessionManager = new HighPerformanceSessionManager();
 
         public bool IsFirstRun { get; init; }
+
+        public bool EnableWebSocketServer { get; init; }
 
         public OsuGameDesktop(string[]? args = null)
             : base(args)
@@ -141,6 +144,9 @@ namespace osu.Desktop
 
             osuSchemeLinkIPCChannel = new OsuSchemeLinkIPCChannel(Host, this);
             archiveImportIPCChannel = new ArchiveImportIPCChannel(Host, this);
+
+            if (EnableWebSocketServer)
+                Add(new OsuWebSocketProvider());
 
             // file-based IPC should only be available on desktop. Makes no sense elsewhere.
             LoadComponentAsync(new TournamentFileBasedIPC(), loaded =>

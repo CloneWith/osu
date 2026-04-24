@@ -146,16 +146,6 @@ namespace osu.Game.Screens.Play
 
             return true;
 
-            string extractDownloadUrlFromMessage(string message)
-            {
-                const string prefix = "Download at: ";
-                int startIndex = message.IndexOf(prefix, StringComparison.Ordinal);
-                if (startIndex != -1)
-                    return message.Substring(startIndex + prefix.Length).Trim();
-
-                return download_url;
-            }
-
             void handleTokenFailure(Exception exception, bool displayNotification = false)
             {
                 tcs.SetResult(false);
@@ -168,54 +158,10 @@ namespace osu.Game.Screens.Play
                         ? "Play in this state is not permitted."
                         : "Your score will not be submitted.";
 
-                    bool notifyRulesetOutdated(string message)
-                    {
-                        if (message.StartsWith("Ruleset is outdated.", StringComparison.Ordinal))
-                        {
-                            Notifications.Post(new SimpleNotification
-                            {
-                                Text = $"{message}\n\n{whatWillHappen} Click to download the latest version.",
-                                Icon = FontAwesome.Solid.Download,
-                                Activated = () =>
-                                {
-                                    host.OpenUrlExternally(extractDownloadUrlFromMessage(message));
-                                    return true;
-                                }
-                            });
-                            return true;
-                        }
-
-                        return false;
-                    }
-
                     if (string.IsNullOrEmpty(exception.Message))
                         Logger.Error(exception, $"Failed to retrieve a score submission token.\n\n{whatWillHappen}");
                     else
-                    {
-                        switch (exception.Message)
-                        {
-                            case @"missing token header":
-                            case @"invalid client hash":
-                            case @"invalid verification hash":
-                                Logger.Log($"Please ensure that you are using the latest version of the official game releases.\n\n{whatWillHappen}", level: LogLevel.Important);
-                                break;
-
-                            case @"invalid or missing beatmap_hash":
-                                Logger.Log($"This beatmap does not match the online version. Please update or redownload it.\n\n{whatWillHappen}", level: LogLevel.Important);
-                                break;
-
-                            case @"expired token":
-                                Logger.Log($"Your system clock is set incorrectly. Please check your system time, date and timezone.\n\n{whatWillHappen}", level: LogLevel.Important);
-                                break;
-
-                            default:
-                                if (notifyRulesetOutdated(exception.Message))
-                                    break;
-
-                                Logger.Log($"{whatWillHappen} {exception.Message}", level: LogLevel.Important);
-                                break;
-                        }
-                    }
+                        Logger.Log($"{getUserFacingAPIError(exception)}\n\n{whatWillHappen}", level: LogLevel.Important);
                 }
 
                 if (shouldExit)
@@ -396,12 +342,67 @@ namespace osu.Game.Screens.Play
 
             request.Failure += e =>
             {
-                Logger.Error(e, $"Failed to submit score (token:{token.Value}): {e.Message}");
+                Logger.Error(e, $"{getUserFacingAPIError(e)}\n\nScore was not submitted (id: {token.Value})");
                 scoreSubmissionSource.SetResult(false);
             };
 
             api.Queue(request);
             return scoreSubmissionSource.Task;
+        }
+
+        private bool notifyRulesetOutdated(string message)
+        {
+            string extractDownloadUrlFromMessage(string msg)
+            {
+                const string prefix = "Download at: ";
+                int startIndex = msg.IndexOf(prefix, StringComparison.Ordinal);
+                if (startIndex != -1)
+                    return msg.Substring(startIndex + prefix.Length).Trim();
+
+                return download_url;
+            }
+
+            if (message.StartsWith("Ruleset is outdated.", StringComparison.Ordinal))
+            {
+                Notifications.Post(new SimpleNotification
+                {
+                    Text = $"{message}\n\nClick to download the latest version.",
+                    Icon = FontAwesome.Solid.Download,
+                    Activated = () =>
+                    {
+                        host.OpenUrlExternally(extractDownloadUrlFromMessage(message));
+                        return true;
+                    }
+                });
+                return true;
+            }
+
+            return false;
+        }
+
+        private string getUserFacingAPIError(Exception exception)
+        {
+            switch (exception.Message)
+            {
+                case @"missing token header":
+                case @"invalid client hash":
+                case @"invalid verification hash":
+                case @"invalid token":
+                case @"outdated client":
+                    return "Please ensure that you are using the latest version of the official game releases.";
+
+                case @"invalid or missing beatmap_hash":
+                    return "This beatmap does not match the online version. Please update or redownload it.";
+
+                case @"expired token":
+                    return "Your system clock is set incorrectly. Please check your system time, date and timezone.";
+
+                default:
+                    if (notifyRulesetOutdated(exception.Message))
+                        return "Your ruleset is outdated.";
+
+                    return exception.Message;
+            }
         }
 
         protected override ResultsScreen CreateResults(ScoreInfo score) => new SoloResultsScreen(score)
