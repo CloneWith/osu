@@ -167,12 +167,6 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = SetupStrings.UseBlueChromaDescription,
                     Current = LadderInfo.UseBlueChroma,
                 },
-                new LabelledSwitchButton
-                {
-                    Label = SetupStrings.NativeTourneyWindowCapturing,
-                    Description = SetupStrings.NativeTourneyWindowCapturingDescription,
-                    Current = LadderInfo.NativeTourneyWindowCapturing,
-                },
                 new SectionHeader(SetupStrings.TournamentSpecificHeader),
                 new LabelledTextBox
                 {
@@ -226,14 +220,6 @@ namespace osu.Game.Tournament.Screens.Setup
                     Description = "Text elements referring to \"Team\"s will be updated to \"Player\"s and team players lists will be hidden",
                     Current = LadderInfo.Use1V1Mode
                 },
-                new LabelledColourPicker
-                {
-                    Label = "Default text colour",
-                    LabelAnchor = Anchor.TopLeft,
-                    LabelOrigin = Anchor.TopLeft,
-                    Description = "The colour text elements will have if they use the default white colour. Will not affect elements which use a different colour.",
-                    Current = { BindTarget = LadderInfo.TextForegroundColour }
-                }
             };
         }
 

@@ -12,7 +12,6 @@ using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
-using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
@@ -93,20 +92,6 @@ namespace osu.Game.Tournament.Screens.TeamIntro
                             Text = "Move to team below",
                             Action = () => currentTeam.Value = LadderInfo.Teams!.GetPreviousAndNext(currentTeam.Value).next,
                         },
-                        new TournamentSpriteText
-                        {
-                            Margin = new MarginPadding { Top = 12 },
-                            Anchor = Anchor.TopCentre,
-                            Origin = Anchor.TopCentre,
-                            Text = "Text foreground colour",
-                            Font = OsuFont.GetFont(weight: FontWeight.Bold, size: 14)
-                        },
-                        new OsuColourPicker
-                        {
-                            RelativeSizeAxes = Axes.X,
-                            Width = 1.0f,
-                            Current = { BindTarget = LadderInfo.TextForegroundColour }
-                        }
                     }
                 }
             };
