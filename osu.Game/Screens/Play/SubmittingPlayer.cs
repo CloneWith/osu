@@ -62,8 +62,9 @@ namespace osu.Game.Screens.Play
         [Resolved]
         protected RulesetHashCache RulesetHashCache { get; private set; } = null!;
 
-        [Resolved]
-        protected INotificationOverlay Notifications { get; private set; } = null!;
+        [Resolved(canBeNull: true)]
+        [CanBeNull]
+        protected INotificationOverlay Notifications { get; private set; }
 
         [Resolved]
         private GameHost host { get; set; } = null!;
@@ -364,7 +365,7 @@ namespace osu.Game.Screens.Play
 
             if (message.StartsWith("Ruleset is outdated.", StringComparison.Ordinal))
             {
-                Notifications.Post(new SimpleNotification
+                Notifications?.Post(new SimpleNotification
                 {
                     Text = $"{message}\n\nClick to download the latest version.",
                     Icon = FontAwesome.Solid.Download,
