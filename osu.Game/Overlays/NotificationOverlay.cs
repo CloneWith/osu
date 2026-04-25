@@ -20,6 +20,7 @@ using osu.Framework.Threading;
 using osu.Game.Configuration;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Overlays.Settings;
@@ -123,22 +124,25 @@ namespace osu.Game.Overlays
                                     AutoSizeAxes = Axes.Y,
                                     RelativeSizeAxes = Axes.X,
                                     Padding = new MarginPadding { Top = 10 },
-                                    Spacing = new Vector2(5),
                                     Children = new Drawable[]
                                     {
-                                        new SettingsCheckbox
+                                        new SettingsItemV2(new FormCheckBox
                                         {
-                                            LabelText = UserInterfaceCustomStrings.DoNotDisturb,
-                                            TooltipText = UserInterfaceCustomStrings.DoNotDisturbDescription,
+                                            Caption = UserInterfaceCustomStrings.DoNotDisturb,
                                             Current = doNotDisturb,
-                                            ShowsDefaultIndicator = false,
-                                        },
-                                        new SettingsCheckbox
+                                            HintText = UserInterfaceCustomStrings.DoNotDisturbDescription,
+                                        })
                                         {
-                                            LabelText = UserInterfaceCustomStrings.PersistentNotifications,
-                                            TooltipText = UserInterfaceCustomStrings.PersistentNotificationsDescription,
+                                            ShowRevertToDefaultButton = false,
+                                        },
+                                        new SettingsItemV2(new FormCheckBox
+                                        {
+                                            Caption = UserInterfaceCustomStrings.PersistentNotifications,
                                             Current = persistentNotifications,
-                                            ShowsDefaultIndicator = false,
+                                            HintText = UserInterfaceCustomStrings.PersistentNotificationsDescription,
+                                        })
+                                        {
+                                            ShowRevertToDefaultButton = false,
                                         },
                                         sections = new FillFlowContainer<NotificationSection>
                                         {
