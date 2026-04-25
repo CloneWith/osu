@@ -1441,9 +1441,8 @@ namespace osu.Game
                 else
                     message = entry.Message.Truncate(256);
 
-                Schedule(() => Notifications.Post(new SimpleErrorNotification
+                Schedule(() => Notifications.Post(new SimpleErrorNotification(entry.Level == LogLevel.Error)
                 {
-                    Icon = entry.Level == LogLevel.Important ? FontAwesome.Solid.ExclamationCircle : FontAwesome.Solid.Bomb,
                     Text = message
                 }));
             }
