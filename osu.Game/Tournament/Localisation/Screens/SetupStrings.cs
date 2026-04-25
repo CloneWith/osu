@@ -95,18 +95,6 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"Use blue instead of green for chroma areas.");
 
         /// <summary>
-        /// "[Experimental] Capture tourney windows natively"
-        /// </summary>
-        public static LocalisableString NativeTourneyWindowCapturing => new TranslatableString(getKey(@"native_tourney_window_capturing"),
-            @"[Experimental] Capture tourney windows natively");
-
-        /// <summary>
-        /// "Try to use native library methods to capture tourney windows in the gameplay screen. Currently only available on Windows and may not work properly."
-        /// </summary>
-        public static LocalisableString NativeTourneyWindowCapturingDescription => new TranslatableString(getKey(@"native_tourney_window_capturing_description"),
-            @"Try to use native library methods to capture tourney windows in the gameplay screen. Currently only available on Windows and may not work properly.");
-
-        /// <summary>
         /// "Tournament Specific"
         /// </summary>
         public static LocalisableString TournamentSpecificHeader => new TranslatableString(getKey(@"tournament_specific_header"), @"Tournament Specific");

@@ -40,11 +40,6 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString BestOf => new TranslatableString(getKey(@"best_of"), @"Best of");
 
         /// <summary>
-        /// "Board Mode"
-        /// </summary>
-        public static LocalisableString BoardMode => new TranslatableString(getKey(@"board_mode"), @"Board Mode");
-
-        /// <summary>
         /// "Delete Round"
         /// </summary>
         public static LocalisableString DeleteRound => new TranslatableString(getKey(@"delete_round"), @"Delete Round");

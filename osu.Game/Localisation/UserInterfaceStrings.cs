@@ -8,7 +8,6 @@ namespace osu.Game.Localisation
     public static class UserInterfaceStrings
     {
         private const string prefix = @"osu.Game.Resources.Localisation.UserInterface";
-        private const string custom_prefix = @"osu.Game.Resources.Custom.Localisation.UserInterface";
 
         /// <summary>
         /// "User Interface"
@@ -176,33 +175,6 @@ namespace osu.Game.Localisation
         public static LocalisableString SelectedMods => new TranslatableString(getKey(@"selected_mods"), @"Selected Mods");
 
         /// <summary>
-        /// "Notifications"
-        /// </summary>
-        public static LocalisableString NotificationsSectionHeader => new TranslatableString(getKeyFromCustom(@"notifications_section_header"), @"Notifications");
-
-        /// <summary>
-        /// "Do not disturb"
-        /// </summary>
-        public static LocalisableString DoNotDisturb => new TranslatableString(getKeyFromCustom(@"do_not_disturb"), @"Do not disturb");
-
-        /// <summary>
-        /// "Notifications will never pop up."
-        /// </summary>
-        public static LocalisableString DoNotDisturbDescription => new TranslatableString(getKeyFromCustom(@"do_not_disturb_description"),
-            @"Notifications will never pop up.");
-
-        /// <summary>
-        /// "Persistent notifications"
-        /// </summary>
-        public static LocalisableString PersistentNotifications => new TranslatableString(getKeyFromCustom(@"persistent_notifications"), @"Persistent notifications");
-
-        /// <summary>
-        /// "Unless removed manually, all notifications will stay in the notification area."
-        /// </summary>
-        public static LocalisableString PersistentNotificationsDescription => new TranslatableString(getKeyFromCustom(@"persistent_notifications_description"),
-            @"Unless removed manually, all notifications will stay in the notification area.");
-
-        /// <summary>
         /// "hold for menu"
         /// </summary>
         public static LocalisableString HoldForMenu => new TranslatableString(getKey(@"hold_for_menu"), @"hold for menu");
@@ -233,7 +205,5 @@ namespace osu.Game.Localisation
         public static LocalisableString UserSearch => new TranslatableString(getKey(@"user_search"), @"User search");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
-
-        private static string getKeyFromCustom(string key) => $@"{custom_prefix}:{key}";
     }
 }
