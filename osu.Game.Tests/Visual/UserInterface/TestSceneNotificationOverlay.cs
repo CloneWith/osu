@@ -562,9 +562,10 @@ namespace osu.Game.Tests.Visual.UserInterface
         public void TestError()
         {
             setState(Visibility.Visible);
-            AddStep(@"error #1", sendErrorNotification);
+            AddStep(@"error #1", () => sendErrorNotification());
+            AddStep(@"critical error", () => sendErrorNotification(true));
             AddAssert("Is visible", () => notificationOverlay.State.Value == Visibility.Visible);
-            checkDisplayedCount(1);
+            checkDisplayedCount(2);
         }
 
         [Test]
@@ -688,9 +689,9 @@ namespace osu.Game.Tests.Visual.UserInterface
             notificationOverlay.Post(new BackgroundNotification { Text = @"Welcome to osu!. Enjoy your stay!" });
         }
 
-        private void sendErrorNotification()
+        private void sendErrorNotification(bool isCritical = false)
         {
-            notificationOverlay.Post(new SimpleErrorNotification { Text = @"Rut roh!. Something went wrong!" });
+            notificationOverlay.Post(new SimpleErrorNotification(isCritical) { Text = @"Rut roh!. Something went wrong!" });
         }
 
         private void sendManyNotifications()
