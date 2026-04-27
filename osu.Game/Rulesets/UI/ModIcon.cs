@@ -159,7 +159,7 @@ namespace osu.Game.Rulesets.UI
                             Origin = Anchor.Centre,
                             Anchor = Anchor.Centre,
                             Alpha = 0,
-                            Font = OsuFont.Numeric.With(size: 22f, weight: FontWeight.Black),
+                            Font = OsuFont.Default.With(size: 22f, weight: FontWeight.Black),
                             UseFullGlyphHeight = false,
                             Text = mod.Acronym
                         },

@@ -91,7 +91,7 @@ namespace osu.Game.Rulesets.UI
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Shadow = false,
-                            Font = OsuFont.Numeric.With(size: 24, weight: FontWeight.Black),
+                            Font = OsuFont.Default.With(size: 24, weight: FontWeight.Black),
                             Text = mod.Acronym,
                             Margin = new MarginPadding
                             {
