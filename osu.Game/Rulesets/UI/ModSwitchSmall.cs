@@ -43,9 +43,6 @@ namespace osu.Game.Rulesets.UI
         [BackgroundDependencyLoader]
         private void load(TextureStore textures, OsuColour colours, OverlayColourProvider? colourProvider)
         {
-            FillFlowContainer contentFlow;
-            ModSwitchTiny tinySwitch;
-
             InternalChildren = new[]
             {
                 background = new Sprite
@@ -56,35 +53,31 @@ namespace osu.Game.Rulesets.UI
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                 },
-                contentFlow = new FillFlowContainer
+                new FillFlowContainer
                 {
                     AutoSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     Direction = FillDirection.Vertical,
-                    Child = tinySwitch = new ModSwitchTiny(mod)
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Scale = new Vector2(0.6f),
-                        Active = { BindTarget = Active }
-                    }
+                    Child = mod.Icon != null
+                        ? modIcon = new SpriteIcon
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Size = new Vector2(48, 48),
+                            // arbitrary adjustment for better vertical alignment
+                            Margin = new MarginPadding { Top = -1 },
+                            Icon = mod.Icon.Value
+                        }
+                        : new ModSwitchTiny(mod)
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Scale = new Vector2(0.6f),
+                            Active = { BindTarget = Active }
+                        }
                 }
             };
-
-            if (mod.Icon != null)
-            {
-                contentFlow.Insert(-1, modIcon = new SpriteIcon
-                {
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    Size = new Vector2(37, 26),
-                    // arbitrary adjustment for better vertical alignment
-                    Margin = new MarginPadding { Top = -1 },
-                    Icon = mod.Icon.Value
-                });
-                tinySwitch.Scale = new Vector2(0.3f);
-            }
 
             var modTypeColour = colours.ForModType(mod.Type);
 
