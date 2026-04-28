@@ -55,8 +55,8 @@ namespace osu.Game.Screens.OnlinePlay
         private void load()
         {
             Text = OnlinePlayStrings.FooterButtonFreemods;
-            Icon = FontAwesome.Solid.ExchangeAlt;
-            AccentColour = colours.Lime1;
+            Icon = FontAwesome.Solid.ShoppingBasket;
+            AccentColour = colours.Pink1;
 
             Add(modsWedge = new InputBlockingContainer
             {

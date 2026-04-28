@@ -34,8 +34,8 @@ namespace osu.Game.Screens.OnlinePlay
         private void load()
         {
             Text = OnlinePlayStrings.FooterButtonFreestyle;
-            Icon = FontAwesome.Solid.ExchangeAlt;
-            AccentColour = colours.Lime1;
+            Icon = FontAwesome.Solid.CheckDouble;
+            AccentColour = colours.Orange1;
 
             TooltipText = MultiplayerMatchStrings.FreestyleButtonTooltip;
         }
