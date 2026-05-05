@@ -6,6 +6,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Screens;
 using osu.Game.Localisation;
@@ -27,6 +28,8 @@ namespace osu.Game.Online
     public partial class OnlineStatusNotifier : Component
     {
         private readonly Func<IScreen> getCurrentScreen;
+
+        private readonly VisibilityContainer indicator;
 
         private INotificationsClient notificationsClient = null!;
 
@@ -51,9 +54,10 @@ namespace osu.Game.Online
         /// </summary>
         private bool userNotified;
 
-        public OnlineStatusNotifier(Func<IScreen> getCurrentScreen)
+        public OnlineStatusNotifier(Func<IScreen> getCurrentScreen, VisibilityContainer indicator)
         {
             this.getCurrentScreen = getCurrentScreen;
+            this.indicator = indicator;
         }
 
         [BackgroundDependencyLoader]
@@ -80,6 +84,7 @@ namespace osu.Game.Online
                 {
                     case APIState.Online:
                         userNotified = false;
+                        indicator.Hide();
                         return;
 
                     case APIState.Offline:
@@ -94,6 +99,7 @@ namespace osu.Game.Online
                 if (connected.NewValue)
                 {
                     userNotified = false;
+                    indicator.Hide();
                     return;
                 }
 
@@ -106,6 +112,7 @@ namespace osu.Game.Online
                 if (connected.NewValue)
                 {
                     userNotified = false;
+                    indicator.Hide();
                     return;
                 }
 
@@ -124,11 +131,7 @@ namespace osu.Game.Online
             if (userNotified) return;
 
             userNotified = true;
-            notificationOverlay?.Post(new SimpleErrorNotification
-            {
-                Icon = FontAwesome.Solid.ExclamationCircle,
-                Text = NotificationsStrings.APIConnectionInterrupted,
-            });
+            indicator.Show();
         }
 
         private void notifyAboutForcedDisconnection()

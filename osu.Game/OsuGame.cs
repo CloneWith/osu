@@ -219,6 +219,9 @@ namespace osu.Game
         private DevBuildBanner devBuildBanner;
 
         [CanBeNull]
+        private OfflineIndicator offlineIndicator;
+
+        [CanBeNull]
         private IntroScreen introScreen;
 
         private Bindable<string> configRuleset;
@@ -1158,6 +1161,8 @@ namespace osu.Game
             if (!IsDeployedBuild)
                 loadComponentSingleFile(devBuildBanner = new DevBuildBanner(), ScreenContainer.Add);
 
+            loadComponentSingleFile(offlineIndicator = new OfflineIndicator(), ScreenContainer.Add);
+
             loadComponentSingleFile(osuLogo, _ =>
             {
                 osuLogo.SetupDefaultContainer(logoContainer);
@@ -1243,7 +1248,7 @@ namespace osu.Game
 
             Add(externalLinkOpener = new ExternalLinkOpener());
             Add(new MusicKeyBindingHandler());
-            Add(new OnlineStatusNotifier(() => ScreenStack.CurrentScreen));
+            Add(new OnlineStatusNotifier(() => ScreenStack.CurrentScreen, offlineIndicator));
             Add(new FriendPresenceNotifier());
 
             // side overlays which cancel each other.
