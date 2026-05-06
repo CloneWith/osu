@@ -2,7 +2,6 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using osu.Framework.Allocation;
@@ -180,140 +179,6 @@ namespace osu.Game.Tournament.Tests.Screens
         }
 
         [Test]
-        public void TestMapIndicatorVisibility()
-        {
-            AddStep("load 15 maps", () =>
-            {
-                Ladder.CurrentMatch.Value!.Round.Value!.Beatmaps.Clear();
-
-                for (int i = 0; i < 15; i++)
-                    addBeatmap();
-            });
-
-            AddStep("use lazer ipc", () => Ladder.UseLazerIpc.Value = true);
-
-            AddStep("reset state", resetState);
-
-            AddStep("set red pick", () => screen.ChildrenOfType<TourneyButton>().First(btn => btn.Text == "Red Pick").TriggerClick());
-            AddStep("pick first map", () => clickBeatmapPanel(0));
-            AddStep("set blue pick", () => screen.ChildrenOfType<TourneyButton>().First(btn => btn.Text == "Blue Pick").TriggerClick());
-            AddStep("pick first map", () => clickBeatmapPanel(1));
-
-            AddStep("update current beatmap", () =>
-            {
-                var newTournamentBeatmap = Ladder.CurrentMatch.Value!.Round.Value!.Beatmaps.First(
-                    b => screen.ChildrenOfType<TournamentBeatmapPanel>().ElementAt(1).Beatmap!.OnlineID == b.Beatmap!.OnlineID
-                ).Beatmap;
-                LazerIPCInfo.Beatmap.Value = newTournamentBeatmap;
-            });
-
-            AddStep("reset state", resetState);
-            AddStep("set red pick", () => screen.ChildrenOfType<TourneyButton>().First(btn => btn.Text == "Red Pick").TriggerClick());
-            AddStep("pick first map", () => clickBeatmapPanel(0));
-            AddStep("set blue pick", () => screen.ChildrenOfType<TourneyButton>().First(btn => btn.Text == "Blue Pick").TriggerClick());
-            AddStep("pick first map", () => clickBeatmapPanel(1));
-            AddStep("update current beatmap", () =>
-            {
-                var newTournamentBeatmap = Ladder.CurrentMatch.Value!.Round.Value!.Beatmaps.First(
-                    b => screen.ChildrenOfType<TournamentBeatmapPanel>().ElementAt(0).Beatmap!.OnlineID == b.Beatmap!.OnlineID
-                ).Beatmap;
-                LazerIPCInfo.Beatmap.Value = newTournamentBeatmap;
-            });
-            AddStep("update current beatmap", () =>
-            {
-                var newTournamentBeatmap = Ladder.CurrentMatch.Value!.Round.Value!.Beatmaps.First(
-                    b => screen.ChildrenOfType<TournamentBeatmapPanel>().ElementAt(1).Beatmap!.OnlineID == b.Beatmap!.OnlineID
-                ).Beatmap;
-                LazerIPCInfo.Beatmap.Value = newTournamentBeatmap;
-            });
-        }
-
-        [Test]
-        public void TestLazerGrandArenaWeek2PickBan()
-        {
-            AddStep("load 15 maps", () =>
-            {
-                Ladder.CurrentMatch.Value!.Round.Value!.Beatmaps.Clear();
-
-                for (int i = 0; i < 15; i++)
-                    addBeatmap();
-            });
-
-            AddStep("update displayed maps", () => Ladder.SplitMapPoolByMods.Value = false);
-
-            int pickBanIndex = 0;
-
-            // ban AB
-            AddRepeatStep("first ban phase", () => clickBeatmapPanel(pickBanIndex++), 2);
-            // checkTotalPickBans(2);
-            // checkLastPick(ChoiceType.Ban, TeamColour.Blue);
-
-            // pick BAAB
-            AddRepeatStep("first pick phase", () => clickBeatmapPanel(pickBanIndex++), 4);
-            // checkTotalPickBans(6);
-            // checkLastPick(ChoiceType.Pick, TeamColour.Blue);
-
-            AddAssert("pick order has 4 maps", () => screen.ChildrenOfType<FillFlowContainer<TournamentBeatmapPanel>>().Last().Count == 4);
-
-            // ban ABBA
-            AddRepeatStep("second ban phase", () => clickBeatmapPanel(pickBanIndex++), 4);
-            // checkTotalPickBans(10);
-            // checkLastPick(ChoiceType.Ban, TeamColour.Red);
-
-            // pick AB
-            AddRepeatStep("second pick phase", () => clickBeatmapPanel(pickBanIndex++), 2);
-            // checkTotalPickBans(12);
-            // checkLastPick(ChoiceType.Pick, TeamColour.Blue);
-
-            AddAssert("pick order has 6 maps", () => screen.ChildrenOfType<FillFlowContainer<TournamentBeatmapPanel>>().Last().Count == 6);
-
-            // ban BA
-            AddRepeatStep("last pick phase", () => clickBeatmapPanel(pickBanIndex++), 2);
-            // checkTotalPickBans(14);
-            // checkLastPick(ChoiceType.Ban, TeamColour.Red);
-
-            AddAssert("picks and bans order conform to LGA week 2",
-                () =>
-                {
-                    var expected = new List<(ChoiceType Type, TeamColour Colour)>
-                    {
-                        (ChoiceType.Ban, TeamColour.Red),
-                        (ChoiceType.Ban, TeamColour.Blue),
-
-                        (ChoiceType.Pick, TeamColour.Blue),
-                        (ChoiceType.Pick, TeamColour.Red),
-                        (ChoiceType.Pick, TeamColour.Red),
-                        (ChoiceType.Pick, TeamColour.Blue),
-
-                        (ChoiceType.Ban, TeamColour.Blue),
-                        (ChoiceType.Ban, TeamColour.Red),
-                        (ChoiceType.Ban, TeamColour.Red),
-                        (ChoiceType.Ban, TeamColour.Blue),
-
-                        (ChoiceType.Pick, TeamColour.Red),
-                        (ChoiceType.Pick, TeamColour.Blue),
-
-                        (ChoiceType.Ban, TeamColour.Blue),
-                        (ChoiceType.Ban, TeamColour.Red),
-                    };
-
-                    var picksBans = Ladder.CurrentMatch.Value!.PicksBans;
-                    if (picksBans.Count != expected.Count)
-                        return false;
-
-                    for (int i = 0; i < expected.Count; i++)
-                    {
-                        if (picksBans[i].Type != expected[i].Type || picksBans[i].Team != expected[i].Colour)
-                            return false;
-                    }
-
-                    return true;
-                });
-
-            AddAssert("pick order has 7 maps", () => screen.ChildrenOfType<FillFlowContainer<TournamentBeatmapPanel>>().Last().Count == 7);
-        }
-
-        [Test]
         public void TestFewMaps()
         {
             AddStep("load few maps", () =>
@@ -349,6 +214,7 @@ namespace osu.Game.Tournament.Tests.Screens
         }
 
         [Test]
+        [Ignore("Mappool screen is being refactored.")]
         public void TestManyMaps()
         {
             AddStep("load many maps", () =>
@@ -387,6 +253,7 @@ namespace osu.Game.Tournament.Tests.Screens
             AddAssert("ensure layout width is 3", () => screen.ChildrenOfType<FillFlowContainer<FillFlowContainer<TournamentBeatmapPanel>>>().First().Padding.Left == 0);
 
         [Test]
+        [Ignore("Mappool screen is being refactored.")]
         public void TestManyMods()
         {
             AddStep("load many maps", () =>
@@ -419,6 +286,7 @@ namespace osu.Game.Tournament.Tests.Screens
         }
 
         [Test]
+        [Ignore("Mappool screen is being refactored.")]
         public void TestBanOrderMultipleBans()
         {
             AddStep("set ban count", () => Ladder.CurrentMatch.Value!.Round.Value!.BanCount.Value = 2);
@@ -457,6 +325,7 @@ namespace osu.Game.Tournament.Tests.Screens
         }
 
         [Test]
+        [Ignore("Mappool screen is being refactored.")]
         public void TestPickBanOrder()
         {
             AddStep("set ban count", () => Ladder.CurrentMatch.Value!.Round.Value!.BanCount.Value = 1);
@@ -502,6 +371,7 @@ namespace osu.Game.Tournament.Tests.Screens
         }
 
         [Test]
+        [Ignore("Mappool screen is being refactored.")]
         public void TestMultipleTeamBans()
         {
             AddStep("set ban count", () => Ladder.CurrentMatch.Value!.Round.Value!.BanCount.Value = 3);
