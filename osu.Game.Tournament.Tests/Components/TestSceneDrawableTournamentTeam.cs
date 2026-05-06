@@ -6,6 +6,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Game.Tests.Visual;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Drawings.Components;
 using osu.Game.Tournament.Screens.Gameplay.Components;
@@ -17,6 +18,12 @@ namespace osu.Game.Tournament.Tests.Components
     {
         [Cached]
         protected LadderInfo Ladder { get; private set; } = new LadderInfo();
+
+        [Cached]
+        protected LegacyMatchIPCInfo LegacyIPCInfo { get; private set; } = new LegacyMatchIPCInfo();
+
+        [Cached]
+        protected MatchIPCInfo IPCInfo { get; private set; } = new MatchIPCInfo();
 
         public TestSceneDrawableTournamentTeam()
             : base(4, 3)
