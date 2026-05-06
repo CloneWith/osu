@@ -27,7 +27,8 @@ namespace osu.Game.Tournament.Tests.Screens
 
             Add(new TeamIntroScreen
             {
-                FillMode = FillMode.Fit, FillAspectRatio = 16 / 9f
+                FillMode = FillMode.Fit,
+                FillAspectRatio = 16 / 9f,
             });
         }
 
