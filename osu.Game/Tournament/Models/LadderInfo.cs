@@ -15,6 +15,8 @@ namespace osu.Game.Tournament.Models
     [Serializable]
     public class LadderInfo
     {
+        public Bindable<string> Version = new Bindable<string>(@"astra");
+
         public Bindable<string> FullName = new Bindable<string>();
 
         public Bindable<RulesetInfo?> Ruleset = new Bindable<RulesetInfo?>();
