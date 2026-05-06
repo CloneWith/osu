@@ -5,7 +5,6 @@ using System.Linq;
 using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Testing;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.TeamIntro;
 
@@ -16,8 +15,8 @@ namespace osu.Game.Tournament.Tests.Screens
         [Cached]
         private readonly LadderInfo ladder = new LadderInfo();
 
-        [SetUp]
-        public void Setup()
+        [BackgroundDependencyLoader]
+        private void load()
         {
             ladder.CurrentMatch.Value = new TournamentMatch
             {
@@ -25,46 +24,17 @@ namespace osu.Game.Tournament.Tests.Screens
                 Team2 = { Value = Ladder.Teams.FirstOrDefault(t => t.Acronym.Value == "JPN") },
                 Round = { Value = Ladder.Rounds.FirstOrDefault(g => g.Name.Value == "Finals") }
             };
+
+            Add(new TeamIntroScreen
+            {
+                FillMode = FillMode.Fit, FillAspectRatio = 16 / 9f
+            });
         }
 
         [Test]
         public void TestTeamIntro()
         {
-            AddStep("disable 1v1 mode", () => ladder.Use1V1Mode.Value = false);
-
-            AddStep("clear screen", () =>
-            {
-                var existing = this.ChildrenOfType<TeamIntroScreen>();
-
-                foreach (var s in existing)
-                    Remove(s, true);
-            });
-
-            AddStep("create screen", () => Add(new TeamIntroScreen
-            {
-                FillMode = FillMode.Fit,
-                FillAspectRatio = 16 / 9f
-            }));
-        }
-
-        [Test]
-        public void Test1V1()
-        {
-            AddStep("enable 1v1 mode", () => ladder.Use1V1Mode.Value = true);
-
-            AddStep("clear screen", () =>
-            {
-                var existing = this.ChildrenOfType<TeamIntroScreen>();
-
-                foreach (var s in existing)
-                    Remove(s, true);
-            });
-
-            AddStep("create screen", () => Add(new TeamIntroScreen
-            {
-                FillMode = FillMode.Fit,
-                FillAspectRatio = 16 / 9f
-            }));
+            AddToggleStep("enable 1v1 mode", v => ladder.Use1V1Mode.Value = v);
         }
     }
 }
