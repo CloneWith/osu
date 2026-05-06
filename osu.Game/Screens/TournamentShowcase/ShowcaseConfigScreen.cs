@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -11,6 +12,7 @@ using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
@@ -25,15 +27,17 @@ using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
+using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Scoring;
+using osu.Game.Screens.Footer;
 using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseConfigScreen : OsuScreen, IKeyBindingHandler<GlobalAction>
+    public partial class ShowcaseConfigScreen : OsuScreen, IKeyBindingHandler<PlatformAction>
     {
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
@@ -50,7 +54,12 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private IDialogOverlay? dialogOverlay { get; set; }
 
+        [Resolved]
+        private INotificationOverlay? notificationOverlay { get; set; }
+
         private const float sizing_duration = 200;
+
+        public override bool ShowFooter => true;
 
         #region Drawable variables
 
@@ -75,6 +84,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private FormTextBox outroSubtitleInput = null!;
         private FillFlowContainer introEditor = null!;
         private BeatmapRow introBeatmapRow = null!;
+
+        private FooterButtonSave saveButton = null!;
 
         #endregion
 
@@ -101,7 +112,10 @@ namespace osu.Game.Screens.TournamentShowcase
             }
 
             // Enforce a non-null current profile and necessary properties.
-            currentProfile.Value ??= new ShowcaseConfig();
+            currentProfile.Value ??= new ShowcaseConfig
+            {
+                FallbackRuleset = { Value = rulesets.AvailableRulesets.First() },
+            };
             currentProfile.Value.IntroBeatmap.Value ??= new ShowcaseBeatmap();
 
             Debug.Assert(currentProfile.Value != null);
@@ -121,7 +135,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
                     profileDropdown = new FormDropdown<string>
                     {
-                        Caption = TournamentShowcaseStrings.CurrentProfile, HintText = TournamentShowcaseStrings.CurrentProfileDescription, Items = availableProfiles,
+                        Caption = TournamentShowcaseStrings.CurrentProfile,
+                        HintText = TournamentShowcaseStrings.CurrentProfileDescription,
+                        Items = availableProfiles,
                     },
                     rulesetDropdown = new FormDropdown<RulesetInfo>
                     {
@@ -213,7 +229,10 @@ namespace osu.Game.Screens.TournamentShowcase
                     },
                     outroTitleInput = new FormTextBox
                     {
-                        Caption = TournamentShowcaseStrings.OutroTitle, PlaceholderText = @"Thanks for watching!", Current = currentProfile.Value.OutroTitle, TabbableContentContainer = this,
+                        Caption = TournamentShowcaseStrings.OutroTitle,
+                        PlaceholderText = @"Thanks for watching!",
+                        Current = currentProfile.Value.OutroTitle,
+                        TabbableContentContainer = this,
                     },
                     outroSubtitleInput = new FormTextBox
                     {
@@ -265,12 +284,12 @@ namespace osu.Game.Screens.TournamentShowcase
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding { Bottom = ScreenFooter.HEIGHT },
                     Width = 0.8f,
                     RowDimensions = new[]
                     {
                         new Dimension(GridSizeMode.Relative, 0.1f),
                         new Dimension(),
-                        new Dimension(GridSizeMode.Relative, 0.1f),
                     },
                     Content = new[]
                     {
@@ -336,51 +355,31 @@ namespace osu.Game.Screens.TournamentShowcase
                                 },
                             },
                         },
-                        new Drawable[]
-                        {
-                            new FillFlowContainer
-                            {
-                                Anchor = Anchor.Centre,
-                                Origin = Anchor.Centre,
-                                Direction = FillDirection.Horizontal,
-                                RelativeSizeAxes = Axes.X,
-                                Width = 0.6f,
-                                Spacing = new Vector2(10),
-                                Children = new Drawable[]
-                                {
-                                    new RoundedButton
-                                    {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        RelativeSizeAxes = Axes.X,
-                                        Width = 0.4f,
-                                        Text = TournamentShowcaseStrings.SaveAction,
-                                        Action = () =>
-                                        {
-                                            if (checkConfig())
-                                                storage.SaveChanges(currentProfile.Value);
-
-                                            refreshProfileList();
-                                        },
-                                    },
-                                    new RoundedButton
-                                    {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        RelativeSizeAxes = Axes.X,
-                                        Width = 0.4f,
-                                        Text = TournamentShowcaseStrings.StartShowcase,
-                                        Action = startShowcase,
-                                    },
-                                },
-                            },
-                        },
                     },
                 },
             };
 
             #endregion
         }
+
+        public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
+        {
+            saveButton = new FooterButtonSave
+            {
+                Action = () =>
+                {
+                    if (checkConfig())
+                        storage.SaveChanges(currentProfile.Value);
+
+                    refreshProfileList();
+                },
+            },
+            new FooterButtonStartShowcase
+            {
+                Hotkey = GlobalAction.ShowcaseStart,
+                Action = startShowcase,
+            },
+        };
 
         protected override void LoadComplete()
         {
@@ -421,32 +420,36 @@ namespace osu.Game.Screens.TournamentShowcase
         private bool checkConfig()
         {
             bool isValid = rulesetDropdown.Current.Value != null
+                           && tournamentNameInput.Current.Value != null
+                           && roundNameInput.Current.Value != null
                            && tournamentNameInput.Current.Value.Trim() != string.Empty
                            && roundNameInput.Current.Value.Trim() != string.Empty;
 
             if (!isValid)
             {
-                dialogOverlay?.Push(new ProfileCheckFailedDialog());
+                notificationOverlay?.Post(new SimpleErrorNotification
+                {
+                    Text = TournamentShowcaseStrings.ProfileErrorDialogText,
+                });
 
                 return false;
             }
 
             if (!$"{tournamentNameInput.Current.Value}-{roundNameInput.Current.Value}".IsSafeForFilename(out LocalisableString error, 50))
             {
-                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                notificationOverlay?.Post(new SimpleErrorNotification
                 {
-                    BodyText = error,
+                    Text = error,
                 });
 
                 return false;
             }
 
-            if (!currentProfile.Value.Beatmaps.Any())
+            if (currentProfile.Value.Beatmaps.Count == 0)
             {
-                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                notificationOverlay?.Post(new SimpleErrorNotification
                 {
-                    HeaderText = TournamentShowcaseStrings.EmptyBeatmapListDialogTitle,
-                    BodyText = TournamentShowcaseStrings.EmptyBeatmapListDialogText,
+                    Text = TournamentShowcaseStrings.EmptyBeatmapListDialogText,
                 });
 
                 return false;
@@ -454,10 +457,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
             if (useCustomIntroSwitch.Current.Value && !currentProfile.Value.IntroBeatmap.Value.IsValid())
             {
-                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                notificationOverlay?.Post(new SimpleErrorNotification
                 {
-                    HeaderText = TournamentShowcaseStrings.NullIntroMapDialogTitle,
-                    BodyText = TournamentShowcaseStrings.NullIntroMapDialogText,
+                    Text = TournamentShowcaseStrings.NullIntroMapDialogText,
                 });
 
                 return false;
@@ -466,25 +468,19 @@ namespace osu.Game.Screens.TournamentShowcase
             return isValid;
         }
 
-        private bool checkScores(bool tryFetch = false)
+        private bool checkAndFetchScores()
         {
-            if (currentProfile.Value.Beatmaps.Any(b => b.ShowcaseScore == null))
-            {
-                if (tryFetch)
-                {
-                    currentProfile.Value.Beatmaps.Where(b => b.ShowcaseScore == null)
-                                  .ForEach(b => b.ShowcaseScore = scoreManager.GetScore(new ScoreInfo
-                                  {
-                                      Hash = b.ScoreHash
-                                  })?.ScoreInfo);
+            if (currentProfile.Value.Beatmaps.All(b => b.ShowcaseScore != null))
+                return true;
 
-                    return checkScores();
-                }
+            // Try fetching missing scores once
+            currentProfile.Value.Beatmaps.Where(b => b.ShowcaseScore == null)
+                          .ForEach(b => b.ShowcaseScore = scoreManager.GetScore(new ScoreInfo
+                          {
+                              Hash = b.ScoreHash
+                          })?.ScoreInfo);
 
-                return false;
-            }
-
-            return true;
+            return currentProfile.Value.Beatmaps.All(b => b.ShowcaseScore != null);
         }
 
         /// <summary>
@@ -517,17 +513,17 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             Action launchAction = () => this.Push(new ShowcaseScreen(currentProfile.Value));
 
-            if (checkConfig())
+            if (!checkConfig())
+                return;
+
+            if (!checkAndFetchScores())
             {
-                if (!checkScores(true))
-                {
-                    int missing = currentProfile.Value.Beatmaps.Count(b => b.ShowcaseScore == null);
-                    dialogOverlay?.Push(new ScoreMissingDialog(missing, launchAction));
-                }
-                else
-                {
-                    launchAction.Invoke();
-                }
+                int missing = currentProfile.Value.Beatmaps.Count(b => b.ShowcaseScore == null);
+                dialogOverlay?.Push(new ScoreMissingDialog(missing, launchAction));
+            }
+            else
+            {
+                launchAction.Invoke();
             }
         }
 
@@ -571,20 +567,19 @@ namespace osu.Game.Screens.TournamentShowcase
             return base.OnExiting(e);
         }
 
-        public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+        public bool OnPressed(KeyBindingPressEvent<PlatformAction> e)
         {
             switch (e.Action)
             {
-                case GlobalAction.ShowcaseStart:
-                    startShowcase();
-                    return true;
+                case PlatformAction.Save:
+                    return e.Repeat || saveButton.TriggerClick();
 
                 default:
                     return false;
             }
         }
 
-        public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+        public void OnReleased(KeyBindingReleaseEvent<PlatformAction> e)
         {
         }
     }

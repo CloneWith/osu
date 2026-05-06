@@ -9,6 +9,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
@@ -22,7 +23,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public event Action<SelectResult>? OnSelect;
 
         [Resolved]
-        private IDialogOverlay? dialogOverlay { get; set; }
+        private INotificationOverlay? notificationOverlay { get; set; }
 
         private readonly Bindable<BeatmapInfo> targetBeatmap = new Bindable<BeatmapInfo>();
         private readonly Bindable<ScoreInfo?> targetScore = new Bindable<ScoreInfo?>();
@@ -59,13 +60,14 @@ namespace osu.Game.Screens.TournamentShowcase
             if (score.BeatmapInfo == null)
                 return;
 
-            if (!score.Passed)
+            // The "Passed" property may not reflect the actual state.
+            if (!score.Passed || score.Rank is ScoreRank.F)
             {
-                dialogOverlay?.Push(new ProfileCheckFailedDialog
+                notificationOverlay?.Post(new SimpleErrorNotification
                 {
-                    HeaderText = @"Failed Score",
-                    BodyText = @"Use a passed score to guarantee the showcase running properly."
+                    Text = "This is a failed score. Use a passed score to guarantee the showcase running properly.",
                 });
+
                 return;
             }
 
