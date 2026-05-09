@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.LocalisationExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -25,6 +26,7 @@ using osu.Game.Localisation;
 using osu.Game.Online.Metadata;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Screens;
+using osu.Game.Screens.OnlinePlay.Matchmaking.Queue;
 using osu.Game.Screens.Play;
 using osu.Game.Users.Drawables;
 using osuTK;
@@ -94,6 +96,9 @@ namespace osu.Game.Users
 
         [Resolved]
         private MetadataClient? metadataClient { get; set; }
+
+        [Resolved]
+        private QueueController? queueController { get; set; }
 
         [BackgroundDependencyLoader]
         private void load()
@@ -170,6 +175,16 @@ namespace osu.Game.Users
             Text = User.Username,
         };
 
+        protected OsuSpriteText CreateRank() => new OsuSpriteText
+        {
+            Font = OsuFont.GetFont(size: 16, weight: FontWeight.SemiBold),
+            Shadow = false,
+            // We can't colour the properly because we don't have the required percentile data.
+
+            Colour = Colours.BlueLighter,
+            Text = User.Rank?.Rank?.ToLocalisableString("\\##,##0") ?? string.Empty,
+        };
+
         protected UpdateableAvatar CreateAvatar() => new UpdateableAvatar(User, false);
 
         protected UpdateableFlag CreateFlag() => new UpdateableFlag(User.CountryCode)
@@ -221,6 +236,15 @@ namespace osu.Game.Users
                                 multiplayerClient!.InvitePlayer(User.Id);
                         }));
                     }
+
+                    if (canDuelUser())
+                    {
+                        items.Add(new OsuMenuItem("Duel", MenuItemType.Standard, () =>
+                        {
+                            if (canDuelUser())
+                                queueController?.IssueDuel(queueController.SelectedPool.Value!, User.Id);
+                        }));
+                    }
                 }
 
                 return items.ToArray();
@@ -228,6 +252,7 @@ namespace osu.Game.Users
                 bool isUserOnline() => metadataClient?.GetPresence(User.OnlineID) != null;
                 bool canInviteUser() => isUserOnline() && multiplayerClient?.Room?.Users.All(u => u.UserID != User.Id) == true;
                 bool isUserBlocked() => api.LocalUserState.Blocks.Any(b => b.TargetID == User.OnlineID);
+                bool canDuelUser() => isUserOnline() && queueController?.SelectedPool.Value != null;
             }
         }
 

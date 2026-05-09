@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,8 +20,13 @@ namespace osu.Game.Online.Metadata
     {
         public abstract IBindable<bool> IsConnected { get; }
 
-        [Resolved(CanBeNull = true)]
-        private IAPIProvider? api { get; set; }
+        /// <summary>
+        /// A list of all watched multiplayer rooms (see <see cref="BeginWatchingMultiplayerRoom"/>).
+        /// </summary>
+        protected readonly HashSet<long> WatchedRooms = new HashSet<long>();
+
+        [Resolved]
+        private IAPIProvider api { get; set; } = null!;
 
         private readonly IBindableList<APIRelation> localFriends = new BindableList<APIRelation>();
 
@@ -28,9 +34,7 @@ namespace osu.Game.Online.Metadata
         {
             base.LoadComplete();
 
-            if (api != null)
-                localFriends.BindTo(api.LocalUserState.Friends);
-
+            localFriends.BindTo(api.LocalUserState.Friends);
             localFriends.BindCollectionChanged((_, _) => RefreshFriends().FireAndForget());
         }
 
@@ -77,7 +81,7 @@ namespace osu.Game.Online.Metadata
         /// <returns>The user presence, or null if not available or the user's offline.</returns>
         public UserPresence? GetPresence(int userId)
         {
-            if (userId == api?.LocalUser.Value.OnlineID)
+            if (userId == api.LocalUser.Value.OnlineID)
                 return LocalUserPresence;
 
             if (FriendPresences.TryGetValue(userId, out UserPresence presence))
@@ -181,11 +185,28 @@ namespace osu.Game.Online.Metadata
 
         #region Disconnection handling
 
+        /// <summary>
+        /// Invoked just prior to disconnection.
+        /// </summary>
         public event Action? Disconnecting;
 
-        public virtual Task DisconnectRequested()
+        public abstract Task Reconnect();
+
+        protected abstract Task DisconnectInternal();
+
+        Task IStatefulUserHubClient.DisconnectRequested()
         {
-            Schedule(() => Disconnecting?.Invoke());
+            Schedule(() =>
+            {
+                Disconnecting?.Invoke();
+                DisconnectInternal().FireAndForget();
+            });
+            return Task.CompletedTask;
+        }
+
+        Task IStatefulUserHubClient.ServerShuttingDown()
+        {
+            this.ReconnectWhenReady(IsConnected, () => WatchedRooms.Count == 0, Reconnect);
             return Task.CompletedTask;
         }
 

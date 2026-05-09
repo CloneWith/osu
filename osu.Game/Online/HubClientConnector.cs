@@ -72,6 +72,8 @@ namespace osu.Game.Online
                     options.Headers.Add(RULESET_HASH_HEADER, JsonConvert.SerializeObject(rulesetHashCache.RulesetsHashes));
                 });
 
+            builder.WithStatefulReconnect();
+
             builder.AddMessagePackProtocol(options =>
             {
                 options.SerializerOptions = SignalRUnionWorkaroundResolver.OPTIONS;
