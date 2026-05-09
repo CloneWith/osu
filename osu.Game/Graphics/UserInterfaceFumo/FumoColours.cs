@@ -2,84 +2,98 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Localisation;
+using osu.Game.Localisation;
 using osuTK.Graphics;
 
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
     /// <summary>
-    /// Useful colour schemes for our customized interface.
+    /// Represents a color theme with a few variants.
+    /// </summary>
+    public interface IFumoColour
+    {
+        Color4 Regular { get; }
+        Color4 Dark { get; }
+        Color4 Darker { get; }
+        Color4 Darkest { get; }
+        Color4 Light { get; }
+        Color4 Lighter { get; }
+        Color4 Lightest { get; }
+    }
+
+    /// <summary>
+    /// Useful color schemes for our customized interface.
     /// </summary>
     /// <remarks>Some of these schemes are inspired from Material UI.</remarks>
     public static class FumoColours
     {
-        public static class SeaBlue
+        /// <summary>
+        /// Currently available color themes.
+        /// </summary>
+        public enum Theme
         {
-            public static Color4 Regular { get; } = Color4Extensions.FromHex(@"#269FFE");
-            public static Color4 Dark { get; } = Color4Extensions.FromHex(@"#0992FE");
-            public static Color4 Darker { get; } = Color4Extensions.FromHex(@"#018BF7");
-            public static Color4 Darkest { get; } = Color4Extensions.FromHex(@"#0172CB");
-            public static Color4 Light { get; } = Color4Extensions.FromHex(@"#43ACFE");
-            public static Color4 Lighter { get; } = Color4Extensions.FromHex(@"#52B2FE");
-            public static Color4 Lightest { get; } = Color4Extensions.FromHex(@"#7DC6FE");
+            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.SeaBlue))]
+            SeaBlue,
 
-            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
+            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.SunshineYellow))]
+            SunshineYellow,
+
+            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.FlandreRed))]
+            FlandreRed,
+
+            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.DeepPurple))]
+            DeepPurple,
+
+            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.LightGreen))]
+            LightGreen,
         }
 
-        public static class SunshineYellow
+        private sealed class FumoColourScheme : IFumoColour
         {
-            public static Color4 Regular { get; } = Color4Extensions.FromHex(@"#F29F00");
-            public static Color4 Dark { get; } = Color4Extensions.FromHex(@"#F18F00");
-            public static Color4 Darker { get; } = Color4Extensions.FromHex(@"#ED8300");
-            public static Color4 Darkest { get; } = Color4Extensions.FromHex(@"#E87300");
-            public static Color4 Light { get; } = Color4Extensions.FromHex(@"#F4B03B");
-            public static Color4 Lighter { get; } = Color4Extensions.FromHex(@"#F7C775");
-            public static Color4 Lightest { get; } = Color4Extensions.FromHex(@"#FADDAC");
+            public FumoColourScheme(string regular, string dark, string darker, string darkest, string light, string lighter, string lightest)
+            {
+                Regular = Color4Extensions.FromHex(regular);
+                Dark = Color4Extensions.FromHex(dark);
+                Darker = Color4Extensions.FromHex(darker);
+                Darkest = Color4Extensions.FromHex(darkest);
+                Light = Color4Extensions.FromHex(light);
+                Lighter = Color4Extensions.FromHex(lighter);
+                Lightest = Color4Extensions.FromHex(lightest);
+            }
 
-            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
+            public Color4 Regular { get; }
+            public Color4 Dark { get; }
+            public Color4 Darker { get; }
+            public Color4 Darkest { get; }
+            public Color4 Light { get; }
+            public Color4 Lighter { get; }
+            public Color4 Lightest { get; }
         }
 
-        public static class FlandreRed
+        public static IFumoColour SeaBlue { get; } = new FumoColourScheme(@"#269FFE", @"#0992FE", @"#018BF7", @"#0172CB", @"#43ACFE", @"#52B2FE", @"#7DC6FE");
+        public static IFumoColour SunshineYellow { get; } = new FumoColourScheme(@"#F29F00", @"#F18F00", @"#ED8300", @"#E87300", @"#F4B03B", @"#F7C775", @"#FADDAC");
+        public static IFumoColour FlandreRed { get; } = new FumoColourScheme(@"#D05677", @"#C94562", @"#B9415E", @"#A33C58", @"#D96E8D", @"#E394AC", @"#EEBDCD");
+        public static IFumoColour DeepPurple { get; } = new FumoColourScheme(@"#673AB7", @"#5E35B1", @"#512DA8", @"#4527A0", @"#7E57C2", @"#9575CD", @"#B39DDB");
+        public static IFumoColour LightGreen { get; } = new FumoColourScheme(@"#8BC34A", @"#7CB342", @"#689F38", @"#558B2F", @"#9CCC65", @"#AED581", @"#C5E1A5");
+
+        /// <summary>
+        /// Get the represented <see cref="IFumoColour"/> from a theme.
+        /// </summary>
+        /// <param name="theme">the color theme</param>
+        public static IFumoColour FromTheme(Theme theme) => theme switch
         {
-            public static Color4 Regular { get; } = Color4Extensions.FromHex(@"#D05677");
-            public static Color4 Dark { get; } = Color4Extensions.FromHex(@"#C94562");
-            public static Color4 Darker { get; } = Color4Extensions.FromHex(@"#B9415E");
-            public static Color4 Darkest { get; } = Color4Extensions.FromHex(@"#A33C58");
-            public static Color4 Light { get; } = Color4Extensions.FromHex(@"#D96E8D");
-            public static Color4 Lighter { get; } = Color4Extensions.FromHex(@"#E394AC");
-            public static Color4 Lightest { get; } = Color4Extensions.FromHex(@"#EEBDCD");
-
-            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
-        }
-
-        public static class DeepPurple
-        {
-            public static Color4 Regular { get; } = Color4Extensions.FromHex(@"#673AB7");
-            public static Color4 Dark { get; } = Color4Extensions.FromHex(@"#5E35B1");
-            public static Color4 Darker { get; } = Color4Extensions.FromHex(@"#512DA8");
-            public static Color4 Darkest { get; } = Color4Extensions.FromHex(@"#4527A0");
-            public static Color4 Light { get; } = Color4Extensions.FromHex(@"#7E57C2");
-            public static Color4 Lighter { get; } = Color4Extensions.FromHex(@"#9575CD");
-            public static Color4 Lightest { get; } = Color4Extensions.FromHex(@"#B39DDB");
-
-            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
-        }
-
-        public static class LightGreen
-        {
-            public static Color4 Regular { get; } = Color4Extensions.FromHex(@"#8BC34A");
-            public static Color4 Dark { get; } = Color4Extensions.FromHex(@"#7CB342");
-            public static Color4 Darker { get; } = Color4Extensions.FromHex(@"#689F38");
-            public static Color4 Darkest { get; } = Color4Extensions.FromHex(@"#558B2F");
-            public static Color4 Light { get; } = Color4Extensions.FromHex(@"#9CCC65");
-            public static Color4 Lighter { get; } = Color4Extensions.FromHex(@"#AED581");
-            public static Color4 Lightest { get; } = Color4Extensions.FromHex(@"#C5E1A5");
-
-            public static Color4[] ColourSet => [Regular, Dark, Darker, Darkest, Light, Lighter, Lightest];
-        }
+            Theme.SeaBlue => SeaBlue,
+            Theme.SunshineYellow => SunshineYellow,
+            Theme.FlandreRed => FlandreRed,
+            Theme.DeepPurple => DeepPurple,
+            Theme.LightGreen => LightGreen,
+            _ => SeaBlue
+        };
     }
 
     /// <summary>
-    /// All mod colour schemes used by chess pieces.
+    /// All mod color schemes used by chess pieces.
     /// </summary>
     public static class ModColours
     {
@@ -108,29 +122,17 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             Color4Extensions.FromHex(@"#4C3000"), Color4Extensions.FromHex(@"#986000"));
 
         /// <summary>
-        /// The fallback colour scheme for empty and unavailable chess pieces.
+        /// The fallback color scheme for empty and unavailable chess pieces.
         /// </summary>
         public static ModColourScheme Empty = new ModColourScheme(
             Color4.White, Color4Extensions.FromHex(@"#BDBDBD"),
             Color4Extensions.FromHex(@"#E5E5E5"), Color4Extensions.FromHex(@"#C7C7C7"));
 
-        public static ModColourScheme Consumed = new ModColourScheme(
-            Color4.White, Color4Extensions.FromHex(@"#545454"),
-            Color4Extensions.FromHex(@"#666666"), Color4Extensions.FromHex(@"#5F5F5F"));
-
-        public static ModColourScheme RedWin = new ModColourScheme(
-            Color4Extensions.FromHex(@"#FF5733"), Color4Extensions.FromHex(@"#4D2114"),
-            Color4Extensions.FromHex(@"#5E2719"), Color4Extensions.FromHex(@"#522215"));
-
-        public static ModColourScheme BlueWin = new ModColourScheme(
-            Color4Extensions.FromHex(@"#57C1FF"), Color4Extensions.FromHex(@"#263E52"),
-            Color4Extensions.FromHex(@"#2E4C64"), Color4Extensions.FromHex(@"#274257"));
-
         /// <summary>
         /// Get the corresponding <see cref="ModColourScheme"/> based on a given string.
         /// </summary>
         /// <param name="mod">the given mod string</param>
-        /// <returns>a colour scheme of the mod, <see cref="Empty"/> if unavailable</returns>
+        /// <returns>a color scheme of the mod, <see cref="Empty"/> if unavailable</returns>
         public static ModColourScheme FromModString(string? mod) => mod?.Trim().ToUpperInvariant() switch
         {
             @"NM" => NoMod,
@@ -144,7 +146,7 @@ namespace osu.Game.Graphics.UserInterfaceFumo
     }
 
     /// <summary>
-    /// A set of colours for a specific mod.
+    /// A set of colors for a specific mod.
     /// </summary>
     public class ModColourScheme
     {

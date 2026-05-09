@@ -1,8 +1,10 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Linq;
 using NUnit.Framework;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -29,21 +31,16 @@ namespace osu.Game.Tests.Visual.FumoUserInterface
                     AutoSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
                     Spacing = new Vector2(10f),
-                    Children = new Drawable[]
-                    {
-                        new ColourLine(FumoColours.SeaBlue.ColourSet, @"Sea Blue"),
-                        new ColourLine(FumoColours.FlandreRed.ColourSet, @"Flandre Red"),
-                        new ColourLine(FumoColours.SunshineYellow.ColourSet, @"Sunshine Yellow"),
-                        new ColourLine(FumoColours.DeepPurple.ColourSet, @"Deep Purple"),
-                        new ColourLine(FumoColours.LightGreen.ColourSet, @"Light Green"),
-                    },
+                    Children = Enum.GetValues<FumoColours.Theme>()
+                                   .Select(theme => new ColourLine(theme))
+                                   .ToArray(),
                 };
             });
         }
 
         public partial class ColourLine : FillFlowContainer
         {
-            public ColourLine(Color4[] colours, string description = "")
+            public ColourLine(FumoColours.Theme theme)
             {
                 Anchor = Anchor.CentreLeft;
                 Origin = Anchor.CentreLeft;
@@ -51,13 +48,24 @@ namespace osu.Game.Tests.Visual.FumoUserInterface
                 Direction = FillDirection.Horizontal;
                 Spacing = new Vector2(10f);
 
-                ChildrenEnumerable = colours.Select<Color4, Drawable>(c => new ColourItem(c))
-                                            .Append(new OsuSpriteText
-                                            {
-                                                Anchor = Anchor.CentreLeft,
-                                                Origin = Anchor.CentreLeft,
-                                                Text = description,
-                                            });
+                var colour = FumoColours.FromTheme(theme);
+
+                ChildrenEnumerable = new[]
+                    {
+                        colour.Darkest,
+                        colour.Darker,
+                        colour.Dark,
+                        colour.Regular,
+                        colour.Light,
+                        colour.Lighter,
+                        colour.Lightest,
+                    }.Select<Color4, Drawable>(c => new ColourItem(c))
+                     .Append(new OsuSpriteText
+                     {
+                         Anchor = Anchor.CentreLeft,
+                         Origin = Anchor.CentreLeft,
+                         Text = theme.GetLocalisableDescription(),
+                     });
             }
         }
 
