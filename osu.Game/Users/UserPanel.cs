@@ -31,7 +31,6 @@ using osu.Game.Screens.Play;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.LocalisationExtensions;
 using osu.Framework.Graphics.Sprites;
 
 namespace osu.Game.Users
