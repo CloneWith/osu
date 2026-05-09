@@ -28,30 +28,9 @@ namespace osu.Game.Graphics.UserInterfaceFumo
     /// <remarks>Some of these schemes are inspired from Material UI.</remarks>
     public static class FumoColours
     {
-        /// <summary>
-        /// Currently available color themes.
-        /// </summary>
-        public enum Theme
+        private sealed class FumoColour : IFumoColour
         {
-            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.SeaBlue))]
-            SeaBlue,
-
-            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.SunshineYellow))]
-            SunshineYellow,
-
-            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.FlandreRed))]
-            FlandreRed,
-
-            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.DeepPurple))]
-            DeepPurple,
-
-            [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.LightGreen))]
-            LightGreen,
-        }
-
-        private sealed class FumoColourScheme : IFumoColour
-        {
-            public FumoColourScheme(string regular, string dark, string darker, string darkest, string light, string lighter, string lightest)
+            public FumoColour(string regular, string dark, string darker, string darkest, string light, string lighter, string lightest)
             {
                 Regular = Color4Extensions.FromHex(regular);
                 Dark = Color4Extensions.FromHex(dark);
@@ -71,25 +50,46 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             public Color4 Lightest { get; }
         }
 
-        public static IFumoColour SeaBlue { get; } = new FumoColourScheme(@"#269FFE", @"#0992FE", @"#018BF7", @"#0172CB", @"#43ACFE", @"#52B2FE", @"#7DC6FE");
-        public static IFumoColour SunshineYellow { get; } = new FumoColourScheme(@"#F29F00", @"#F18F00", @"#ED8300", @"#E87300", @"#F4B03B", @"#F7C775", @"#FADDAC");
-        public static IFumoColour FlandreRed { get; } = new FumoColourScheme(@"#D05677", @"#C94562", @"#B9415E", @"#A33C58", @"#D96E8D", @"#E394AC", @"#EEBDCD");
-        public static IFumoColour DeepPurple { get; } = new FumoColourScheme(@"#673AB7", @"#5E35B1", @"#512DA8", @"#4527A0", @"#7E57C2", @"#9575CD", @"#B39DDB");
-        public static IFumoColour LightGreen { get; } = new FumoColourScheme(@"#8BC34A", @"#7CB342", @"#689F38", @"#558B2F", @"#9CCC65", @"#AED581", @"#C5E1A5");
+        public static IFumoColour SeaBlue { get; } = new FumoColour(@"#269FFE", @"#0992FE", @"#018BF7", @"#0172CB", @"#43ACFE", @"#52B2FE", @"#7DC6FE");
+        public static IFumoColour SunshineYellow { get; } = new FumoColour(@"#F29F00", @"#F18F00", @"#ED8300", @"#E87300", @"#F4B03B", @"#F7C775", @"#FADDAC");
+        public static IFumoColour FlandreRed { get; } = new FumoColour(@"#D05677", @"#C94562", @"#B9415E", @"#A33C58", @"#D96E8D", @"#E394AC", @"#EEBDCD");
+        public static IFumoColour DeepPurple { get; } = new FumoColour(@"#673AB7", @"#5E35B1", @"#512DA8", @"#4527A0", @"#7E57C2", @"#9575CD", @"#B39DDB");
+        public static IFumoColour LightGreen { get; } = new FumoColour(@"#8BC34A", @"#7CB342", @"#689F38", @"#558B2F", @"#9CCC65", @"#AED581", @"#C5E1A5");
 
         /// <summary>
         /// Get the represented <see cref="IFumoColour"/> from a theme.
         /// </summary>
         /// <param name="theme">the color theme</param>
-        public static IFumoColour FromTheme(Theme theme) => theme switch
+        public static IFumoColour FromTheme(FumoColourScheme theme) => theme switch
         {
-            Theme.SeaBlue => SeaBlue,
-            Theme.SunshineYellow => SunshineYellow,
-            Theme.FlandreRed => FlandreRed,
-            Theme.DeepPurple => DeepPurple,
-            Theme.LightGreen => LightGreen,
-            _ => SeaBlue
+            FumoColourScheme.SeaBlue => SeaBlue,
+            FumoColourScheme.SunshineYellow => SunshineYellow,
+            FumoColourScheme.FlandreRed => FlandreRed,
+            FumoColourScheme.DeepPurple => DeepPurple,
+            FumoColourScheme.LightGreen => LightGreen,
+            _ => SeaBlue,
         };
+    }
+
+    /// <summary>
+    /// Currently available color themes.
+    /// </summary>
+    public enum FumoColourScheme
+    {
+        [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.SeaBlue))]
+        SeaBlue,
+
+        [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.SunshineYellow))]
+        SunshineYellow,
+
+        [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.FlandreRed))]
+        FlandreRed,
+
+        [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.DeepPurple))]
+        DeepPurple,
+
+        [LocalisableDescription(typeof(FumoColourStrings), nameof(FumoColourStrings.LightGreen))]
+        LightGreen,
     }
 
     /// <summary>

@@ -31,7 +31,7 @@ namespace osu.Game.Tests.Visual.FumoUserInterface
                     AutoSizeAxes = Axes.Both,
                     Direction = FillDirection.Vertical,
                     Spacing = new Vector2(10f),
-                    Children = Enum.GetValues<FumoColours.Theme>()
+                    Children = Enum.GetValues<FumoColourScheme>()
                                    .Select(theme => new ColourLine(theme))
                                    .ToArray(),
                 };
@@ -40,7 +40,7 @@ namespace osu.Game.Tests.Visual.FumoUserInterface
 
         public partial class ColourLine : FillFlowContainer
         {
-            public ColourLine(FumoColours.Theme theme)
+            public ColourLine(FumoColourScheme theme)
             {
                 Anchor = Anchor.CentreLeft;
                 Origin = Anchor.CentreLeft;
