@@ -15,6 +15,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString BackgroundSettingsTitle => new TranslatableString(getKey(@"background_settings_title"), @"Background Settings");
 
         /// <summary>
+        /// "Default Background"
+        /// </summary>
+        public static LocalisableString DefaultBackground => new TranslatableString(getKey(@"default_background"), @"Default Background");
+
+        /// <summary>
         /// "Unknown"
         /// </summary>
         public static LocalisableString Unknown => new TranslatableString(getKey(@"unknown"), @"Unknown");
