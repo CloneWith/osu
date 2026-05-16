@@ -60,11 +60,6 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString DeleteTeam => new TranslatableString(getKey(@"delete_team"), @"Delete Team");
 
         /// <summary>
-        /// "Add all countries"
-        /// </summary>
-        public static LocalisableString AddAllCountries => new TranslatableString(getKey(@"add_all_countries"), @"Add all countries");
-
-        /// <summary>
         /// "Seeding Entry"
         /// </summary>
         public static LocalisableString SeedingEntryHeader => new TranslatableString(getKey(@"seeding_entry_header"), @"Seeding Entry");

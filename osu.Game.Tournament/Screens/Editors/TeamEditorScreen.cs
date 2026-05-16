@@ -1,13 +1,10 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -33,49 +30,13 @@ namespace osu.Game.Tournament.Screens.Editors
         [Resolved]
         private TournamentGameBase? tournamentGame { get; set; }
 
-        [Resolved]
-        private IDialogOverlay? dialogOverlay { get; set; }
-
         public TeamEditorScreen()
         {
             FetchAction = fetchAll => Task.Run(() => tournamentGame?.AddPlayers(fetchAll))
                                           .ContinueWith(_ => Scheduler.Add(RefreshFlow));
         }
 
-        [BackgroundDependencyLoader]
-        private void load()
-        {
-            ControlPanel.Add(new DangerousSettingsButton
-            {
-                RelativeSizeAxes = Axes.X,
-                Text = TeamEditorStrings.AddAllCountries,
-                Action = () => dialogOverlay?.Push(new AddAllDialog(() =>
-                {
-                    Expire();
-                    addAllCountries();
-                }))
-            });
-        }
-
         protected override TeamRow CreateDrawable(TournamentTeam model) => new TeamRow(model, this);
-
-        private void addAllCountries()
-        {
-            var countries = new List<TournamentTeam>();
-
-            foreach (var country in Enum.GetValues<CountryCode>().Skip(1))
-            {
-                countries.Add(new TournamentTeam
-                {
-                    FlagName = { Value = country.ToString() },
-                    FullName = { Value = country.GetDescription() },
-                    Acronym = { Value = country.GetAcronym() },
-                });
-            }
-
-            foreach (var c in countries)
-                Storage.Add(c);
-        }
 
         public partial class TeamRow : CompositeDrawable, IModelBacked<TournamentTeam>
         {
