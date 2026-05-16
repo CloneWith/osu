@@ -426,8 +426,10 @@ namespace osu.Game
             {
                 base.Content.Add(SpectatorClient);
                 base.Content.Add(MultiplayerClient);
-                base.Content.Add(metadataClient);
             }
+
+            // The metadata client is crucial for user presence updates in user panels etc., hence needed.
+            base.Content.Add(metadataClient);
 
             base.Content.Add(rulesetConfigCache);
 
