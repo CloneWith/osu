@@ -56,42 +56,6 @@ namespace osu.Game.Tournament.Localisation
             @"Paint the chess with winner's colour.");
 
         /// <summary>
-        /// "Deploy Shiro ({0})"
-        /// </summary>
-        public static LocalisableString ShiroName(LocalisableString team) => new TranslatableString(getKey(@"shiro_name"),
-            @"Deploy Shiro ({0})", team);
-
-        /// <summary>
-        /// "Consume couplets to deploy one."
-        /// </summary>
-        public static LocalisableString ShiroDescription => new TranslatableString(getKey(@"shiro_description"),
-            @"Consume couplets to deploy one.");
-
-        /// <summary>
-        /// "Place Shiro"
-        /// </summary>
-        public static LocalisableString ShiroPlacingName => new TranslatableString(getKey(@"shiro_placing_name"),
-            @"Place Shiro");
-
-        /// <summary>
-        /// "Place an empty Shiro chess piece."
-        /// </summary>
-        public static LocalisableString ShiroPlacingDescription => new TranslatableString(getKey(@"shiro_placing_description"),
-            @"Place an empty Shiro chess piece.");
-
-        /// <summary>
-        /// "Get Owner ({0})"
-        /// </summary>
-        public static LocalisableString UpdateOwnerName(LocalisableString team) => new TranslatableString(getKey(@"update_owner_name"),
-            @"Get Owner ({0})", team);
-
-        /// <summary>
-        /// "Consume couplets to take a win chess."
-        /// </summary>
-        public static LocalisableString UpdateOwnerDescription => new TranslatableString(getKey(@"update_owner_description"),
-            @"Consume couplets to take a win chess.");
-
-        /// <summary>
         /// "Entering TB Mode..."
         /// </summary>
         public static LocalisableString TieBreakerName => new TranslatableString(getKey(@"tie_breaker_name"),

@@ -72,20 +72,6 @@ namespace osu.Game.Tournament.Models
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
-                case RoundStep.Shiro:
-                    Name = Team == TeamColour.None ? InstructionsStrings.ShiroPlacingName : InstructionsStrings.ShiroName(shortTeamPrompt);
-                    Description = Team == TeamColour.None ? InstructionsStrings.ShiroPlacingDescription : InstructionsStrings.ShiroDescription;
-                    Icon = FontAwesome.Regular.Circle;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
-                    break;
-
-                case RoundStep.UpdateOwner:
-                    Name = InstructionsStrings.UpdateOwnerName(shortTeamPrompt);
-                    Description = InstructionsStrings.UpdateOwnerDescription;
-                    Icon = FontAwesome.Solid.ArrowUp;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
-                    break;
-
                 case RoundStep.TieBreaker:
                     Name = InstructionsStrings.TieBreakerName;
                     Description = InstructionsStrings.TieBreakerDescription;
@@ -135,16 +121,6 @@ namespace osu.Game.Tournament.Models
         /// Mark colours.
         /// </summary>
         Win,
-
-        /// <summary>
-        /// Place the empty chess.
-        /// </summary>
-        Shiro,
-
-        /// <summary>
-        /// Own the chess by consuming couplets.
-        /// </summary>
-        UpdateOwner,
 
         /// <summary>
         /// The final stage.

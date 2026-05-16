@@ -59,10 +59,5 @@ namespace osu.Game.Tournament.Models
         Protect,
         RedWin,
         BlueWin,
-
-        /// <summary>
-        /// Specially designed for board chess. Set when it is used for other actions.
-        /// </summary>
-        Consumed,
     }
 }

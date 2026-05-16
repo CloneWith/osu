@@ -18,10 +18,6 @@ namespace osu.Game.Tournament.Models
         public double? StarRatingWithMod;
         public int MaxCombo;
 
-        // Board view specific
-        public int BoardX = -1;
-        public int BoardY = -1;
-
         [JsonProperty("BeatmapInfo")]
         public TournamentBeatmap? Beatmap;
     }
