@@ -1,8 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
-using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -113,30 +111,24 @@ namespace osu.Game.Tournament.Components
 
             if (!skipLadderLookup)
             {
-                try
-                {
-                    // Only reload when relevant changes were made to the mapping list.
-                    var newInfo = ladder.BackgroundMap.Last(v => v.Key == requestedType).Value;
-
-                    if (newInfo.FileInfoEquals(info))
-                    {
-                        if (newInfo.Dim != info.Dim)
-                            Dim = newInfo.Dim;
-
-                        return;
-                    }
-
-                    info = newInfo;
-                }
-                // When we've already loaded a background,
-                // don't let clear changes affect it.
-                catch (InvalidOperationException)
+                // Only reload when relevant changes were made to the mapping list.
+                if (!ladder.BackgroundMap.TryGetBackgroundInfo(requestedType, out var newInfo))
                 {
                     if (imageSprite == null && video == null && drawFallbackGradient)
                         loadFallbackGradient();
 
                     return;
                 }
+
+                if (newInfo.FileInfoEquals(info))
+                {
+                    if (newInfo.Dim != info.Dim)
+                        Dim = newInfo.Dim;
+
+                    return;
+                }
+
+                info = newInfo;
             }
 
             dimBox.FadeTo(info.Dim, 300, Easing.OutQuint);
