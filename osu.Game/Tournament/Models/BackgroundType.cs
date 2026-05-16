@@ -96,33 +96,31 @@ namespace osu.Game.Tournament.Models
         #region Operators
 
         public bool Equals(BackgroundInfo other)
-        {
-            return Source == other.Source
-                   && Name == other.Name
-                   && Dim == other.Dim;
-        }
+            => Source == other.Source && Name == other.Name && Dim == other.Dim;
 
         public bool FileInfoEquals(BackgroundInfo other)
-        {
-            return Source == other.Source
-                   && Name == other.Name;
-        }
+            => Source == other.Source && Name == other.Name;
 
         public override bool Equals(object? obj)
-        {
-            return obj is BackgroundInfo other && Equals(other);
-        }
+            => obj is BackgroundInfo other && Equals(other);
 
         public override int GetHashCode()
-        {
-            return HashCode.Combine((int)Source, Name);
-        }
+            => HashCode.Combine((int)Source, Name);
+
+        public static bool operator ==(BackgroundInfo left, BackgroundInfo right)
+            => left.Equals(right);
+
+        public static bool operator !=(BackgroundInfo left, BackgroundInfo right)
+            => !(left == right);
 
         #endregion
     }
 
     public static class BackgroundProps
     {
+        /// <summary>
+        /// The default mapping of screen backgrounds.
+        /// </summary>
         public static readonly BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> PATHS = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>
         {
             KeyValuePair.Create(BackgroundType.Gameplay, new BackgroundInfo("gameplay")),
@@ -138,5 +136,68 @@ namespace osu.Game.Tournament.Models
             KeyValuePair.Create(BackgroundType.BlueWin, new BackgroundInfo("teamwin-blue")),
             KeyValuePair.Create(BackgroundType.Draw, new BackgroundInfo("mappool")),
         };
+
+        /// <summary>
+        /// Gets the default background mapping for a background type.
+        /// </summary>
+        public static BackgroundInfo GetDefaultBackgroundInfo(BackgroundType backgroundType)
+            => PATHS.GetBackgroundInfo(backgroundType);
+    }
+
+    public static class BackgroundMapExtensions
+    {
+        /// <summary>
+        /// Tries to find the most recent mapping for a background type.
+        /// </summary>
+        public static bool TryGetBackgroundInfo(this BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> backgroundMap,
+                                                BackgroundType backgroundType, out BackgroundInfo backgroundInfo)
+        {
+            for (int i = backgroundMap.Count - 1; i >= 0; i--)
+            {
+                if (backgroundMap[i].Key != backgroundType)
+                    continue;
+
+                backgroundInfo = backgroundMap[i].Value;
+                return true;
+            }
+
+            backgroundInfo = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the mapping for a background type, falling back to the default mapping if needed.
+        /// </summary>
+        public static BackgroundInfo GetBackgroundInfo(this BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> backgroundMap, BackgroundType backgroundType)
+            => backgroundMap.TryGetBackgroundInfo(backgroundType, out var backgroundInfo)
+                ? backgroundInfo
+                : BackgroundProps.GetDefaultBackgroundInfo(backgroundType);
+
+        /// <summary>
+        /// Updates the mapping for a background type while keeping only one effective entry.
+        /// </summary>
+        public static void SetBackgroundInfo(this BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> backgroundMap, BackgroundType backgroundType, BackgroundInfo backgroundInfo)
+        {
+            bool updated = false;
+
+            for (int i = backgroundMap.Count - 1; i >= 0; i--)
+            {
+                if (backgroundMap[i].Key != backgroundType)
+                    continue;
+
+                if (!updated)
+                {
+                    backgroundMap[i] = new KeyValuePair<BackgroundType, BackgroundInfo>(backgroundType, backgroundInfo);
+                    updated = true;
+                }
+                else
+                {
+                    backgroundMap.RemoveAt(i);
+                }
+            }
+
+            if (!updated)
+                backgroundMap.Add(new KeyValuePair<BackgroundType, BackgroundInfo>(backgroundType, backgroundInfo));
+        }
     }
 }
