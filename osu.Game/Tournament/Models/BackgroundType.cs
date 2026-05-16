@@ -3,54 +3,53 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using osu.Framework.Bindables;
+using osu.Framework.Localisation;
+using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 
 namespace osu.Game.Tournament.Models
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BackgroundType
     {
-        [Description("Default Background")]
+        [LocalisableDescription(typeof(BackgroundSelectStrings), nameof(BackgroundSelectStrings.DefaultBackground))]
         Main,
 
-        [Description("Bracket Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Bracket))]
         Ladder,
 
-        [Description("Schedule Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Schedule))]
         Schedule,
 
-        [Description("Drawings Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Drawings))]
         Drawings,
 
-        [Description("Showcase Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Showcase))]
         Showcase,
 
-        [Description("Seeding Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Seeding))]
         Seeding,
 
-        [Description("Team Introduction")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.TeamIntro))]
         TeamIntro,
 
-        [Description("Gameplay Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Gameplay))]
         Gameplay,
 
-        [Description("Map Pool Screen")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.MapPool))]
         MapPool,
 
-        [Description("Win Screen (Red)")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.RedWin))]
         RedWin,
 
-        [Description("Win Screen (Blue)")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.BlueWin))]
         BlueWin,
 
-        [Description("Win Screen (Draw)")]
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.DrawWin))]
         Draw,
-
-        [Description("Board Screen")]
-        Board,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
@@ -138,7 +137,6 @@ namespace osu.Game.Tournament.Models
             KeyValuePair.Create(BackgroundType.RedWin, new BackgroundInfo("teamwin-red")),
             KeyValuePair.Create(BackgroundType.BlueWin, new BackgroundInfo("teamwin-blue")),
             KeyValuePair.Create(BackgroundType.Draw, new BackgroundInfo("mappool")),
-            KeyValuePair.Create(BackgroundType.Board, new BackgroundInfo("mappool")),
         };
     }
 }

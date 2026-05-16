@@ -75,6 +75,21 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString Win => new TranslatableString(getKey(@"win"), @"Win");
 
         /// <summary>
+        /// "Red Win"
+        /// </summary>
+        public static LocalisableString RedWin => new TranslatableString(getKey(@"red_win"), @"Red Win");
+
+        /// <summary>
+        /// "Blue Win"
+        /// </summary>
+        public static LocalisableString BlueWin => new TranslatableString(getKey(@"blue_win"), @"Blue Win");
+
+        /// <summary>
+        /// "Win (Draw)"
+        /// </summary>
+        public static LocalisableString DrawWin => new TranslatableString(getKey(@"draw_win"), @"Win (Draw)");
+
+        /// <summary>
         /// "Drawings"
         /// </summary>
         public static LocalisableString Drawings => new TranslatableString(getKey(@"drawings"), @"Drawings");

@@ -69,4 +69,7 @@
     <data name="prompt_file_path" xml:space="preserve">
         <value>必须在"{1}"目录选择{0}。</value>
     </data>
+    <data name="default_background" xml:space="preserve">
+        <value>默认背景</value>
+    </data>
 </root>

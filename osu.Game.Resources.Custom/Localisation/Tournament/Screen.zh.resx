@@ -72,4 +72,13 @@
     <data name="section_before_match" xml:space="preserve">
         <value>赛前</value>
     </data>
+    <data name="red_win" xml:space="preserve">
+        <value>红队获胜</value>
+    </data>
+    <data name="blue_win" xml:space="preserve">
+        <value>蓝队获胜</value>
+    </data>
+    <data name="draw_win" xml:space="preserve">
+        <value>获胜展示（平局）</value>
+    </data>
 </root>
