@@ -3,12 +3,12 @@
 
 using System;
 using System.Linq;
-using osu.Game.Overlays.Settings;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Components
 {
-    public partial class BackgroundTypeDropdown : SettingsDropdown<BackgroundType>
+    public partial class BackgroundTypeDropdown : FormEnumDropdown<BackgroundType>
     {
         public BackgroundTypeDropdown()
         {

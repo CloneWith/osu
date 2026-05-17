@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using osu.Framework.Allocation;
@@ -18,7 +19,6 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
-using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Dialogs;
 using osu.Game.Tournament.IO;
@@ -32,7 +32,13 @@ namespace osu.Game.Tournament.Screens.Setup
 {
     public partial class BackgroundSelectScreen : TournamentScreen
     {
+        private readonly string[] supportedVideoExtensions = [@".mp4", @".avi", @".m4v"];
+        private readonly string[] supportedImageExtensions = [@".png", @".jpg", @".jpeg", @".bmp"];
+
+        private string[] supportedExtensions => [..supportedImageExtensions, ..supportedVideoExtensions];
+
         private BackgroundTypeDropdown typeDropdown = null!;
+        private SpriteIcon infoIcon = null!;
         private TournamentSpriteText infoText = null!;
 
         private Container previewContainer = null!;
@@ -66,67 +72,239 @@ namespace osu.Game.Tournament.Screens.Setup
         };
 
         [BackgroundDependencyLoader(true)]
-        private void load(TournamentStorage storage)
+        private void load(OverlayColourProvider colourProvider, TournamentStorage storage)
         {
             initialPath = new DirectoryInfo(storage.GetFullPath(string.Empty)).FullName;
-            videoPath = new DirectoryInfo(storage.GetFullPath("./Videos")).FullName;
-            imagePath = new DirectoryInfo(storage.GetFullPath("./Backgrounds")).FullName;
+            videoPath = new DirectoryInfo(storage.GetFullPath(@"./Videos", true)).FullName;
+            imagePath = new DirectoryInfo(storage.GetFullPath(@"./Backgrounds", true)).FullName;
 
             InternalChildren = new Drawable[]
             {
-                new TourneyBackground(BackgroundType.Main)
-                {
-                    Loop = true,
-                    RelativeSizeAxes = Axes.Both,
-                },
                 new Container
                 {
-                    Masking = true,
-                    CornerRadius = 10,
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Size = new Vector2(0.8f, 0.8f),
                     Children = new Drawable[]
                     {
                         new Box
                         {
-                            Colour = new OsuColour().GreySeaFoamDark,
+                            Colour = colourProvider.Background5,
                             RelativeSizeAxes = Axes.Both,
                         },
                         new GridContainer
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Size = new Vector2(0.4f, 1f),
                             RowDimensions = new[]
                             {
+                                new Dimension(GridSizeMode.AutoSize),
                                 new Dimension(),
-                                new Dimension(GridSizeMode.Relative, 0.8f),
-                                new Dimension(),
+                                new Dimension(GridSizeMode.Absolute, 50),
                             },
                             Content = new[]
                             {
                                 new Drawable[]
                                 {
-                                    new OsuSpriteText
+                                    new GridContainer
                                     {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        Text = BackgroundSelectStrings.BackgroundSettingsTitle,
-                                        Font = OsuFont.Default.With(size: 32, weight: FontWeight.SemiBold),
+                                        Name = @"Top bar",
+                                        RelativeSizeAxes = Axes.X,
+                                        AutoSizeAxes = Axes.Y,
+                                        Padding = new MarginPadding { Horizontal = 25, Vertical = 10 },
+                                        RowDimensions = new[]
+                                        {
+                                            new Dimension(GridSizeMode.AutoSize),
+                                        },
+                                        ColumnDimensions = new[]
+                                        {
+                                            new Dimension(),
+                                            new Dimension(GridSizeMode.AutoSize),
+                                        },
+                                        Content = new[]
+                                        {
+                                            new Drawable[]
+                                            {
+                                                new FillFlowContainer
+                                                {
+                                                    Name = @"Title",
+                                                    Anchor = Anchor.CentreLeft,
+                                                    Origin = Anchor.CentreLeft,
+                                                    AutoSizeAxes = Axes.Both,
+                                                    Direction = FillDirection.Horizontal,
+                                                    Spacing = new Vector2(10),
+                                                    Children = new Drawable[]
+                                                    {
+                                                        new SpriteIcon
+                                                        {
+                                                            Anchor = Anchor.CentreLeft,
+                                                            Origin = Anchor.CentreLeft,
+                                                            Icon = OsuIcon.Graphics,
+                                                            Size = new Vector2(32),
+                                                        },
+                                                        new OsuSpriteText
+                                                        {
+                                                            Anchor = Anchor.CentreLeft,
+                                                            Origin = Anchor.CentreLeft,
+                                                            Text = BackgroundSelectStrings.BackgroundSettingsTitle,
+                                                            Font = OsuFont.Default.With(size: 32, weight: FontWeight.Bold),
+                                                        },
+                                                    },
+                                                },
+                                                new FillFlowContainer
+                                                {
+                                                    Name = @"Action buttons",
+                                                    Anchor = Anchor.Centre,
+                                                    Origin = Anchor.Centre,
+                                                    AutoSizeAxes = Axes.Both,
+                                                    Direction = FillDirection.Horizontal,
+                                                    Spacing = new Vector2(15),
+                                                    Children = new Drawable[]
+                                                    {
+                                                        saveButton = new RoundedButton
+                                                        {
+                                                            Anchor = Anchor.Centre,
+                                                            Origin = Anchor.Centre,
+                                                            Width = 150,
+                                                            Text = BaseStrings.SaveChanges,
+                                                            Action = () => saveSetting(),
+                                                        },
+                                                        new RoundedButton
+                                                        {
+                                                            Anchor = Anchor.Centre,
+                                                            Origin = Anchor.Centre,
+                                                            Width = 150,
+                                                            Text = BackgroundSelectStrings.SaveAll,
+                                                            Action = () => saveSetting(true),
+                                                        },
+                                                        new RoundedButton
+                                                        {
+                                                            Anchor = Anchor.Centre,
+                                                            Origin = Anchor.Centre,
+                                                            Width = 150,
+                                                            Text = BaseStrings.Reset,
+                                                            Colour = Color4.Orange,
+                                                            Action = () => overlay?.Push(new BackgroundResetDialog
+                                                            (
+                                                                resetOneAction: () =>
+                                                                {
+                                                                    BackgroundInfo defaultInfo = BackgroundProps.GetDefaultBackgroundInfo(typeDropdown.Current.Value);
+                                                                    LadderInfo.BackgroundMap.SetBackgroundInfo(typeDropdown.Current.Value, defaultInfo);
+                                                                    game.SaveChanges();
+                                                                },
+                                                                resetAllAction: () =>
+                                                                {
+                                                                    LadderInfo.BackgroundMap.Clear();
+                                                                    LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
+                                                                    game.SaveChanges();
+                                                                }
+                                                            )),
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
                                     },
                                 },
                                 new Drawable[]
                                 {
-                                    fileSelector = new OsuFileSelector(initialPath)
+                                    new GridContainer
                                     {
                                         RelativeSizeAxes = Axes.Both,
+                                        ColumnDimensions = new[]
+                                        {
+                                            new Dimension(GridSizeMode.Relative, 0.4f),
+                                            new Dimension(GridSizeMode.Relative, 0.6f),
+                                        },
+                                        Content = new[]
+                                        {
+                                            new Drawable[]
+                                            {
+                                                fileSelector = new OsuFileSelector(initialPath, supportedExtensions)
+                                                {
+                                                    ShowHiddenToggle = false,
+                                                    RelativeSizeAxes = Axes.Both,
+                                                },
+                                                new FillFlowContainer
+                                                {
+                                                    Name = @"Settings section",
+                                                    Anchor = Anchor.TopCentre,
+                                                    Origin = Anchor.TopCentre,
+                                                    RelativeSizeAxes = Axes.Both,
+                                                    Masking = true,
+                                                    Direction = FillDirection.Vertical,
+                                                    Spacing = new Vector2(10),
+                                                    Padding = new MarginPadding { Horizontal = 20 },
+                                                    Children = new Drawable[]
+                                                    {
+                                                        new FillFlowContainer
+                                                        {
+                                                            Anchor = Anchor.TopCentre,
+                                                            Origin = Anchor.TopCentre,
+                                                            Direction = FillDirection.Horizontal,
+                                                            Spacing = new Vector2(10),
+                                                            AutoSizeAxes = Axes.Both,
+                                                            Margin = new MarginPadding { Top = 10 },
+                                                            Children = new Drawable[]
+                                                            {
+                                                                infoIcon = new SpriteIcon
+                                                                {
+                                                                    Anchor = Anchor.TopCentre,
+                                                                    Origin = Anchor.TopCentre,
+                                                                    Icon = FontAwesome.Solid.Play,
+                                                                    Size = new Vector2(24),
+                                                                },
+                                                                infoText = new TournamentSpriteText
+                                                                {
+                                                                    Anchor = Anchor.TopCentre,
+                                                                    Origin = Anchor.TopCentre,
+                                                                    Text = BackgroundSelectStrings.Unknown,
+                                                                    Font = OsuFont.Default.With(size: 24),
+                                                                },
+                                                            },
+                                                        },
+                                                        new FormSliderBar<float>
+                                                        {
+                                                            Anchor = Anchor.TopCentre,
+                                                            Origin = Anchor.TopCentre,
+                                                            Caption = BackgroundSelectStrings.BackgroundDim,
+                                                            DisplayAsPercentage = true,
+                                                            Current = backgroundDim,
+                                                        },
+                                                        typeDropdown = new BackgroundTypeDropdown
+                                                        {
+                                                            Anchor = Anchor.TopCentre,
+                                                            Origin = Anchor.TopCentre,
+                                                            Caption = BackgroundSelectStrings.SelectBackgroundFor,
+                                                        },
+                                                        previewContainer = new Container
+                                                        {
+                                                            Name = @"Preview",
+                                                            Anchor = Anchor.TopCentre,
+                                                            Origin = Anchor.TopCentre,
+                                                            FillMode = FillMode.Fit,
+                                                            RelativeSizeAxes = Axes.Both,
+                                                            FillAspectRatio = TournamentExtensions.ASPECT_RATIO,
+                                                            Masking = true,
+                                                            CornerRadius = 10,
+                                                            Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(typeDropdown.Current.Value), showError: true, fillMode: FillMode.Fit)
+                                                            {
+                                                                Anchor = Anchor.TopCentre,
+                                                                Origin = Anchor.TopCentre,
+                                                                Loop = true,
+                                                                RelativeSizeAxes = Axes.Both,
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        }
                                     },
                                 },
                                 new Drawable[]
                                 {
                                     new FillFlowContainer
                                     {
+                                        Name = @"Status bar",
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
                                         Direction = FillDirection.Horizontal,
@@ -145,143 +323,6 @@ namespace osu.Game.Tournament.Screens.Setup
                                                 Anchor = Anchor.Centre,
                                                 Origin = Anchor.Centre,
                                                 AutoSizeAxes = Axes.Both,
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        },
-                        new GridContainer
-                        {
-                            Anchor = Anchor.TopRight,
-                            Origin = Anchor.TopRight,
-                            RelativeSizeAxes = Axes.Both,
-                            Size = new Vector2(0.6f, 1f),
-                            RowDimensions = new[]
-                            {
-                                new Dimension(),
-                                new Dimension(GridSizeMode.Relative, 0.2f),
-                            },
-                            Content = new[]
-                            {
-                                new Drawable[]
-                                {
-                                    new FillFlowContainer
-                                    {
-                                        Anchor = Anchor.TopCentre,
-                                        Origin = Anchor.TopCentre,
-                                        RelativeSizeAxes = Axes.Both,
-                                        Direction = FillDirection.Vertical,
-                                        Spacing = new Vector2(10),
-                                        Children = new Drawable[]
-                                        {
-                                            new FillFlowContainer
-                                            {
-                                                Anchor = Anchor.TopCentre,
-                                                Origin = Anchor.TopCentre,
-                                                Direction = FillDirection.Horizontal,
-                                                Spacing = new Vector2(10),
-                                                AutoSizeAxes = Axes.Both,
-                                                Margin = new MarginPadding { Top = 10 },
-                                                Children = new Drawable[]
-                                                {
-                                                    new SpriteIcon
-                                                    {
-                                                        Anchor = Anchor.TopCentre,
-                                                        Origin = Anchor.TopCentre,
-                                                        Icon = FontAwesome.Solid.InfoCircle,
-                                                        Size = new Vector2(24),
-                                                        Colour = Color4.White,
-                                                    },
-                                                    infoText = new TournamentSpriteText
-                                                    {
-                                                        Anchor = Anchor.TopCentre,
-                                                        Origin = Anchor.TopCentre,
-                                                        Text = BackgroundSelectStrings.Unknown,
-                                                        Font = OsuFont.Default.With(size: 24),
-                                                    },
-                                                },
-                                            },
-                                            new SettingsSlider<float>
-                                            {
-                                                Anchor = Anchor.TopCentre,
-                                                Origin = Anchor.TopCentre,
-                                                LabelText = BackgroundSelectStrings.BackgroundDim,
-                                                DisplayAsPercentage = true,
-                                                Current = backgroundDim,
-                                            },
-                                            typeDropdown = new BackgroundTypeDropdown
-                                            {
-                                                Anchor = Anchor.TopCentre,
-                                                Origin = Anchor.TopCentre,
-                                                LabelText = BackgroundSelectStrings.SelectBackgroundFor,
-                                                ShowsDefaultIndicator = false,
-                                                Margin = new MarginPadding { Top = 10 },
-                                            },
-                                            previewContainer = new Container
-                                            {
-                                                Anchor = Anchor.TopCentre,
-                                                Origin = Anchor.TopCentre,
-                                                RelativeSizeAxes = Axes.Both,
-                                                Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(typeDropdown.Current.Value), showError: true, fillMode: FillMode.Fit)
-                                                {
-                                                    Anchor = Anchor.TopCentre,
-                                                    Origin = Anchor.TopCentre,
-                                                    Loop = true,
-                                                    RelativeSizeAxes = Axes.Both,
-                                                },
-                                            },
-                                        },
-                                    },
-                                },
-                                new Drawable[]
-                                {
-                                    new FillFlowContainer
-                                    {
-                                        Anchor = Anchor.Centre,
-                                        Origin = Anchor.Centre,
-                                        Direction = FillDirection.Horizontal,
-                                        Spacing = new Vector2(15),
-                                        Children = new Drawable[]
-                                        {
-                                            saveButton = new RoundedButton
-                                            {
-                                                Anchor = Anchor.Centre,
-                                                Origin = Anchor.Centre,
-                                                Width = 150,
-                                                Text = BaseStrings.SaveChanges,
-                                                Action = () => saveSetting(),
-                                            },
-                                            new RoundedButton
-                                            {
-                                                Anchor = Anchor.Centre,
-                                                Origin = Anchor.Centre,
-                                                Width = 150,
-                                                Text = BackgroundSelectStrings.SaveAll,
-                                                Action = () => saveSetting(true),
-                                            },
-                                            new RoundedButton
-                                            {
-                                                Anchor = Anchor.Centre,
-                                                Origin = Anchor.Centre,
-                                                Width = 150,
-                                                Text = BaseStrings.Reset,
-                                                Colour = Color4.Orange,
-                                                Action = () => overlay?.Push(new BackgroundResetDialog
-                                                (
-                                                    resetOneAction: () =>
-                                                    {
-                                                        BackgroundInfo defaultInfo = BackgroundProps.GetDefaultBackgroundInfo(typeDropdown.Current.Value);
-                                                        LadderInfo.BackgroundMap.SetBackgroundInfo(typeDropdown.Current.Value, defaultInfo);
-                                                        game.SaveChanges();
-                                                    },
-                                                    resetAllAction: () =>
-                                                    {
-                                                        LadderInfo.BackgroundMap.Clear();
-                                                        LadderInfo.BackgroundMap.AddRange(BackgroundProps.PATHS);
-                                                        game.SaveChanges();
-                                                    }
-                                                )),
                                             },
                                         },
                                     },
@@ -319,6 +360,7 @@ namespace osu.Game.Tournament.Screens.Setup
 
                 infoText.Text = LocalisableString.Interpolate($"{BackgroundSelectStrings.PromptFileUsing}{availableInfo.Name}");
                 infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
+                infoIcon.Icon = preview.BackgroundAvailable ? FontAwesome.Solid.Play : FontAwesome.Solid.Unlink;
                 backgroundDim.Value = availableInfo.Dim;
             }
 
@@ -357,73 +399,56 @@ namespace osu.Game.Tournament.Screens.Setup
             if (selectedFile.NewValue == null)
             {
                 currentFileText.Text = BackgroundSelectStrings.PromptSelectFile;
-                currentFileIcon.Icon = FontAwesome.Solid.Edit;
+                currentFileIcon.Icon = FontAwesome.Solid.Pen;
                 return;
             }
 
             string lowerFileName = selectedFile.NewValue.Name.ToLowerInvariant();
 
-            bool validVideo = lowerFileName.EndsWith(".mp4", StringComparison.Ordinal)
-                              || lowerFileName.EndsWith(".avi", StringComparison.Ordinal)
-                              || lowerFileName.EndsWith(".m4v", StringComparison.Ordinal);
-            bool validImage = lowerFileName.EndsWith(".png", StringComparison.Ordinal)
-                              || lowerFileName.EndsWith(".jpg", StringComparison.Ordinal)
-                              || lowerFileName.EndsWith(".jpeg", StringComparison.Ordinal)
-                              || lowerFileName.EndsWith(".bmp", StringComparison.Ordinal);
+            bool validVideo = supportedVideoExtensions.Any(ext => lowerFileName.EndsWith(ext, StringComparison.Ordinal));
+            bool validImage = supportedImageExtensions.Any(ext => lowerFileName.EndsWith(ext, StringComparison.Ordinal));
 
-            if (!validVideo && !validImage)
+            Debug.Assert(validVideo || validImage);
+
+            pathValid = (validVideo && fileSelector.CurrentPath.Value.FullName == videoPath)
+                        || (validImage && fileSelector.CurrentPath.Value.FullName == imagePath);
+
+            if (pathValid)
             {
-                saveButton.Enabled.Value = false;
+                saveButton.Enabled.Value = true;
 
                 currentFileText.Clear();
                 currentFileText.AddText($"{selectedFile.NewValue.Name}",
                     t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
-                currentFileText.AddText(LocalisableString.Interpolate($": {BackgroundSelectStrings.PromptFileInvalid}"), t => t.Colour = Color4.Orange);
-                currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
-                currentFileIcon.Colour = Color4.Orange;
+                currentFileText.AddText(LocalisableString.Interpolate($": {BackgroundSelectStrings.PromptFilePreview}"), t => t.Colour = Color4.SkyBlue);
+                currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
+                currentFileIcon.Colour = Color4.SkyBlue;
+                previewContainer.Child = preview = new TourneyBackground(availableInfo = new BackgroundInfo
+                (
+                    source: validVideo ? BackgroundSource.Video : BackgroundSource.Image,
+
+                    // Display the file name with the extension.
+                    name: selectedFile.NewValue.Name,
+                    dim: backgroundDim.Value
+                ), showError: true, fillMode: FillMode.Fit)
+                {
+                    Loop = true,
+                    Dim = backgroundDim.Value,
+                    RelativeSizeAxes = Axes.Both,
+                };
             }
             else
             {
-                pathValid = (validVideo && fileSelector.CurrentPath.Value.FullName == videoPath)
-                            || (validImage && fileSelector.CurrentPath.Value.FullName == imagePath);
+                (LocalisableString, string) prompt = validVideo
+                    ? (BackgroundSelectStrings.FileTypeVideo, @"Videos")
+                    : (BackgroundSelectStrings.FileTypeImage, @"Backgrounds");
 
-                if (pathValid)
-                {
-                    saveButton.Enabled.Value = true;
-
-                    currentFileText.Clear();
-                    currentFileText.AddText($"{selectedFile.NewValue.Name}",
-                        t => t.Font = OsuFont.Default.With(weight: FontWeight.SemiBold));
-                    currentFileText.AddText(LocalisableString.Interpolate($": {BackgroundSelectStrings.PromptFilePreview}"), t => t.Colour = Color4.SkyBlue);
-                    currentFileIcon.Icon = FontAwesome.Solid.CheckCircle;
-                    currentFileIcon.Colour = Color4.SkyBlue;
-                    previewContainer.Child = preview = new TourneyBackground(availableInfo = new BackgroundInfo
-                    (
-                        source: validVideo ? BackgroundSource.Video : BackgroundSource.Image,
-
-                        // Display the file name with the extension.
-                        name: selectedFile.NewValue.Name,
-                        dim: backgroundDim.Value
-                    ), showError: true, fillMode: FillMode.Fit)
-                    {
-                        Loop = true,
-                        Dim = backgroundDim.Value,
-                        RelativeSizeAxes = Axes.Both,
-                    };
-                }
-                else
-                {
-                    (LocalisableString, string) prompt = validVideo
-                        ? (BackgroundSelectStrings.FileTypeVideo, "Videos")
-                        : (BackgroundSelectStrings.FileTypeImage, "Backgrounds");
-
-                    saveButton.Enabled.Value = false;
-                    currentFileText.Clear();
-                    currentFileText.AddText(BackgroundSelectStrings.PromptFilePath(prompt.Item1, prompt.Item2),
-                        t => t.Colour = Color4.Orange);
-                    currentFileIcon.Icon = FontAwesome.Solid.ExclamationCircle;
-                    currentFileIcon.Colour = Color4.Orange;
-                }
+                saveButton.Enabled.Value = false;
+                currentFileText.Clear();
+                currentFileText.AddText(BackgroundSelectStrings.PromptFilePath(prompt.Item1, prompt.Item2),
+                    t => t.Colour = Color4.Orange);
+                currentFileIcon.Icon = FontAwesome.Solid.Folder;
+                currentFileIcon.Colour = Color4.Orange;
             }
         }
 
