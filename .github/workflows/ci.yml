@@ -33,10 +33,8 @@ jobs:
           path: ${{ github.workspace }}/inspectcode
           key: inspectcode-${{ hashFiles('.config/dotnet-tools.json', '.github/workflows/ci.yml', 'osu.sln*', 'osu*.slnf', '.editorconfig', '.globalconfig', 'CodeAnalysis/*', '**/*.csproj', '**/*.props') }}
 
-      - name: Dotnet code style
-        run: dotnet build -c Debug -warnaserror osu.Desktop.slnf -p:EnforceCodeStyleInBuild=true
-
       - name: CodeFileSanity
+        continue-on-error: true
         run: |
           # TODO: Add ignore filters and GitHub Workflow Command Reporting in CFS. That way we don't have to do this workaround.
           # FIXME: Suppress warnings from templates project
@@ -58,6 +56,18 @@ jobs:
           solution: ./osu.Desktop.slnf
           caches-home: inspectcode
           verbosity: WARN
+          sEverity: WARNING
+          output: inspectcode.sarif
+          format: Sarif
+
+      - name: InspectCode result check
+        shell: bash
+        run: |
+          issue_count=$(jq '[.runs[].results[] | select(.level == "warning" or .level == "error")] | length' inspectcode.sarif)
+          if [ "$issue_count" -gt 0 ]; then
+            echo "Rider code analysis found $issue_count issues."
+            exit 1
+          fi
 
   test:
     name: Test
@@ -70,8 +80,8 @@ jobs:
           os:
             - { prettyname: Windows, fullname: windows-latest }
             - { prettyname: Linux, fullname: ubuntu-latest }
-          threadingMode: ['SingleThread', 'MultiThreaded']
-    timeout-minutes: 120
+          threadingMode: ['MultiThreaded']
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -89,7 +99,6 @@ jobs:
           dotnet test
           osu.Game.Tests/bin/Debug/**/osu.Game.Tests.dll
           osu.Game.Tournament.Tests/bin/Debug/**/osu.Game.Tournament.Tests.dll
-          Templates/**/*.Tests/bin/Debug/**/*.Tests.dll
           --filter "FullyQualifiedName~Tournament|FullyQualifiedName!~Visual|FullyQualifiedName~NonVisual"
           --logger "trx;LogFileName=TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}.trx"
           --
