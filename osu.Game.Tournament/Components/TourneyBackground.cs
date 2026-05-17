@@ -12,9 +12,10 @@ using osu.Framework.Graphics.Video;
 using osu.Framework.Logging;
 using osu.Framework.Timing;
 using osu.Game.Graphics;
-using osu.Game.Graphics.Containers;
 using osu.Game.Tournament.IO;
+using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
+using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
@@ -34,7 +35,6 @@ namespace osu.Game.Tournament.Components
         private Video? video;
         private ManualClock? manualClock;
         private readonly Container spriteContainer;
-        private OsuTextFlowContainer errorFlow = null!;
         private readonly Box dimBox;
 
         private readonly bool skipLadderLookup;
@@ -214,18 +214,30 @@ namespace osu.Game.Tournament.Components
                     RelativeSizeAxes = Axes.Both,
                     Alpha = drawFallbackGradient ? 1 : 0
                 },
-                errorFlow = new OsuTextFlowContainer
+                new FillFlowContainer
                 {
                     Name = @"Error Text",
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     AutoSizeAxes = Axes.Both,
-                    Alpha = isFaulted && showError ? 1 : 0
-                }
+                    Direction = FillDirection.Horizontal,
+                    Spacing = new Vector2(10),
+                    Alpha = isFaulted && showError ? 1 : 0,
+                    Children = new Drawable[]
+                    {
+                        new SpriteIcon
+                        {
+                            Size = new Vector2(20),
+                            Icon = FontAwesome.Solid.Unlink,
+                        },
+                        new TournamentSpriteText
+                        {
+                            Font = OsuFont.Torus.With(size: 20),
+                            Text = BaseStrings.BackgroundUnavailable,
+                        },
+                    },
+                },
             };
-
-            errorFlow.AddIcon(FontAwesome.Solid.ExclamationCircle);
-            errorFlow.AddText(" Background unavailable!");
         }
 
         private bool loop;
