@@ -20,6 +20,8 @@ namespace osu.Game.Graphics.UserInterfaceV2
 {
     public partial class OsuFileSelector : FileSelector
     {
+        public bool ShowHiddenToggle { get; init; } = true;
+
         private Box hiddenToggleBackground = null!;
 
         public OsuFileSelector(string? initialPath = null, string[]? validFileExtensions = null)
@@ -55,6 +57,7 @@ namespace osu.Game.Graphics.UserInterfaceV2
         {
             RelativeSizeAxes = Axes.Y,
             AutoSizeAxes = Axes.X,
+            Alpha = ShowHiddenToggle ? 1 : 0,
             Children = new Drawable[]
             {
                 hiddenToggleBackground = new Box
