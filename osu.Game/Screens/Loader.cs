@@ -47,6 +47,7 @@ namespace osu.Game.Screens
             if (introSequence == IntroSequence.Random)
                 introSequence = (IntroSequence)RNG.Next(0, (int)IntroSequence.Random);
 
+            // TODO: Add Astra custom intro sequence
             switch (introSequence)
             {
                 case IntroSequence.Circles:

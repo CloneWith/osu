@@ -191,6 +191,9 @@ namespace osu.Game.Screens.Backgrounds
         {
             switch (introSequence.Value)
             {
+                case IntroSequence.Astra:
+                    return @"Intro/Astra/menu-background";
+
                 case IntroSequence.Welcome:
                     return @"Intro/Welcome/menu-background";
 

@@ -8,6 +8,7 @@ namespace osu.Game.Configuration
 {
     public enum IntroSequence
     {
+        Astra,
         Circles,
         Welcome,
         Triangles,
