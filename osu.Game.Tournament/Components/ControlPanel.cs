@@ -2,15 +2,16 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
+using osu.Game.Overlays;
 using osu.Game.Tournament.Localisation;
 using osuTK;
-using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
@@ -20,28 +21,45 @@ namespace osu.Game.Tournament.Components
     /// </summary>
     public partial class ControlPanel : Container
     {
-        private readonly FillFlowContainer buttons;
+        private readonly Action<bool>? refetchAction;
+        private readonly bool needSaving;
 
-        public Action<bool>? RefetchAction;
+        private readonly FillFlowContainer buttons;
 
         protected override Container<Drawable> Content => buttons;
 
         public ControlPanel(bool needSaving = false, Action<bool>? refetchAction = null)
         {
-            Name = "Control Panel Sidebar";
+            Name = @"Control Panel Sidebar";
             RelativeSizeAxes = Axes.Y;
             AlwaysPresent = true;
             Width = TournamentSceneManager.CONTROL_AREA_WIDTH;
             Anchor = Anchor.TopRight;
 
-            RefetchAction = refetchAction;
+            this.needSaving = needSaving;
+            this.refetchAction = refetchAction;
 
+            buttons = new FillFlowContainer
+            {
+                Anchor = Anchor.TopCentre,
+                Origin = Anchor.TopCentre,
+                RelativeSizeAxes = Axes.X,
+                AutoSizeAxes = Axes.Y,
+                Padding = new MarginPadding(5),
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(0, 5f),
+            };
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(OverlayColourProvider colourProvider)
+        {
             InternalChildren = new Drawable[]
             {
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = new Color4(54, 54, 54, 255)
+                    Colour = colourProvider.Background6,
                 },
                 new GridContainer
                 {
@@ -95,22 +113,13 @@ namespace osu.Game.Tournament.Components
                                 Origin = Anchor.TopCentre,
                                 RelativeSizeAxes = Axes.Both,
                                 ScrollbarVisible = false,
-                                Child = buttons = new FillFlowContainer
-                                {
-                                    Anchor = Anchor.TopCentre,
-                                    Origin = Anchor.TopCentre,
-                                    RelativeSizeAxes = Axes.X,
-                                    AutoSizeAxes = Axes.Y,
-                                    Padding = new MarginPadding(5),
-                                    Direction = FillDirection.Vertical,
-                                    Spacing = new Vector2(0, 5f),
-                                },
+                                Child = buttons,
                             },
                         },
                         new[]
                         {
-                            RefetchAction != null
-                                ? new FetchDataButton(RefetchAction)
+                            refetchAction != null
+                                ? new FetchDataButton(refetchAction)
                                 {
                                     Anchor = Anchor.BottomCentre,
                                     Origin = Anchor.BottomCentre,
