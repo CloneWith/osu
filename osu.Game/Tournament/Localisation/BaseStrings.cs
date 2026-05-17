@@ -255,6 +255,11 @@ namespace osu.Game.Tournament.Localisation
         /// </summary>
         public static LocalisableString Thanks => new TranslatableString(getKey(@"thanks"), @"Players and staffs, thanks for your support!");
 
+        /// <summary>
+        /// "Background unavailable!"
+        /// </summary>
+        public static LocalisableString BackgroundUnavailable => new TranslatableString(getKey(@"background_unavailable"), @"Background unavailable!");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }

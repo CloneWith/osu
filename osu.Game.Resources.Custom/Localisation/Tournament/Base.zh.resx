@@ -165,4 +165,7 @@
     <data name="thanks" xml:space="preserve">
         <value>感谢各位选手与工作人员的支持！</value>
     </data>
+    <data name="background_unavailable" xml:space="preserve">
+        <value>背景不可用！</value>
+    </data>
 </root>
