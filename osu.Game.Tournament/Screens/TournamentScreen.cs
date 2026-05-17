@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Game.Overlays;
 using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Screens
@@ -17,9 +16,6 @@ namespace osu.Game.Tournament.Screens
 
         [Resolved]
         protected LadderInfo LadderInfo { get; private set; } = null!;
-
-        [Cached]
-        protected readonly OverlayColourProvider ColourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
         [Resolved]
         protected TournamentSceneManager? SceneManager { get; private set; }

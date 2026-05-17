@@ -26,7 +26,6 @@ using osu.Game.Tournament.Screens.TeamIntro;
 using osu.Game.Tournament.Screens.TeamWin;
 using osu.Game.Tournament.Screens.Board;
 using osuTK;
-using osuTK.Graphics;
 using osuTK.Input;
 using osu.Game.Tournament.Models;
 using osu.Game.Graphics.Containers;
@@ -74,9 +73,6 @@ namespace osu.Game.Tournament
         [Cached]
         private TournamentMatchChatDisplay chat = new TournamentMatchChatDisplay(relativeSizeY: true);
 
-        [Cached]
-        private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
-
         private Container chatContainer = null!;
 
         private FillFlowContainer buttons = null!;
@@ -88,7 +84,7 @@ namespace osu.Game.Tournament
         }
 
         [BackgroundDependencyLoader]
-        private void load(TournamentGameBase gameBase)
+        private void load(OverlayColourProvider colourProvider, TournamentGameBase gameBase)
         {
             InternalChildren = new Drawable[]
             {
@@ -103,13 +99,6 @@ namespace osu.Game.Tournament
                     Width = STREAM_AREA_WIDTH,
                     Children = new Drawable[]
                     {
-                        new Box
-                        {
-                            Colour = new Color4(20, 20, 20, 255),
-                            Anchor = Anchor.TopRight,
-                            RelativeSizeAxes = Axes.Both,
-                            Width = 10,
-                        },
                         background = new TourneyBackground(BackgroundType.Main, drawFallbackGradient: true)
                         {
                             Loop = true,
@@ -140,6 +129,7 @@ namespace osu.Game.Tournament
                         },
                         defaultProxyChatContainer = new Container
                         {
+                            Name = @"Proxy layer",
                             RelativeSizeAxes = Axes.Both,
                             Child = chatContainer = new Container
                             {
@@ -162,7 +152,7 @@ namespace osu.Game.Tournament
                     {
                         new Box
                         {
-                            Colour = Color4.Black,
+                            Colour = colourProvider.Background6,
                             RelativeSizeAxes = Axes.Both,
                         },
                         new GridContainer
