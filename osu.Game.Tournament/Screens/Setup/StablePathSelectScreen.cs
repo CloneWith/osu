@@ -32,7 +32,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private DialogOverlay? dialogOverlay;
 
         [BackgroundDependencyLoader(true)]
-        private void load(Storage storage, OsuColour colours)
+        private void load(Storage storage, OverlayColourProvider colourProvider)
         {
             var initialStorage = (ipc as FileBasedIPC)?.IPCStorage ?? storage;
             string? initialPath = new DirectoryInfo(initialStorage.GetFullPath(string.Empty)).Parent?.FullName;
@@ -51,7 +51,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     {
                         new Box
                         {
-                            Colour = colours.GreySeaFoamDark,
+                            Colour = colourProvider.Background5,
                             RelativeSizeAxes = Axes.Both,
                         },
                         new GridContainer
