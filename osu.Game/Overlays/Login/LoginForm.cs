@@ -36,7 +36,7 @@ namespace osu.Game.Overlays.Login
         public override bool AcceptsFocus => true;
 
         [BackgroundDependencyLoader(permitNulls: true)]
-        private void load(OsuConfigManager config, AccountCreationOverlay accountCreation)
+        private void load(OsuConfigManager config, AccountCreationOverlay? accountCreation)
         {
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
@@ -121,10 +121,11 @@ namespace osu.Game.Overlays.Login
                 new SettingsButton
                 {
                     Text = LoginPanelStrings.Register,
+                    Alpha = accountCreation != null ? 1 : 0,
                     Action = () =>
                     {
                         RequestHide?.Invoke();
-                        accountCreation.Show();
+                        accountCreation?.Show();
                     }
                 }
             };
