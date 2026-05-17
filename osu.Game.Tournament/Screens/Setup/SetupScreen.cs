@@ -51,7 +51,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private Bindable<Size> windowSize = null!;
 
         [BackgroundDependencyLoader]
-        private void load(FrameworkConfigManager frameworkConfig)
+        private void load(OverlayColourProvider colourProvider, FrameworkConfigManager frameworkConfig)
         {
             windowSize = frameworkConfig.GetBindable<Size>(FrameworkSetting.WindowedSize);
 
@@ -60,7 +60,7 @@ namespace osu.Game.Tournament.Screens.Setup
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = ColourProvider.Background5,
+                    Colour = colourProvider.Background5,
                 },
                 new OsuScrollContainer
                 {

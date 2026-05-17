@@ -23,6 +23,7 @@ using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Online;
 using osu.Game.Online.API.Requests;
+using osu.Game.Overlays;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.IPC;
@@ -81,6 +82,8 @@ namespace osu.Game.Tournament
         [BackgroundDependencyLoader]
         private void load(Storage baseStorage, FrameworkConfigManager frameworkConfig)
         {
+            dependencies.CacheAs(new OverlayColourProvider(OverlayColourScheme.Blue));
+
             Add(progressPopup = new FetchProgressPopup(closeOnComplete: true)
             {
                 Anchor = Anchor.Centre,
@@ -262,7 +265,7 @@ namespace osu.Game.Tournament
             }
 
             // Delayed saving here after background settings deserialized
-            if (ladder.Matches.Any())
+            if (ladder.Matches.Count != 0)
                 saveChanges();
 
             Schedule(() =>
