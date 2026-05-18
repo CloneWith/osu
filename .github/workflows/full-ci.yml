@@ -77,6 +77,15 @@ jobs:
           solution: ./osu.Desktop.slnf
           caches-home: inspectcode
           verbosity: WARN
+          output: inspectcode.sarif.json
+          format: Sarif
+
+      - name: Upload InspectCode result
+        uses: actions/upload-artifact@v7
+        with:
+          name: inspectcode.sarif.json
+          path: ${{github.workspace}}/inspectcode.sarif.json
+          retention-days: 90
 
   test:
     name: Test

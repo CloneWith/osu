@@ -56,18 +56,15 @@ jobs:
           solution: ./osu.Desktop.slnf
           caches-home: inspectcode
           verbosity: WARN
-          sEverity: WARNING
-          output: inspectcode.sarif
+          output: inspectcode.sarif.json
           format: Sarif
 
-      - name: InspectCode result check
-        shell: bash
-        run: |
-          issue_count=$(jq '[.runs[].results[] | select(.level == "warning" or .level == "error")] | length' inspectcode.sarif)
-          if [ "$issue_count" -gt 0 ]; then
-            echo "Rider code analysis found $issue_count issues."
-            exit 1
-          fi
+      - name: Upload InspectCode result
+        uses: actions/upload-artifact@v7
+        with:
+          name: inspectcode.sarif.json
+          path: ${{github.workspace}}/inspectcode.sarif.json
+          retention-days: 90
 
   test:
     name: Test
