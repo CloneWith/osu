@@ -35,7 +35,7 @@ namespace osu.Game.Tournament.Screens.Setup
         private readonly string[] supportedVideoExtensions = [@".mp4", @".avi", @".m4v"];
         private readonly string[] supportedImageExtensions = [@".png", @".jpg", @".jpeg", @".bmp"];
 
-        private string[] supportedExtensions => [..supportedImageExtensions, ..supportedVideoExtensions];
+        private string[] supportedExtensions => supportedImageExtensions.Concat(supportedVideoExtensions).ToArray();
 
         private BackgroundTypeDropdown typeDropdown = null!;
         private SpriteIcon infoIcon = null!;
@@ -286,7 +286,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                             FillAspectRatio = TournamentExtensions.ASPECT_RATIO,
                                                             Masking = true,
                                                             CornerRadius = 10,
-                                                            Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(typeDropdown.Current.Value), showError: true, fillMode: FillMode.Fit)
+                                                            Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(typeDropdown.Current.Value), showError: true)
                                                             {
                                                                 Anchor = Anchor.TopCentre,
                                                                 Origin = Anchor.TopCentre,
@@ -352,16 +352,16 @@ namespace osu.Game.Tournament.Screens.Setup
 
                 availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(backgroundType);
 
-                previewContainer.Child = preview = new TourneyBackground(availableInfo, showError: true, fillMode: FillMode.Fit)
+                previewContainer.Child = preview = new TourneyBackground(availableInfo, showError: true)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 };
 
                 infoText.Text = LocalisableString.Interpolate($"{BackgroundSelectStrings.PromptFileUsing}{availableInfo.Name}");
-                infoText.Colour = preview.BackgroundAvailable ? Color4.SkyBlue : Color4.Orange;
-                infoIcon.Icon = preview.BackgroundAvailable ? FontAwesome.Solid.Play : FontAwesome.Solid.Unlink;
                 backgroundDim.Value = availableInfo.Dim;
+
+                updatePreviewStatus(preview.BackgroundAvailable);
             }
 
             updateSelectedBackground(typeDropdown.Current.Value, false);
@@ -430,7 +430,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     // Display the file name with the extension.
                     name: selectedFile.NewValue.Name,
                     dim: backgroundDim.Value
-                ), showError: true, fillMode: FillMode.Fit)
+                ), showError: true)
                 {
                     Loop = true,
                     Dim = backgroundDim.Value,
@@ -481,6 +481,13 @@ namespace osu.Game.Tournament.Screens.Setup
 
             saveButton.FlashColour(Color4.White, 500);
             saveButton.Enabled.Value = false;
+            updatePreviewStatus(preview.BackgroundAvailable);
+        }
+
+        private void updatePreviewStatus(bool backgroundAvailable)
+        {
+            infoText.Colour = backgroundAvailable ? Color4.SkyBlue : Color4.Orange;
+            infoIcon.Icon = backgroundAvailable ? FontAwesome.Solid.Play : FontAwesome.Solid.Unlink;
         }
     }
 }
