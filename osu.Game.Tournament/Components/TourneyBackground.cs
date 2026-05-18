@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
@@ -28,14 +29,19 @@ namespace osu.Game.Tournament.Components
         private readonly BackgroundType requestedType;
         private BackgroundInfo info;
         private readonly bool drawFallbackGradient;
-        private readonly bool showError;
         private readonly FillMode fillMode;
 
         private Sprite? imageSprite;
         private Video? video;
         private ManualClock? manualClock;
+
         private readonly Container spriteContainer;
         private readonly Box dimBox;
+
+        private readonly SpriteIcon infoIcon;
+        private readonly TournamentSpriteText infoText;
+
+        private readonly FillFlowContainer errorFlow;
 
         private readonly bool skipLadderLookup;
         private bool needDetection;
@@ -55,26 +61,90 @@ namespace osu.Game.Tournament.Components
         /// Fetch background information from cached <see cref="LadderInfo"/> and try to display it.
         /// </summary>
         public TourneyBackground(BackgroundType backgroundType,
-                                 bool drawFallbackGradient = true, bool showError = false,
+                                 bool drawFallbackGradient = true, bool showInfo = false,
                                  FillMode fillMode = FillMode.Fill)
         {
             requestedType = backgroundType;
 
             this.drawFallbackGradient = drawFallbackGradient;
-            this.showError = showError;
             this.fillMode = fillMode;
 
             InternalChildren = new Drawable[]
             {
                 spriteContainer = new Container
                 {
+                    Name = @"Media layer",
                     RelativeSizeAxes = Axes.Both,
                 },
                 dimBox = new Box
                 {
+                    Name = @"Dim layer",
                     RelativeSizeAxes = Axes.Both,
                     Colour = Color4.Black,
                     Alpha = 0,
+                },
+                new Container
+                {
+                    Name = @"Information layer",
+                    RelativeSizeAxes = Axes.Both,
+                    Alpha = showInfo ? 1 : 0,
+                    Children = new Drawable[]
+                    {
+                        new Box
+                        {
+                            Height = 64,
+                            RelativeSizeAxes = Axes.X,
+                            Colour = ColourInfo.GradientVertical(Color4.Black.Opacity(0.6f), Color4.Black.Opacity(0)),
+                        },
+                        new FillFlowContainer
+                        {
+                            Name = @"Media information",
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(10),
+                            X = 20,
+                            Y = 20,
+                            Children = new Drawable[]
+                            {
+                                infoIcon = new SpriteIcon
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Icon = FontAwesome.Solid.Play,
+                                    Size = new Vector2(20),
+                                },
+                                infoText = new TournamentSpriteText
+                                {
+                                    Anchor = Anchor.CentreLeft,
+                                    Origin = Anchor.CentreLeft,
+                                    Font = OsuFont.Torus.With(size: 18),
+                                },
+                            },
+                        },
+                        errorFlow = new FillFlowContainer
+                        {
+                            Name = @"Error text",
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            AutoSizeAxes = Axes.Both,
+                            Direction = FillDirection.Horizontal,
+                            Spacing = new Vector2(10),
+                            Alpha = 0,
+                            Children = new Drawable[]
+                            {
+                                new SpriteIcon
+                                {
+                                    Size = new Vector2(20),
+                                    Icon = FontAwesome.Solid.Unlink,
+                                },
+                                new TournamentSpriteText
+                                {
+                                    Font = OsuFont.Torus.With(size: 20),
+                                    Text = BaseStrings.BackgroundUnavailable,
+                                },
+                            },
+                        },
+                    },
                 },
             };
         }
@@ -83,8 +153,8 @@ namespace osu.Game.Tournament.Components
         /// Use specified <see cref="BackgroundInfo"/> to lookup and display a background.
         /// </summary>
         /// <remarks>This constructor is for background preview only, and doesn't support ladder-based features.</remarks>
-        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showError = false, FillMode fillMode = FillMode.Fill)
-            : this(default(BackgroundType), drawFallbackGradient, showError, fillMode)
+        public TourneyBackground(BackgroundInfo info, bool drawFallbackGradient = true, bool showInfo = false, FillMode fillMode = FillMode.Fill)
+            : this(default(BackgroundType), drawFallbackGradient, showInfo, fillMode)
         {
             this.info = info;
             skipLadderLookup = true;
@@ -131,7 +201,8 @@ namespace osu.Game.Tournament.Components
                 info = newInfo;
             }
 
-            dimBox.FadeTo(info.Dim, 300, Easing.OutQuint);
+            infoText.Text = info.Name;
+            dimBox.Alpha = info.Dim;
 
             needDetection = info.Source == BackgroundSource.Auto;
             bool isFaulted = false;
@@ -193,6 +264,8 @@ namespace osu.Game.Tournament.Components
                 }
             }
 
+            infoIcon.Icon = isFaulted ? FontAwesome.Solid.Unlink : FontAwesome.Solid.Play;
+
             if (isFaulted)
             {
 #if DEBUG
@@ -212,32 +285,11 @@ namespace osu.Game.Tournament.Components
                 {
                     Colour = ColourInfo.GradientVertical(OsuColour.Gray(0.3f), OsuColour.Gray(0.6f)),
                     RelativeSizeAxes = Axes.Both,
-                    Alpha = drawFallbackGradient ? 1 : 0
-                },
-                new FillFlowContainer
-                {
-                    Name = @"Error Text",
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    AutoSizeAxes = Axes.Both,
-                    Direction = FillDirection.Horizontal,
-                    Spacing = new Vector2(10),
-                    Alpha = isFaulted && showError ? 1 : 0,
-                    Children = new Drawable[]
-                    {
-                        new SpriteIcon
-                        {
-                            Size = new Vector2(20),
-                            Icon = FontAwesome.Solid.Unlink,
-                        },
-                        new TournamentSpriteText
-                        {
-                            Font = OsuFont.Torus.With(size: 20),
-                            Text = BaseStrings.BackgroundUnavailable,
-                        },
-                    },
+                    Alpha = drawFallbackGradient ? 1 : 0,
                 },
             };
+
+            errorFlow.Alpha = isFaulted ? 1 : 0;
         }
 
         private bool loop;

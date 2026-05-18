@@ -38,8 +38,6 @@ namespace osu.Game.Tournament.Screens.Setup
         private string[] supportedExtensions => supportedImageExtensions.Concat(supportedVideoExtensions).ToArray();
 
         private BackgroundTypeDropdown typeDropdown = null!;
-        private SpriteIcon infoIcon = null!;
-        private TournamentSpriteText infoText = null!;
 
         private Container previewContainer = null!;
         private TourneyBackground preview = null!;
@@ -236,32 +234,6 @@ namespace osu.Game.Tournament.Screens.Setup
                                                     Padding = new MarginPadding { Horizontal = 20 },
                                                     Children = new Drawable[]
                                                     {
-                                                        new FillFlowContainer
-                                                        {
-                                                            Anchor = Anchor.TopCentre,
-                                                            Origin = Anchor.TopCentre,
-                                                            Direction = FillDirection.Horizontal,
-                                                            Spacing = new Vector2(10),
-                                                            AutoSizeAxes = Axes.Both,
-                                                            Margin = new MarginPadding { Top = 10 },
-                                                            Children = new Drawable[]
-                                                            {
-                                                                infoIcon = new SpriteIcon
-                                                                {
-                                                                    Anchor = Anchor.TopCentre,
-                                                                    Origin = Anchor.TopCentre,
-                                                                    Icon = FontAwesome.Solid.Play,
-                                                                    Size = new Vector2(24),
-                                                                },
-                                                                infoText = new TournamentSpriteText
-                                                                {
-                                                                    Anchor = Anchor.TopCentre,
-                                                                    Origin = Anchor.TopCentre,
-                                                                    Text = BackgroundSelectStrings.Unknown,
-                                                                    Font = OsuFont.Default.With(size: 24),
-                                                                },
-                                                            },
-                                                        },
                                                         new FormSliderBar<float>
                                                         {
                                                             Anchor = Anchor.TopCentre,
@@ -286,7 +258,7 @@ namespace osu.Game.Tournament.Screens.Setup
                                                             FillAspectRatio = TournamentExtensions.ASPECT_RATIO,
                                                             Masking = true,
                                                             CornerRadius = 10,
-                                                            Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(typeDropdown.Current.Value), showError: true)
+                                                            Child = preview = new TourneyBackground(availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(typeDropdown.Current.Value), showInfo: true)
                                                             {
                                                                 Anchor = Anchor.TopCentre,
                                                                 Origin = Anchor.TopCentre,
@@ -352,16 +324,13 @@ namespace osu.Game.Tournament.Screens.Setup
 
                 availableInfo = LadderInfo.BackgroundMap.GetBackgroundInfo(backgroundType);
 
-                previewContainer.Child = preview = new TourneyBackground(availableInfo, showError: true)
+                previewContainer.Child = preview = new TourneyBackground(availableInfo, showInfo: true)
                 {
                     Loop = true,
                     RelativeSizeAxes = Axes.Both,
                 };
 
-                infoText.Text = LocalisableString.Interpolate($"{BackgroundSelectStrings.PromptFileUsing}{availableInfo.Name}");
                 backgroundDim.Value = availableInfo.Dim;
-
-                updatePreviewStatus(preview.BackgroundAvailable);
             }
 
             updateSelectedBackground(typeDropdown.Current.Value, false);
@@ -430,7 +399,7 @@ namespace osu.Game.Tournament.Screens.Setup
                     // Display the file name with the extension.
                     name: selectedFile.NewValue.Name,
                     dim: backgroundDim.Value
-                ), showError: true)
+                ), showInfo: true)
                 {
                     Loop = true,
                     Dim = backgroundDim.Value,
@@ -481,13 +450,6 @@ namespace osu.Game.Tournament.Screens.Setup
 
             saveButton.FlashColour(Color4.White, 500);
             saveButton.Enabled.Value = false;
-            updatePreviewStatus(preview.BackgroundAvailable);
-        }
-
-        private void updatePreviewStatus(bool backgroundAvailable)
-        {
-            infoText.Colour = backgroundAvailable ? Color4.SkyBlue : Color4.Orange;
-            infoIcon.Icon = backgroundAvailable ? FontAwesome.Solid.Play : FontAwesome.Solid.Unlink;
         }
     }
 }
