@@ -67,5 +67,17 @@ namespace osu.Game.Extensions
 
             return Language.en;
         }
+
+        public static Language[] AstraSupportedLanguages =>
+        [
+            Language.en,
+            Language.ja,
+            Language.zh,
+            Language.zh_hant,
+
+#if DEBUG
+            Language.debug,
+#endif
+        ];
     }
 }
