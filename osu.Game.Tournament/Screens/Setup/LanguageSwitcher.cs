@@ -4,6 +4,7 @@
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
+using osu.Game.Extensions;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Localisation;
 
@@ -29,7 +30,8 @@ namespace osu.Game.Tournament.Screens.Setup
             FlowContainer.Remove(FlowContainer.Children.Last(), true);
             FlowContainer.Insert(-1, dropdown = new OsuEnumDropdown<Language>
             {
-                Width = 510
+                Width = 510,
+                Items = LanguageExtensions.AstraSupportedLanguages,
             });
 
             return drawable;
