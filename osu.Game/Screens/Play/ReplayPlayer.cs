@@ -12,8 +12,6 @@ using osu.Framework.Input.Events;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
-using osu.Game.Graphics;
-using osu.Game.Graphics.Containers;
 using osu.Game.Input.Bindings;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
@@ -21,7 +19,6 @@ using osu.Game.Screens.Play.HUD;
 using osu.Game.Screens.Play.Leaderboards;
 using osu.Game.Screens.Play.PlayerSettings;
 using osu.Game.Screens.Ranking;
-using osu.Game.Screens.Ranking.Expanded;
 using osu.Game.Skinning;
 using osu.Game.Users;
 
@@ -107,24 +104,6 @@ namespace osu.Game.Screens.Play
                 playbackSettings.UserPlaybackRate.BindTo(master.UserPlaybackRate);
 
             ReplayOverlay.Settings.AddAtStart(playbackSettings);
-
-            OsuTextFlowContainer message = new OsuTextFlowContainer(cp => cp.Font = OsuFont.Style.Body) { AutoSizeAxes = Axes.Both };
-            message.AddText("Watching ");
-            message.AddText(Score.ScoreInfo.User.Username, s => s.Font = s.Font.With(weight: FontWeight.SemiBold));
-            message.AddText(" play ");
-            message.AddText(Beatmap.Value.BeatmapInfo.GetDisplayTitleRomanisable(), s => s.Font = s.Font.With(weight: FontWeight.SemiBold));
-            message.AddText(" on ");
-            message.AddArbitraryDrawable(new PlayedOnText(Score.ScoreInfo.Date, false)
-            {
-                Font = OsuFont.Style.Body.With(weight: FontWeight.SemiBold),
-            });
-
-            ReplayOverlay.SetMessage(new ScrollingMessage(message)
-            {
-                Y = 96,
-                Anchor = Anchor.TopCentre,
-                Origin = Anchor.TopCentre,
-            });
 
             RulesetSkinProvidingContainer rulesetSkinProvider;
             AddInternal(rulesetSkinProvider = new RulesetSkinProvidingContainer(GameplayState.Ruleset, GameplayState.Beatmap, Beatmap.Value.Skin)
