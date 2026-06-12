@@ -9,6 +9,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
@@ -18,6 +19,8 @@ using osu.Framework.Threading;
 using osu.Game.Configuration;
 using osu.Game.Input.Bindings;
 using osu.Game.Localisation;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
@@ -30,6 +33,8 @@ namespace osu.Game.Graphics
 {
     public partial class ScreenshotManager : Component, IKeyBindingHandler<GlobalAction>, IHandleGlobalKeyboardInput
     {
+        private const int jpeg_quality = 92;
+
         private readonly BindableBool cursorVisibility = new BindableBool(true);
 
         /// <summary>
@@ -48,6 +53,9 @@ namespace osu.Game.Graphics
         private INotificationOverlay notificationOverlay { get; set; } = null!;
 
         [Resolved]
+        private IAPIProvider api { get; set; } = null!;
+
+        [Resolved]
         private OsuConfigManager config { get; set; } = null!;
 
         private Storage storage = null!;
@@ -58,7 +66,7 @@ namespace osu.Game.Graphics
         private void load(Storage storage, AudioManager audio)
         {
             this.storage = storage.GetStorageForDirectory(@"screenshots");
-            shutter = audio.Samples.Get("UI/shutter");
+            shutter = audio.Samples.Get(@"UI/shutter");
         }
 
         public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
@@ -72,6 +80,11 @@ namespace osu.Game.Graphics
                     shutter?.Play();
                     TakeScreenshotAsync().FireAndForget();
                     return true;
+
+                case GlobalAction.TakeAndUploadScreeshot:
+                    shutter?.Play();
+                    UploadScreenshotAsync().FireAndForget();
+                    return true;
             }
 
             return false;
@@ -83,7 +96,7 @@ namespace osu.Game.Graphics
 
         private volatile int screenShotTasks;
 
-        public Task TakeScreenshotAsync() => Task.Run(async () =>
+        public Task<string?> TakeScreenshotAsync(bool forUpload = false) => Task.Run<string?>(async () =>
         {
             Interlocked.Increment(ref screenShotTasks);
 
@@ -143,11 +156,16 @@ namespace osu.Game.Graphics
                         });
                     }
 
-                    clipboard.SetImage(image);
+                    // Don't copy the image to clipboard when uploading a screenshot,
+                    // as it's going to be overwritten by the URL anyway.
+                    if (!forUpload)
+                    {
+                        clipboard.SetImage(image);
+                    }
 
                     (string? filename, Stream? stream) = getWritableStream(screenshotFormat);
 
-                    if (filename == null) return;
+                    if (filename == null) return null;
 
                     using (stream)
                     {
@@ -158,8 +176,6 @@ namespace osu.Game.Graphics
                                 break;
 
                             case ScreenshotFormat.Jpg:
-                                const int jpeg_quality = 92;
-
                                 await image.SaveAsJpegAsync(stream, new JpegEncoder { Quality = jpeg_quality }).ConfigureAwait(false);
                                 break;
 
@@ -177,12 +193,72 @@ namespace osu.Game.Graphics
                             return true;
                         }
                     });
+
+                    return filename;
                 }
             }
             finally
             {
                 if (Interlocked.Decrement(ref screenShotTasks) == 0)
                     cursorVisibility.Value = true;
+            }
+        });
+
+        public Task UploadScreenshotAsync() => Task.Run(async () =>
+        {
+            string? filename = await TakeScreenshotAsync(true).ConfigureAwait(false);
+
+            if (filename == null)
+            {
+                return;
+            }
+
+            Stream stream;
+
+            // Convert the taken screenshot to JPEG (to save storage) before uploading
+            // if user set their screenshots to save in a different format.
+            if (config.Get<ScreenshotFormat>(OsuSetting.ScreenshotFormat) != ScreenshotFormat.Jpg)
+            {
+                using var image = await Image.LoadAsync(storage.GetFullPath(filename)).ConfigureAwait(false);
+
+                var convertedStream = new MemoryStream();
+                await image.SaveAsJpegAsync(convertedStream, new JpegEncoder { Quality = jpeg_quality }).ConfigureAwait(false);
+                convertedStream.Position = 0;
+                stream = convertedStream;
+            }
+            else
+            {
+                stream = storage.GetStream(filename, FileAccess.Read, FileMode.Open);
+            }
+
+            using (stream)
+            {
+                var uploadRequest = new UploadScreenshot(await stream.ReadAllBytesToArrayAsync().ConfigureAwait(false));
+
+                var notification = new ProgressNotification
+                {
+                    State = ProgressNotificationState.Active,
+                    Text = ScreenshotManagerStrings.UploadingScreenshot,
+                    CompletionText = ScreenshotManagerStrings.UploadSuccess,
+                    Progress = 0,
+                };
+
+                uploadRequest.Progressed += (current, total) => notification.Progress = (float)current / total;
+                uploadRequest.Success += content =>
+                {
+                    clipboard.SetText(content.Url);
+
+                    notification.Progress = 1;
+                    notification.State = ProgressNotificationState.Completed;
+                };
+                uploadRequest.Failure += _ =>
+                {
+                    notification.State = ProgressNotificationState.Cancelled;
+                    notification.Text = ScreenshotManagerStrings.UploadFailure;
+                };
+
+                notificationOverlay.Post(notification);
+                api.Queue(uploadRequest);
             }
         });
 

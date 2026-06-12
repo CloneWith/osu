@@ -425,7 +425,8 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
 
             LoadComponent(userModsSelectOverlay = new MultiplayerUserModSelectOverlay
             {
-                Beatmap = { BindTarget = Beatmap }
+                Beatmap = { BindTarget = Beatmap },
+                Ruleset = { BindTarget = Ruleset },
             });
         }
 

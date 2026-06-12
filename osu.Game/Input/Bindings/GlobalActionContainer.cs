@@ -114,6 +114,7 @@ namespace osu.Game.Input.Bindings
 
             new KeyBinding(InputKey.F10, GlobalAction.ToggleGameplayMouseButtons),
             new KeyBinding(InputKey.F12, GlobalAction.TakeScreenshot),
+            new KeyBinding(new[] { InputKey.Shift, InputKey.F12 }, GlobalAction.TakeAndUploadScreeshot),
         };
 
         private static IEnumerable<KeyBinding> overlayKeyBindings => new[]
@@ -159,6 +160,8 @@ namespace osu.Game.Input.Bindings
             new KeyBinding(new[] { InputKey.Alt, InputKey.Left }, GlobalAction.EditorSeekToPreviousBookmark),
             new KeyBinding(new[] { InputKey.Alt, InputKey.Right }, GlobalAction.EditorSeekToNextBookmark),
             new KeyBinding(new[] { InputKey.Control, InputKey.L }, GlobalAction.EditorDiscardUnsavedChanges),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Shift, InputKey.U }, GlobalAction.EditorSubmitBeatmap),
+            new KeyBinding(new[] { InputKey.Control, InputKey.Shift, InputKey.O }, GlobalAction.EditorEditExternally),
         };
 
         private static IEnumerable<KeyBinding> editorTestPlayKeyBindings => new[]
@@ -291,6 +294,9 @@ namespace osu.Game.Input.Bindings
 
         [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.TakeScreenshot))]
         TakeScreenshot,
+
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.TakeAndUploadScreenshot))]
+        TakeAndUploadScreeshot,
 
         [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.ToggleGameplayMouseButtons))]
         ToggleGameplayMouseButtons,
@@ -564,6 +570,12 @@ namespace osu.Game.Input.Bindings
 
         [LocalisableDescription(typeof(TournamentShowcaseStrings), nameof(TournamentShowcaseStrings.PauseOrContinue))]
         ShowcaseToggleAuto,
+
+        [LocalisableDescription(typeof(EditorStrings), nameof(EditorStrings.SubmitBeatmap))]
+        EditorSubmitBeatmap,
+
+        [LocalisableDescription(typeof(EditorStrings), nameof(EditorStrings.EditExternally))]
+        EditorEditExternally,
     }
 
     public enum GlobalActionCategory

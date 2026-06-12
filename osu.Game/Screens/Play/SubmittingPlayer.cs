@@ -1,5 +1,4 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
-// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 #nullable disable
@@ -10,7 +9,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
@@ -23,7 +21,6 @@ using osu.Game.Online.Multiplayer;
 using osu.Game.Online.Rooms;
 using osu.Game.Online.Spectator;
 using osu.Game.Overlays;
-using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
@@ -36,8 +33,6 @@ namespace osu.Game.Screens.Play
     /// </summary>
     public abstract partial class SubmittingPlayer : Player
     {
-        private const string download_url = "https://github.com/GooGuTeam/custom-rulesets/releases/latest";
-
         /// <summary>
         /// The token to be used for the current submission. This is fetched via a request created by <see cref="CreateTokenRequest"/>.
         /// </summary>
@@ -351,37 +346,7 @@ namespace osu.Game.Screens.Play
             return scoreSubmissionSource.Task;
         }
 
-        private bool notifyRulesetOutdated(string message)
-        {
-            string extractDownloadUrlFromMessage(string msg)
-            {
-                const string prefix = "Download at: ";
-                int startIndex = msg.IndexOf(prefix, StringComparison.Ordinal);
-                if (startIndex != -1)
-                    return msg.Substring(startIndex + prefix.Length).Trim();
-
-                return download_url;
-            }
-
-            if (message.StartsWith("Ruleset is outdated.", StringComparison.Ordinal))
-            {
-                Notifications?.Post(new SimpleNotification
-                {
-                    Text = $"{message}\n\nClick to download the latest version.",
-                    Icon = FontAwesome.Solid.Download,
-                    Activated = () =>
-                    {
-                        host.OpenUrlExternally(extractDownloadUrlFromMessage(message));
-                        return true;
-                    }
-                });
-                return true;
-            }
-
-            return false;
-        }
-
-        private string getUserFacingAPIError(Exception exception)
+        private static string getUserFacingAPIError(Exception exception)
         {
             switch (exception.Message)
             {
@@ -399,9 +364,6 @@ namespace osu.Game.Screens.Play
                     return "Your system clock is set incorrectly. Please check your system time, date and timezone.";
 
                 default:
-                    if (notifyRulesetOutdated(exception.Message))
-                        return "Your ruleset is outdated.";
-
                     return exception.Message;
             }
         }

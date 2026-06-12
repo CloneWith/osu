@@ -66,9 +66,22 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Validate Sentry DSN
+        shell: bash
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [[ -z "$SENTRY_DSN" ]]; then
+            echo "ERROR: SENTRY_DSN secret is required for release builds."
+            exit 1
+          fi
+
       - name: Pack
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           dotnet pack -c Release osu.Game \
+            /p:SentryDsn="$SENTRY_DSN" \
             /p:Version=${{ needs.version.outputs.nugetVersion }} \
             /p:GenerateDocumentationFile=true \
             /p:IncludeSymbols=true \
@@ -76,6 +89,7 @@ jobs:
             -o artifacts
 
           dotnet pack -c Release osu.Game.Rulesets.Osu \
+            /p:SentryDsn="$SENTRY_DSN" \
             /p:Version=${{ needs.version.outputs.nugetVersion }} \
             /p:GenerateDocumentationFile=true \
             /p:IncludeSymbols=true \
@@ -151,6 +165,16 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           cmdline-tools-version: 8512546
+
+      - name: Validate Sentry DSN
+        shell: bash
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [[ -z "$SENTRY_DSN" ]]; then
+            echo "ERROR: SENTRY_DSN secret is required for release builds."
+            exit 1
+          fi
 
       - name: Accept Android SDK licenses (Android only)
         if: matrix.runtime == 'android'
@@ -313,6 +337,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         run: |
           echo "Building for runtime: ${{ matrix.runtime }}"
           if [[ "${{ matrix.runtime }}" == "android" ]]; then
@@ -333,11 +358,14 @@ jobs:
 
             dotnet publish osu.Android/osu.Android.csproj \
               --configuration Release \
+              --framework net8.0-android \
               --verbosity normal \
               --no-restore \
+              --self-contained \
               -p:Version=${{ needs.version.outputs.semver }} \
               -p:ApplicationVersion=${{ needs.version.outputs.androidVersionCode }} \
               -p:ApplicationDisplayVersion=${{ needs.version.outputs.semver }} \
+              -p:SentryDsn="$SENTRY_DSN" \
               -p:AndroidSdkDirectory=$ANDROID_SDK_ROOT \
               -p:AndroidKeyStore=true \
               -p:AndroidSigningKeyStore=$(pwd)/osu.keystore \
@@ -370,11 +398,12 @@ jobs:
               --no-restore \
               --verbosity normal \
               -p:PublishSingleFile=false \
-              -p:PublishTrimmed=false \
-              -p:Version=${{ needs.version.outputs.semver }} \
-              -p:FileVersion=${{ needs.version.outputs.fileVersion }} \
-              -p:AssemblyVersion=${{ needs.version.outputs.assemblyVersion }} \
-              -p:InformationalVersion=${{ needs.version.outputs.version }}
+               -p:PublishTrimmed=false \
+               -p:Version=${{ needs.version.outputs.semver }} \
+               -p:FileVersion=${{ needs.version.outputs.fileVersion }} \
+               -p:AssemblyVersion=${{ needs.version.outputs.assemblyVersion }} \
+               -p:SentryDsn="$SENTRY_DSN" \
+               -p:InformationalVersion=${{ needs.version.outputs.version }}
           fi
 
       - name: Set executable permissions (Linux/macOS)

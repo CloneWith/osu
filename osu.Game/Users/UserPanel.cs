@@ -31,7 +31,7 @@ using osu.Game.Screens.Play;
 using osu.Game.Users.Drawables;
 using osuTK;
 using osu.Framework.Bindables;
-using osu.Framework.Graphics.Sprites;
+using osu.Game.Online.Rooms;
 
 namespace osu.Game.Users
 {
@@ -48,8 +48,6 @@ namespace osu.Game.Users
         protected Action ViewProfile { get; private set; } = null!;
 
         private readonly Bindable<UserStatistics?> statistics = new Bindable<UserStatistics?>();
-
-        protected Sprite AltBackground { get; private set; } = null!;
 
         protected Drawable Background { get; private set; } = null!;
 
@@ -84,7 +82,6 @@ namespace osu.Game.Users
         protected OverlayColourProvider? ColourProvider { get; private set; }
 
         [Resolved]
-
         private IPerformFromScreenRunner? performer { get; set; }
 
         [Resolved]
@@ -121,20 +118,12 @@ namespace osu.Game.Users
             Add(new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = ColourProvider?.Background5 ?? Colours.Gray1,
-                Alpha = 0.6f,
+                Colour = ColourProvider?.Background5 ?? Colours.Gray1
             });
 
-            var altBackground = CreateAltBackground();
-
-            Add(altBackground);
-
             var background = CreateBackground();
-
             if (background != null)
-            {
                 Add(background);
-            }
 
             Add(CreateLayout());
 
@@ -160,16 +149,9 @@ namespace osu.Game.Users
             User = User
         };
 
-        protected virtual Sprite CreateAltBackground() => AltBackground = new Sprite
-        {
-            RelativeSizeAxes = Axes.Both,
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-        };
-
         protected OsuSpriteText CreateUsername() => new OsuSpriteText
         {
-            Font = OsuFont.GetFont(size: 20, weight: FontWeight.Bold),
+            Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
             Shadow = false,
             Text = User.Username,
         };
@@ -249,9 +231,9 @@ namespace osu.Game.Users
                 return items.ToArray();
 
                 bool isUserOnline() => metadataClient?.GetPresence(User.OnlineID) != null;
-                bool canInviteUser() => isUserOnline() && multiplayerClient?.Room?.Users.All(u => u.UserID != User.Id) == true;
+                bool canInviteUser() => isUserOnline() && multiplayerClient?.Room?.Users.All(u => u.UserID != User.Id) == true && multiplayerClient?.Room?.Settings.MatchType.IsMatchmakingType() != true;
                 bool isUserBlocked() => api.LocalUserState.Blocks.Any(b => b.TargetID == User.OnlineID);
-                bool canDuelUser() => isUserOnline() && queueController?.SelectedPool.Value != null;
+                bool canDuelUser() => isUserOnline() && queueController?.SelectedPool.Value != null && multiplayerClient?.Room?.Settings.MatchType.IsMatchmakingType() != true;
             }
         }
 
