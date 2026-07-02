@@ -40,6 +40,11 @@ namespace osu.Game.Localisation
         public static LocalisableString FooterButtonFreestyle => new TranslatableString(getKey(@"footer_button_freestyle"), @"Freestyle");
 
         /// <summary>
+        /// "Win condition"
+        /// </summary>
+        public static LocalisableString FooterButtonWinCondition => new TranslatableString(getKey(@"footer_button_win_condition"), @"Win condition");
+
+        /// <summary>
         /// "Manage items on previous screen"
         /// </summary>
         public static LocalisableString PlaylistTrayDescription => new TranslatableString(getKey(@"playlist_tray_description"), @"Manage items on previous screen");

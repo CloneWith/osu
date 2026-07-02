@@ -10,6 +10,7 @@ using osu.Framework.Bindables;
 using osu.Game.Beatmaps;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Online.Multiplayer;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Utils;
 
@@ -84,6 +85,12 @@ namespace osu.Game.Online.Rooms
         /// </summary>
         [JsonProperty("freestyle")]
         public bool Freestyle { get; set; }
+
+        /// <summary>
+        /// Indicates the win condition for this playlist item.
+        /// </summary>
+        [JsonProperty("win_condition")]
+        public WinCondition? WinCondition { get; set; }
 
         /// <summary>
         /// A beatmap representing this playlist item.

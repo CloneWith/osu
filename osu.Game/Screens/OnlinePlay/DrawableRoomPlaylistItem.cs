@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions.LocalisationExtensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -88,6 +89,8 @@ namespace osu.Game.Screens.OnlinePlay
         private LinkFlowContainer? authorText;
         private ExplicitContentBeatmapBadge? explicitContent;
         private ModDisplay? modDisplay;
+        private SpriteIcon? winConditionIcon;
+        private OsuTextFlowContainer? winConditionContainer;
         private FillFlowContainer? buttonsFlow;
         private UpdateableAvatar? ownerAvatar;
         private Drawable? showResultsButton;
@@ -358,6 +361,12 @@ namespace osu.Game.Screens.OnlinePlay
                 explicitContent.Alpha = hasExplicitContent ? 1 : 0;
             }
 
+            if (winConditionIcon != null)
+                winConditionIcon.Alpha = Item.WinCondition != null ? 1 : 0;
+
+            if (winConditionContainer != null && Item.WinCondition != null)
+                winConditionContainer.Text = Item.WinCondition.ToLocalisableString();
+
             if (modDisplay != null)
                 modDisplay.Current.Value = requiredMods.ToArray();
 
@@ -472,6 +481,26 @@ namespace osu.Game.Screens.OnlinePlay
                                                                 ExpansionMode = ExpansionMode.AlwaysExpanded,
                                                                 Margin = new MarginPadding { Vertical = -6 },
                                                             }
+                                                        },
+                                                        new FillFlowContainer
+                                                        {
+                                                            AutoSizeAxes = Axes.Both,
+                                                            Anchor = Anchor.CentreLeft,
+                                                            Origin = Anchor.CentreLeft,
+                                                            Direction = FillDirection.Horizontal,
+                                                            Spacing = new Vector2(10f, 0),
+                                                            Children = new Drawable[]
+                                                            {
+                                                                winConditionIcon = new SpriteIcon
+                                                                {
+                                                                    Anchor = Anchor.CentreLeft,
+                                                                    Origin = Anchor.CentreLeft,
+                                                                    Scale = new Vector2(14f),
+                                                                    Icon = FontAwesome.Solid.Medal,
+                                                                    Alpha = 0f,
+                                                                },
+                                                                winConditionContainer = new OsuTextFlowContainer(fontParameters)
+                                                            },
                                                         }
                                                     }
                                                 }
