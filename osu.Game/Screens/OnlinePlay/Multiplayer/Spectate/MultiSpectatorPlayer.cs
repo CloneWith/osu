@@ -2,7 +2,6 @@
 // This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using System.Threading;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
