@@ -37,7 +37,8 @@ namespace osu.Game.Screens.Play.Leaderboards
         public readonly SortedDictionary<int, BindableLong> TeamScores = new SortedDictionary<int, BindableLong>();
 
         public bool HasTeams => TeamScores.Count > 0;
-        public WinCondition WinCondition;
+
+        private readonly WinCondition winCondition;
 
         private readonly MultiplayerRoomUser[] users;
 
@@ -61,7 +62,7 @@ namespace osu.Game.Screens.Play.Leaderboards
         public MultiplayerLeaderboardProvider(MultiplayerRoomUser[] users, WinCondition winCondition = WinCondition.Score)
         {
             this.users = users;
-            WinCondition = winCondition;
+            this.winCondition = winCondition;
         }
 
         [BackgroundDependencyLoader]
@@ -187,28 +188,15 @@ namespace osu.Game.Screens.Play.Leaderboards
             if (sorting.IsValid)
                 return;
 
-            IOrderedEnumerable<GameplayLeaderboardScore> ordered;
-
-            // TODO: LeaderboardScore doesn't contain pp.
-            switch (WinCondition)
-            {
-                default:
-                    ordered = scores
-                        .OrderByDescending(i => i.TotalScore.Value);
-                    break;
-
-                case WinCondition.Accuracy:
-                    ordered = scores
-                        .OrderByDescending(i => i.Accuracy.Value);
-                    break;
-
-                case WinCondition.Combo:
-                    ordered = scores
-                        .OrderByDescending(i => i.Combo.Value);
-                    break;
-            }
-
-            var orderedScores = ordered.ThenBy(i => i.TotalScoreTiebreaker).ToList();
+            var orderedScores = scores
+                                .OrderByDescending(i => winCondition switch
+                                {
+                                    WinCondition.Accuracy => i.Accuracy.Value,
+                                    WinCondition.Combo => i.Combo.Value,
+                                    _ => i.TotalScore.Value,
+                                })
+                                .ThenBy(i => i.TotalScoreTiebreaker)
+                                .ToList();
 
             for (int i = 0; i < orderedScores.Count; i++)
             {
