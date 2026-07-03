@@ -54,7 +54,7 @@ namespace osu.Game.Screens.OnlinePlay
                         Action = () =>
                         {
                             Scheduler.AddDelayed(Hide, 50);
-                            footerButton.WinCondition.Value = (WinCondition)condition;
+                            footerButton.WinCondition.Value = condition;
                         },
                     });
                 }

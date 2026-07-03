@@ -138,6 +138,7 @@ namespace osu.Game.Online.Rooms
             RequiredMods = item.RequiredMods.ToArray();
             AllowedMods = item.AllowedMods.ToArray();
             Freestyle = item.Freestyle;
+            WinCondition = item.WinCondition;
         }
 
         public void MarkInvalid() => valid.Value = false;
@@ -172,6 +173,7 @@ namespace osu.Game.Online.Rooms
                 AllowedMods = AllowedMods,
                 RequiredMods = RequiredMods,
                 Freestyle = Freestyle,
+                WinCondition = WinCondition,
                 valid = { Value = Valid.Value },
             };
         }
@@ -184,6 +186,7 @@ namespace osu.Game.Online.Rooms
                && PlaylistOrder == other.PlaylistOrder
                && AllowedMods.SequenceEqual(other.AllowedMods)
                && RequiredMods.SequenceEqual(other.RequiredMods)
-               && Freestyle == other.Freestyle;
+               && Freestyle == other.Freestyle
+               && WinCondition == other.WinCondition;
     }
 }
