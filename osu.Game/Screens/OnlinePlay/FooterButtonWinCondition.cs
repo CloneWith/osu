@@ -20,6 +20,7 @@ namespace osu.Game.Screens.OnlinePlay
         private OverlayColourProvider colourProvider { get; set; } = null!;
 
         public readonly Bindable<WinCondition> WinCondition = new Bindable<WinCondition>();
+        public readonly Bindable<bool> Freestyle = new Bindable<bool>();
 
         [Resolved]
         private OsuColour colours { get; set; } = null!;
@@ -31,7 +32,6 @@ namespace osu.Game.Screens.OnlinePlay
             Icon = FontAwesome.Solid.Medal;
             AccentColour = colours.Orange1;
 
-            // TooltipText = MultiplayerMatchStrings.FreestyleButtonTooltip;
             Action = () =>
             {
                 if (this.FindClosestParent<PopoverContainer>()?.CurrentTarget == this)
