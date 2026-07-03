@@ -159,5 +159,12 @@ namespace osu.Game.Online.Multiplayer
         /// Signals that the vote to skip the beatmap intro has passed.
         /// </summary>
         Task VoteToSkipIntroPassed();
+
+        /// <summary>
+        /// Signals that a user's role in the room has changed.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose role has changed.</param>
+        /// <param name="newRole">The new role of the user.</param>
+        Task UserRoleChanged(int userId, MultiplayerRoomUserRole newRole);
     }
 }
