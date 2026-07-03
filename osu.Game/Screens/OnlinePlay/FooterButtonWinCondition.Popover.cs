@@ -60,8 +60,8 @@ namespace osu.Game.Screens.OnlinePlay
                     buttonFlow.Add(new FooterPopoverButton
                     {
                         Text = condition.GetLocalisableDescription(),
-                        BackgroundColour = ColourProvider.Background3,
                         Icon = footerButton.CurrentCondition.Value == condition ? FontAwesome.Solid.Check : new IconUsage(),
+                        BackgroundColour = footerButton.CurrentCondition.Value == condition ? ColourProvider.Colour4 : ColourProvider.Background3,
                         TextColour = null,
                         Action = () =>
                         {
