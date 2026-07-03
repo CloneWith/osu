@@ -35,8 +35,8 @@ namespace osu.Game.Screens.OnlinePlay
                 footerButton.Freestyle.BindValueChanged(e =>
                     {
                         reversedFreestyle.Value = !e.NewValue;
-                        if (footerButton.WinCondition.Value is not Online.Multiplayer.WinCondition.Score and not Online.Multiplayer.WinCondition.Accuracy)
-                            footerButton.WinCondition.Value = Online.Multiplayer.WinCondition.Score;
+                        if (footerButton.CurrentCondition.Value is not WinCondition.Score and not WinCondition.Accuracy)
+                            footerButton.CurrentCondition.Value = WinCondition.Score;
                     }
                 );
             }
@@ -60,17 +60,17 @@ namespace osu.Game.Screens.OnlinePlay
                     buttonFlow.Add(new FooterPopoverButton
                     {
                         Text = condition.GetLocalisableDescription(),
-                        Icon = footerButton.WinCondition.Value == condition ? FontAwesome.Solid.Check : new IconUsage(),
                         BackgroundColour = ColourProvider.Background3,
+                        Icon = footerButton.CurrentCondition.Value == condition ? FontAwesome.Solid.Check : new IconUsage(),
                         TextColour = null,
                         Action = () =>
                         {
                             Scheduler.AddDelayed(Hide, 50);
-                            footerButton.WinCondition.Value = condition;
+                            footerButton.CurrentCondition.Value = condition;
                         },
                         Enabled =
                         {
-                            BindTarget = condition is Online.Multiplayer.WinCondition.Score or Online.Multiplayer.WinCondition.Accuracy
+                            BindTarget = condition is WinCondition.Score or WinCondition.Accuracy
                                 ? new BindableBool(true)
                                 : reversedFreestyle
                         }

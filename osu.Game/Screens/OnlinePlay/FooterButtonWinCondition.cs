@@ -19,7 +19,7 @@ namespace osu.Game.Screens.OnlinePlay
         [Resolved]
         private OverlayColourProvider colourProvider { get; set; } = null!;
 
-        public readonly Bindable<WinCondition> WinCondition = new Bindable<WinCondition>();
+        public readonly Bindable<WinCondition> CurrentCondition = new Bindable<WinCondition>();
         public readonly Bindable<bool> Freestyle = new Bindable<bool>();
 
         [Resolved]

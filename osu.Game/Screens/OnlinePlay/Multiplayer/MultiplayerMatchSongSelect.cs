@@ -317,7 +317,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
                 },
                 new FooterButtonWinCondition
                 {
-                    WinCondition = { BindTarget = winCondition },
+                    CurrentCondition = { BindTarget = winCondition },
                     Freestyle = { BindTarget = freestyle }
                 }
             ]);
