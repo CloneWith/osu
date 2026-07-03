@@ -56,6 +56,12 @@ namespace osu.Game.Localisation
         public static LocalisableString MultiplayerBeatmapQueue => new TranslatableString(getKey(@"multiplayer_beatmap_queue"), @"Beatmap queue");
 
         /// <summary>
+        /// "Win through {0}"
+        /// </summary>
+        public static LocalisableString WinConditionBadgeTooltip(LocalisableString condition) => new TranslatableString(getKey(@"win_condition_badge_tooltip"),
+            @"Win through {0}", condition);
+
+        /// <summary>
         /// "Progress"
         /// </summary>
         public static LocalisableString PlaylistProgress => new TranslatableString(getKey(@"playlist_progress"), @"Progress");

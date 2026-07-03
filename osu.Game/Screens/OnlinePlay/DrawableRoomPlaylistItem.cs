@@ -40,6 +40,7 @@ using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
 using osu.Game.Localisation;
+using osu.Game.Online.Multiplayer;
 
 namespace osu.Game.Screens.OnlinePlay
 {
@@ -90,7 +91,7 @@ namespace osu.Game.Screens.OnlinePlay
         private LinkFlowContainer? authorText;
         private ExplicitContentBeatmapBadge? explicitContent;
         private ModDisplay? modDisplay;
-        private OsuTextFlowContainer? winConditionContainer;
+        private FillFlowContainer? winConditionContainer;
         private FillFlowContainer? buttonsFlow;
         private UpdateableAvatar? ownerAvatar;
         private Drawable? showResultsButton;
@@ -367,8 +368,7 @@ namespace osu.Game.Screens.OnlinePlay
 
                 if (Item.WinCondition != null)
                 {
-                    winConditionContainer.AddText("win through ");
-                    winConditionContainer.AddText(Item.WinCondition.GetLocalisableDescription(), text => text.Colour = colours.Yellow);
+                    winConditionContainer.Add(new WinConditionBadge(Item.WinCondition));
                 }
             }
 
@@ -487,19 +487,12 @@ namespace osu.Game.Screens.OnlinePlay
                                                                 Margin = new MarginPadding { Vertical = -6 },
                                                             }
                                                         },
-                                                        new FillFlowContainer
+                                                        winConditionContainer = new FillFlowContainer
                                                         {
                                                             AutoSizeAxes = Axes.Both,
                                                             Anchor = Anchor.CentreLeft,
                                                             Origin = Anchor.CentreLeft,
                                                             Direction = FillDirection.Horizontal,
-                                                            Children = new Drawable[]
-                                                            {
-                                                                winConditionContainer = new OsuTextFlowContainer(fontParameters)
-                                                                {
-                                                                    AutoSizeAxes = Axes.Both,
-                                                                }
-                                                            },
                                                         }
                                                     }
                                                 }
@@ -780,6 +773,23 @@ namespace osu.Game.Screens.OnlinePlay
                 // manual binding required as playlists don't expose IBeatmapInfo currently.
                 // may be removed in the future if this changes.
                 Beatmap.BindValueChanged(beatmap => backgroundSprite.Beatmap.Value = beatmap.NewValue);
+            }
+        }
+
+        private partial class WinConditionBadge : BeatmapBadge, IHasTooltip
+        {
+            public LocalisableString TooltipText { get; }
+
+            public WinConditionBadge(WinCondition? condition)
+            {
+                BadgeText = condition.GetLocalisableDescription();
+                TooltipText = OnlinePlayStrings.WinConditionBadgeTooltip(condition.GetLocalisableDescription());
+            }
+
+            [BackgroundDependencyLoader]
+            private void load(OsuColour colours)
+            {
+                BadgeColour = colours.Yellow;
             }
         }
 
