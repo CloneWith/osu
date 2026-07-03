@@ -10,7 +10,7 @@ namespace osu.Game.Screens.Play.Leaderboards
 {
     public partial class MultiSpectatorLeaderboardProvider : MultiplayerLeaderboardProvider
     {
-        public MultiSpectatorLeaderboardProvider(MultiplayerRoomUser[] users, WinCondition winCondition)
+        public MultiSpectatorLeaderboardProvider(MultiplayerRoomUser[] users, WinCondition winCondition = WinCondition.Score)
             : base(users, winCondition)
         {
         }

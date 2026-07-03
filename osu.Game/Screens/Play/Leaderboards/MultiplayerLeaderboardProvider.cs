@@ -58,7 +58,7 @@ namespace osu.Game.Screens.Play.Leaderboards
 
         private readonly Cached sorting = new Cached();
 
-        public MultiplayerLeaderboardProvider(MultiplayerRoomUser[] users, WinCondition winCondition)
+        public MultiplayerLeaderboardProvider(MultiplayerRoomUser[] users, WinCondition winCondition = WinCondition.Score)
         {
             this.users = users;
             WinCondition = winCondition;
