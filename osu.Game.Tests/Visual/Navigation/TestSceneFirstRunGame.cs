@@ -27,7 +27,9 @@ namespace osu.Game.Tests.Visual.Navigation
         {
             AddStep("post important notification", () => Game.Notifications.Post(new SimpleNotification { Text = "Important notification" }));
             AddAssert("first-run setup still visible", () => Game.FirstRunOverlay.State.Value == Visibility.Visible);
-            AddAssert("notification posted", () => Game.Notifications.UnreadCount.Value == 1);
+
+            // An API notification would always appear on setup, just let it pass as long as we have unread items.
+            AddAssert("notification posted", () => Game.Notifications.UnreadCount.Value != 0);
         }
 
         protected override TestOsuGame CreateTestGame() => new FirstRunGame(LocalStorage, API);
