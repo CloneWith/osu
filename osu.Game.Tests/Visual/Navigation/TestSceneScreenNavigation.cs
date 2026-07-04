@@ -1077,7 +1077,7 @@ namespace osu.Game.Tests.Visual.Navigation
                 });
             }, 15);
 
-            AddAssert("all notifications = 15", () => Game.Notifications.AllNotifications.Count(), () => Is.EqualTo(15));
+            AddAssert("progress notifications = 15", () => Game.Notifications.AllNotifications.OfType<ProgressNotification>().Count(), () => Is.EqualTo(15));
             AddStep("Hold escape", () => InputManager.PressKey(Key.Escape));
             AddUntilStep("confirmation dialog shown", () => Game.ChildrenOfType<DialogOverlay>().Single().CurrentDialog is ConfirmExitDialog);
             AddStep("Release escape", () => InputManager.ReleaseKey(Key.Escape));
