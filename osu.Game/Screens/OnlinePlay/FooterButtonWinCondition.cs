@@ -99,6 +99,8 @@ namespace osu.Game.Screens.OnlinePlay
 
             CurrentCondition.BindValueChanged(c =>
             {
+                conditionWedge.ClearTransforms();
+
                 conditionText.Text = c.NewValue.GetLocalisableDescription();
                 conditionText.ScaleTo(1.25f, 100, Easing.InExpo).Then().ScaleTo(1, 500, Easing.OutExpo);
 
