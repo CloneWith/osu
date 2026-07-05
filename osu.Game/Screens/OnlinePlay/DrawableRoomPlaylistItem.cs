@@ -90,8 +90,8 @@ namespace osu.Game.Screens.OnlinePlay
         private LinkFlowContainer? beatmapText;
         private LinkFlowContainer? authorText;
         private ExplicitContentBeatmapBadge? explicitContent;
+        private WinConditionBadge? winConditionBadge;
         private ModDisplay? modDisplay;
-        private FillFlowContainer? winConditionContainer;
         private FillFlowContainer? buttonsFlow;
         private UpdateableAvatar? ownerAvatar;
         private Drawable? showResultsButton;
@@ -362,15 +362,8 @@ namespace osu.Game.Screens.OnlinePlay
                 explicitContent.Alpha = hasExplicitContent ? 1 : 0;
             }
 
-            if (winConditionContainer != null)
-            {
-                winConditionContainer.Clear();
-
-                if (Item.WinCondition != null)
-                {
-                    winConditionContainer.Add(new WinConditionBadge(Item.WinCondition));
-                }
-            }
+            if (winConditionBadge != null)
+                winConditionBadge.Condition = Item.WinCondition;
 
             if (modDisplay != null)
                 modDisplay.Current.Value = requiredMods.ToArray();
@@ -465,14 +458,24 @@ namespace osu.Game.Screens.OnlinePlay
                                                             Spacing = new Vector2(2f, 0),
                                                             Children = new Drawable[]
                                                             {
-                                                                authorText = new LinkFlowContainer(fontParameters) { AutoSizeAxes = Axes.Both },
+                                                                authorText = new LinkFlowContainer(fontParameters)
+                                                                {
+                                                                    Anchor = Anchor.CentreLeft,
+                                                                    Origin = Anchor.CentreLeft,
+                                                                    AutoSizeAxes = Axes.Both,
+                                                                },
                                                                 explicitContent = new ExplicitContentBeatmapBadge
                                                                 {
                                                                     Alpha = 0f,
                                                                     Anchor = Anchor.CentreLeft,
                                                                     Origin = Anchor.CentreLeft,
-                                                                    Margin = new MarginPadding { Top = 3f },
-                                                                }
+                                                                },
+                                                                winConditionBadge = new WinConditionBadge
+                                                                {
+                                                                    Alpha = 0f,
+                                                                    Anchor = Anchor.CentreLeft,
+                                                                    Origin = Anchor.CentreLeft,
+                                                                },
                                                             },
                                                         },
                                                         new Container
@@ -487,13 +490,6 @@ namespace osu.Game.Screens.OnlinePlay
                                                                 Margin = new MarginPadding { Vertical = -6 },
                                                             }
                                                         },
-                                                        winConditionContainer = new FillFlowContainer
-                                                        {
-                                                            AutoSizeAxes = Axes.Both,
-                                                            Anchor = Anchor.CentreLeft,
-                                                            Origin = Anchor.CentreLeft,
-                                                            Direction = FillDirection.Horizontal,
-                                                        }
                                                     }
                                                 }
                                             }
@@ -778,13 +774,20 @@ namespace osu.Game.Screens.OnlinePlay
 
         private partial class WinConditionBadge : BeatmapBadge, IHasTooltip
         {
-            public LocalisableString TooltipText { get; }
-
-            public WinConditionBadge(WinCondition? condition)
+            public WinCondition? Condition
             {
-                BadgeText = condition.GetLocalisableDescription();
-                TooltipText = OnlinePlayStrings.WinConditionBadgeTooltip(condition.GetLocalisableDescription());
+                get => condition;
+                set
+                {
+                    condition = value;
+                    BadgeText = value.GetLocalisableDescription();
+                    Alpha = value != null ? 1f : 0f;
+                }
             }
+
+            private WinCondition? condition;
+
+            public LocalisableString TooltipText => OnlinePlayStrings.WinConditionBadgeTooltip(condition.GetLocalisableDescription());
 
             [BackgroundDependencyLoader]
             private void load(OsuColour colours)
