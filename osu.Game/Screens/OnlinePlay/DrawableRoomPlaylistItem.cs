@@ -779,9 +779,15 @@ namespace osu.Game.Screens.OnlinePlay
                 get => condition;
                 set
                 {
+                    if (value == null)
+                    {
+                        Alpha = 0f;
+                        return;
+                    }
+
                     condition = value;
                     BadgeText = value.GetLocalisableDescription();
-                    Alpha = value != null ? 1f : 0f;
+                    Alpha = 1f;
                 }
             }
 
