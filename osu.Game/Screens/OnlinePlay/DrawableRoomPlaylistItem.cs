@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
@@ -38,6 +40,7 @@ using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
 using osu.Game.Localisation;
+using osu.Game.Online.Multiplayer;
 
 namespace osu.Game.Screens.OnlinePlay
 {
@@ -87,6 +90,7 @@ namespace osu.Game.Screens.OnlinePlay
         private LinkFlowContainer? beatmapText;
         private LinkFlowContainer? authorText;
         private ExplicitContentBeatmapBadge? explicitContent;
+        private WinConditionBadge? winConditionBadge;
         private ModDisplay? modDisplay;
         private FillFlowContainer? buttonsFlow;
         private UpdateableAvatar? ownerAvatar;
@@ -358,6 +362,9 @@ namespace osu.Game.Screens.OnlinePlay
                 explicitContent.Alpha = hasExplicitContent ? 1 : 0;
             }
 
+            if (winConditionBadge != null)
+                winConditionBadge.Condition = Item.WinCondition;
+
             if (modDisplay != null)
                 modDisplay.Current.Value = requiredMods.ToArray();
 
@@ -448,17 +455,27 @@ namespace osu.Game.Screens.OnlinePlay
                                                             Anchor = Anchor.CentreLeft,
                                                             Origin = Anchor.CentreLeft,
                                                             Direction = FillDirection.Horizontal,
-                                                            Spacing = new Vector2(10f, 0),
+                                                            Spacing = new Vector2(2f, 0),
                                                             Children = new Drawable[]
                                                             {
-                                                                authorText = new LinkFlowContainer(fontParameters) { AutoSizeAxes = Axes.Both },
+                                                                authorText = new LinkFlowContainer(fontParameters)
+                                                                {
+                                                                    Anchor = Anchor.CentreLeft,
+                                                                    Origin = Anchor.CentreLeft,
+                                                                    AutoSizeAxes = Axes.Both,
+                                                                },
                                                                 explicitContent = new ExplicitContentBeatmapBadge
                                                                 {
                                                                     Alpha = 0f,
                                                                     Anchor = Anchor.CentreLeft,
                                                                     Origin = Anchor.CentreLeft,
-                                                                    Margin = new MarginPadding { Top = 3f },
-                                                                }
+                                                                },
+                                                                winConditionBadge = new WinConditionBadge
+                                                                {
+                                                                    Alpha = 0f,
+                                                                    Anchor = Anchor.CentreLeft,
+                                                                    Origin = Anchor.CentreLeft,
+                                                                },
                                                             },
                                                         },
                                                         new Container
@@ -472,7 +489,7 @@ namespace osu.Game.Screens.OnlinePlay
                                                                 ExpansionMode = ExpansionMode.AlwaysExpanded,
                                                                 Margin = new MarginPadding { Vertical = -6 },
                                                             }
-                                                        }
+                                                        },
                                                     }
                                                 }
                                             }
@@ -752,6 +769,30 @@ namespace osu.Game.Screens.OnlinePlay
                 // manual binding required as playlists don't expose IBeatmapInfo currently.
                 // may be removed in the future if this changes.
                 Beatmap.BindValueChanged(beatmap => backgroundSprite.Beatmap.Value = beatmap.NewValue);
+            }
+        }
+
+        private partial class WinConditionBadge : BeatmapBadge, IHasTooltip
+        {
+            public WinCondition? Condition
+            {
+                get => condition;
+                set
+                {
+                    condition = value;
+                    BadgeText = value.GetLocalisableDescription();
+                    Alpha = value != null ? 1f : 0f;
+                }
+            }
+
+            private WinCondition? condition;
+
+            public LocalisableString TooltipText => OnlinePlayStrings.WinConditionBadgeTooltip(condition.GetLocalisableDescription());
+
+            [BackgroundDependencyLoader]
+            private void load(OsuColour colours)
+            {
+                BadgeColour = colours.Yellow;
             }
         }
 

@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -79,7 +80,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
             this.room = room;
 
             instances = new PlayerArea[Users.Count];
-            leaderboardProvider = new MultiSpectatorLeaderboardProvider(users);
+            leaderboardProvider = new MultiSpectatorLeaderboardProvider(users, room.CurrentPlaylistItem?.WinCondition ?? WinCondition.Score);
         }
 
         [BackgroundDependencyLoader]

@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Collections.Generic;
@@ -37,6 +38,8 @@ namespace osu.Game.Screens.Play.Leaderboards
 
         public bool HasTeams => TeamScores.Count > 0;
 
+        private readonly WinCondition winCondition;
+
         private readonly MultiplayerRoomUser[] users;
 
         private readonly Bindable<ScoringMode> scoringMode = new Bindable<ScoringMode>();
@@ -56,9 +59,10 @@ namespace osu.Game.Screens.Play.Leaderboards
 
         private readonly Cached sorting = new Cached();
 
-        public MultiplayerLeaderboardProvider(MultiplayerRoomUser[] users)
+        public MultiplayerLeaderboardProvider(MultiplayerRoomUser[] users, WinCondition winCondition = WinCondition.Score)
         {
             this.users = users;
+            this.winCondition = winCondition;
         }
 
         [BackgroundDependencyLoader]
@@ -184,14 +188,19 @@ namespace osu.Game.Screens.Play.Leaderboards
             if (sorting.IsValid)
                 return;
 
-            var orderedByScore = scores
-                                 .OrderByDescending(i => i.TotalScore.Value)
-                                 .ThenBy(i => i.TotalScoreTiebreaker)
-                                 .ToList();
+            var orderedScores = scores
+                                .OrderByDescending(i => winCondition switch
+                                {
+                                    WinCondition.Accuracy => i.Accuracy.Value,
+                                    WinCondition.Combo => i.Combo.Value,
+                                    _ => i.TotalScore.Value,
+                                })
+                                .ThenBy(i => i.TotalScoreTiebreaker)
+                                .ToList();
 
-            for (int i = 0; i < orderedByScore.Count; i++)
+            for (int i = 0; i < orderedScores.Count; i++)
             {
-                var score = orderedByScore[i];
+                var score = orderedScores[i];
                 score.DisplayOrder.Value = i;
                 score.Position.Value = i + 1;
             }

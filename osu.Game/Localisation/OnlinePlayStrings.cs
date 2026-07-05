@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Localisation;
@@ -40,6 +41,11 @@ namespace osu.Game.Localisation
         public static LocalisableString FooterButtonFreestyle => new TranslatableString(getKey(@"footer_button_freestyle"), @"Freestyle");
 
         /// <summary>
+        /// "Win condition"
+        /// </summary>
+        public static LocalisableString FooterButtonWinCondition => new TranslatableString(getKey(@"footer_button_win_condition"), @"Win condition");
+
+        /// <summary>
         /// "Manage items on previous screen"
         /// </summary>
         public static LocalisableString PlaylistTrayDescription => new TranslatableString(getKey(@"playlist_tray_description"), @"Manage items on previous screen");
@@ -48,6 +54,12 @@ namespace osu.Game.Localisation
         /// "Beatmap queue"
         /// </summary>
         public static LocalisableString MultiplayerBeatmapQueue => new TranslatableString(getKey(@"multiplayer_beatmap_queue"), @"Beatmap queue");
+
+        /// <summary>
+        /// "Win through {0}"
+        /// </summary>
+        public static LocalisableString WinConditionBadgeTooltip(LocalisableString condition) => new TranslatableString(getKey(@"win_condition_badge_tooltip"),
+            @"Win through {0}", condition);
 
         /// <summary>
         /// "Progress"

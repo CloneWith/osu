@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -65,6 +66,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
         protected readonly Bindable<IReadOnlyList<Mod>> FreeMods = new Bindable<IReadOnlyList<Mod>>(Array.Empty<Mod>());
 
         private readonly Bindable<bool> freestyle = new Bindable<bool>(true);
+        private readonly Bindable<WinCondition> winCondition = new Bindable<WinCondition>();
 
         private readonly PlaylistItem? initialItem;
         private readonly FreeModSelectOverlay freeModSelect;
@@ -215,7 +217,8 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
                 RulesetID = Ruleset.Value.OnlineID,
                 RequiredMods = Mods.Value.Select(m => new APIMod(m)).ToArray(),
                 AllowedMods = FreeMods.Value.Select(m => new APIMod(m)).ToArray(),
-                Freestyle = freestyle.Value
+                Freestyle = freestyle.Value,
+                WinCondition = winCondition.Value
             };
 
             selectItem(item);
@@ -243,7 +246,8 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
                     RulesetID = item.RulesetID,
                     RequiredMods = item.RequiredMods.ToArray(),
                     AllowedMods = item.AllowedMods.ToArray(),
-                    Freestyle = item.Freestyle
+                    Freestyle = item.Freestyle,
+                    WinCondition = item.WinCondition ?? WinCondition.Score,
                 };
 
                 Task task = itemToEdit != null ? client.EditPlaylistItem(multiplayerItem) : client.AddPlaylistItem(multiplayerItem);
@@ -309,6 +313,11 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
                 },
                 new FooterButtonFreestyle
                 {
+                    Freestyle = { BindTarget = freestyle }
+                },
+                new FooterButtonWinCondition
+                {
+                    CurrentCondition = { BindTarget = winCondition },
                     Freestyle = { BindTarget = freestyle }
                 }
             ]);
