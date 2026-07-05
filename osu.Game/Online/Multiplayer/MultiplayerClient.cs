@@ -965,6 +965,23 @@ namespace osu.Game.Online.Multiplayer
             return Task.CompletedTask;
         }
 
+        Task IMultiplayerClient.UserRoleChanged(int userId, MultiplayerRoomUserRole newRole)
+        {
+            handleRoomRequest(() =>
+            {
+                Debug.Assert(Room != null);
+
+                var user = Room.Users.SingleOrDefault(u => u.UserID == userId);
+                if (user == null)
+                    return;
+
+                user.Role = newRole;
+                RoomUpdated?.Invoke();
+            });
+
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// Populates the <see cref="APIUser"/> for a given collection of <see cref="MultiplayerRoomUser"/>s.
         /// </summary>

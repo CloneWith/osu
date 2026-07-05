@@ -11,11 +11,6 @@
   <PropertyGroup>
     <ApplicationManifest>$(MSBuildThisFileDirectory)app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <ItemGroup Label="License">
-    <None Include="$(MSBuildThisFileDirectory)osu.licenseheader">
-      <Link>osu.licenseheader</Link>
-    </None>
-  </ItemGroup>
   <ItemGroup Label="Resources">
     <EmbeddedResource Include="Resources\**\*.*" />
   </ItemGroup>
