@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -14,7 +15,6 @@ using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
-using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
@@ -127,7 +127,7 @@ namespace osu.Game.Screens.Select
 
             private void addButton(LocalisableString text, IconUsage? icon, Action? action, Color4? colour = null)
             {
-                var button = new OptionButton
+                var button = new FooterPopoverButton
                 {
                     Text = text,
                     Icon = icon ?? new IconUsage(),
@@ -152,7 +152,7 @@ namespace osu.Game.Screens.Select
                 {
                     int requested = e.Key - Key.Number1;
 
-                    OptionButton? found = buttonFlow.Children.OfType<OptionButton>().ElementAtOrDefault(requested);
+                    FooterPopoverButton? found = buttonFlow.Children.OfType<FooterPopoverButton>().ElementAtOrDefault(requested);
 
                     if (found != null)
                     {
@@ -162,42 +162,6 @@ namespace osu.Game.Screens.Select
                 }
 
                 return base.OnKeyDown(e);
-            }
-
-            private partial class OptionButton : OsuButton
-            {
-                public IconUsage Icon { get; init; }
-                public Color4? TextColour { get; init; }
-
-                public OptionButton()
-                {
-                    Size = new Vector2(265, 50);
-                }
-
-                [BackgroundDependencyLoader]
-                private void load()
-                {
-                    SpriteText.Colour = TextColour ?? Color4.White;
-                    Content.CornerRadius = 10;
-
-                    Add(new SpriteIcon
-                    {
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
-                        Size = new Vector2(17),
-                        X = 15,
-                        Icon = Icon,
-                        Colour = TextColour ?? Color4.White,
-                    });
-                }
-
-                protected override SpriteText CreateText() => new OsuSpriteText
-                {
-                    Depth = -1,
-                    Origin = Anchor.CentreLeft,
-                    Anchor = Anchor.CentreLeft,
-                    X = 40
-                };
             }
         }
     }

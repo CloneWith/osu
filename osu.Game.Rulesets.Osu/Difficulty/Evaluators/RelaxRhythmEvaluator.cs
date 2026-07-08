@@ -53,7 +53,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
                 double lastDelta = last.AdjustedDeltaTime;
 
                 double deltaDifferenceRatio = Math.Min(prevDelta, currDelta) / Math.Max(prevDelta, currDelta);
-                double currRatio = 1 + rhythm_ratio_multiplier * Math.Min(Math.Pow(Math.Sin(Math.PI / deltaDifferenceRatio), 2), 0.5);
+                double currRatio = 1 + rhythm_ratio_multiplier * Math.Min(DiffUtils.Pow(Math.Sin(Math.PI / deltaDifferenceRatio), 2), 0.5);
 
                 double fraction = Math.Max(prevDelta / currDelta, currDelta / prevDelta);
                 double fractionMultiplier = Math.Clamp(2.0 - fraction / 8.0, 0.0, 1.0);
@@ -92,8 +92,8 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
                             if (prevIsland.Equals(island))
                                 entry.Count += 1;
 
-                            double power = DifficultyCalculationUtils.Logistic(island.Delta, 58.33, 0.24, 2.75);
-                            effectiveRatio *= Math.Min(3.0 / entry.Count, Math.Pow(1.0 / entry.Count, power));
+                            double power = DiffUtils.Logistic(island.Delta, 58.33, 0.24, 2.75);
+                            effectiveRatio *= Math.Min(3.0 / entry.Count, DiffUtils.Pow(1.0 / entry.Count, power));
 
                             islandCounts[entryIndex] = entry;
                         }
@@ -102,7 +102,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
                             islandCounts.Add(new IslandCount(island));
                         }
 
-                        double doubletapness = previous.GetDoubletapness(currObj);
+                        double doubletapness = previous.CalculateDoubleTapFeasibility(currObj);
                         effectiveRatio *= 1.0 - doubletapness * 0.75;
 
                         rhythmComplexitySum += Math.Sqrt(effectiveRatio * startRatio) * currHistoricalDecay;

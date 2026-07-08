@@ -1,4 +1,5 @@
 ﻿// Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Localisation;
@@ -40,9 +41,9 @@ namespace osu.Game.Localisation
         public static LocalisableString FooterButtonFreestyle => new TranslatableString(getKey(@"footer_button_freestyle"), @"Freestyle");
 
         /// <summary>
-        /// "{0} item(s)"
+        /// "Win condition"
         /// </summary>
-        public static LocalisableString PlaylistTrayItems(int count) => new TranslatableString(getKey(@"playlist_tray_items"), @"{0} item(s)", count);
+        public static LocalisableString FooterButtonWinCondition => new TranslatableString(getKey(@"footer_button_win_condition"), @"Win condition");
 
         /// <summary>
         /// "Manage items on previous screen"
@@ -53,6 +54,12 @@ namespace osu.Game.Localisation
         /// "Beatmap queue"
         /// </summary>
         public static LocalisableString MultiplayerBeatmapQueue => new TranslatableString(getKey(@"multiplayer_beatmap_queue"), @"Beatmap queue");
+
+        /// <summary>
+        /// "Win through {0}"
+        /// </summary>
+        public static LocalisableString WinConditionBadgeTooltip(LocalisableString condition) => new TranslatableString(getKey(@"win_condition_badge_tooltip"),
+            @"Win through {0}", condition);
 
         /// <summary>
         /// "Progress"
@@ -73,6 +80,11 @@ namespace osu.Game.Localisation
         /// "Chat"
         /// </summary>
         public static LocalisableString Chat => new TranslatableString(getKey(@"chat"), @"Chat");
+
+        /// <summary>
+        /// "Close playlist"
+        /// </summary>
+        public static LocalisableString ClosePlaylist => new TranslatableString(getKey(@"close_playlist"), @"Close playlist");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

@@ -39,6 +39,7 @@ namespace osu.Game.Online
             (typeof(MatchStartCountdown), typeof(MultiplayerCountdown)),
             (typeof(ForceGameplayStartCountdown), typeof(MultiplayerCountdown)),
             (typeof(ServerShuttingDownCountdown), typeof(MultiplayerCountdown)),
+            (typeof(ReminderCountdown), typeof(MultiplayerCountdown)),
 
             // metadata
             (typeof(UserActivity.ChoosingBeatmap), typeof(UserActivity)),

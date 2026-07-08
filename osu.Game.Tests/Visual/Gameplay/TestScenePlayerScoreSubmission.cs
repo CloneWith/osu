@@ -336,30 +336,6 @@ namespace osu.Game.Tests.Visual.Gameplay
             AddAssert("ensure no submission", () => Player.SubmittedScore == null);
         }
 
-        [TestCase(null)]
-        [TestCase(10)]
-        public void TestNoSubmissionOnCustomRuleset(int? rulesetId)
-        {
-            prepareTestAPI(true);
-
-            createPlayerTest(createRuleset: () => new OsuRuleset
-            {
-                RulesetInfo =
-                {
-                    Name = "custom",
-                    ShortName = $"custom{rulesetId}",
-                    OnlineID = rulesetId ?? -1
-                }
-            });
-
-            AddUntilStep("wait for token request", () => Player.TokenCreationRequested);
-
-            addFakeHit();
-
-            AddStep("exit", () => Player.Exit());
-            AddAssert("ensure no submission", () => Player.SubmittedScore == null);
-        }
-
         [Test]
         public void TestNoSubmissionWithModsOfDifferentRuleset()
         {

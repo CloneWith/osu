@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -17,6 +18,8 @@ using osu.Game.Online.Multiplayer.MatchTypes.TeamVersus;
 using osu.Game.Online.Rooms;
 using osu.Game.Online.Spectator;
 using osu.Game.Screens.Play;
+using osu.Game.Screens.Play.HUD;
+using osu.Game.Screens.Play.Leaderboards;
 using osu.Game.Screens.Spectate;
 using osu.Game.TournamentIpc;
 using osu.Game.Users;
@@ -47,6 +50,8 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
         /// </summary>
         public bool AllPlayersInResults => instances.Where(p => p.PlayerLoaded && !p.HasQuit).All(p => p.InResultScreen);
 
+        internal DrawableGameplayLeaderboard Leaderboard { get; private set; } = null!;
+
         protected override UserActivity InitialActivity => new UserActivity.SpectatingMultiplayerGame(Beatmap.Value.BeatmapInfo, Ruleset.Value);
 
         [Resolved]
@@ -57,6 +62,9 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
 
         [Resolved]
         private MultiplayerClient multiplayerClient { get; set; } = null!;
+
+        [Cached(typeof(IGameplayLeaderboardProvider))]
+        private MultiSpectatorLeaderboardProvider leaderboardProvider { get; set; }
 
         private IAggregateAudioAdjustment? boundAdjustments;
 
@@ -91,6 +99,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer.Spectate
             // this.users = sortUsersByTeam(users);
 
             instances = new PlayerArea[UserIds.Count];
+            leaderboardProvider = new MultiSpectatorLeaderboardProvider(users, room.CurrentPlaylistItem?.WinCondition ?? WinCondition.Score);
             statisticsTracker = new TournamentSpectatorStatisticsTracker(sortUsersByTeam(users));
         }
 

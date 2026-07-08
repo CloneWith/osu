@@ -51,11 +51,11 @@ namespace osu.Game.Screens.Play
         [CanBeNull]
         private UserStatisticsWatcher userStatisticsWatcher { get; set; }
 
-        private readonly object scoreSubmissionLock = new object();
-        private TaskCompletionSource<bool> scoreSubmissionSource;
-
         [Resolved]
         protected RulesetHashCache RulesetHashCache { get; private set; } = null!;
+
+        private readonly object scoreSubmissionLock = new object();
+        private TaskCompletionSource<bool> scoreSubmissionSource;
 
         [Resolved(canBeNull: true)]
         [CanBeNull]

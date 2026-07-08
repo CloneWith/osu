@@ -18,6 +18,7 @@ namespace osu.Game.Online.Multiplayer
     [Union(2, typeof(ServerShuttingDownCountdown))]
     [Union(3, typeof(MatchmakingStageCountdown))]
     [Union(4, typeof(RankedPlayStageCountdown))]
+    [Union(5, typeof(ReminderCountdown))]
     public abstract class MultiplayerCountdown
     {
         /// <summary>

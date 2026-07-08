@@ -63,7 +63,7 @@ namespace osu.Game.Screens.OnlinePlay.Multiplayer
                 ShowFailingOverlay = showFailingOverlay
             })
         {
-            leaderboardProvider = new MultiplayerLeaderboardProvider(users);
+            leaderboardProvider = new MultiplayerLeaderboardProvider(users, playlistItem.WinCondition ?? WinCondition.Score);
         }
 
         [BackgroundDependencyLoader]

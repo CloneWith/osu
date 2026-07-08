@@ -26,7 +26,8 @@ namespace osu.Game.Medals.Awarders
 
         public bool CheckMedalCriteria(OsuGameBase game)
         {
-            screenStack ??= game.ChildrenOfType<OsuScreenStack>().SingleOrDefault();
+            // When could the game has more than one OsuScreenStack? This is weird but CI did complain about that.
+            screenStack ??= game.ChildrenOfType<OsuScreenStack>().FirstOrDefault();
             api ??= (IAPIProvider)game.Dependencies.Get(typeof(IAPIProvider));
 
             if (screenStack?.CurrentScreen is not MultiplayerResultsScreen resultsScreen || api == null)

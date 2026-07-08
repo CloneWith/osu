@@ -6,6 +6,7 @@ using Bogus;
 using MessagePack;
 using NUnit.Framework;
 using osu.Game.Online.API;
+using osu.Game.Online.Multiplayer;
 using osu.Game.Online.Rooms;
 
 namespace osu.Game.Tests.OnlinePlay
@@ -35,7 +36,8 @@ namespace osu.Game.Tests.OnlinePlay
                         .RuleFor(o => o.PlaylistOrder, f => f.Random.UShort())
                         .RuleFor(o => o.PlayedAt, f => f.Date.RecentOffset())
                         .RuleFor(o => o.StarRating, f => f.Random.Double())
-                        .RuleFor(o => o.Freestyle, f => f.Random.Bool());
+                        .RuleFor(o => o.Freestyle, f => f.Random.Bool())
+                        .RuleFor(o => o.WinCondition, f => f.PickRandom<WinCondition>());
 
             for (int i = 0; i < 100; i++)
             {
@@ -60,7 +62,8 @@ namespace osu.Game.Tests.OnlinePlay
                         .RuleFor(o => o.PlaylistOrder, f => f.Random.UShort())
                         .RuleFor(o => o.PlayedAt, f => f.Date.RecentOffset())
                         .RuleFor(o => o.StarRating, f => f.Random.Double())
-                        .RuleFor(o => o.Freestyle, f => f.Random.Bool());
+                        .RuleFor(o => o.Freestyle, f => f.Random.Bool())
+                        .RuleFor(o => o.WinCondition, f => f.PickRandom<WinCondition>());
 
             for (int i = 0; i < 100; i++)
             {

@@ -71,21 +71,21 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
                 acuteAngleBonus = calcAcuteAngleBonus(currAngle);
 
                 // Penalize angle repetition.
-                wideAngleBonus *= 1 - Math.Min(wideAngleBonus, Math.Pow(calcWideAngleBonus(lastAngle), 3));
-                acuteAngleBonus *= 0.08 + 0.92 * (1 - Math.Min(acuteAngleBonus, Math.Pow(calcAcuteAngleBonus(lastAngle), 3)));
+                wideAngleBonus *= 1 - Math.Min(wideAngleBonus, DiffUtils.Pow(calcWideAngleBonus(lastAngle), 3));
+                acuteAngleBonus *= 0.08 + 0.92 * (1 - Math.Min(acuteAngleBonus, DiffUtils.Pow(calcAcuteAngleBonus(lastAngle), 3)));
 
                 // R* Nerf strain time for above 300 1/2 fast objects smoothly.
                 const double nerf_base = 1.07;
                 double nerfAdjustedDeltaTime = current.AdjustedDeltaTime
-                                               * Math.Pow(nerf_base, DifficultyCalculationUtils.Smootherstep(DifficultyCalculationUtils.MillisecondsToBPM(current.AdjustedDeltaTime, 2), 300, 400));
+                                               * DiffUtils.Pow(nerf_base, DiffUtils.Smootherstep(DiffUtils.MillisecondsToBPM(current.AdjustedDeltaTime, 2), 300, 400));
 
                 // Apply full wide angle bonus for distance more than one diameter.
-                wideAngleBonus *= angleBonus * DifficultyCalculationUtils.Smootherstep(current.LazyJumpDistance, 0, diameter);
+                wideAngleBonus *= angleBonus * DiffUtils.Smootherstep(current.LazyJumpDistance, 0, diameter);
 
                 // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter.
                 acuteAngleBonus *= angleBonus
-                                   * DifficultyCalculationUtils.Smootherstep(DifficultyCalculationUtils.MillisecondsToBPM(nerfAdjustedDeltaTime, 2), 300, 400)
-                                   * DifficultyCalculationUtils.Smootherstep(current.LazyJumpDistance, diameter, diameter * 2);
+                                   * DiffUtils.Smootherstep(DiffUtils.MillisecondsToBPM(nerfAdjustedDeltaTime, 2), 300, 400)
+                                   * DiffUtils.Smootherstep(current.LazyJumpDistance, diameter, diameter * 2);
 
                 // R* Penalize wide angles if their distances are quite small (consider as wide angle stream).
                 double wideStreamNerf = current.LazyJumpDistance * 0.007 - 1.3;
@@ -93,12 +93,12 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
 
                 // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle.
                 wiggleBonus = angleBonus
-                              * DifficultyCalculationUtils.Smootherstep(current.LazyJumpDistance, radius, diameter)
-                              * Math.Pow(DifficultyCalculationUtils.ReverseLerp(current.LazyJumpDistance, diameter * 3, diameter), 1.8)
-                              * DifficultyCalculationUtils.Smootherstep(currAngle, double.DegreesToRadians(110), double.DegreesToRadians(60))
-                              * DifficultyCalculationUtils.Smootherstep(last.LazyJumpDistance, radius, diameter)
-                              * Math.Pow(DifficultyCalculationUtils.ReverseLerp(last.LazyJumpDistance, diameter * 3, diameter), 1.8)
-                              * DifficultyCalculationUtils.Smootherstep(lastAngle, double.DegreesToRadians(110), double.DegreesToRadians(60));
+                              * DiffUtils.Smootherstep(current.LazyJumpDistance, radius, diameter)
+                              * DiffUtils.Pow(DiffUtils.ReverseLerp(current.LazyJumpDistance, diameter * 3, diameter), 1.8)
+                              * DiffUtils.Smootherstep(currAngle, double.DegreesToRadians(110), double.DegreesToRadians(60))
+                              * DiffUtils.Smootherstep(last.LazyJumpDistance, radius, diameter)
+                              * DiffUtils.Pow(DiffUtils.ReverseLerp(last.LazyJumpDistance, diameter * 3, diameter), 1.8)
+                              * DiffUtils.Smootherstep(lastAngle, double.DegreesToRadians(110), double.DegreesToRadians(60));
             }
 
             if (Math.Max(prevVelocity, currVelocity) != 0)
@@ -107,14 +107,14 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
                 currVelocity = (current.LazyJumpDistance + last.TravelDistance) / current.AdjustedDeltaTime;
 
                 double distRatioBase = Math.Sin(Math.PI / 2 * Math.Abs(prevVelocity - currVelocity) / Math.Max(prevVelocity, currVelocity));
-                double distRatio = Math.Pow(distRatioBase, 2);
+                double distRatio = DiffUtils.Pow(distRatioBase, 2);
 
                 double overlapVelocityBuff = Math.Min(diameter * 1.25 / Math.Min(current.AdjustedDeltaTime, last.AdjustedDeltaTime), Math.Abs(prevVelocity - currVelocity));
 
                 velocityChangeBonus = overlapVelocityBuff * distRatio;
 
                 double bonusBase = Math.Min(current.AdjustedDeltaTime, last.AdjustedDeltaTime) / Math.Max(current.AdjustedDeltaTime, last.AdjustedDeltaTime);
-                velocityChangeBonus *= Math.Pow(bonusBase, 2);
+                velocityChangeBonus *= DiffUtils.Pow(bonusBase, 2);
             }
 
             if (last.BaseObject is Slider)
@@ -134,8 +134,8 @@ namespace osu.Game.Rulesets.Osu.Difficulty.Evaluators
             return aimStrain;
         }
 
-        private static double calcWideAngleBonus(double angle) => DifficultyCalculationUtils.Smoothstep(angle, double.DegreesToRadians(40), double.DegreesToRadians(140));
+        private static double calcWideAngleBonus(double angle) => DiffUtils.Smoothstep(angle, double.DegreesToRadians(40), double.DegreesToRadians(140));
 
-        private static double calcAcuteAngleBonus(double angle) => DifficultyCalculationUtils.Smoothstep(angle, double.DegreesToRadians(140), double.DegreesToRadians(40));
+        private static double calcAcuteAngleBonus(double angle) => DiffUtils.Smoothstep(angle, double.DegreesToRadians(140), double.DegreesToRadians(40));
     }
 }

@@ -1,4 +1,5 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
+// This file is partly modified by GooGuTeam.
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
@@ -7,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MessagePack;
 using osu.Game.Online.API;
+using osu.Game.Online.Multiplayer;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Utils;
 
@@ -77,6 +79,12 @@ namespace osu.Game.Online.Rooms
         public bool Freestyle { get; set; }
 
         /// <summary>
+        /// The win condition for this <see cref="MultiplayerPlaylistItem"/>.
+        /// </summary>
+        [Key(12)]
+        public WinCondition WinCondition { get; set; }
+
+        /// <summary>
         /// Creates a new <see cref="MultiplayerPlaylistItem"/>.
         /// </summary>
         [SerializationConstructor]
@@ -104,6 +112,7 @@ namespace osu.Game.Online.Rooms
             PlayedAt = item.PlayedAt;
             StarRating = item.Beatmap.StarRating;
             Freestyle = item.Freestyle;
+            WinCondition = item.WinCondition ?? WinCondition.Score;
         }
 
         /// <summary>
@@ -133,7 +142,8 @@ namespace osu.Game.Online.Rooms
                && PlaylistOrder == other.PlaylistOrder
                && PlayedAt == other.PlayedAt
                && StarRating == other.StarRating
-               && Freestyle == other.Freestyle;
+               && Freestyle == other.Freestyle
+               && WinCondition == other.WinCondition;
 
         public override bool Equals(object? obj)
             => obj is MultiplayerPlaylistItem other && Equals(other);
@@ -154,6 +164,7 @@ namespace osu.Game.Online.Rooms
             hashCode.Add(PlayedAt);
             hashCode.Add(StarRating);
             hashCode.Add(Freestyle);
+            hashCode.Add(WinCondition);
             return hashCode.ToHashCode();
         }
     }
