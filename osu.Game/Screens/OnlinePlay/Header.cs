@@ -112,9 +112,9 @@ namespace osu.Game.Screens.OnlinePlay
             }
 
             [BackgroundDependencyLoader]
-            private void load(OsuColour colours)
+            private void load(OverlayColourProvider colourProvider)
             {
-                pageTitle.Colour = dot.Colour = colours.Yellow;
+                pageTitle.Colour = dot.Colour = colourProvider.Colour1;
             }
         }
     }
