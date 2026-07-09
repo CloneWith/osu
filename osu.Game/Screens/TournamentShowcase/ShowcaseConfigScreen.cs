@@ -31,14 +31,19 @@ using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Scoring;
 using osu.Game.Screens.Footer;
+using osu.Game.Screens.OnlinePlay;
 using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseConfigScreen : OsuScreen, IKeyBindingHandler<PlatformAction>
+    public partial class ShowcaseConfigScreen : OsuScreen, ISubScreenWithTitle, IKeyBindingHandler<PlatformAction>
     {
+        public string ShortTitle => @"Configuration";
+
+        public LocalisableString LocalisableTitle => TournamentShowcaseStrings.Configuration;
+
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
@@ -364,6 +369,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
         {
+            new FooterButtonProfiles(),
             saveButton = new FooterButtonSave
             {
                 Action = () =>
@@ -511,7 +517,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private void startShowcase()
         {
-            Action launchAction = () => this.Push(new ShowcaseScreen(currentProfile.Value));
+            Action launchAction = () => this.Push(new ShowcaseViewScreen(currentProfile.Value));
 
             if (!checkConfig())
                 return;

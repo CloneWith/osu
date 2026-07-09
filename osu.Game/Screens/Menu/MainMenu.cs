@@ -153,7 +153,7 @@ namespace osu.Game.Screens.Menu
                             },
                             OnSolo = loadSongSelect,
                             OnMultiplayer = () => this.Push(new Multiplayer()),
-                            OnTournamentShowcase = () => this.Push(new ShowcaseConfigScreen()),
+                            OnTournamentShowcase = () => this.Push(new ShowcaseScreen()),
                             OnExit = e =>
                             {
                                 exitConfirmedViaHoldOrClick = e is MouseEvent;

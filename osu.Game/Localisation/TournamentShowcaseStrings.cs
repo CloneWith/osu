@@ -40,6 +40,16 @@ namespace osu.Game.Localisation
         public static LocalisableString IntroBeatmapHeader => new TranslatableString(getKey(@"intro_beatmap_header"), @"Intro Beatmap");
 
         /// <summary>
+        /// "Profiles"
+        /// </summary>
+        public static LocalisableString Profiles => new TranslatableString(getKey(@"profiles"), @"Profiles");
+
+        /// <summary>
+        /// "Configuration"
+        /// </summary>
+        public static LocalisableString Configuration => new TranslatableString(getKey(@"configuration"), @"Configuration");
+
+        /// <summary>
         /// "Current Profile"
         /// </summary>
         public static LocalisableString CurrentProfile => new TranslatableString(getKey(@"current_profile"), @"Current Profile");

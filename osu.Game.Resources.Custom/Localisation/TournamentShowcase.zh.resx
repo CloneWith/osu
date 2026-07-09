@@ -274,4 +274,10 @@
     <data name="showcase_title" xml:space="preserve">
         <value>图池展示</value>
     </data>
+    <data name="configuration" xml:space="preserve">
+        <value>配置</value>
+    </data>
+    <data name="profiles" xml:space="preserve">
+        <value>列表</value>
+    </data>
 </root>
