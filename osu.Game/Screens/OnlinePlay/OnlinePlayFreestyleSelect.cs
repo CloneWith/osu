@@ -17,7 +17,7 @@ using osu.Game.Screens.Select;
 
 namespace osu.Game.Screens.OnlinePlay
 {
-    public abstract partial class OnlinePlayFreestyleSelect : SongSelect, IHandlePresentBeatmap, IOnlinePlaySubScreen, ISongSelect
+    public abstract partial class OnlinePlayFreestyleSelect : SongSelect, IHandlePresentBeatmap, ISubScreenWithTitle, ISongSelect
     {
         private readonly PlaylistItem item;
 

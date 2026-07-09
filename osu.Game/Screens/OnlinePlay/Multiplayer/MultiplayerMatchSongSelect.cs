@@ -32,7 +32,7 @@ using osu.Game.Utils;
 
 namespace osu.Game.Screens.OnlinePlay.Multiplayer
 {
-    public partial class MultiplayerMatchSongSelect : SongSelect, IOnlinePlaySubScreen, ISongSelect
+    public partial class MultiplayerMatchSongSelect : SongSelect, ISubScreenWithTitle, ISongSelect
     {
         public string ShortTitle => "song selection";
 
