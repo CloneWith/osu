@@ -171,7 +171,7 @@ namespace osu.Game.Screens.Menu
                                 else
                                     this.Push(new DailyChallengeIntro(room));
                             },
-                            OnTournamentShowcase = () => this.Push(new ShowcaseConfigScreen()),
+                            OnTournamentShowcase = () => this.Push(new ShowcaseScreen()),
                             OnExit = e =>
                             {
                                 exitConfirmedViaHoldOrClick = e is MouseEvent;
