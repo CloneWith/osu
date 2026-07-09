@@ -29,7 +29,7 @@ namespace osu.Game.Screens.OnlinePlay
 
         public IScreen CurrentSubScreen => screenStack.CurrentScreen;
 
-        public override bool CursorVisible => (screenStack.CurrentScreen as IOnlinePlaySubScreen)?.CursorVisible ?? true;
+        public override bool CursorVisible => (screenStack.CurrentScreen as ISubScreenWithTitle)?.CursorVisible ?? true;
 
         // this is required due to PlayerLoader eventually being pushed to the main stack
         // while leases may be taken out by a subscreen.
@@ -178,7 +178,7 @@ namespace osu.Game.Screens.OnlinePlay
 
         public override bool OnBackButton()
         {
-            if (!(screenStack.CurrentScreen is IOnlinePlaySubScreen onlineSubScreen))
+            if (!(screenStack.CurrentScreen is ISubScreenWithTitle onlineSubScreen))
                 return false;
 
             if (((Drawable)onlineSubScreen).IsLoaded && onlineSubScreen.AllowUserExit && onlineSubScreen.OnBackButton())

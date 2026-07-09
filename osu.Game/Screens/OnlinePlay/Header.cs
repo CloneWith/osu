@@ -45,7 +45,7 @@ namespace osu.Game.Screens.OnlinePlay
 
         private void updateSubScreenTitle()
         {
-            IOnlinePlaySubScreen? screen = stack?.CurrentScreen as IOnlinePlaySubScreen;
+            ISubScreenWithTitle? screen = stack?.CurrentScreen as ISubScreenWithTitle;
 
             if (screen?.ShowHeaderLine == true)
             {
@@ -63,7 +63,7 @@ namespace osu.Game.Screens.OnlinePlay
             private readonly OsuSpriteText dot;
             private readonly OsuSpriteText pageTitle;
 
-            public IOnlinePlaySubScreen? Screen
+            public ISubScreenWithTitle? Screen
             {
                 set
                 {
