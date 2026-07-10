@@ -557,7 +557,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         // to make it more punishing on maps with lower amount of hard sections.
         private double calculateMissPenalty(double missCount, double difficultStrainCount)
         {
-            if (!isRelax) return 0.93 / (missCount / (4 * Math.Log(difficultStrainCount)) + 1);
+            if (!isRelax) return 0.93 / (missCount / (4 * Math.Log(Math.Max(1, difficultStrainCount))) + 1);
             if (totalHits <= 0)
                 return 1.0;
 

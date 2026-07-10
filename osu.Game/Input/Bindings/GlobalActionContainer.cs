@@ -192,6 +192,7 @@ namespace osu.Game.Input.Bindings
         {
             new KeyBinding(InputKey.Space, GlobalAction.TogglePauseReplay),
             new KeyBinding(InputKey.MouseMiddle, GlobalAction.TogglePauseReplay),
+            new KeyBinding(InputKey.Shift, GlobalAction.FastForwardReplay),
             new KeyBinding(InputKey.Left, GlobalAction.SeekReplayBackward),
             new KeyBinding(InputKey.Right, GlobalAction.SeekReplayForward),
             new KeyBinding(InputKey.Comma, GlobalAction.StepReplayBackward),
@@ -539,7 +540,10 @@ namespace osu.Game.Input.Bindings
         EditorSubmitBeatmap,
 
         [LocalisableDescription(typeof(EditorStrings), nameof(EditorStrings.EditExternally))]
-        EditorEditExternally
+        EditorEditExternally,
+
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.FastForwardReplay))]
+        FastForwardReplay
     }
 
     public enum GlobalActionCategory

@@ -19,6 +19,8 @@ using osu.Game.Online.API;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Online.Rooms;
 using osu.Game.Online.Spectator;
+using osu.Game.Overlays;
+using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Scoring;
 using osu.Game.Scoring;
@@ -48,6 +50,10 @@ namespace osu.Game.Screens.Play
         [Resolved(canBeNull: true)]
         [CanBeNull]
         private UserStatisticsWatcher userStatisticsWatcher { get; set; }
+
+        [Resolved(canBeNull: true)]
+        [CanBeNull]
+        private INotificationOverlay notifications { get; set; }
 
         [Resolved]
         protected RulesetHashCache RulesetHashCache { get; private set; } = null!;
@@ -103,9 +109,9 @@ namespace osu.Game.Screens.Play
                 return false;
             }
 
-            if (!api.IsLoggedIn)
+            if (!api.IsLoggedIn || api.State.Value == APIState.Failing)
             {
-                handleTokenFailure(new InvalidOperationException("API is not online."));
+                handleTokenFailure(new InvalidOperationException("Online functionality is not available."), displayNotification: api.State.Value == APIState.Failing);
                 return false;
             }
 
@@ -142,13 +148,13 @@ namespace osu.Game.Screens.Play
                 if (displayNotification || shouldExit)
                 {
                     string whatWillHappen = shouldExit
-                        ? "Play in this state is not permitted."
-                        : "Your score will not be submitted.";
+                        ? "Cannot start play"
+                        : "Score will not be submitted";
 
                     if (string.IsNullOrEmpty(exception.Message))
-                        Logger.Error(exception, $"Failed to retrieve a score submission token.\n\n{whatWillHappen}");
+                        notifications?.Post(new ScoreSubmissionFailureNotification(whatWillHappen, "Failed to retrieve a score submission token."));
                     else
-                        Logger.Log($"{getUserFacingAPIError(exception)}\n\n{whatWillHappen}", level: LogLevel.Important);
+                        notifications?.Post(new ScoreSubmissionFailureNotification(whatWillHappen, getUserFacingAPIError(exception)));
                 }
 
                 if (shouldExit)
