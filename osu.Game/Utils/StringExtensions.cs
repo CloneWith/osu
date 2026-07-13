@@ -65,7 +65,7 @@ namespace osu.Game.Utils
         }
 
         public static bool IsSafeForFilename(this string filename, int maxLength = 255)
-            => IsSafeForFilename(filename, out _, maxLength);
+            => filename.IsSafeForFilename(out _, maxLength);
 
         /// <summary>
         /// Check if the given string is safe to be used as a filename.
