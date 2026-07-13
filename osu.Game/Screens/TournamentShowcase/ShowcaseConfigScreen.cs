@@ -358,6 +358,10 @@ namespace osu.Game.Screens.TournamentShowcase
                 Hotkey = GlobalAction.ShowcaseStart,
                 Action = startShowcase,
             },
+            new FooterButtonOpenExternally
+            {
+                Action = () => storage.PresentFileExternally(filename),
+            },
         };
 
         protected override void LoadComplete()
@@ -396,7 +400,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 return false;
             }
 
-            if (!$"{tournamentNameInput.Current.Value}-{roundNameInput.Current.Value}".IsSafeForFilename(out LocalisableString error, 50))
+            if (!filename.IsSafeForFilename(out LocalisableString error, 50))
             {
                 notificationOverlay?.Post(new SimpleErrorNotification
                 {

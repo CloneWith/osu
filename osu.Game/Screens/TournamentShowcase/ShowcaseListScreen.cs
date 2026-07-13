@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -8,6 +9,7 @@ using osu.Framework.Screens;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Localisation;
+using osu.Game.Screens.Footer;
 using osu.Game.Screens.OnlinePlay;
 using osuTK;
 
@@ -67,6 +69,13 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load()
         {
+            reloadProfiles();
+        }
+
+        private void reloadProfiles()
+        {
+            profileListFlow.Clear();
+
             var results = storage.ListTournaments();
 
             foreach (string result in results)
@@ -90,5 +99,17 @@ namespace osu.Game.Screens.TournamentShowcase
                 }
             }
         }
+
+        public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
+        {
+            new FooterButtonRefresh
+            {
+                Action = reloadProfiles,
+            },
+            new FooterButtonOpenExternally
+            {
+                Action = () => storage.PresentExternally(),
+            },
+        };
     }
 }
