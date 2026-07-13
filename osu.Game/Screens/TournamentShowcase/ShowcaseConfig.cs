@@ -65,5 +65,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public Bindable<string> OutroTitle = new Bindable<string>();
         public Bindable<string> OutroSubtitle = new Bindable<string>();
+
+        public Bindable<DateTime?> LastEdited = new Bindable<DateTime?>();
+        public Bindable<DateTime?> LastPlayed = new Bindable<DateTime?>();
     }
 }
