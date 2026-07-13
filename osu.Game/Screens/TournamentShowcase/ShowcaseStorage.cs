@@ -63,12 +63,15 @@ namespace osu.Game.Screens.TournamentShowcase
             Logger.Log($"Loaded {validNum} valid showcase profiles.");
         }
 
-        public void SaveChanges(ShowcaseConfig config)
+        public void SaveChangesTo(ShowcaseConfig config, string filename)
         {
             // Serialise before opening stream for writing, so if there's a failure it will leave the file in the previous state.
             string serialisedLadder = GetSerialisedConfig(config);
 
-            using (var stream = storage.CreateFileSafely(@$"{config.TournamentName.Value}-{config.RoundName.Value}.json"))
+            if (!filename.IsSafeForFilename(50))
+                throw new ArgumentException($"Cannot use \"{filename}\" as a safe filename.");
+
+            using (var stream = storage.CreateFileSafely(filename))
             using (var sw = new StreamWriter(stream))
                 sw.Write(serialisedLadder);
         }
