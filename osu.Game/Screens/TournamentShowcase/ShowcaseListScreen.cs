@@ -111,5 +111,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 Action = () => storage.PresentExternally(),
             },
         };
+
+        public override void OnResuming(ScreenTransitionEvent e)
+        {
+            base.OnResuming(e);
+
+            // After navigating back to this screen, the file might have been updated.
+            reloadProfiles();
+        }
     }
 }
