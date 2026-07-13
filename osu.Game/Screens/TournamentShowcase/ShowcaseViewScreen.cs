@@ -20,13 +20,18 @@ using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
+using osu.Game.Screens.OnlinePlay;
 using osu.Game.Screens.Play.HUD;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseViewScreen : OsuScreen, IKeyBindingHandler<GlobalAction>
+    public partial class ShowcaseViewScreen : OsuScreen, ISubScreenWithTitle, IKeyBindingHandler<GlobalAction>
     {
+        public string ShortTitle => @"Showcase";
+
+        public bool ShowHeaderLine => false;
+
         [Cached]
         private readonly ShowcaseConfig config;
 
