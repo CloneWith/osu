@@ -72,6 +72,8 @@ namespace osu.Game.Screens.TournamentShowcase
             this.config = config;
             beatmapSets = config.Beatmaps.ToList();
 
+            Padding = new MarginPadding { Horizontal = HORIZONTAL_OVERFLOW_PADDING };
+
             float priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
             float relativeWidth = config.AspectRatio.Value < 1f ? config.AspectRatio.Value : 1;
             float relativeHeight = config.AspectRatio.Value < 1f ? 1 : 1f / config.AspectRatio.Value;

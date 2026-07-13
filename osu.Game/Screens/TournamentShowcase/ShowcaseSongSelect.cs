@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
@@ -46,6 +47,9 @@ namespace osu.Game.Screens.TournamentShowcase
             targetScore.BindTo(score);
             targetMods.BindTo(mods);
             targetRuleset.BindTo(rulesetInfo);
+
+            Padding = new MarginPadding { Horizontal = HORIZONTAL_OVERFLOW_PADDING };
+            TopPadding = Header.HEIGHT - 10;
         }
 
         protected override void OnStart()
