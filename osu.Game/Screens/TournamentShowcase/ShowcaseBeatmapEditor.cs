@@ -38,7 +38,7 @@ namespace osu.Game.Screens.TournamentShowcase
             Direction = FillDirection.Full;
             Spacing = new Vector2(5);
 
-            var leftFlow = new FillFlowContainer
+            var beatmapFlow = new FillFlowContainer
             {
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
@@ -46,19 +46,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 AutoSizeDuration = 200,
                 Direction = FillDirection.Vertical,
                 Spacing = new Vector2(5),
-                ChildrenEnumerable = config.Value.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 0)
-                                           .Select(t => new BeatmapRow(t, config.Value)),
-            };
-            var rightFlow = new FillFlowContainer
-            {
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
-                AutoSizeEasing = Easing.OutQuint,
-                AutoSizeDuration = 200,
-                Direction = FillDirection.Vertical,
-                Spacing = new Vector2(5),
-                ChildrenEnumerable = config.Value.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 1)
-                                           .Select(t => new BeatmapRow(t, config.Value)),
+                ChildrenEnumerable = config.Value.Beatmaps.Select(t => new BeatmapRow(t, config.Value)),
             };
 
             Children = new Drawable[]
@@ -75,46 +63,15 @@ namespace osu.Game.Screens.TournamentShowcase
                     var addedBeatmap = new ShowcaseBeatmap();
                     config.Value.Beatmaps.Add(addedBeatmap);
 
-                    if (leftFlow.Children.Count > rightFlow.Children.Count)
-                    {
-                        rightFlow.Add(new BeatmapRow(addedBeatmap, config.Value));
-                    }
-                    else
-                    {
-                        leftFlow.Add(new BeatmapRow(addedBeatmap, config.Value));
-                    }
+                    beatmapFlow.Add(new BeatmapRow(addedBeatmap, config.Value));
                 }),
-                new GridContainer
-                {
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    RowDimensions = new[]
-                    {
-                        new Dimension(GridSizeMode.AutoSize),
-                    },
-                    ColumnDimensions = new[]
-                    {
-                        new Dimension(GridSizeMode.Relative, 0.5f),
-                        new Dimension(GridSizeMode.Relative, 0.5f),
-                    },
-                    Content = new[]
-                    {
-                        new Drawable[]
-                        {
-                            leftFlow,
-                            rightFlow,
-                        },
-                    },
-                },
+                beatmapFlow,
             };
 
             config.BindValueChanged(conf =>
             {
                 showListCheckBox.Current = conf.NewValue.ShowMapPool;
-                leftFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 0)
-                                                  .Select(t => new BeatmapRow(t, config.Value));
-                rightFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Where(t => config.Value.Beatmaps.IndexOf(t) % 2 == 1)
-                                                   .Select(t => new BeatmapRow(t, config.Value));
+                beatmapFlow.ChildrenEnumerable = conf.NewValue.Beatmaps.Select(t => new BeatmapRow(t, config.Value));
             });
         }
     }
@@ -135,6 +92,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public bool AllowDeletion = true;
 
         public ShowcaseBeatmap Beatmap { get; }
+
         private readonly Bindable<BeatmapInfo> beatmapInfoBindable;
         private readonly Bindable<ScoreInfo?> scoreInfoBindable = new Bindable<ScoreInfo?>();
         private readonly BindableList<Mod> modListBindable = new BindableList<Mod>();
