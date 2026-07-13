@@ -65,6 +65,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public void SaveChangesTo(ShowcaseConfig config, string filename)
         {
+            // Update the edit time here for accuracy.
+            config.LastEdited.Value = DateTime.UtcNow;
+
             // Serialise before opening stream for writing, so if there's a failure it will leave the file in the previous state.
             string serialisedLadder = GetSerialisedConfig(config);
 
