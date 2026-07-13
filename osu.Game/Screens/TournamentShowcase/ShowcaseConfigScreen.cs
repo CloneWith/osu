@@ -16,7 +16,6 @@ using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using osu.Framework.Logging;
 using osu.Framework.Screens;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
@@ -72,8 +71,6 @@ namespace osu.Game.Screens.TournamentShowcase
         private FillFlowContainer settingsSection = null!;
         private ShowcaseBeatmapEditor beatmapSection = null!;
 
-        private FormDropdown<string> profileDropdown = null!;
-
         private FormDropdown<RulesetInfo> rulesetDropdown = null!;
         private FormTextBox tournamentNameInput = null!;
         private FormTextBox roundNameInput = null!;
@@ -94,12 +91,16 @@ namespace osu.Game.Screens.TournamentShowcase
 
         #endregion
 
+        private readonly string filename;
         private readonly Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
         private readonly Bindable<ShowcaseConfigTab> currentTab = new Bindable<ShowcaseConfigTab>();
 
-        public ShowcaseConfigScreen()
+        public ShowcaseConfigScreen(string filename, ShowcaseConfig config)
         {
             Alpha = 0;
+
+            this.filename = filename;
+            currentProfile.Value = config;
         }
 
         [BackgroundDependencyLoader]
@@ -138,12 +139,6 @@ namespace osu.Game.Screens.TournamentShowcase
                 Children = new Drawable[]
                 {
                     new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
-                    profileDropdown = new FormDropdown<string>
-                    {
-                        Caption = TournamentShowcaseStrings.CurrentProfile,
-                        HintText = TournamentShowcaseStrings.CurrentProfileDescription,
-                        Items = availableProfiles,
-                    },
                     rulesetDropdown = new FormDropdown<RulesetInfo>
                     {
                         Caption = TournamentShowcaseStrings.DefaultRuleset,
@@ -369,15 +364,12 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
         {
-            new FooterButtonProfiles(),
             saveButton = new FooterButtonSave
             {
                 Action = () =>
                 {
                     if (checkConfig())
-                        storage.SaveChanges(currentProfile.Value);
-
-                    refreshProfileList();
+                        storage.SaveChangesTo(currentProfile.Value, filename);
                 },
             },
             new FooterButtonStartShowcase
@@ -393,29 +385,11 @@ namespace osu.Game.Screens.TournamentShowcase
 
             currentProfile.BindValueChanged(_ => updateForm());
             currentTab.BindValueChanged(currentTabChanged);
-            profileDropdown.Current.BindValueChanged(e =>
-            {
-                var newProfile = storage.GetConfig(e.NewValue);
-
-                if (newProfile != null)
-                    currentProfile.Value = newProfile;
-                else
-                {
-                    Logger.Error(null, $"The given showcase configuration file \"{e.NewValue}\" cannot be loaded properly."
-                                       + $" You are still editing \"{e.OldValue}\".");
-                }
-            });
             colourSchemeDropdown.Current.BindValueChanged(e => colourProvider.ChangeColourScheme(e.NewValue), true);
 
             this.FadeInFromZero(500, Easing.OutQuint);
 
             currentTab.TriggerChange();
-        }
-
-        private void refreshProfileList()
-        {
-            var availableProfiles = storage.ListTournaments();
-            profileDropdown.Items = availableProfiles;
         }
 
         /// <summary>
