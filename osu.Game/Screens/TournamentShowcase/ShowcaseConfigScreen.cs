@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
@@ -106,25 +105,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load()
         {
-            var availableProfiles = storage.ListTournaments();
-
-            string? firstProfile = availableProfiles.FirstOrDefault();
-
-            if (firstProfile != null)
-            {
-                var firstConfig = storage.GetConfig(firstProfile);
-                if (firstConfig != null)
-                    currentProfile.Value = firstConfig;
-            }
-
-            // Enforce a non-null current profile and necessary properties.
-            currentProfile.Value ??= new ShowcaseConfig
-            {
-                FallbackRuleset = { Value = rulesets.AvailableRulesets.First() },
-            };
             currentProfile.Value.IntroBeatmap.Value ??= new ShowcaseBeatmap();
-
-            Debug.Assert(currentProfile.Value != null);
 
             #region Sections
 
