@@ -50,6 +50,11 @@ namespace osu.Game.Localisation
         public static LocalisableString Configuration => new TranslatableString(getKey(@"configuration"), @"Configuration");
 
         /// <summary>
+        /// "Item Select"
+        /// </summary>
+        public static LocalisableString ItemSelect => new TranslatableString(getKey(@"item_select"), @"Item Select");
+
+        /// <summary>
         /// "Current Profile"
         /// </summary>
         public static LocalisableString CurrentProfile => new TranslatableString(getKey(@"current_profile"), @"Current Profile");

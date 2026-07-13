@@ -280,4 +280,7 @@
     <data name="profiles" xml:space="preserve">
         <value>列表</value>
     </data>
+    <data name="item_select" xml:space="preserve">
+        <value>项目选择</value>
+    </data>
 </root>

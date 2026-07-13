@@ -6,20 +6,27 @@ using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Localisation;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
+using osu.Game.Localisation;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
 using osu.Game.Screens.Footer;
+using osu.Game.Screens.OnlinePlay;
 using osu.Game.Screens.Select;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseSongSelect : SongSelect, ISongSelect
+    public partial class ShowcaseSongSelect : SongSelect, ISongSelect, ISubScreenWithTitle
     {
+        public string ShortTitle => @"Item Select";
+
+        public LocalisableString LocalisableTitle => TournamentShowcaseStrings.ItemSelect;
+
         public event Action<SelectResult>? OnSelect;
 
         [Resolved]
