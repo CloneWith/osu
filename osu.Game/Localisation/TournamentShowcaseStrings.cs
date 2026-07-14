@@ -55,12 +55,38 @@ namespace osu.Game.Localisation
         public static LocalisableString ItemSelect => new TranslatableString(getKey(@"item_select"), @"Item Select");
 
         /// <summary>
+        /// "Clone or rename..."
+        /// </summary>
+        public static LocalisableString CloneOrRename => new TranslatableString(getKey(@"clone_or_rename"), @"Clone or rename...");
+
+        /// <summary>
+        /// "New filename"
+        /// </summary>
+        public static LocalisableString NewFilenameLabel => new TranslatableString(getKey(@"new_filename_label"), @"New filename");
+
+        /// <summary>
+        /// "Make a duplicate of this profile"
+        /// </summary>
+        public static LocalisableString MakeDuplicateLabel => new TranslatableString(getKey(@"make_duplicate_label"), @"Make a duplicate of this profile");
+
+        /// <summary>
+        /// "This name is taken. Please try another one."
+        /// </summary>
+        public static LocalisableString FilenameTakenPrompt => new TranslatableString(getKey(@"filename_taken_prompt"), @"This name is taken. Please try another one.");
+
+        /// <summary>
+        /// "The new filename would be &quot;{0}&quot;."
+        /// </summary>
+        public static LocalisableString NewFilenamePrompt(string filename)
+            => new TranslatableString(getKey(@"new_filename_prompt"), @"The new filename would be ""{0}"".", filename);
+
+        /// <summary>
         /// "Current Profile"
         /// </summary>
         public static LocalisableString CurrentProfile => new TranslatableString(getKey(@"current_profile"), @"Current Profile");
 
         /// <summary>
-        /// "The profile to be loaded and edited. You can find the files under the "showcase" directory of the data path."
+        /// "The profile to be loaded and edited. You can find the files under the &quot;showcase&quot; directory of the data path."
         /// </summary>
         public static LocalisableString CurrentProfileDescription => new TranslatableString(getKey(@"current_profile_description"), @"The profile to be loaded and edited. You can find the files under the ""showcase"" directory of the data path.");
 

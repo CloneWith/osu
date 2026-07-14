@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.LocalisationExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -64,10 +65,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public bool FilteringActive { get; set; }
 
-        public Popover? GetPopover()
-        {
-            throw new NotImplementedException();
-        }
+        public Popover GetPopover() => new CloneRenamePopover(Config);
 
         [Cached]
         private readonly OverlayColourProvider colourProvider;
@@ -81,8 +79,10 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly OsuTextFlowContainer titleFlow;
         private readonly OsuTextFlowContainer detailsFlow;
 
-        private Action requestLaunch;
-        private Action requestEdit;
+        private Action requestLaunch = null!;
+        private Action requestEdit = null!;
+        private Action requestCloneOrRename => this.ShowPopover;
+        private Action requestRemove => throw new NotImplementedException();
 
         public ShowcaseProfileItem(ShowcaseConfig config)
         {
@@ -311,8 +311,7 @@ namespace osu.Game.Screens.TournamentShowcase
             new OsuMenuItem(TournamentShowcaseStrings.StartShowcase, MenuItemType.Highlighted, requestLaunch),
             new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, requestEdit),
             new OsuMenuItemSpacer(),
-            new OsuMenuItem(CommonStrings.Clone),
-            new OsuMenuItem(CommonStrings.Rename),
+            new OsuMenuItem(TournamentShowcaseStrings.CloneOrRename, MenuItemType.Standard, requestCloneOrRename),
             new OsuMenuItem(CommonStrings.DeleteWithConfirmation, MenuItemType.Destructive),
         ];
 
