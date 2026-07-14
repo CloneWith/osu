@@ -26,7 +26,7 @@ using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Dialog;
 using osu.Game.Overlays.Notifications;
-using osu.Game.Rulesets;
+using osu.Game.Overlays.Toolbar;
 using osu.Game.Scoring;
 using osu.Game.Screens.Footer;
 using osu.Game.Screens.OnlinePlay;
@@ -44,9 +44,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         [Cached]
         private OverlayColourProvider colourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
-
-        [Resolved]
-        private RulesetStore rulesets { get; set; } = null!;
 
         [Resolved]
         private ScoreManager scoreManager { get; set; } = null!;
@@ -70,21 +67,12 @@ namespace osu.Game.Screens.TournamentShowcase
         private FillFlowContainer settingsSection = null!;
         private ShowcaseBeatmapEditor beatmapSection = null!;
 
-        private FormDropdown<RulesetInfo> rulesetDropdown = null!;
+        private ToolbarRulesetSelector rulesetSelector = null!;
         private FormTextBox tournamentNameInput = null!;
         private FormTextBox roundNameInput = null!;
-        private FormTextBox dateTimeInput = null!;
-        private FormTextBox commentInput = null!;
-        private FormSliderBar<int> transformDurationInput = null!;
-        private FormSliderBar<int> startCountdownInput = null!;
         private FormEnumDropdown<OverlayColourScheme> colourSchemeDropdown = null!;
-        private FormEnumDropdown<ShowcaseLayout> layoutDropdown = null!;
-        private FormSliderBar<float> aspectRatioInput = null!;
         private FormCheckBox useCustomIntroSwitch = null!;
-        private FormTextBox outroTitleInput = null!;
-        private FormTextBox outroSubtitleInput = null!;
         private FillFlowContainer introEditor = null!;
-        private BeatmapRow introBeatmapRow = null!;
 
         private FooterButtonSave saveButton = null!;
 
@@ -119,14 +107,19 @@ namespace osu.Game.Screens.TournamentShowcase
                 Direction = FillDirection.Vertical,
                 Children = new Drawable[]
                 {
-                    new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
-                    rulesetDropdown = new FormDropdown<RulesetInfo>
+                    new SectionHeader(TournamentShowcaseStrings.DefaultRuleset),
+                    new OsuScrollContainer(Direction.Horizontal)
                     {
-                        Caption = TournamentShowcaseStrings.DefaultRuleset,
-                        HintText = TournamentShowcaseStrings.DefaultRulesetDescription,
-                        Items = rulesets.AvailableRulesets,
-                        Current = currentProfile.Value.FallbackRuleset,
+                        RelativeSizeAxes = Axes.X,
+                        Height = 40,
+                        Margin = new MarginPadding { Vertical = -10 },
+                        ScrollbarVisible = false,
+                        Child = rulesetSelector = new ToolbarRulesetSelector
+                        {
+                            Current = currentProfile.Value.FallbackRuleset,
+                        },
                     },
+                    new SectionHeader(TournamentShowcaseStrings.TournamentInfoHeader),
                     tournamentNameInput = new FormTextBox
                     {
                         Caption = TournamentShowcaseStrings.TournamentName,
@@ -143,7 +136,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         Current = currentProfile.Value.RoundName,
                         TabbableContentContainer = this,
                     },
-                    dateTimeInput = new FormTextBox
+                    new FormTextBox
                     {
                         Caption = TournamentShowcaseStrings.DateAndTime,
                         PlaceholderText = "2024/11/4 5:14:19:191 UTC+8",
@@ -151,7 +144,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         Current = currentProfile.Value.DateTime,
                         TabbableContentContainer = this,
                     },
-                    commentInput = new FormTextBox
+                    new FormTextBox
                     {
                         Caption = TournamentShowcaseStrings.Comment,
                         PlaceholderText = "Welcome to osu!",
@@ -178,13 +171,13 @@ namespace osu.Game.Screens.TournamentShowcase
                         HintText = TournamentShowcaseStrings.ColourSchemeDescription,
                         Current = currentProfile.Value.ColourScheme,
                     },
-                    layoutDropdown = new FormEnumDropdown<ShowcaseLayout>
+                    new FormEnumDropdown<ShowcaseLayout>
                     {
                         Caption = TournamentShowcaseStrings.InterfaceLayout,
                         HintText = TournamentShowcaseStrings.InterfaceLayoutDescription,
                         Current = currentProfile.Value.Layout,
                     },
-                    aspectRatioInput = new FormSliderBar<float>
+                    new FormSliderBar<float>
                     {
                         Caption = TournamentShowcaseStrings.AspectRatio,
                         HintText = TournamentShowcaseStrings.AspectRatioDescription,
@@ -192,7 +185,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         TransferValueOnCommit = true,
                         TabbableContentContainer = this,
                     },
-                    transformDurationInput = new FormSliderBar<int>
+                    new FormSliderBar<int>
                     {
                         Caption = TournamentShowcaseStrings.TransformDuration,
                         HintText = TournamentShowcaseStrings.TransformDurationDescription,
@@ -200,7 +193,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         TransferValueOnCommit = true,
                         TabbableContentContainer = this,
                     },
-                    startCountdownInput = new FormSliderBar<int>
+                    new FormSliderBar<int>
                     {
                         Caption = TournamentShowcaseStrings.StartCountdownDuration,
                         HintText = TournamentShowcaseStrings.StartCountdownDurationDescription,
@@ -208,14 +201,14 @@ namespace osu.Game.Screens.TournamentShowcase
                         TransferValueOnCommit = true,
                         TabbableContentContainer = this,
                     },
-                    outroTitleInput = new FormTextBox
+                    new FormTextBox
                     {
                         Caption = TournamentShowcaseStrings.OutroTitle,
                         PlaceholderText = @"Thanks for watching!",
                         Current = currentProfile.Value.OutroTitle,
                         TabbableContentContainer = this,
                     },
-                    outroSubtitleInput = new FormTextBox
+                    new FormTextBox
                     {
                         Caption = TournamentShowcaseStrings.OutroSubtitle,
                         PlaceholderText = @"Take care of yourself, and be well.",
@@ -242,7 +235,7 @@ namespace osu.Game.Screens.TournamentShowcase
                         HintText = TournamentShowcaseStrings.UseCustomIntroBeatmapDescription,
                         Current = currentProfile.Value.UseCustomIntroBeatmap,
                     },
-                    introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                    new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                     {
                         AllowDeletion = false,
                     },
@@ -368,7 +361,6 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
-            currentProfile.BindValueChanged(_ => updateForm());
             currentTab.BindValueChanged(currentTabChanged);
             colourSchemeDropdown.Current.BindValueChanged(e => colourProvider.ChangeColourScheme(e.NewValue), true);
 
@@ -384,7 +376,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// <returns>True if valid, false otherwise</returns>
         private bool checkConfig()
         {
-            bool isValid = rulesetDropdown.Current.Value != null
+            bool isValid = rulesetSelector.Current.Value != null
                            && tournamentNameInput.Current.Value != null
                            && roundNameInput.Current.Value != null
                            && tournamentNameInput.Current.Value.Trim() != string.Empty
@@ -446,32 +438,6 @@ namespace osu.Game.Screens.TournamentShowcase
                           })?.ScoreInfo);
 
             return currentProfile.Value.Beatmaps.All(b => b.ShowcaseScore != null);
-        }
-
-        /// <summary>
-        /// Update the form components to match the new profile.
-        /// </summary>
-        private void updateForm()
-        {
-            rulesetDropdown.Current = currentProfile.Value.FallbackRuleset;
-            tournamentNameInput.Current = currentProfile.Value.TournamentName;
-            roundNameInput.Current = currentProfile.Value.RoundName;
-            dateTimeInput.Current = currentProfile.Value.DateTime;
-            commentInput.Current = currentProfile.Value.Comment;
-            colourSchemeDropdown.Current = currentProfile.Value.ColourScheme;
-            layoutDropdown.Current = currentProfile.Value.Layout;
-            aspectRatioInput.Current = currentProfile.Value.AspectRatio;
-            transformDurationInput.Current = currentProfile.Value.TransformDuration;
-            startCountdownInput.Current = currentProfile.Value.StartCountdown;
-            outroTitleInput.Current = currentProfile.Value.OutroTitle;
-            outroSubtitleInput.Current = currentProfile.Value.OutroSubtitle;
-            useCustomIntroSwitch.Current = currentProfile.Value.UseCustomIntroBeatmap;
-
-            introBeatmapRow.Expire();
-            introEditor.Add(introBeatmapRow = new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
-            {
-                AllowDeletion = false
-            });
         }
 
         private void startShowcase()
