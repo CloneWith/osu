@@ -86,10 +86,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
                     if (config != null)
                     {
-                        profileListFlow.Add(new ShowcaseProfileItem(result, config)
+                        profileListFlow.Add(new ShowcaseProfileItem(config)
                         {
                             // TODO: Add more actions
-                            OnEdit = () => this.Push(new ShowcaseConfigScreen(result, config)),
+                            OnEdit = () => this.Push(new ShowcaseConfigScreen(config)),
                         });
                     }
                 }

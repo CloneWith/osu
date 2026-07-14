@@ -78,15 +78,13 @@ namespace osu.Game.Screens.TournamentShowcase
 
         #endregion
 
-        private readonly string filename;
         private readonly Bindable<ShowcaseConfig> currentProfile = new Bindable<ShowcaseConfig>();
         private readonly Bindable<ShowcaseConfigTab> currentTab = new Bindable<ShowcaseConfigTab>();
 
-        public ShowcaseConfigScreen(string filename, ShowcaseConfig config)
+        public ShowcaseConfigScreen(ShowcaseConfig config)
         {
             Alpha = 0;
 
-            this.filename = filename;
             currentProfile.Value = config;
         }
 
@@ -343,7 +341,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 Action = () =>
                 {
                     if (checkConfig())
-                        storage.SaveChangesTo(currentProfile.Value, filename);
+                        storage.SaveChanges(currentProfile.Value);
                 },
             },
             new FooterButtonStartShowcase
@@ -353,7 +351,7 @@ namespace osu.Game.Screens.TournamentShowcase
             },
             new FooterButtonOpenExternally
             {
-                Action = () => storage.PresentFileExternally(filename),
+                Action = () => storage.PresentFileExternally(currentProfile.Value.Filename.Value),
             },
         };
 
@@ -392,7 +390,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 return false;
             }
 
-            if (!filename.IsSafeForFilename(out LocalisableString error, 50))
+            if (!currentProfile.Value.Filename.Value.IsSafeForFilename(out LocalisableString error, 50))
             {
                 notificationOverlay?.Post(new SimpleErrorNotification
                 {

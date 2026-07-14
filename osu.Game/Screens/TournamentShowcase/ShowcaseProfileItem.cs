@@ -27,6 +27,8 @@ namespace osu.Game.Screens.TournamentShowcase
         private const float indicator_height_active = 18;
         private const float indicator_height_inactive = 4;
 
+        public ShowcaseConfig Config { get; }
+
         public Action? OnLaunch;
 
         public Action? OnEdit;
@@ -36,19 +38,15 @@ namespace osu.Game.Screens.TournamentShowcase
         [Cached]
         private readonly OverlayColourProvider colourProvider;
 
-        private readonly string filename;
-        private readonly ShowcaseConfig config;
-
         private readonly FormControlBackground background;
         private readonly CircularContainer selectionIndicator;
         private readonly Container iconContainer;
         private readonly OsuTextFlowContainer titleFlow;
         private readonly OsuTextFlowContainer detailsFlow;
 
-        public ShowcaseProfileItem(string filename, ShowcaseConfig config)
+        public ShowcaseProfileItem(ShowcaseConfig config)
         {
-            this.filename = filename;
-            this.config = config;
+            Config = config;
             colourProvider = new OverlayColourProvider(config.ColourScheme.Value);
 
             Masking = true;
@@ -136,7 +134,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(IRulesetStore rulesetStore)
         {
-            var ruleset = rulesetStore.GetRuleset(config.FallbackRuleset.Value.OnlineID)?.CreateInstance();
+            var ruleset = rulesetStore.GetRuleset(Config.FallbackRuleset.Value.OnlineID)?.CreateInstance();
 
             var icon = ruleset?.CreateIcon();
 
@@ -153,23 +151,23 @@ namespace osu.Game.Screens.TournamentShowcase
                 i.Margin = new MarginPadding { Right = 5 };
             };
 
-            titleFlow.AddText(config.TournamentName.Value, t => t.Colour = colourProvider.Highlight1);
-            titleFlow.AddText(@$" [{config.RoundName.Value}] ");
-            titleFlow.AddText($@"({filename})", t => t.Font = OsuFont.Style.Caption1);
+            titleFlow.AddText(Config.TournamentName.Value, t => t.Colour = colourProvider.Highlight1);
+            titleFlow.AddText(@$" [{Config.RoundName.Value}] ");
+            titleFlow.AddText($@"({Config.Filename.Value})", t => t.Font = OsuFont.Style.Caption1);
 
             detailsFlow.AddIcon(FontAwesome.Solid.Music, creationParameters);
-            detailsFlow.AddText($"{config.Beatmaps.Count}");
+            detailsFlow.AddText($"{Config.Beatmaps.Count}");
 
-            if (config.LastEdited.Value != null)
+            if (Config.LastEdited.Value != null)
             {
                 detailsFlow.AddIcon(FontAwesome.Solid.PencilAlt, creationParameters);
-                detailsFlow.AddArbitraryDrawable(new DrawableDate(config.LastEdited.Value.Value, 18f, false));
+                detailsFlow.AddArbitraryDrawable(new DrawableDate(Config.LastEdited.Value.Value, 18f, false));
             }
 
-            if (config.LastPlayed.Value != null)
+            if (Config.LastPlayed.Value != null)
             {
                 detailsFlow.AddIcon(FontAwesome.Solid.Play);
-                detailsFlow.AddArbitraryDrawable(new DrawableDate(config.LastPlayed.Value.Value, 18f, false));
+                detailsFlow.AddArbitraryDrawable(new DrawableDate(Config.LastPlayed.Value.Value, 18f, false));
             }
         }
 
