@@ -9,6 +9,8 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ShowcaseScreen : OsuScreen, IHasSubScreenStack
     {
+        private const float fade_duration = 500;
+
         [Cached]
         protected readonly OverlayColourProvider ColourProvider = new OverlayColourProvider(OverlayColourScheme.Blue);
 
@@ -41,6 +43,18 @@ namespace osu.Game.Screens.TournamentShowcase
             base.LoadComplete();
 
             screenStack.Push(new ShowcaseListScreen());
+        }
+
+        public override void OnEntering(ScreenTransitionEvent e)
+        {
+            this.FadeInFromZero(fade_duration, Easing.OutQuint);
+            base.OnEntering(e);
+        }
+
+        public override bool OnExiting(ScreenExitEvent e)
+        {
+            this.FadeOut(fade_duration, Easing.OutQuint);
+            return base.OnExiting(e);
         }
 
         public override bool OnBackButton()
