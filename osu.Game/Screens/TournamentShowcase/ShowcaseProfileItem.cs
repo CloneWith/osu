@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions.LocalisationExtensions;
@@ -8,11 +9,14 @@ using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.UserInterface;
+using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Input.Bindings;
 using osu.Game.Localisation;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
@@ -20,7 +24,7 @@ using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseProfileItem : CompositeDrawable, IHasContextMenu
+    public partial class ShowcaseProfileItem : CompositeDrawable, IHasContextMenu, IFilterable, IHasPopover, IKeyBindingHandler<GlobalAction>
     {
         protected const float CORNER_RADIUS = 10;
         private const float height = 80;
@@ -29,20 +33,56 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ShowcaseConfig Config { get; }
 
-        public Action? OnLaunch;
+        public required Bindable<ShowcaseConfig?> SelectedConfig
+        {
+            get => selectedConfig;
+            set => selectedConfig.Current = value;
+        }
 
-        public Action? OnEdit;
+        private readonly BindableWithCurrent<ShowcaseConfig?> selectedConfig = new BindableWithCurrent<ShowcaseConfig?>();
 
         public BindableBool Focused { get; } = new BindableBool();
 
+        public IEnumerable<LocalisableString> FilterTerms
+            => [Config.Filename.Value, Config.TournamentName.Value, Config.RoundName.Value];
+
+        private bool matchingFilter = true;
+
+        public bool MatchingFilter
+        {
+            get => matchingFilter;
+            set
+            {
+                matchingFilter = value;
+
+                if (matchingFilter)
+                    this.FadeIn(200);
+                else
+                    Hide();
+            }
+        }
+
+        public bool FilteringActive { get; set; }
+
+        public Popover? GetPopover()
+        {
+            throw new NotImplementedException();
+        }
+
         [Cached]
         private readonly OverlayColourProvider colourProvider;
+
+        [Resolved]
+        private OsuScreenStack? screenStack { get; set; }
 
         private readonly FormControlBackground background;
         private readonly CircularContainer selectionIndicator;
         private readonly Container iconContainer;
         private readonly OsuTextFlowContainer titleFlow;
         private readonly OsuTextFlowContainer detailsFlow;
+
+        private Action requestLaunch;
+        private Action requestEdit;
 
         public ShowcaseProfileItem(ShowcaseConfig config)
         {
@@ -134,6 +174,9 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(IRulesetStore rulesetStore)
         {
+            requestLaunch = () => screenStack?.Push(new ShowcaseViewScreen(Config));
+            requestEdit = () => screenStack?.Push(new ShowcaseConfigScreen(Config));
+
             var ruleset = rulesetStore.GetRuleset(Config.FallbackRuleset.Value.OnlineID)?.CreateInstance();
 
             var icon = ruleset?.CreateIcon();
@@ -171,9 +214,48 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            Alpha = matchingFilter ? 1 : 0;
+            selectedConfig.BindValueChanged(c =>
+            {
+                Focused.Value = c.NewValue == Config;
+                updateState();
+            }, true);
+        }
+
+        public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+        {
+            if (e.Repeat)
+                return false;
+
+            if (selectedConfig.Value != Config)
+                return false;
+
+            switch (e.Action)
+            {
+                case GlobalAction.Select:
+                    requestEdit.Invoke();
+                    return true;
+
+                case GlobalAction.ShowcaseStart:
+                    requestLaunch.Invoke();
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+        {
+        }
+
         protected override bool OnClick(ClickEvent e)
         {
-            Focused.Value = !Focused.Value;
+            Focused.Value = true;
+            SelectedConfig.Value = Config;
             background.FlashOnCommit();
             updateState();
             return true;
@@ -181,7 +263,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         protected override bool OnDoubleClick(DoubleClickEvent e)
         {
-            OnEdit?.Invoke();
+            requestEdit.Invoke();
             return true;
         }
 
@@ -226,8 +308,8 @@ namespace osu.Game.Screens.TournamentShowcase
         // TODO: Add implementation
         public MenuItem[] ContextMenuItems =>
         [
-            new OsuMenuItem(TournamentShowcaseStrings.StartShowcase, MenuItemType.Highlighted, OnLaunch),
-            new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, OnEdit),
+            new OsuMenuItem(TournamentShowcaseStrings.StartShowcase, MenuItemType.Highlighted, requestLaunch),
+            new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, requestEdit),
             new OsuMenuItemSpacer(),
             new OsuMenuItem(CommonStrings.Clone),
             new OsuMenuItem(CommonStrings.Rename),
