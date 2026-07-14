@@ -36,7 +36,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 try
                 {
                     // TODO: Need an async Task?
-                    return JsonConvert.DeserializeObject<ShowcaseConfig>(sr.ReadToEnd());
+                    var config = JsonConvert.DeserializeObject<ShowcaseConfig>(sr.ReadToEnd());
+
+                    // Append filename information after deserialization.
+                    if (config != null)
+                        config.Filename.Value = name;
+
+                    return config;
                 }
                 catch (Exception e)
                 {
@@ -63,6 +69,21 @@ namespace osu.Game.Screens.TournamentShowcase
             Logger.Log($"Loaded {validNum} valid showcase profiles.");
         }
 
+        /// <summary>
+        /// Write the showcase config to the file specified in <see cref="ShowcaseConfig.Filename"/>.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">thrown when the config doesn't contain </exception>
+        public void SaveChanges(ShowcaseConfig config)
+        {
+            if (config.Filename.Value == null)
+                throw new InvalidOperationException(@"The config doesn't contain filename information.");
+
+            SaveChangesTo(config, config.Filename.Value);
+        }
+
+        /// <summary>
+        /// Write the showcase config to a specified file.
+        /// </summary>
         public void SaveChangesTo(ShowcaseConfig config, string filename)
         {
             // Update the edit time here for accuracy.
