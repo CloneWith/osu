@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using Newtonsoft.Json;
 using osu.Framework.Bindables;
 using osu.Game.Models;
 using osu.Game.Overlays;
@@ -12,6 +13,13 @@ namespace osu.Game.Screens.TournamentShowcase
     [Serializable]
     public class ShowcaseConfig
     {
+        /// <summary>
+        /// The filename of the config file.
+        /// <br/>This property should be updated <b>after deserialization</b>.
+        /// </summary>
+        [JsonIgnore]
+        public Bindable<string> Filename = new Bindable<string>();
+
         /// <summary>
         /// A fallback ruleset for the showcase.
         /// <br/>When unable to find a specific ruleset using the ID provided by a <see cref="ShowcaseBeatmap"/>,
