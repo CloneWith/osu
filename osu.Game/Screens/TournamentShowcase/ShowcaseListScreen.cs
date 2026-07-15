@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions;
+using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
+using osu.Framework.Graphics.Shapes;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
@@ -16,6 +19,7 @@ using osu.Game.Graphics.UserInterface;
 using osu.Game.Localisation;
 using osu.Game.Screens.Footer;
 using osu.Game.Screens.OnlinePlay;
+using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
@@ -45,33 +49,46 @@ namespace osu.Game.Screens.TournamentShowcase
                 popoverContainer = new PopoverContainer
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Padding = new MarginPadding { Top = Header.HEIGHT + 20 },
+                    Padding = new MarginPadding
+                    {
+                        Top = Header.HEIGHT + 20,
+                        Bottom = ScreenFooter.HEIGHT + 20,
+                    },
                     Child = new OsuContextMenuContainer
                     {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
+                        RelativeSizeAxes = Axes.Both,
                         Children = new Drawable[]
                         {
                             // TODO: Add profile creation card
                             profileListing = new ShowcaseProfileListing
                             {
-                                RelativeSizeAxes = Axes.X,
+                                RelativeSizeAxes = Axes.Both,
                                 FilterString = { BindTarget = filter },
                             },
                         },
                     },
                 },
+                new Box
+                {
+                    Name = @"Gradient area",
+                    RelativeSizeAxes = Axes.X,
+                    Height = Header.HEIGHT + 25,
+                    Colour = ColourInfo.GradientVertical(Color4.Black.Opacity(0.6f), Color4.Black.Opacity(0)),
+                },
                 new Container
                 {
                     Name = @"Search area",
+                    Anchor = Anchor.TopRight,
+                    Origin = Anchor.TopRight,
                     RelativeSizeAxes = Axes.X,
+                    Width = 0.6f,
                     Height = Header.HEIGHT,
+                    Padding = new MarginPadding { Horizontal = HORIZONTAL_OVERFLOW_PADDING + 10 },
                     Child = searchTextBox = new BasicSearchTextBox
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         RelativeSizeAxes = Axes.X,
-                        Width = 0.6f,
                     },
                 },
             };
