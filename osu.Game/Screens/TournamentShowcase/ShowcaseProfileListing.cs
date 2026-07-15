@@ -141,6 +141,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
                     break;
             }
+
+            this.FadeInFromZero(300, Easing.OutQuint);
         }
 
         private void addItems(IEnumerable<ShowcaseConfig> rooms)
