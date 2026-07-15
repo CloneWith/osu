@@ -11,7 +11,6 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Game.Graphics.Containers;
-using osu.Game.Graphics.Cursor;
 using osu.Game.Input.Bindings;
 using osuTK;
 
@@ -46,31 +45,23 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public ShowcaseProfileListing()
         {
-            AutoSizeAxes = Axes.Y;
-
             InternalChild = scroll = new Scroll
             {
                 Masking = false,
-                RelativeSizeAxes = Axes.X,
-                AutoSizeAxes = Axes.Y,
+                RelativeSizeAxes = Axes.Both,
                 Anchor = Anchor.TopCentre,
                 Origin = Anchor.TopCentre,
                 Width = 0.8f,
                 ScrollbarOverlapsContent = false,
                 Padding = new MarginPadding { Right = 5 },
-                Child = new OsuContextMenuContainer
+                Child = profileFlow = new FillFlowContainer<ShowcaseProfileItem>
                 {
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    Child = profileFlow = new FillFlowContainer<ShowcaseProfileItem>
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        AutoSizeAxes = Axes.Y,
-                        Direction = FillDirection.Vertical,
-                        Spacing = new Vector2(5),
-                        Margin = new MarginPadding { Vertical = 10 },
-                    }
-                }
+                    Direction = FillDirection.Vertical,
+                    Spacing = new Vector2(5),
+                    Margin = new MarginPadding { Vertical = 10 },
+                },
             };
         }
 
