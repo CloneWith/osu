@@ -94,7 +94,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
-            storage.OnProfileChange += reloadProfiles;
+            storage.OnProfileChange += scheduleReload;
 
             searchTextBox.Current.BindValueChanged(_ => updateFilterDebounced());
 
@@ -104,7 +104,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
         protected override void Dispose(bool isDisposing)
         {
-            storage.OnProfileChange -= reloadProfiles;
+            storage.OnProfileChange -= scheduleReload;
             base.Dispose(isDisposing);
         }
 
@@ -123,6 +123,8 @@ namespace osu.Game.Screens.TournamentShowcase
             scheduledFilterUpdate?.Cancel();
             filter.Value = searchTextBox.Current.Value;
         }
+
+        private void scheduleReload() => Schedule(reloadProfiles);
 
         private void reloadProfiles()
         {
