@@ -201,7 +201,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 }).ContinueWith(_ => storage.TriggerProfileChange());
             }));
 
-            var ruleset = rulesetStore.GetRuleset(Config.FallbackRuleset.Value.OnlineID)?.CreateInstance();
+            var ruleset = rulesetStore.GetRuleset(Config.FallbackRuleset.Value.ShortName)?.CreateInstance();
 
             var icon = ruleset?.CreateIcon();
 
