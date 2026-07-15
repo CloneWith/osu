@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions;
@@ -13,6 +15,7 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
+using osu.Framework.Logging;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
@@ -82,7 +85,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private Action requestLaunch = null!;
         private Action requestEdit = null!;
         private Action requestCloneOrRename => this.ShowPopover;
-        private Action requestRemove => throw new NotImplementedException();
+        private Action requestDelete = null!;
 
         public ShowcaseProfileItem(ShowcaseConfig config)
         {
@@ -172,10 +175,31 @@ namespace osu.Game.Screens.TournamentShowcase
         }
 
         [BackgroundDependencyLoader]
-        private void load(IRulesetStore rulesetStore)
+        private void load(IRulesetStore rulesetStore, IDialogOverlay dialogOverlay, ShowcaseStorage storage)
         {
             requestLaunch = () => screenStack?.Push(new ShowcaseViewScreen(Config));
             requestEdit = () => screenStack?.Push(new ShowcaseConfigScreen(Config));
+
+            // WrappedStorage doesn't have a delete method. Using System.IO here instead.
+            requestDelete = () => dialogOverlay.Push(new ProfileDeleteConfirmationDialog(() =>
+            {
+                if (!storage.Exists(Config.Filename.Value))
+                    return;
+
+                string path = storage.GetFullPath(Config.Filename.Value);
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        File.Delete(path);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e, @"An error occurred while deleting profile.");
+                    }
+                }).ContinueWith(_ => storage.TriggerProfileChange());
+            }));
 
             var ruleset = rulesetStore.GetRuleset(Config.FallbackRuleset.Value.OnlineID)?.CreateInstance();
 
@@ -305,14 +329,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 background.VisualStyle = VisualStyle.Normal;
         }
 
-        // TODO: Add implementation
         public MenuItem[] ContextMenuItems =>
         [
             new OsuMenuItem(TournamentShowcaseStrings.StartShowcase, MenuItemType.Highlighted, requestLaunch),
             new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, requestEdit),
             new OsuMenuItemSpacer(),
             new OsuMenuItem(TournamentShowcaseStrings.CloneOrRename, MenuItemType.Standard, requestCloneOrRename),
-            new OsuMenuItem(CommonStrings.DeleteWithConfirmation, MenuItemType.Destructive),
+            new OsuMenuItem(CommonStrings.DeleteWithConfirmation, MenuItemType.Destructive, requestDelete),
         ];
 
         private partial class ControlBackground : FormControlBackground

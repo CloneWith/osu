@@ -298,4 +298,7 @@
     <data name="new_filename_prompt" xml:space="preserve">
         <value>新的文件名将是："{0}"。</value>
     </data>
+    <data name="delete_profile_dialog_header" xml:space="preserve">
+        <value>删除该展示配置？此操作不可逆。</value>
+    </data>
 </root>
