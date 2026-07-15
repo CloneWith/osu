@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Humanizer;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -11,6 +13,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
+using osu.Game.Overlays;
 using osu.Game.Utils;
 using osuTK;
 using osuTK.Graphics;
@@ -36,6 +39,8 @@ namespace osu.Game.Screens.TournamentShowcase
             private readonly SpriteIcon promptIcon;
             private readonly OsuSpriteText promptText;
             private readonly ShearedButton confirmButton;
+
+            private readonly CancellationTokenSource cts = new CancellationTokenSource();
 
             public CloneRenamePopover(ShowcaseConfig source, bool cloneAsDefault = true)
             {
@@ -111,9 +116,22 @@ namespace osu.Game.Screens.TournamentShowcase
                 };
             }
 
+            [BackgroundDependencyLoader]
+            private void load(OverlayColourProvider colourProvider)
+            {
+                Body.BorderThickness = 3;
+                Body.BorderColour = colourProvider.Colour1;
+
+                confirmButton.DarkerColour = colourProvider.Colour1;
+                confirmButton.LighterColour = colourProvider.Colour0;
+                confirmButton.TextColour = colourProvider.Background6;
+            }
+
             protected override void LoadComplete()
             {
                 base.LoadComplete();
+
+                ScheduleAfterChildren(() => GetContainingFocusManager()!.ChangeFocus(targetTextBox));
 
                 targetTextBox.Current.BindValueChanged(_ => checkTarget(), true);
                 cloneSwitchButton.Current.BindValueChanged(e =>
@@ -155,20 +173,43 @@ namespace osu.Game.Screens.TournamentShowcase
 
             private void performAction()
             {
-                try
-                {
-                    if (cloneSwitchButton.Current.Value)
-                        storage.SaveChangesTo(source, targetName);
-                    else
-                        storage.Move(source.Filename.Value, targetName);
+                bool success = false;
 
-                    Hide();
-                }
-                catch (Exception e)
+                targetTextBox.Current.Disabled = true;
+                cloneSwitchButton.Current.Disabled = true;
+                confirmButton.Enabled.Value = false;
+
+                Task.Run(() =>
                 {
-                    Logger.Log($"An error occurred while saving the showcase profile: {e.Message}", LoggingTarget.Runtime, LogLevel.Error);
-                    showWarning(e.Message);
-                }
+                    try
+                    {
+                        if (cloneSwitchButton.Current.Value)
+                            storage.SaveChangesTo(source, targetName);
+                        else
+                            storage.Move(source.Filename.Value, targetName);
+
+                        success = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Log($"An error occurred while saving the showcase profile: {e.Message}", LoggingTarget.Runtime, LogLevel.Error);
+                        showWarning(e.Message);
+                    }
+                }, cts.Token).ContinueWith(_ => Scheduler.Add(() =>
+                {
+                    targetTextBox.Current.Disabled = false;
+                    cloneSwitchButton.Current.Disabled = false;
+                    confirmButton.Enabled.Value = true;
+
+                    if (success)
+                        Hide();
+                }), cts.Token);
+            }
+
+            protected override void Dispose(bool isDisposing)
+            {
+                cts.Cancel();
+                base.Dispose(isDisposing);
             }
         }
     }
