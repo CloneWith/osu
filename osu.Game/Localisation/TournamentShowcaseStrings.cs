@@ -487,6 +487,12 @@ namespace osu.Game.Localisation
         public static LocalisableString ScoreMissingProceed => new TranslatableString(getKey(@"score_missing_proceed"),
             @"Use Autoplay scores for these beatmaps");
 
+        /// <summary>
+        /// "Remove this profile? This cannot be undone."
+        /// </summary>
+        public static LocalisableString DeleteProfileDialogHeader =>
+            new TranslatableString(getKey(@"delete_profile_dialog_header"), @"Remove this profile? This cannot be undone.");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
