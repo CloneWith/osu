@@ -33,6 +33,21 @@ namespace osu.Game.Utils
             return string.Concat(text.AsSpan(0, maxLength - 3), "...");
         }
 
+        public static string TruncateMiddleWithEllipsis(this string text, int maxLength)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= maxLength)
+                return text;
+
+            if (maxLength <= 3)
+                return text[..maxLength];
+
+            int charsToKeep = maxLength - 3;
+            int leftPart = charsToKeep / 2;
+            int rightPart = charsToKeep - leftPart;
+
+            return string.Concat(text.AsSpan(0, leftPart), "...", text.AsSpan(text.Length - rightPart));
+        }
+
         public static string ExtractSongTitleFromMetadata(this string displayTitle)
         {
             string[] songNameList = displayTitle.Split(' ');

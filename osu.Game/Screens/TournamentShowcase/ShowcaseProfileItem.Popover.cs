@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Humanizer;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
@@ -159,7 +158,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 promptIcon.Colour = Color4.White;
                 promptIcon.Icon = cloneSwitchButton.Current.Value ? FontAwesome.Solid.PlusCircle : FontAwesome.Solid.ArrowCircleRight;
                 promptText.Colour = Color4.White;
-                promptText.Text = TournamentShowcaseStrings.NewFilenamePrompt(targetName.Truncate(20));
+                promptText.Text = TournamentShowcaseStrings.NewFilenamePrompt(targetTextBox.Current.Value.TruncateMiddleWithEllipsis(20) + @".json");
             }
 
             private void showWarning(LocalisableString message)
