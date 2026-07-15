@@ -14,6 +14,8 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public class ShowcaseStorage : WrappedStorage
     {
+        public event Action? OnProfileChange;
+
         private readonly Storage storage;
 
         public ShowcaseStorage(Storage storage)
@@ -21,6 +23,8 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             this.storage = storage.GetStorageForDirectory("showcase");
         }
+
+        public void TriggerProfileChange() => OnProfileChange?.Invoke();
 
         public ShowcaseConfig? GetConfig(string name)
         {
@@ -98,6 +102,8 @@ namespace osu.Game.Screens.TournamentShowcase
             using (var stream = storage.CreateFileSafely(filename))
             using (var sw = new StreamWriter(stream))
                 sw.Write(serialisedLadder);
+
+            OnProfileChange?.Invoke();
         }
 
         public string GetSerialisedConfig(ShowcaseConfig config)

@@ -57,14 +57,10 @@ namespace osu.Game.Screens.TournamentShowcase
                     Child = new OsuContextMenuContainer
                     {
                         RelativeSizeAxes = Axes.Both,
-                        Children = new Drawable[]
+                        Child = profileListing = new ShowcaseProfileListing
                         {
-                            // TODO: Add profile creation card
-                            profileListing = new ShowcaseProfileListing
-                            {
-                                RelativeSizeAxes = Axes.Both,
-                                FilterString = { BindTarget = filter },
-                            },
+                            RelativeSizeAxes = Axes.Both,
+                            FilterString = { BindTarget = filter },
                         },
                     },
                 },
@@ -98,10 +94,18 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
+            storage.OnProfileChange += reloadProfiles;
+
             searchTextBox.Current.BindValueChanged(_ => updateFilterDebounced());
 
             updateFilter();
             reloadProfiles();
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            storage.OnProfileChange -= reloadProfiles;
+            base.Dispose(isDisposing);
         }
 
         public void UpdateFilter() => Scheduler.AddOnce(updateFilter);

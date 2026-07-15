@@ -185,7 +185,11 @@ namespace osu.Game.Screens.TournamentShowcase
                         if (cloneSwitchButton.Current.Value)
                             storage.SaveChangesTo(source, targetName);
                         else
+                        {
+                            // `Move()` doesn't trigger the OnProfileChange event.
                             storage.Move(source.Filename.Value, targetName);
+                            storage.TriggerProfileChange();
+                        }
 
                         success = true;
                     }
