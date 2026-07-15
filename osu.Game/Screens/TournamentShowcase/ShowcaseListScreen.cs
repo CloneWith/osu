@@ -146,6 +146,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
         {
+            new FooterButtonNew
+            {
+                OnCreate = newConfig => Schedule(() => this.Push(new ShowcaseConfigScreen(newConfig))),
+            },
             new FooterButtonRefresh
             {
                 Action = reloadProfiles,
