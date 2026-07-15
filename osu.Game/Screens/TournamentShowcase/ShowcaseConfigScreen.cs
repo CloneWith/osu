@@ -340,7 +340,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 Action = () =>
                 {
-                    if (checkConfig())
+                    if (checkConfig(false))
                         storage.SaveChanges(currentProfile.Value);
                 },
             },
@@ -369,10 +369,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
         /// <summary>
         /// Check all necessary fields to ensure that the profile can be saved and used properly.
-        /// In case an issue is found, a popup prompt will appear.
+        /// In case an issue is found, a notification about it would be sent.
         /// </summary>
         /// <returns>True if valid, false otherwise</returns>
-        private bool checkConfig()
+        private bool checkConfig(bool checkBeatmaps = true)
         {
             bool isValid = rulesetSelector.Current.Value != null
                            && tournamentNameInput.Current.Value != null
@@ -400,7 +400,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 return false;
             }
 
-            if (currentProfile.Value.Beatmaps.Count == 0)
+            if (checkBeatmaps && currentProfile.Value.Beatmaps.Count == 0)
             {
                 notificationOverlay?.Post(new SimpleErrorNotification
                 {
