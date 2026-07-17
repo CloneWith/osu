@@ -189,9 +189,14 @@ namespace osu.Game.Screens.TournamentShowcase
             // Switch the ruleset beforehand to avoid cast exception.
             Ruleset.Value = config.FallbackRuleset.Value;
 
-            AddInternal(new ShowcaseCountdownOverlay(config.StartCountdown.Value));
+            // The countdown overlay has an extra 1000ms delay, so we handle it here.
+            AddInternal(new ShowcaseCountdownOverlay(config.StartCountdown.Value - 1000)
+            {
+                // Also add a small delay to make the transition between the countdown and intro smoother.
+                ResumeAction = () => Scheduler.AddDelayed(showcaseContainer.StartShowcase, 500),
+            });
+
             state.BindValueChanged(stateChanged);
-            Scheduler.AddDelayed(showcaseContainer.StartShowcase, config.StartCountdown.Value);
         }
 
         private void scheduleBeatmapPush(Action pushAction, int delay = 0)
