@@ -76,7 +76,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 notificationOverlay?.Post(new SimpleErrorNotification
                 {
-                    Text = "This is a failed score. Use a passed score to guarantee the showcase running properly.",
+                    Text = TournamentShowcaseStrings.FailedScorePrompt,
                 });
 
                 return;

@@ -363,6 +363,12 @@ namespace osu.Game.Localisation
         public static LocalisableString NullIntroMapDialogText => new TranslatableString(getKey(@"null_intro_map_dialog_text"), @"Specify a custom intro beatmap, or turn off the switch to use the first beatmap in the queue.");
 
         /// <summary>
+        /// "This is a failed score. Use a passed score to guarantee the showcase running properly."
+        /// </summary>
+        public static LocalisableString FailedScorePrompt
+            => new TranslatableString(getKey(@"failed_score_prompt"), @"This is a failed score. Use a passed score to guarantee the showcase running properly.");
+
+        /// <summary>
         /// "Manual Control"
         /// </summary>
         public static LocalisableString ManualControlState => new TranslatableString(getKey(@"manual_control_state"), @"Manual Control");
