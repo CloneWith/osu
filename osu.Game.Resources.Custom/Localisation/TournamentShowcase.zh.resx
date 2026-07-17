@@ -301,4 +301,7 @@
     <data name="delete_profile_dialog_header" xml:space="preserve">
         <value>删除该展示配置？此操作不可逆。</value>
     </data>
+    <data name="failed_score_prompt" xml:space="preserve">
+        <value>选择的分数未通过。请选择已通过的分数，确保谱面正常展示。</value>
+    </data>
 </root>
