@@ -286,48 +286,59 @@ namespace osu.Game.Screens.TournamentShowcase
                             new OsuContextMenuContainer
                             {
                                 RelativeSizeAxes = Axes.Both,
-                                Child = new OsuScrollContainer
+                                Children = new Drawable[]
                                 {
-                                    Anchor = Anchor.Centre,
-                                    Origin = Anchor.Centre,
-                                    RelativeSizeAxes = Axes.Both,
-                                    ScrollbarOverlapsContent = false,
-                                    Child = new FillFlowContainer
+                                    new OsuScrollContainer
                                     {
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Spacing = new Vector2(10),
-                                        Direction = FillDirection.Full,
-                                        Children = new Drawable[]
+                                        Name = @"Setup flow",
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        ScrollbarOverlapsContent = false,
+                                        Child = new FillFlowContainer
                                         {
-                                            new GridContainer
+                                            RelativeSizeAxes = Axes.X,
+                                            AutoSizeAxes = Axes.Y,
+                                            Spacing = new Vector2(10),
+                                            Direction = FillDirection.Full,
+                                            Children = new Drawable[]
                                             {
-                                                RelativeSizeAxes = Axes.X,
-                                                AutoSizeAxes = Axes.Y,
-                                                RowDimensions = new[]
+                                                new GridContainer
                                                 {
-                                                    new Dimension(GridSizeMode.AutoSize),
-                                                },
-                                                ColumnDimensions = new[]
-                                                {
-                                                    new Dimension(),
-                                                    // Add a 10px gap between two columns
-                                                    new Dimension(GridSizeMode.Absolute, 10),
-                                                    new Dimension(),
-                                                },
-                                                Content = new[]
-                                                {
-                                                    new[]
+                                                    RelativeSizeAxes = Axes.X,
+                                                    AutoSizeAxes = Axes.Y,
+                                                    RowDimensions = new[]
                                                     {
-                                                        tournamentInfoSection,
-                                                        Empty(),
-                                                        settingsSection,
+                                                        new Dimension(GridSizeMode.AutoSize),
+                                                    },
+                                                    ColumnDimensions = new[]
+                                                    {
+                                                        new Dimension(),
+                                                        // Add a 10px gap between two columns
+                                                        new Dimension(GridSizeMode.Absolute, 10),
+                                                        new Dimension(),
+                                                    },
+                                                    Content = new[]
+                                                    {
+                                                        new[]
+                                                        {
+                                                            tournamentInfoSection,
+                                                            Empty(),
+                                                            settingsSection,
+                                                        },
                                                     },
                                                 },
+                                                introEditor,
                                             },
-                                            introEditor,
-                                            beatmapSection,
                                         },
+                                    },
+                                    new Container
+                                    {
+                                        Name = @"Beatmap flow",
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        RelativeSizeAxes = Axes.Both,
+                                        Child = beatmapSection,
                                     },
                                 },
                             },
@@ -341,6 +352,26 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
         {
+            new FooterButtonNewShowcaseItem
+            {
+                Action = () =>
+                {
+                    var select = new ShowcaseSongSelect();
+                    select.OnSelect += (_, beatmapInfo, rulesetInfo, scoreInfo, mods) =>
+                    {
+                        var newBeatmap = new ShowcaseBeatmap(beatmapInfo)
+                        {
+                            RulesetId = rulesetInfo.OnlineID,
+                            ScoreHash = scoreInfo?.Hash ?? string.Empty,
+                        };
+
+                        newBeatmap.RequiredMods.AddRange(mods);
+                        currentProfile.Value.Beatmaps.Add(newBeatmap);
+                    };
+
+                    this.Push(select);
+                },
+            },
             saveButton = new FooterButtonSave
             {
                 Action = () =>
@@ -364,12 +395,10 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
-            currentTab.BindValueChanged(currentTabChanged);
+            currentTab.BindValueChanged(currentTabChanged, true);
             colourSchemeDropdown.Current.BindValueChanged(e => colourProvider.ChangeColourScheme(e.NewValue), true);
 
             this.FadeInFromZero(500, Easing.OutQuint);
-
-            currentTab.TriggerChange();
         }
 
         /// <summary>
