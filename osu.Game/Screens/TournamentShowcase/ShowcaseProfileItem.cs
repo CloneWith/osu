@@ -79,7 +79,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly FormControlBackground background;
         private readonly CircularContainer selectionIndicator;
         private readonly Container iconContainer;
-        private readonly OsuTextFlowContainer titleFlow;
+        private readonly MarqueeContainer titleContainer;
         private readonly OsuTextFlowContainer detailsFlow;
 
         private Action requestLaunch = null!;
@@ -140,19 +140,20 @@ namespace osu.Game.Screens.TournamentShowcase
                             {
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                AutoSizeAxes = Axes.Both,
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
                                 Direction = FillDirection.Vertical,
                                 Spacing = new Vector2(2),
                                 Margin = new MarginPadding { Vertical = 2 },
+                                Masking = true,
                                 Children = new Drawable[]
                                 {
-                                    titleFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Style.Title)
+                                    titleContainer = new MarqueeContainer
                                     {
                                         Name = @"Profile Name",
                                         Anchor = Anchor.CentreLeft,
                                         Origin = Anchor.CentreLeft,
-                                        TextAnchor = Anchor.CentreLeft,
-                                        AutoSizeAxes = Axes.Both,
+                                        NonOverflowingContentAnchor = Anchor.CentreLeft,
                                     },
                                     detailsFlow = new OsuTextFlowContainer(t =>
                                     {
@@ -218,9 +219,23 @@ namespace osu.Game.Screens.TournamentShowcase
                 i.Margin = new MarginPadding { Right = 5 };
             };
 
-            titleFlow.AddText(Config.TournamentName.Value, t => t.Colour = colourProvider.Highlight1);
-            titleFlow.AddText(@$" [{Config.RoundName.Value}] ");
-            titleFlow.AddText($@"({Config.Filename.Value})", t => t.Font = OsuFont.Style.Caption1);
+            titleContainer.CreateContent = () =>
+            {
+                var titleFlow = new OsuTextFlowContainer(t => t.Font = OsuFont.Style.Title)
+                {
+                    Name = @"Profile Name",
+                    Anchor = Anchor.CentreLeft,
+                    Origin = Anchor.CentreLeft,
+                    TextAnchor = Anchor.CentreLeft,
+                    AutoSizeAxes = Axes.Both,
+                };
+
+                titleFlow.AddText(Config.TournamentName.Value, t => t.Colour = colourProvider.Highlight1);
+                titleFlow.AddText(@$" [{Config.RoundName.Value}] ");
+                titleFlow.AddText($@"({Config.Filename.Value})", t => t.Font = OsuFont.Style.Caption1);
+
+                return titleFlow;
+            };
 
             detailsFlow.AddIcon(FontAwesome.Solid.Music, creationParameters);
             detailsFlow.AddText($"{Config.Beatmaps.Count}");
