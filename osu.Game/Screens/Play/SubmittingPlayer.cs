@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Logging;
-using osu.Framework.Platform;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Configuration;
@@ -60,10 +59,7 @@ namespace osu.Game.Screens.Play
 
         [Resolved(canBeNull: true)]
         [CanBeNull]
-        protected INotificationOverlay Notifications { get; set; }
-
-        [Resolved]
-        private GameHost host { get; set; } = null!;
+        protected INotificationOverlay Notifications { get; private set; }
 
         protected SubmittingPlayer(PlayerConfiguration configuration = null)
             : base(configuration)
