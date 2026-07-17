@@ -35,7 +35,6 @@ using osu.Game.Online.API.Requests;
 using osu.Game.Online.Chat;
 using osu.Game.Online.Placeholders;
 using osu.Game.Overlays;
-using osu.Game.Overlays.BeatmapSet;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
@@ -81,7 +80,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        public readonly BindableBool ShowEditSection = new BindableBool(true);
+        public readonly BindableBool ShowEditSection = new BindableBool();
 
         private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
@@ -97,12 +96,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private LinkFlowContainer beatmapText = null!;
         private TextFlowContainer difficultyText = null!;
         private LinkFlowContainer authorText = null!;
-        private ExplicitContentBeatmapBadge explicitContent = null!;
         private ModDisplay modDisplay = null!;
         private FillFlowContainer buttonsFlow = null!;
         private UpdateableAvatar? ownerAvatar;
-        private Drawable? editButton;
-        private Drawable? removeButton;
         private PanelBackground panelBackground = null!;
         private FillFlowContainer infoFillFlow = null!;
         private Sprite modIcon = null!;
@@ -170,7 +166,7 @@ namespace osu.Game.Screens.TournamentShowcase
 
             try
             {
-                if (showItemOwner)
+                if (ShowItemOwner)
                 {
                     var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
                     Schedule(() => ownerAvatar!.User = foundUser);
@@ -238,56 +234,25 @@ namespace osu.Game.Screens.TournamentShowcase
             ShowEditSection.BindValueChanged(e => editFlow.FadeTo(e.NewValue ? 1 : 0, 300, Easing.OutQuint));
         }
 
-        private bool allowDeletion = true;
-
         /// <summary>
         /// Whether this item can be deleted.
         /// </summary>
-        public bool AllowDeletion
-        {
-            get => allowDeletion;
-            set
-            {
-                allowDeletion = value;
-
-                if (removeButton != null)
-                    removeButton.Alpha = value ? 1 : 0;
-            }
-        }
-
-        private bool allowEditing = true;
+        public bool AllowDeletion { get; init; } = true;
 
         /// <summary>
         /// Whether this item can be edited.
         /// </summary>
-        public bool AllowEditing
-        {
-            get => allowEditing;
-            set
-            {
-                allowEditing = value;
+        public bool AllowEditing { get; init; } = true;
 
-                if (editButton != null)
-                    editButton.Alpha = value ? 1 : 0;
-            }
-        }
-
-        private bool showItemOwner = true;
+        /// <summary>
+        /// Whether details of this item can be viewed and edited.
+        /// </summary>
+        public bool AllowEditingDetails { get; init; } = true;
 
         /// <summary>
         /// Whether to display the avatar of the user which selects the map.
         /// </summary>
-        public bool ShowItemOwner
-        {
-            get => showItemOwner;
-            set
-            {
-                showItemOwner = value;
-
-                if (ownerAvatar != null)
-                    ownerAvatar.Alpha = value ? 1 : 0;
-            }
-        }
+        public bool ShowItemOwner { get; init; } = true;
 
         public void Refresh(bool refreshScoreOnly = false, bool needPopulation = false)
         {
@@ -340,9 +305,6 @@ namespace osu.Game.Screens.TournamentShowcase
                     authorText.AddUserLink(beatmapInfo.Metadata.Author);
                 }
 
-                bool hasExplicitContent = (beatmapInfo?.BeatmapSet as IBeatmapSetOnlineInfo)?.HasExplicitContent == true;
-                explicitContent.Alpha = hasExplicitContent ? 1 : 0;
-
                 modDisplay.Current.Value = requiredMods.ToArray();
             }
 
@@ -372,7 +334,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 RelativeSizeAxes = Axes.X,
                 AutoSizeAxes = Axes.Y,
                 Direction = FillDirection.Vertical,
-                Spacing = new Vector2(15),
+                Spacing = new Vector2(5),
                 AutoSizeDuration = 300,
                 AutoSizeEasing = Easing.OutQuint,
                 Children = new Drawable[]
@@ -440,7 +402,9 @@ namespace osu.Game.Screens.TournamentShowcase
                                                 },
                                                 difficultyText = new TextFlowContainer(fontParameters)
                                                 {
-                                                    RelativeSizeAxes = Axes.X, Height = OsuFont.DEFAULT_FONT_SIZE, Masking = true,
+                                                    RelativeSizeAxes = Axes.X,
+                                                    Height = OsuFont.DEFAULT_FONT_SIZE,
+                                                    Masking = true,
                                                 },
                                                 new FillFlowContainer
                                                 {
@@ -449,30 +413,9 @@ namespace osu.Game.Screens.TournamentShowcase
                                                     Spacing = new Vector2(10f, 0),
                                                     Children = new Drawable[]
                                                     {
-                                                        new FillFlowContainer
+                                                        authorText = new LinkFlowContainer(fontParameters)
                                                         {
-                                                            AutoSizeAxes = Axes.Both,
-                                                            Anchor = Anchor.CentreLeft,
-                                                            Origin = Anchor.CentreLeft,
-                                                            Direction = FillDirection.Horizontal,
-                                                            Spacing = new Vector2(10f, 0),
-                                                            Children = new Drawable[]
-                                                            {
-                                                                authorText = new LinkFlowContainer(fontParameters)
-                                                                {
-                                                                    AutoSizeAxes = Axes.Both
-                                                                },
-                                                                explicitContent = new ExplicitContentBeatmapBadge
-                                                                {
-                                                                    Alpha = 0f,
-                                                                    Anchor = Anchor.CentreLeft,
-                                                                    Origin = Anchor.CentreLeft,
-                                                                    Margin = new MarginPadding
-                                                                    {
-                                                                        Top = 3f
-                                                                    },
-                                                                }
-                                                            },
+                                                            AutoSizeAxes = Axes.Both
                                                         },
                                                         new Container
                                                         {
@@ -654,14 +597,21 @@ namespace osu.Game.Screens.TournamentShowcase
         private Drawable[] createButtons() => new[]
         {
             beatmapInfo?.BeatmapSet == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
-            editButton = new PlaylistEditButton
+            new ItemDetailsButton
+            {
+                Size = new Vector2(30, 30),
+                Alpha = AllowEditingDetails ? 1 : 0,
+                Action = () => ShowEditSection.Value = !ShowEditSection.Value,
+                Expanded = { BindTarget = ShowEditSection },
+            },
+            new PlaylistEditButton
             {
                 Size = new Vector2(30, 30),
                 Alpha = AllowEditing ? 1 : 0,
                 Action = () => RequestEdit?.Invoke(item),
                 TooltipText = CommonStrings.ButtonsEdit,
             },
-            removeButton = new PlaylistRemoveButton
+            new PlaylistRemoveButton
             {
                 Size = new Vector2(30, 30),
                 Alpha = AllowDeletion ? 1 : 0,
@@ -702,6 +652,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     items.Add(new OsuMenuItem(TournamentShowcaseStrings.RemoveReplayScore, MenuItemType.Highlighted, () =>
                     {
                         item.ShowcaseScore = null;
+                        item.ScoreHash = string.Empty;
                         recordScoreContainer.Child = new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
                     }));
                 }
@@ -764,21 +715,27 @@ namespace osu.Game.Screens.TournamentShowcase
             });
         }
 
-        public partial class PlaylistEditButton : GrayButton
+        public partial class ItemDetailsButton() : GrayButton(FontAwesome.Solid.InfoCircle)
         {
-            public PlaylistEditButton()
-                : base(FontAwesome.Solid.Edit)
+            public BindableBool Expanded { get; } = new BindableBool();
+
+            [Resolved]
+            private OsuColour colours { get; set; } = null!;
+
+            protected override void LoadComplete()
             {
+                base.LoadComplete();
+
+                Expanded.BindValueChanged(e =>
+                {
+                    Background.FadeColour(e.NewValue ? colours.Blue1 : colours.Gray4, 300, Easing.OutQuint);
+                });
             }
         }
 
-        public partial class PlaylistRemoveButton : GrayButton
-        {
-            public PlaylistRemoveButton()
-                : base(FontAwesome.Solid.MinusSquare)
-            {
-            }
-        }
+        public partial class PlaylistEditButton() : GrayButton(FontAwesome.Solid.Edit);
+
+        public partial class PlaylistRemoveButton() : GrayButton(FontAwesome.Solid.MinusSquare);
 
         private sealed partial class PlaylistDownloadButton : BeatmapDownloadButton
         {

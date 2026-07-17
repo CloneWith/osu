@@ -238,7 +238,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     },
                     new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                     {
-                        ShowEditSection = { Value = false },
+                        AllowEditingDetails = false,
                         AllowDeletion = false,
                         ShowItemOwner = false,
                     },
