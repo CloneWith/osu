@@ -215,7 +215,10 @@ namespace osu.Game.Screens.TournamentShowcase
                     },
                 },
             };
-            beatmapSection = new ShowcaseBeatmapEditor(currentProfile);
+            beatmapSection = new ShowcaseBeatmapEditor
+            {
+                Config = { BindTarget = currentProfile },
+            };
             introEditor = new FillFlowContainer
             {
                 RelativeSizeAxes = Axes.X,
@@ -233,9 +236,11 @@ namespace osu.Game.Screens.TournamentShowcase
                         HintText = TournamentShowcaseStrings.UseCustomIntroBeatmapDescription,
                         Current = currentProfile.Value.UseCustomIntroBeatmap,
                     },
-                    new BeatmapRow(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
+                    new DrawableShowcaseBeatmapItem(currentProfile.Value.IntroBeatmap.Value, currentProfile.Value)
                     {
+                        ShowEditSection = { Value = false },
                         AllowDeletion = false,
+                        ShowItemOwner = false,
                     },
                 },
             };

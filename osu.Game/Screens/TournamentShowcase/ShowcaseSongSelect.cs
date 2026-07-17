@@ -5,18 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Localisation;
+using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Notifications;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Scoring;
-using osu.Game.Screens.Footer;
 using osu.Game.Screens.OnlinePlay;
 using osu.Game.Screens.Select;
 
@@ -28,25 +27,21 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public LocalisableString LocalisableTitle => TournamentShowcaseStrings.ItemSelect;
 
-        public event Action<SelectResult>? OnSelect;
+        /// <summary>
+        /// Triggered when a beatmap item or score is selected.
+        /// </summary>
+        public event Action<SelectResult, BeatmapInfo, RulesetInfo, ScoreInfo?, IReadOnlyList<Mod>>? OnSelect;
 
         [Resolved]
         private INotificationOverlay? notificationOverlay { get; set; }
 
-        private readonly Bindable<BeatmapInfo> targetBeatmap = new Bindable<BeatmapInfo>();
-        private readonly Bindable<ScoreInfo?> targetScore = new Bindable<ScoreInfo?>();
-        private readonly BindableList<Mod> targetMods = new BindableList<Mod>();
-        private readonly Bindable<RulesetInfo> targetRuleset = new Bindable<RulesetInfo>();
-
         private SelectResult status = SelectResult.None;
 
-        public ShowcaseSongSelect(Bindable<BeatmapInfo> beatmap, BindableList<Mod> mods,
-                                  Bindable<ScoreInfo?> score, Bindable<RulesetInfo> rulesetInfo)
+        private readonly ShowcaseBeatmap? oldItem;
+
+        public ShowcaseSongSelect(ShowcaseBeatmap? oldItem = null)
         {
-            targetBeatmap.BindTo(beatmap);
-            targetScore.BindTo(score);
-            targetMods.BindTo(mods);
-            targetRuleset.BindTo(rulesetInfo);
+            this.oldItem = oldItem;
 
             Padding = new MarginPadding { Horizontal = HORIZONTAL_OVERFLOW_PADDING };
             TopPadding = Header.HEIGHT - 10;
@@ -54,17 +49,13 @@ namespace osu.Game.Screens.TournamentShowcase
 
         protected override void OnStart()
         {
-            applyCommonInfo();
+            updateSelectResult();
 
-            // We should clear the score to null, which also means an update,
-            targetScore.Value = null;
             status |= SelectResult.ScoreUpdated;
 
-            OnSelect?.Invoke(status);
+            OnSelect?.Invoke(status, Beatmap.Value.BeatmapInfo, Ruleset.Value, null, Mods.Value);
             this.Exit();
         }
-
-        public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => [];
 
         void ISongSelect.PresentScore(ScoreInfo score, ScorePresentType presentType)
         {
@@ -82,31 +73,23 @@ namespace osu.Game.Screens.TournamentShowcase
                 return;
             }
 
-            applyCommonInfo();
+            updateSelectResult();
             status |= SelectResult.ScoreUpdated;
-            targetScore.Value = score;
-            targetRuleset.Value = score.Ruleset;
 
-            OnSelect?.Invoke(status);
+            OnSelect?.Invoke(status, Beatmap.Value.BeatmapInfo, Ruleset.Value, score, Mods.Value);
             this.Exit();
         }
 
-        private void applyCommonInfo()
+        private void updateSelectResult()
         {
-            // Pass information of the selected beatmap to the bindable.
-            if (targetBeatmap.Value.Hash != Beatmap.Value.BeatmapInfo.Hash)
+            if (oldItem?.BeatmapHash != Beatmap.Value.BeatmapInfo.Hash)
                 status |= SelectResult.BeatmapUpdated;
 
-            if (targetRuleset.Value.OnlineID != Ruleset.Value.OnlineID)
+            if (oldItem?.RulesetId != Ruleset.Value.OnlineID)
                 status |= SelectResult.RulesetUpdated;
 
-            if (!targetMods.SequenceEqual(Mods.Value))
+            if (oldItem?.RequiredMods.SequenceEqual(Mods.Value) != true)
                 status |= SelectResult.ModUpdated;
-
-            targetBeatmap.Value = Beatmap.Value.BeatmapInfo;
-            targetRuleset.Value = Ruleset.Value;
-            targetMods.Clear();
-            targetMods.AddRange(Mods.Value);
         }
     }
 
