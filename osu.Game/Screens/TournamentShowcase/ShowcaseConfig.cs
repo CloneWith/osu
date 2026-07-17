@@ -32,24 +32,24 @@ namespace osu.Game.Screens.TournamentShowcase
         public Bindable<string> DateTime = new Bindable<string>();
         public Bindable<string> Comment = new Bindable<string>();
 
+        /// <summary>
+        /// The duration of the countdown before showcase starts, in seconds.
+        /// </summary>
         public BindableInt StartCountdown = new BindableInt(5000)
         {
             MinValue = 3000,
-            MaxValue = 60000,
-            Precision = 1000
+            MaxValue = 30000,
+            Precision = 1000,
         };
 
+        /// <summary>
+        /// The duration of transform animations between showcase beatmaps and screens.
+        /// </summary>
         public BindableInt TransformDuration = new BindableInt(1000)
         {
             MinValue = 250,
-            MaxValue = 3000,
-        };
-
-        public BindableInt PauseCountdown = new BindableInt(3000)
-        {
-            MinValue = 1000,
-            MaxValue = 5000,
-            Precision = 500
+            MaxValue = 1500,
+            Precision = 50,
         };
 
         public Bindable<OverlayColourScheme> ColourScheme = new Bindable<OverlayColourScheme>(OverlayColourScheme.Blue);
