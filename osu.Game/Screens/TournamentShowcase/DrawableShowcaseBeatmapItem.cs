@@ -18,6 +18,7 @@ using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
 using osu.Framework.Logging;
+using osu.Framework.Screens;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Beatmaps.Drawables.Cards;
@@ -25,15 +26,19 @@ using osu.Game.Database;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Online;
+using osu.Game.Online.API;
+using osu.Game.Online.API.Requests;
 using osu.Game.Online.Chat;
 using osu.Game.Online.Placeholders;
 using osu.Game.Overlays;
 using osu.Game.Overlays.BeatmapSet;
 using osu.Game.Rulesets;
 using osu.Game.Rulesets.Mods;
+using osu.Game.Scoring;
 using osu.Game.Screens.Play.HUD;
 using osu.Game.Screens.Select;
 using osu.Game.Users.Drawables;
@@ -66,7 +71,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 item = value;
                 beatmapInfo = value.BeatmapInfo;
-                ruleset = rulesetStore.GetRuleset(value.RulesetId) ?? config.FallbackRuleset.Value;
+                ruleset = rulesetStore.GetRuleset(value.RulesetId) ?? parentConfig.FallbackRuleset.Value;
                 var rulesetInstance = ruleset?.CreateInstance();
 
                 if (rulesetInstance != null)
@@ -76,9 +81,12 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
+        public readonly BindableBool ShowEditSection = new BindableBool(true);
+
         private readonly DelayedLoadWrapper onScreenLoader = new DelayedLoadWrapper(Empty) { RelativeSizeAxes = Axes.Both };
 
-        private readonly ShowcaseConfig config;
+        private readonly ShowcaseConfig parentConfig;
+
         private ShowcaseBeatmap item;
         private WorkingBeatmap? workingBeatmap;
         private IBeatmapInfo? beatmapInfo;
@@ -92,13 +100,15 @@ namespace osu.Game.Screens.TournamentShowcase
         private ExplicitContentBeatmapBadge explicitContent = null!;
         private ModDisplay modDisplay = null!;
         private FillFlowContainer buttonsFlow = null!;
-        private UpdateableAvatar ownerAvatar = null!;
+        private UpdateableAvatar? ownerAvatar;
         private Drawable? editButton;
         private Drawable? removeButton;
         private PanelBackground panelBackground = null!;
         private FillFlowContainer infoFillFlow = null!;
         private Sprite modIcon = null!;
         private Container recordScoreContainer = null!;
+        private LoadingLayer loadingLayer = null!;
+        private FillFlowContainer editFlow = null!;
 
         [Resolved]
         private RulesetStore rulesetStore { get; set; } = null!;
@@ -118,22 +128,52 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private BeatmapSetOverlay? beatmapOverlay { get; set; }
 
-        public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig config)
+        [Resolved]
+        private IPerformFromScreenRunner? performer { get; set; }
+
+        [Resolved]
+        private IAPIProvider api { get; set; } = null!;
+
+        [Resolved]
+        private ScoreManager scoreManager { get; set; } = null!;
+
+        private readonly Bindable<string> selectorId;
+
+        public DrawableShowcaseBeatmapItem(ShowcaseBeatmap item, ShowcaseConfig parentConfig)
             : base(item)
         {
             this.item = item;
-            this.config = config;
-            ShowDragHandle.Value = false;
+            this.parentConfig = parentConfig;
+
+            selectorId = new Bindable<string>(Item.Selector.Value?.OnlineID.ToString() ?? string.Empty);
+
+            // TODO: Allocation of actions inside ctor seems strange. Is it helpful to change this?
+            RequestEdit = _ =>
+            {
+                var select = new ShowcaseSongSelect(Item);
+                select.OnSelect += updateAsNeeded;
+                Schedule(() => performer?.PerformFromScreen(s => s.Push(select), new[]
+                {
+                    typeof(ShowcaseConfigScreen)
+                }));
+            };
+            RequestDeletion = _ =>
+            {
+                parentConfig.Beatmaps.Remove(Item);
+                Expire();
+            };
         }
 
         private async Task populateInfo()
         {
+            Schedule(() => loadingLayer.Show());
+
             try
             {
                 if (showItemOwner)
                 {
                     var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
-                    Schedule(() => ownerAvatar.User = foundUser);
+                    Schedule(() => ownerAvatar!.User = foundUser);
                 }
 
                 workingBeatmap = beatmapManager.GetWorkingBeatmap(new BeatmapInfo { Hash = item.BeatmapHash }, true);
@@ -147,7 +187,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     beatmapInfo = workingBeatmap.BeatmapInfo;
                 }
 
-                ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? config.FallbackRuleset.Value;
+                ruleset = rulesetStore.GetRuleset(item.RulesetId) ?? parentConfig.FallbackRuleset.Value;
                 requiredMods = item.RequiredMods.ToArray();
 
                 Scheduler.AddOnce(_ => Refresh(), false);
@@ -156,6 +196,8 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 Logger.Log($"Error while populating showcase item {e}");
             }
+
+            Schedule(() => loadingLayer.Hide());
         }
 
         protected override void LoadComplete()
@@ -166,6 +208,34 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 Task.Run(populateInfo);
             };
+
+            selectorId.BindValueChanged(id =>
+            {
+                bool idValid = int.TryParse(id.NewValue, out int newId) && newId >= 0;
+
+                if (Item.Selector.Value != null)
+                    Item.Selector.Value.OnlineID = idValid ? newId : 0;
+                else
+                {
+                    Item.Selector.Value = new ShowcaseUser
+                    {
+                        OnlineID = idValid ? newId : 0
+                    };
+                }
+
+                if (idValid)
+                    Scheduler.AddOnce(populateSelector);
+            }, true);
+
+            Item.ModString.BindValueChanged(_ => updateModIcon());
+            Item.ModIndex.BindValueChanged(_ => updateModIcon());
+
+            Item.ShowcaseScore = scoreManager.GetScore(new ScoreInfo
+            {
+                Hash = Item.ScoreHash
+            })?.ScoreInfo;
+
+            ShowEditSection.BindValueChanged(e => editFlow.FadeTo(e.NewValue ? 1 : 0, 300, Easing.OutQuint));
         }
 
         private bool allowDeletion = true;
@@ -214,7 +284,8 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 showItemOwner = value;
 
-                ownerAvatar.Alpha = value ? 1 : 0;
+                if (ownerAvatar != null)
+                    ownerAvatar.Alpha = value ? 1 : 0;
             }
         }
 
@@ -281,7 +352,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 ? new BeatmapLeaderboardScore(item.ShowcaseScore)
                 : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt);
 
-            modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
+            modIcon.Texture = textureStore.Get($"{parentConfig.TournamentName}/{item.ModString}{item.ModIndex}");
 
             buttonsFlow.Clear();
             buttonsFlow.ChildrenEnumerable = createButtons();
@@ -296,15 +367,21 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             Action<SpriteText> fontParameters = s => s.Font = OsuFont.Default.With(size: 14, weight: FontWeight.SemiBold);
 
-            return new Container
+            return new FillFlowContainer
             {
                 RelativeSizeAxes = Axes.X,
-                Height = HEIGHT,
+                AutoSizeAxes = Axes.Y,
+                Direction = FillDirection.Vertical,
+                Spacing = new Vector2(15),
+                AutoSizeDuration = 300,
+                AutoSizeEasing = Easing.OutQuint,
                 Children = new Drawable[]
                 {
                     new Container
                     {
-                        RelativeSizeAxes = Axes.Both,
+                        Name = @"Main card",
+                        RelativeSizeAxes = Axes.X,
+                        Height = HEIGHT,
                         Masking = true,
                         CornerRadius = 10,
                         Children = new Drawable[]
@@ -338,7 +415,10 @@ namespace osu.Game.Screens.TournamentShowcase
                                             RelativeSizeAxes = Axes.Y,
                                             Direction = FillDirection.Horizontal,
                                             Spacing = new Vector2(4),
-                                            Margin = new MarginPadding { Horizontal = 8 },
+                                            Margin = new MarginPadding
+                                            {
+                                                Horizontal = 8
+                                            },
                                         },
                                         infoFillFlow = new FillFlowContainer
                                         {
@@ -360,9 +440,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                                 },
                                                 difficultyText = new TextFlowContainer(fontParameters)
                                                 {
-                                                    RelativeSizeAxes = Axes.X,
-                                                    Height = OsuFont.DEFAULT_FONT_SIZE,
-                                                    Masking = true,
+                                                    RelativeSizeAxes = Axes.X, Height = OsuFont.DEFAULT_FONT_SIZE, Masking = true,
                                                 },
                                                 new FillFlowContainer
                                                 {
@@ -380,13 +458,19 @@ namespace osu.Game.Screens.TournamentShowcase
                                                             Spacing = new Vector2(10f, 0),
                                                             Children = new Drawable[]
                                                             {
-                                                                authorText = new LinkFlowContainer(fontParameters) { AutoSizeAxes = Axes.Both },
+                                                                authorText = new LinkFlowContainer(fontParameters)
+                                                                {
+                                                                    AutoSizeAxes = Axes.Both
+                                                                },
                                                                 explicitContent = new ExplicitContentBeatmapBadge
                                                                 {
                                                                     Alpha = 0f,
                                                                     Anchor = Anchor.CentreLeft,
                                                                     Origin = Anchor.CentreLeft,
-                                                                    Margin = new MarginPadding { Top = 3f },
+                                                                    Margin = new MarginPadding
+                                                                    {
+                                                                        Top = 3f
+                                                                    },
                                                                 }
                                                             },
                                                         },
@@ -399,7 +483,10 @@ namespace osu.Game.Screens.TournamentShowcase
                                                             {
                                                                 Scale = new Vector2(0.4f),
                                                                 ExpansionMode = ExpansionMode.AlwaysExpanded,
-                                                                Margin = new MarginPadding { Vertical = -6 },
+                                                                Margin = new MarginPadding
+                                                                {
+                                                                    Vertical = -6
+                                                                },
                                                             }
                                                         }
                                                     }
@@ -412,14 +499,20 @@ namespace osu.Game.Screens.TournamentShowcase
                                             Origin = Anchor.Centre,
                                             RelativeSizeAxes = Axes.Both,
                                             FillMode = FillMode.Fit,
-                                            Margin = new MarginPadding { Horizontal = 4 },
+                                            Margin = new MarginPadding
+                                            {
+                                                Horizontal = 4
+                                            },
                                         },
                                         buttonsFlow = new FillFlowContainer
                                         {
                                             Anchor = Anchor.CentreRight,
                                             Origin = Anchor.CentreRight,
                                             Direction = FillDirection.Horizontal,
-                                            Margin = new MarginPadding { Horizontal = 8 },
+                                            Margin = new MarginPadding
+                                            {
+                                                Horizontal = 8
+                                            },
                                             AutoSizeAxes = Axes.Both,
                                             Spacing = new Vector2(5),
                                             ChildrenEnumerable = createButtons().Select(button => button.With(b =>
@@ -433,7 +526,10 @@ namespace osu.Game.Screens.TournamentShowcase
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
                                             Size = new Vector2(icon_height),
-                                            Margin = new MarginPadding { Right = 8 },
+                                            Margin = new MarginPadding
+                                            {
+                                                Right = 8
+                                            },
                                             Masking = true,
                                             CornerRadius = 4,
                                             Alpha = ShowItemOwner ? 1 : 0,
@@ -450,14 +546,112 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Child = item.ShowcaseScore != null
                                     ? new BeatmapLeaderboardScore(item.ShowcaseScore, false)
                                     : new MessagePlaceholder(TournamentShowcaseStrings.NoScoreAssociationPrompt),
-                            }
+                            },
+                            loadingLayer = new LoadingLayer(true),
                         },
-                    }
-                }
+                    },
+                    editFlow = new FillFlowContainer
+                    {
+                        Name = @"Editor",
+                        Alpha = ShowEditSection.Value ? 1 : 0,
+                        RelativeSizeAxes = Axes.X,
+                        AutoSizeAxes = Axes.Y,
+                        Spacing = new Vector2(5),
+                        Padding = new MarginPadding(10),
+                        Direction = FillDirection.Full,
+                        Children = new Drawable[]
+                        {
+                            new GridContainer
+                            {
+                                RelativeSizeAxes = Axes.X,
+                                AutoSizeAxes = Axes.Y,
+                                RowDimensions = new[]
+                                {
+                                    new Dimension(GridSizeMode.AutoSize),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(GridSizeMode.AutoSize),
+                                    new Dimension(GridSizeMode.Absolute, 5),
+                                    new Dimension(GridSizeMode.AutoSize),
+                                },
+                                ColumnDimensions = new[]
+                                {
+                                    new Dimension(),
+                                    new Dimension(GridSizeMode.Absolute, 10),
+                                    new Dimension(),
+                                },
+                                Content = new[]
+                                {
+                                    new[]
+                                    {
+                                        new FormCheckBox
+                                        {
+                                            Caption = TournamentShowcaseStrings.TournamentOriginal,
+                                            HintText = TournamentShowcaseStrings.TournamentOriginalDescription,
+                                            Current = Item.IsOriginal,
+                                        },
+                                        Empty(),
+                                        new FormNumberBox
+                                        {
+                                            Caption = TournamentShowcaseStrings.BeatmapChooserID,
+                                            HintText = TournamentShowcaseStrings.BeatmapChooserIDDescription,
+                                            Current = selectorId,
+                                        },
+                                    },
+                                    new[]
+                                    {
+                                        Empty(),
+                                    },
+                                    new[]
+                                    {
+                                        new FormTextBox
+                                        {
+                                            Caption = TournamentShowcaseStrings.BeatmapModType,
+                                            HintText = TournamentShowcaseStrings.BeatmapModTypeDescription,
+                                            Current = Item.ModString,
+                                        },
+                                        Empty(),
+                                        new FormTextBox
+                                        {
+                                            Caption = TournamentShowcaseStrings.BeatmapModIndex,
+                                            HintText = TournamentShowcaseStrings.BeatmapModIndexDescription,
+                                            Current = Item.ModIndex,
+                                        },
+                                    },
+                                    new[]
+                                    {
+                                        Empty(),
+                                    },
+                                    new[]
+                                    {
+                                        new FormTextBox
+                                        {
+                                            Caption = TournamentShowcaseStrings.DifficultyField,
+                                            HintText = TournamentShowcaseStrings.DifficultyFieldDescription,
+                                            Current = Item.DiffField,
+                                        },
+                                        Empty(),
+                                        new FormTextBox
+                                        {
+                                            Caption = TournamentShowcaseStrings.CreditUsers,
+                                            HintText = TournamentShowcaseStrings.CreditUsersDescription,
+                                            Current = Item.CreditUserIds,
+                                        },
+                                    },
+                                },
+                            },
+                            new FormTextBox
+                            {
+                                Caption = TournamentShowcaseStrings.Comment,
+                                HintText = TournamentShowcaseStrings.BeatmapCommentDescription,
+                                Current = Item.BeatmapComment,
+                            },
+                        },
+                    },
+                },
             };
         }
 
-        private IEnumerable<Drawable> createButtons() => new[]
+        private Drawable[] createButtons() => new[]
         {
             beatmapInfo?.BeatmapSet == null ? Empty() : new PlaylistDownloadButton(beatmapInfo),
             editButton = new PlaylistEditButton
@@ -476,19 +670,10 @@ namespace osu.Game.Screens.TournamentShowcase
             },
         };
 
-        public void UpdateModIcon()
+        private void updateModIcon()
         {
-            modIcon.Texture = textureStore.Get($"{config.TournamentName}/{item.ModString}{item.ModIndex}");
+            modIcon.Texture = textureStore.Get($"{parentConfig.TournamentName}/{item.ModString}{item.ModIndex}");
             modIcon.FadeInFromZero(500, Easing.OutQuint);
-        }
-
-        public async Task UpdateOwnerAvatar()
-        {
-            if (showItemOwner)
-            {
-                var foundUser = await userLookupCache.GetUserAsync(item.Selector.Value.OnlineID).ConfigureAwait(false);
-                Schedule(() => ownerAvatar.User = foundUser);
-            }
         }
 
         protected override bool OnHover(HoverEvent e)
@@ -523,6 +708,60 @@ namespace osu.Game.Screens.TournamentShowcase
 
                 return items.ToArray();
             }
+        }
+
+        private void updateAsNeeded(SelectResult result, BeatmapInfo info, RulesetInfo rulesetInfo, ScoreInfo? score, IReadOnlyList<Mod> mods)
+        {
+            if (result.HasFlag(SelectResult.RulesetUpdated))
+            {
+                Item.RulesetId = rulesetInfo.OnlineID;
+            }
+
+            if (result.HasFlag(SelectResult.ScoreUpdated))
+            {
+                Item.ShowcaseScore = score;
+                Item.ScoreHash = Item.ShowcaseScore?.Hash ?? string.Empty;
+            }
+
+            if (result.HasFlag(SelectResult.BeatmapUpdated))
+            {
+                Item.BeatmapInfo = info;
+                Item.BeatmapId = info.OnlineID;
+                Item.BeatmapHash = info.Hash;
+
+                // This triggers a full refresh, thus no further action is needed.
+                Refresh(needPopulation: true);
+                return;
+            }
+
+            if (result.HasFlag(SelectResult.ModUpdated))
+            {
+                Item.RequiredMods.Clear();
+                Item.RequiredMods.AddRange(mods);
+            }
+
+            // For other uncovered cases, e.g. ruleset and score updates.
+            Refresh(refreshScoreOnly: result == SelectResult.ScoreUpdated,
+                needPopulation: result.HasFlag(SelectResult.RulesetUpdated));
+        }
+
+        private void populateSelector()
+        {
+            Task.Run(async () =>
+            {
+                var req = new GetUserRequest(Item.Selector.Value.OnlineID);
+
+                await api.PerformAsync(req).ConfigureAwait(true);
+
+                var res = req.Response;
+
+                Item.Selector.Value.OnlineID = res?.Id ?? 0;
+
+                Item.Selector.Value.Username = res?.Username ?? string.Empty;
+                Item.Selector.Value.Rank = res?.Statistics?.GlobalRank;
+
+                Scheduler.AddOnce(_ => Refresh(needPopulation: true), false);
+            });
         }
 
         public partial class PlaylistEditButton : GrayButton
