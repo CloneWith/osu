@@ -16,9 +16,9 @@ using osu.Game.Online.API;
 
 namespace osu.Game.Overlays.Settings.Sections.Online
 {
-    public partial class WebSettings : SettingsSubsection
+    public partial class ContentDownloadSettings : SettingsSubsection
     {
-        protected override LocalisableString Header => OnlineSettingsStrings.WebHeader;
+        protected override LocalisableString Header => OnlineSettingsStrings.ContentDownloadsHeader;
 
         private FormTextBox customApiUrlTextBox = null!;
 
@@ -56,8 +56,13 @@ namespace osu.Game.Overlays.Settings.Sections.Online
                     Current = config.GetBindable<bool>(OsuSetting.ShowOnlineExplicitContent),
                 })
                 {
-                    Keywords = new[] { "nsfw", "18+", "offensive" }
+                    Keywords = new[] { "nsfw", "18+", "offensive" },
                 },
+                new SettingsItemV2(new FormCheckBox
+                {
+                    Caption = OnlineSettingsStrings.HideCountryFlags,
+                    Current = config.GetBindable<bool>(OsuSetting.HideCountryFlags)
+                }),
                 new SettingsItemV2(customApiUrlTextBox = new FormTextBox
                 {
                     Caption = OnlineSettingsStrings.CustomApiUrl,
