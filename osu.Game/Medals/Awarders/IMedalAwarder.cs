@@ -7,6 +7,9 @@ namespace osu.Game.Medals.Awarders
     /// </summary>
     public interface IMedalAwarder
     {
+        // ReSharper disable once InconsistentNaming
+        const int G0V0_ACHIEVEMENTS_ID_START = 100_000;
+
         /// <summary>
         /// The ID of the medal to be awarded.
         /// </summary>

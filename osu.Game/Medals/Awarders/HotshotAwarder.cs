@@ -13,6 +13,7 @@ namespace osu.Game.Medals.Awarders
     /// <summary>
     /// "Hotshot" medal awarder (ID: 353)
     /// Awarded for being the only player to achieve a full combo in multiplayer with at least four players.
+    /// <see href="https://inex.osekai.net/medals/Hotshot">Solution Reference (Osekai INEX)</see>
     /// </summary>
     public class HotshotAwarder : IMedalAwarder
     {
