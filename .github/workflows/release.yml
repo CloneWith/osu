@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*-lazer'
+  workflow_dispatch:
 
 env:
   DOTNET_VERSION: '8.0.x'
@@ -518,9 +519,106 @@ jobs:
           path: Releases/
           retention-days: 90
 
+  build-ios:
+    name: Build iOS
+    needs: version
+    runs-on: macos-15
+    timeout-minutes: 60
+    concurrency:
+      group: build-ios
+      cancel-in-progress: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install .NET iOS Workload
+        run: dotnet workload install ios
+
+      - name: Use Xcode 16.4
+        run: sudo xcode-select -switch /Applications/Xcode_16.4.app
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.nuget/packages
+          key: macOS-ios-nuget-${{ hashFiles('**/*.csproj', '**/packages.lock.json') }}
+          restore-keys: |
+            macOS-ios-nuget-${{ hashFiles('**/*.csproj') }}
+            macOS-ios-nuget-
+            macOS-nuget-
+
+      - name: Validate Sentry DSN
+        shell: bash
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          if [[ -z "$SENTRY_DSN" ]]; then
+            echo "ERROR: SENTRY_DSN secret is required for release builds."
+            exit 1
+          fi
+
+      - name: Clean previous build artifacts
+        shell: bash
+        run: |
+          echo "Cleaning previous build artifacts for iOS"
+          rm -rf osu.iOS/bin osu.iOS/obj
+
+      - name: Restore dependencies
+        timeout-minutes: 15
+        shell: bash
+        run: |
+          dotnet restore osu.iOS.slnf \
+            --verbosity normal \
+            --no-cache \
+            --force
+
+      - name: Build
+        shell: bash
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          dotnet build -c Release \
+            -p:BuildIpa=true \
+            -p:RuntimeIdentifier=ios-arm64 \
+            -p:CodesignKey="-" \
+            --no-restore \
+            -p:Version=${{ needs.version.outputs.semver }} \
+            -p:FileVersion=${{ needs.version.outputs.fileVersion }} \
+            -p:AssemblyVersion=${{ needs.version.outputs.assemblyVersion }} \
+            -p:SentryDsn="$SENTRY_DSN" \
+            -p:InformationalVersion=${{ needs.version.outputs.version }} \
+            osu.iOS.slnf
+
+      - name: Collect IPA
+        shell: bash
+        run: |
+          mkdir -p Releases
+          IPA_FILE=$(find osu.iOS/bin/ -name "*.ipa" | head -1)
+          if [[ -z "$IPA_FILE" ]]; then
+            echo "ERROR: No IPA file found after build!"
+            exit 1
+          fi
+          echo "Found IPA: $IPA_FILE"
+          cp "$IPA_FILE" "Releases/osu-gu-ios.ipa"
+          echo "Final artifact: Releases/osu-gu-ios.ipa"
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-osu-gu-ios
+          path: Releases/*.ipa
+          retention-days: 30
   release:
     name: Create GitHub Release
-    needs: [version, nuget, build]
+    needs: [version, nuget, build, build-ios]
     runs-on: ubuntu-latest
     permissions:
       contents: write
