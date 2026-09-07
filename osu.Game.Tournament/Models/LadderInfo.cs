@@ -67,8 +67,6 @@ namespace osu.Game.Tournament.Models
 
         public Bindable<bool> UseBlueChroma = new BindableBool(true);
 
-        public Bindable<bool> NativeTourneyWindowCapturing = new Bindable<bool>();
-
         public BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> BackgroundMap = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>();
 
         [JsonIgnore]

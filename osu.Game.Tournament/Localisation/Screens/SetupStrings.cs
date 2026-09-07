@@ -5,7 +5,7 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Tournament.Localisation.Screens
 {
-    public class SetupStrings
+    public static class SetupStrings
     {
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Screens.Setup";
 
@@ -93,18 +93,6 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// </summary>
         public static LocalisableString UseBlueChromaDescription => new TranslatableString(getKey(@"use_blue_chroma_description"),
             @"Use blue instead of green for chroma areas.");
-
-        /// <summary>
-        /// "[Experimental] Capture tourney windows natively"
-        /// </summary>
-        public static LocalisableString NativeTourneyWindowCapturing => new TranslatableString(getKey(@"native_tourney_window_capturing"),
-            @"[Experimental] Capture tourney windows natively");
-
-        /// <summary>
-        /// "Try to use native library methods to capture tourney windows in the gameplay screen. Currently only available on Windows and may not work properly."
-        /// </summary>
-        public static LocalisableString NativeTourneyWindowCapturingDescription => new TranslatableString(getKey(@"native_tourney_window_capturing_description"),
-            @"Try to use native library methods to capture tourney windows in the gameplay screen. Currently only available on Windows and may not work properly.");
 
         /// <summary>
         /// "Tournament Specific"
