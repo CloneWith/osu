@@ -458,7 +458,7 @@ namespace osu.Game.Tournament
             }
         }
 
-        private partial class ScreenButton : SidebarIconButton
+        private partial class ScreenButton : SelectableSidebarButton
         {
             public readonly Type Type;
 
