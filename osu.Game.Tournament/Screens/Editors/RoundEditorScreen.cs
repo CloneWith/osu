@@ -145,14 +145,14 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Text = RoundEditorStrings.AddReferee,
                                 Margin = new MarginPadding { Top = 10, Bottom = 10 },
-                                Action = () => refereeEditor.CreateNew(),
+                                Action = refereeEditor.CreateNew,
                             },
                             beatmapEditor,
                             new SettingsButton
                             {
                                 Text = BaseStrings.AddBeatmap,
                                 Margin = new MarginPadding { Top = 10, Bottom = 10 },
-                                Action = () => beatmapEditor.CreateNew(),
+                                Action = beatmapEditor.CreateNew,
                             },
                         },
                     },
@@ -301,7 +301,7 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     private void updatePanel() => Scheduler.AddOnce(() =>
                     {
-                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), mode: ListDisplayMode.Statistics)
+                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser())
                         {
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,

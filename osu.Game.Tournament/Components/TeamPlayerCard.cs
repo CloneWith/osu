@@ -5,7 +5,6 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Game.Graphics;
@@ -17,7 +16,6 @@ using osu.Game.Users.Drawables;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 using osuTK.Graphics;
-using osu.Framework.Graphics.Textures;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Localisation;
@@ -52,13 +50,8 @@ namespace osu.Game.Tournament.Components
         }
 
         [BackgroundDependencyLoader]
-        private void load(TextureStore textures)
+        private void load()
         {
-            AltBackground.Texture = textures.Get("Icons/usercard-default");
-            AltBackground.Colour = ColourInfo.GradientHorizontal(Color4Extensions.FromHex("#43C7DE").Opacity(0.5f), Color4.White.Opacity(0.5f));
-            AltBackground.FillMode = FillMode.Fill;
-            AltBackground.Origin = Anchor.CentreRight;
-            AltBackground.Anchor = Anchor.CentreRight;
             Background.Origin = Anchor.CentreRight;
             Background.Anchor = Anchor.CentreRight;
             Background.Colour = Color4.Gray;

@@ -188,7 +188,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Text = TeamEditorStrings.AddPlayer,
                                 Margin = new MarginPadding { Top = 10, Bottom = 10 },
-                                Action = () => playerEditor.CreateNew(),
+                                Action = playerEditor.CreateNew,
                             },
                         }
                     },
@@ -345,7 +345,7 @@ namespace osu.Game.Tournament.Screens.Editors
 
                     private void updatePanel() => Scheduler.AddOnce(() =>
                     {
-                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser(), 60, mode: ListDisplayMode.Statistics)
+                        userPanelContainer.Child = new UserListPanel(user.ToAPIUser())
                         {
                             RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
