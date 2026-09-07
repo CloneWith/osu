@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions.LocalisationExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -25,12 +26,11 @@ using osu.Game.Localisation;
 using osu.Game.Online.Metadata;
 using osu.Game.Online.Multiplayer;
 using osu.Game.Screens;
+using osu.Game.Screens.OnlinePlay.Matchmaking.Queue;
 using osu.Game.Screens.Play;
 using osu.Game.Users.Drawables;
 using osuTK;
-using osu.Framework.Bindables;
-using osu.Framework.Extensions.LocalisationExtensions;
-using osu.Framework.Graphics.Sprites;
+using osu.Game.Online.Rooms;
 
 namespace osu.Game.Users
 {
@@ -45,10 +45,6 @@ namespace osu.Game.Users
         public new Action? Action;
 
         protected Action ViewProfile { get; private set; } = null!;
-
-        private readonly Bindable<UserStatistics?> statistics = new Bindable<UserStatistics?>();
-
-        protected Sprite AltBackground { get; private set; } = null!;
 
         protected Drawable Background { get; private set; } = null!;
 
@@ -72,10 +68,6 @@ namespace osu.Game.Users
         [Resolved]
         private ChatOverlay? chatOverlay { get; set; }
 
-        private OsuSpriteText globalRankDisplay = null!;
-
-        private LocalisableString globalRank;
-
         [Resolved]
         private IDialogOverlay? dialogOverlay { get; set; }
 
@@ -83,7 +75,6 @@ namespace osu.Game.Users
         protected OverlayColourProvider? ColourProvider { get; private set; }
 
         [Resolved]
-
         private IPerformFromScreenRunner? performer { get; set; }
 
         [Resolved]
@@ -95,42 +86,23 @@ namespace osu.Game.Users
         [Resolved]
         private MetadataClient? metadataClient { get; set; }
 
+        [Resolved]
+        private QueueController? queueController { get; set; }
+
         [BackgroundDependencyLoader]
         private void load()
         {
-            // Initialize globalRankDisplay
-            globalRankDisplay = new OsuSpriteText
-            {
-                Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
-                Shadow = false
-            };
-
-            statistics.Value = User.Statistics;
-            statistics.BindValueChanged(stats =>
-            {
-                globalRank = stats.NewValue?.GlobalRank?.ToLocalisableString("\\##,##0") ?? "-";
-                globalRankDisplay.Text = globalRank;
-            }, true);
-
             Masking = true;
 
             Add(new Box
             {
                 RelativeSizeAxes = Axes.Both,
-                Colour = ColourProvider?.Background5 ?? Colours.Gray1,
-                Alpha = 0.6f,
+                Colour = ColourProvider?.Background5 ?? Colours.Gray1
             });
 
-            var altBackground = CreateAltBackground();
-
-            Add(altBackground);
-
             var background = CreateBackground();
-
             if (background != null)
-            {
                 Add(background);
-            }
 
             Add(CreateLayout());
 
@@ -156,18 +128,21 @@ namespace osu.Game.Users
             User = User
         };
 
-        protected virtual Sprite CreateAltBackground() => AltBackground = new Sprite
-        {
-            RelativeSizeAxes = Axes.Both,
-            Anchor = Anchor.Centre,
-            Origin = Anchor.Centre,
-        };
-
         protected OsuSpriteText CreateUsername() => new OsuSpriteText
         {
-            Font = OsuFont.GetFont(size: 20, weight: FontWeight.Bold),
+            Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
             Shadow = false,
             Text = User.Username,
+        };
+
+        protected OsuSpriteText CreateRank() => new OsuSpriteText
+        {
+            Font = OsuFont.GetFont(size: 16, weight: FontWeight.SemiBold),
+            Shadow = false,
+            // We can't colour the properly because we don't have the required percentile data.
+
+            Colour = Colours.BlueLighter,
+            Text = (User.Rank?.Rank ?? User.Statistics.GlobalRank)?.ToLocalisableString("\\##,##0") ?? string.Empty,
         };
 
         protected UpdateableAvatar CreateAvatar() => new UpdateableAvatar(User, false);
@@ -221,13 +196,23 @@ namespace osu.Game.Users
                                 multiplayerClient!.InvitePlayer(User.Id);
                         }));
                     }
+
+                    if (canDuelUser())
+                    {
+                        items.Add(new OsuMenuItem(ContextMenuStrings.DuelPlayer, MenuItemType.Standard, () =>
+                        {
+                            if (canDuelUser())
+                                queueController?.IssueDuel(queueController.SelectedPool.Value!, User.Id);
+                        }));
+                    }
                 }
 
                 return items.ToArray();
 
                 bool isUserOnline() => metadataClient?.GetPresence(User.OnlineID) != null;
-                bool canInviteUser() => isUserOnline() && multiplayerClient?.Room?.Users.All(u => u.UserID != User.Id) == true;
+                bool canInviteUser() => isUserOnline() && multiplayerClient?.Room?.Users.All(u => u.UserID != User.Id) == true && multiplayerClient?.Room?.Settings.MatchType.IsMatchmakingType() != true;
                 bool isUserBlocked() => api.LocalUserState.Blocks.Any(b => b.TargetID == User.OnlineID);
+                bool canDuelUser() => isUserOnline() && queueController?.SelectedPool.Value != null && multiplayerClient?.Room?.Settings.MatchType.IsMatchmakingType() != true;
             }
         }
 

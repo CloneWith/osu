@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
+using osu.Desktop.IPC;
 using osu.Desktop.Performance;
 using osu.Desktop.Security;
 using osu.Framework.Platform;
@@ -14,6 +15,7 @@ using osu.Desktop.Updater;
 using osu.Framework;
 using osu.Framework.Logging;
 using osu.Game.Updater;
+using osu.Desktop.MacOS;
 using osu.Desktop.Windows;
 using osu.Framework.Allocation;
 using osu.Game.Configuration;
@@ -33,6 +35,8 @@ namespace osu.Desktop
         private readonly HighPerformanceSessionManager highPerformanceSessionManager = new HighPerformanceSessionManager();
 
         public bool IsFirstRun { get; init; }
+
+        public bool EnableWebSocketServer { get; init; }
 
         public OsuGameDesktop(string[]? args = null)
             : base(args)
@@ -131,13 +135,25 @@ namespace osu.Desktop
 
             LoadComponentAsync(new DiscordRichPresence(), Add);
 
-            if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
-                LoadComponentAsync(new GameplayWinKeyBlocker(), Add);
+            switch (RuntimeInfo.OS)
+            {
+                case RuntimeInfo.Platform.Windows:
+                    LoadComponentAsync(new GameplayWinKeyBlocker(), Add);
+                    break;
+
+                case RuntimeInfo.Platform.macOS when !IsPackageManaged && IsDeployedBuild:
+                    if (!IsPackageManaged && IsDeployedBuild)
+                        LoadComponentAsync(new MacOSAppLocationChecker(), Add);
+                    break;
+            }
 
             LoadComponentAsync(new ElevatedPrivilegesChecker(), Add);
 
             osuSchemeLinkIPCChannel = new OsuSchemeLinkIPCChannel(Host, this);
             archiveImportIPCChannel = new ArchiveImportIPCChannel(Host, this);
+
+            if (EnableWebSocketServer)
+                Add(new OsuWebSocketProvider());
         }
 
         public override void SetHost(GameHost host)

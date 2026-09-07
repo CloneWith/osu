@@ -2,36 +2,26 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System.Diagnostics;
-using osu.Framework.Graphics;
 using osu.Framework.Allocation;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Extensions.Color4Extensions;
-using osuTK.Graphics;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Game.Online.API.Requests.Responses;
-using osuTK;
 using osu.Game.Overlays.Profile.Header.Components;
-using osu.Game.Graphics.Sprites;
-using osu.Framework.Extensions.LocalisationExtensions;
-using osu.Game.Graphics;
+using osuTK;
+using osuTK.Graphics;
 
 namespace osu.Game.Users
 {
     public partial class UserListPanel : ExtendedUserPanel
     {
-        public ColourInfo BackgroundColour = ColourInfo.GradientHorizontal(Color4.White.Opacity(1), Color4.White.Opacity(0.3f));
-
-        private readonly ListDisplayMode displayMode;
-        private readonly int absoluteHeight;
-
-        public UserListPanel(APIUser user, int height = 40, int cornerRadius = 6, ListDisplayMode mode = ListDisplayMode.Status)
+        public UserListPanel(APIUser user)
             : base(user)
         {
             RelativeSizeAxes = Axes.X;
-            CornerRadius = cornerRadius;
-            absoluteHeight = height;
-
-            displayMode = mode;
+            Height = 40;
+            CornerRadius = 6;
         }
 
         [BackgroundDependencyLoader]
@@ -39,36 +29,10 @@ namespace osu.Game.Users
         {
             Debug.Assert(Background != null);
 
-            Height = RelativeSizeAxes is Axes.Y or Axes.Both ? 1f : absoluteHeight;
             Background.Width = 0.5f;
             Background.Origin = Anchor.CentreRight;
             Background.Anchor = Anchor.CentreRight;
-            Background.Colour = BackgroundColour;
-        }
-
-        protected OsuSpriteText CreateUserRank()
-        {
-            // Assuming statistics is a property of APIUser and contains the necessary rank information
-            var globalRank = User.Statistics?.GlobalRank?.ToLocalisableString("\\##,##0") ?? "-";
-
-            return new OsuSpriteText
-            {
-                Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
-                Shadow = false,
-                Text = globalRank
-            };
-        }
-
-        protected OsuSpriteText CreateUserPP()
-        {
-            string performance = User.Statistics?.PP?.ToString("N0") ?? "-";
-
-            return new OsuSpriteText
-            {
-                Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
-                Shadow = false,
-                Text = performance + "pp"
-            };
+            Background.Colour = ColourInfo.GradientHorizontal(Color4.White.Opacity(1), Color4.White.Opacity(0.3f));
         }
 
         protected override Drawable CreateLayout()
@@ -87,15 +51,20 @@ namespace osu.Game.Users
                         AutoSizeAxes = Axes.Both,
                         Direction = FillDirection.Horizontal,
                         Spacing = new Vector2(10, 0),
-                        Children = new Drawable[]
+                        Children = new[]
                         {
                             CreateAvatar().With(avatar =>
                             {
                                 avatar.Anchor = Anchor.CentreLeft;
                                 avatar.Origin = Anchor.CentreLeft;
-                                avatar.Size = new Vector2(absoluteHeight);
+                                avatar.Size = new Vector2(40);
                             }),
                             CreateFlag().With(flag =>
+                            {
+                                flag.Anchor = Anchor.CentreLeft;
+                                flag.Origin = Anchor.CentreLeft;
+                            }),
+                            CreateTeamLogo().With(flag =>
                             {
                                 flag.Anchor = Anchor.CentreLeft;
                                 flag.Origin = Anchor.CentreLeft;
@@ -105,7 +74,13 @@ namespace osu.Game.Users
                                 username.Anchor = Anchor.CentreLeft;
                                 username.Origin = Anchor.CentreLeft;
                                 username.UseFullGlyphHeight = false;
-                            })
+                            }),
+                            CreateRank().With(rank =>
+                            {
+                                rank.Anchor = Anchor.CentreLeft;
+                                rank.Origin = Anchor.CentreLeft;
+                                rank.UseFullGlyphHeight = false;
+                            }),
                         }
                     },
                     new FillFlowContainer
@@ -118,30 +93,15 @@ namespace osu.Game.Users
                         Margin = new MarginPadding { Right = 10 },
                         Children = new Drawable[]
                         {
-                            CreateUserPP().With(pp =>
-                            {
-                                pp.Anchor = Anchor.CentreRight;
-                                pp.Origin = Anchor.CentreRight;
-                                pp.Alpha = displayMode != ListDisplayMode.Status ? 1f : 0f;
-                            }),
-                            CreateUserRank().With(rank =>
-                            {
-                                rank.Anchor = Anchor.CentreRight;
-                                rank.Origin = Anchor.CentreRight;
-                                rank.Alpha = displayMode != ListDisplayMode.Status ? 1f : 0f;
-                            }),
-                            // Disable these two function will cause a strange exception, using Alpha = 0f; instead
-                            CreateStatusMessage(true).With(message =>
-                            {
-                                message.Anchor = Anchor.CentreRight;
-                                message.Origin = Anchor.CentreRight;
-                                message.Alpha = displayMode != ListDisplayMode.Statistics ? 1f : 0f;
-                            }),
                             CreateStatusIcon().With(icon =>
                             {
                                 icon.Anchor = Anchor.CentreRight;
                                 icon.Origin = Anchor.CentreRight;
-                                icon.Alpha = displayMode != ListDisplayMode.Statistics ? 1f : 0f;
+                            }),
+                            CreateStatusMessage(true).With(message =>
+                            {
+                                message.Anchor = Anchor.CentreRight;
+                                message.Origin = Anchor.CentreRight;
                             })
                         }
                     }
@@ -171,12 +131,5 @@ namespace osu.Game.Users
 
             return layout;
         }
-    }
-
-    public enum ListDisplayMode
-    {
-        Status,
-        Statistics,
-        Both
     }
 }

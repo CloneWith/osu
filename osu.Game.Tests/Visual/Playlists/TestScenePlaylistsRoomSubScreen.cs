@@ -140,13 +140,16 @@ namespace osu.Game.Tests.Visual.Playlists
                 room = new Room
                 {
                     RoomID = 1,
+                    Name = "Test Playlist",
+                    Description = "This is a playlist with a short description, woo!",
+                    MaxAttempts = 10,
                     Playlist =
                     [
                         // osu! beatmap
                         new PlaylistItem(importedSet.Beatmaps[0])
                         {
                             RulesetID = new OsuRuleset().RulesetInfo.OnlineID,
-                            Freestyle = true
+                            Freestyle = true,
                         },
                         // osu! beatmap converted played in taiko
                         new PlaylistItem(importedSet.Beatmaps[1])
