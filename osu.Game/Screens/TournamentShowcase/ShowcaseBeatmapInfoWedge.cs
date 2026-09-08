@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
@@ -13,14 +12,15 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
+using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
-using osu.Game.Beatmaps.Drawables;
 using osu.Game.Configuration;
 using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Localisation;
 using osu.Game.Models;
 using osu.Game.Overlays;
 using osu.Game.Resources.Localisation.Web;
@@ -29,7 +29,6 @@ using osu.Game.Rulesets.Mods;
 using osu.Game.Screens.Select;
 using osu.Game.Utils;
 using osuTK;
-using osuTK.Graphics;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
@@ -40,7 +39,7 @@ namespace osu.Game.Screens.TournamentShowcase
         public Bindable<ShowcaseBeatmap?> Target = new Bindable<ShowcaseBeatmap?>();
 
         [Resolved]
-        private IBindable<WorkingBeatmap> beatmap { get; set; } = null!;
+        private IBindable<WorkingBeatmap> working { get; set; } = null!;
 
         [Resolved]
         private IBindable<RulesetInfo> ruleset { get; set; } = null!;
@@ -50,31 +49,17 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private ModSettingChangeTracker? settingChangeTracker;
 
-        [Resolved]
-        private BeatmapDifficultyCache difficultyCache { get; set; } = null!;
-
-        [Resolved]
-        private OsuColour colours { get; set; } = null!;
-
-        private StarRatingDisplay starRatingDisplay = null!;
-        private FillFlowContainer nameLine = null!;
+        private MarqueeContainer titleLabel = null!;
+        private MarqueeContainer artistLabel = null!;
         private OsuSpriteText modText = null!;
-        private OsuSpriteText titleText = null!;
-        private OsuSpriteText artistText = null!;
-        private OsuSpriteText difficultyText = null!;
-        private OsuSpriteText mappedByText = null!;
-        private OsuSpriteText mapperText = null!;
         private BeatmapTitleWedge.Statistic lengthStatistic = null!;
         private BeatmapTitleWedge.Statistic bpmStatistic = null!;
 
-        private GridContainer ratingAndNameContainer = null!;
-        private BeatmapTitleWedge.DifficultyStatisticsDisplay difficultyStatisticsDisplay = null!;
-
         private Container showcaseInfoContainer = null!;
-        private OsuTextFlowContainer difficultyAreaText = null!;
-        private OsuTextFlowContainer commentText = null!;
+        private BeatmapTitleWedge.Statistic difficultyAreaText = null!;
+        private BeatmapTitleWedge.Statistic commentText = null!;
 
-        private CancellationTokenSource? cancellationSource;
+        private FillFlowContainer statisticsFlow = null!;
 
         private bool shouldShowShowcaseInfo => Target.Value != null
                                                && (!string.IsNullOrWhiteSpace(Target.Value.DiffField.Value) || !string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value));
@@ -100,32 +85,41 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
                     Direction = FillDirection.Vertical,
+                    Padding = new MarginPadding
+                    {
+                        Left = SongSelect.WEDGE_CONTENT_MARGIN,
+                    },
                     Children = new Drawable[]
                     {
-                        new ShearAligningWrapper(titleText = new TruncatingSpriteText
+                        new ShearAligningWrapper(new Container
                         {
                             Shear = -OsuGame.SHEAR,
                             RelativeSizeAxes = Axes.X,
-                            Shadow = true,
-                            Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN, Top = 5 },
-                            Font = OsuFont.Style.Heading2,
+                            Height = OsuFont.Style.Title.Size,
+                            Margin = new MarginPadding { Top = 5f, Bottom = -4f },
+                            Child = titleLabel = new MarqueeContainer
+                            {
+                                OverflowSpacing = 50,
+                            },
                         }),
-                        new ShearAligningWrapper(artistText = new TruncatingSpriteText
+                        new ShearAligningWrapper(new Container
                         {
                             Shear = -OsuGame.SHEAR,
                             RelativeSizeAxes = Axes.X,
-                            Shadow = true,
-                            Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN },
-                            Font = OsuFont.Style.Body,
+                            Height = OsuFont.Style.Heading2.Size,
+                            Margin = new MarginPadding { Left = 1f },
+                            Child = artistLabel = new MarqueeContainer
+                            {
+                                OverflowSpacing = 50,
+                            },
                         }),
-                        new ShearAligningWrapper(new FillFlowContainer
+                        new ShearAligningWrapper(statisticsFlow = new FillFlowContainer
                         {
                             Shear = -OsuGame.SHEAR,
                             AutoSizeAxes = Axes.X,
                             Height = 30,
                             Direction = FillDirection.Horizontal,
                             Spacing = new Vector2(2f, 0f),
-                            Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN },
                             Children = new Drawable[]
                             {
                                 lengthStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Clock),
@@ -136,106 +130,14 @@ namespace osu.Game.Screens.TournamentShowcase
                                 },
                             },
                         }),
-                        new ShearAligningWrapper(ratingAndNameContainer = new GridContainer
-                        {
-                            Shear = -OsuGame.SHEAR,
-                            AlwaysPresent = true,
-                            RelativeSizeAxes = Axes.X,
-                            Height = 20,
-                            Margin = new MarginPadding { Vertical = 5f },
-                            Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN },
-                            RowDimensions = new[] { new Dimension(GridSizeMode.AutoSize) },
-                            ColumnDimensions = new[]
-                            {
-                                new Dimension(GridSizeMode.AutoSize),
-                                new Dimension(GridSizeMode.Absolute, 6),
-                                new Dimension(),
-                            },
-                            Content = new[]
-                            {
-                                new[]
-                                {
-                                    starRatingDisplay = new StarRatingDisplay(default, animated: true)
-                                    {
-                                        Anchor = Anchor.CentreLeft,
-                                        Origin = Anchor.CentreLeft,
-                                    },
-                                    Empty(),
-                                    nameLine = new FillFlowContainer
-                                    {
-                                        Anchor = Anchor.CentreLeft,
-                                        Origin = Anchor.CentreLeft,
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Direction = FillDirection.Horizontal,
-                                        Margin = new MarginPadding { Bottom = 2f },
-                                        Children = new Drawable[]
-                                        {
-                                            difficultyText = new TruncatingSpriteText
-                                            {
-                                                Anchor = Anchor.BottomLeft,
-                                                Origin = Anchor.BottomLeft,
-                                                Font = OsuFont.Style.Body.With(weight: FontWeight.SemiBold),
-                                            },
-                                            mappedByText = new OsuSpriteText
-                                            {
-                                                Anchor = Anchor.BottomLeft,
-                                                Origin = Anchor.BottomLeft,
-                                                Text = " mapped by ",
-                                                Font = OsuFont.Style.Body,
-                                            },
-                                            mapperText = new TruncatingSpriteText
-                                            {
-                                                Shadow = true,
-                                                Font = OsuFont.Style.Body.With(weight: FontWeight.SemiBold),
-                                                Colour = colourProvider.Colour1,
-                                            },
-                                        },
-                                    },
-                                },
-                            },
-                        }),
                         new ShearAligningWrapper(new Container
                         {
                             Shear = -OsuGame.SHEAR,
                             RelativeSizeAxes = Axes.X,
-                            Height = 53,
-                            Padding = new MarginPadding { Bottom = border_weight, Right = border_weight },
-                            Child = new Container
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                AutoSizeAxes = Axes.Y,
-                                Masking = true,
-                                CornerRadius = 10 - border_weight,
-                                Shear = OsuGame.SHEAR,
-                                Children = new Drawable[]
-                                {
-                                    new Box
-                                    {
-                                        RelativeSizeAxes = Axes.Both,
-                                        Colour = colourProvider.Background5.Opacity(0.8f),
-                                    },
-                                    new GridContainer
-                                    {
-                                        RelativeSizeAxes = Axes.X,
-                                        AutoSizeAxes = Axes.Y,
-                                        Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN, Right = 20f, Vertical = 7.5f },
-                                        Shear = -OsuGame.SHEAR,
-                                        RowDimensions = new[] { new Dimension(GridSizeMode.AutoSize) },
-                                        ColumnDimensions = new[]
-                                        {
-                                            new Dimension(GridSizeMode.AutoSize),
-                                        },
-                                        Content = new[]
-                                        {
-                                            new[]
-                                            {
-                                                difficultyStatisticsDisplay = new BeatmapTitleWedge.DifficultyStatisticsDisplay(autoSize: true),
-                                            }
-                                        },
-                                    },
-                                },
-                            },
+                            AutoSizeAxes = Axes.Y,
+                            Margin = new MarginPadding { Left = -SongSelect.WEDGE_CONTENT_MARGIN },
+                            Padding = new MarginPadding { Right = -SongSelect.WEDGE_CONTENT_MARGIN },
+                            Child = new BeatmapTitleWedge.DifficultyDisplay(),
                         }),
                         new ShearAligningWrapper(showcaseInfoContainer = new Container
                         {
@@ -248,36 +150,23 @@ namespace osu.Game.Screens.TournamentShowcase
                                 AutoSizeAxes = Axes.Y,
                                 Masking = true,
                                 CornerRadius = 10 - border_weight,
-                                Shear = OsuGame.SHEAR,
                                 Padding = new MarginPadding { Bottom = border_weight, Right = border_weight },
                                 Children = new Drawable[]
                                 {
                                     new Box
                                     {
+                                        Shear = OsuGame.SHEAR,
                                         RelativeSizeAxes = Axes.Both,
                                         Colour = colourProvider.Background5.Opacity(0.8f),
                                     },
                                     new FillFlowContainer
                                     {
-                                        RelativeSizeAxes = Axes.X,
                                         AutoSizeAxes = Axes.Y,
                                         Direction = FillDirection.Vertical,
-                                        Spacing = new Vector2(3),
-                                        Padding = new MarginPadding { Left = SongSelect.WEDGE_CONTENT_MARGIN, Vertical = 7.5f },
                                         Children = new Drawable[]
                                         {
-                                            difficultyAreaText = new OsuTextFlowContainer
-                                            {
-                                                RelativeSizeAxes = Axes.X,
-                                                AutoSizeAxes = Axes.Y,
-                                                Shear = -OsuGame.SHEAR,
-                                            },
-                                            commentText = new OsuTextFlowContainer
-                                            {
-                                                RelativeSizeAxes = Axes.X,
-                                                AutoSizeAxes = Axes.Y,
-                                                Shear = -OsuGame.SHEAR,
-                                            },
+                                            difficultyAreaText = new BeatmapTitleWedge.Statistic(FontAwesome.Solid.Star),
+                                            commentText = new BeatmapTitleWedge.Statistic(FontAwesome.Solid.CommentAlt)
                                         },
                                     },
                                 },
@@ -301,7 +190,7 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             base.LoadComplete();
 
-            beatmap.BindValueChanged(_ => updateDisplay());
+            working.BindValueChanged(_ => updateDisplay());
             ruleset.BindValueChanged(_ => updateDisplay());
             Target.BindValueChanged(_ => updateShowcaseInformation());
 
@@ -309,50 +198,44 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 settingChangeTracker?.Dispose();
 
-                updateDifficultyStatistics();
+                updateLengthAndBpmStatistics();
 
-                if (m.NewValue.Any())
-                {
-                    settingChangeTracker = new ModSettingChangeTracker(m.NewValue);
-                    settingChangeTracker.SettingChanged += _ => updateDifficultyStatistics();
-                }
+                settingChangeTracker = new ModSettingChangeTracker(m.NewValue);
+                settingChangeTracker.SettingChanged += _ => updateLengthAndBpmStatistics();
             }, true);
 
             updateDisplay();
+
+            statisticsFlow.AutoSizeDuration = 100;
+            statisticsFlow.AutoSizeEasing = Easing.OutQuint;
         }
 
         private void updateDisplay()
         {
-            cancellationSource?.Cancel();
-            cancellationSource = new CancellationTokenSource();
+            var metadata = working.Value.Metadata;
 
-            if (beatmap.IsDefault)
+            var titleText = new RomanisableString(metadata.TitleUnicode, metadata.Title);
+            titleLabel.CreateContent = () => new OsuSpriteText
             {
-                ratingAndNameContainer.FadeOut(300, Easing.OutQuint);
-            }
-            else
+                Text = titleText,
+                Shadow = true,
+                Font = OsuFont.Style.Title,
+            };
+
+            var artistText = new RomanisableString(metadata.ArtistUnicode, metadata.Artist);
+            artistLabel.CreateContent = () => new OsuSpriteText
             {
-                ratingAndNameContainer.FadeIn(300, Easing.OutQuint);
-                titleText.Text = beatmap.Value.Metadata.TitleUnicode;
-                artistText.Text = beatmap.Value.Metadata.ArtistUnicode;
-                difficultyText.Text = beatmap.Value.BeatmapInfo.DifficultyName;
-                mapperText.Text = beatmap.Value.Metadata.Author.Username;
-            }
+                Text = artistText,
+                Shadow = true,
+                Font = OsuFont.Style.Heading2,
+            };
 
-            starRatingDisplay.Current = (Bindable<StarDifficulty>)difficultyCache.GetBindableDifficulty(beatmap.Value.BeatmapInfo, cancellationSource.Token, SongSelect.SELECTION_DEBOUNCE);
-
-            updateDifficultyStatistics();
             updateLengthAndBpmStatistics();
             updateShowcaseInformation();
         }
 
-        private static void formatText(SpriteText t) => t.Font = OsuFont.Style.Body;
-
         private void updateShowcaseInformation() => Scheduler.AddOnce(() =>
         {
-            difficultyAreaText.Clear();
-            commentText.Clear();
-
             showcaseInfoContainer.FadeTo(shouldShowShowcaseInfo ? 1 : 0);
 
             if (Target.Value == null)
@@ -370,73 +253,13 @@ namespace osu.Game.Screens.TournamentShowcase
 
             if (!string.IsNullOrWhiteSpace(Target.Value.DiffField.Value))
             {
-                difficultyAreaText.AddIcon(FontAwesome.Solid.Star, icon =>
-                {
-                    icon.Colour = FumoColours.SunshineYellow.Regular;
-                    icon.Margin = new MarginPadding { Right = 5 };
-                });
-
-                difficultyAreaText.AddText(Target.Value.DiffField.Value, formatText);
+                difficultyAreaText.Text = Target.Value.DiffField.Value;
             }
 
             if (!string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value))
             {
-                commentText.AddIcon(FontAwesome.Solid.CommentAlt, icon =>
-                {
-                    icon.Colour = FumoColours.SeaBlue.Regular;
-                    icon.Margin = new MarginPadding { Right = 5 };
-                });
-                commentText.AddText(Target.Value.BeatmapComment.Value, formatText);
+                commentText.Text = Target.Value.BeatmapComment.Value;
             }
-        });
-
-        private void updateDifficultyStatistics() => Scheduler.AddOnce(() =>
-        {
-            if (beatmap.IsDefault || ruleset.Value == null)
-            {
-                difficultyStatisticsDisplay.Statistics = Array.Empty<BeatmapTitleWedge.StatisticDifficulty.Data>();
-                return;
-            }
-
-            BeatmapDifficulty originalDifficulty = beatmap.Value.BeatmapInfo.Difficulty;
-            BeatmapDifficulty adjustedDifficulty = new BeatmapDifficulty(originalDifficulty);
-
-            foreach (var mod in mods.Value.OfType<IApplicableToDifficulty>())
-                mod.ApplyToDifficulty(adjustedDifficulty);
-
-            Ruleset rulesetInstance = ruleset.Value.CreateInstance();
-
-            adjustedDifficulty = rulesetInstance.GetAdjustedDisplayDifficulty(beatmap.Value.BeatmapInfo, mods.Value);
-
-            BeatmapTitleWedge.StatisticDifficulty.Data firstStatistic;
-
-            switch (ruleset.Value.OnlineID)
-            {
-                case 3:
-                    // Account for mania differences locally for now.
-                    // Eventually this should be handled in a more modular way, allowing rulesets to return arbitrary difficulty attributes.
-                    ILegacyRuleset legacyRuleset = (ILegacyRuleset)rulesetInstance;
-
-                    // For the time being, the key count is static no matter what, because:
-                    // - The method doesn't have knowledge of the active keymods. Doing so may require considerations for filtering.
-                    // - Using the difficulty adjustment mod to adjust OD doesn't have an effect on conversion.
-                    int keyCount = legacyRuleset.GetKeyCount(beatmap.Value.BeatmapInfo, mods.Value);
-
-                    firstStatistic = new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsCsMania, keyCount, keyCount, 10);
-                    break;
-
-                default:
-                    firstStatistic = new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsCs, originalDifficulty.CircleSize, adjustedDifficulty.CircleSize, 10);
-                    break;
-            }
-
-            difficultyStatisticsDisplay.Statistics = new[]
-            {
-                firstStatistic,
-                new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsAr, originalDifficulty.ApproachRate, adjustedDifficulty.ApproachRate, 10),
-                new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsAccuracy, originalDifficulty.OverallDifficulty, adjustedDifficulty.OverallDifficulty, 10),
-                new BeatmapTitleWedge.StatisticDifficulty.Data(BeatmapsetsStrings.ShowStatsDrain, originalDifficulty.DrainRate, adjustedDifficulty.DrainRate, 10),
-            };
         });
 
         private CancellationTokenSource? lengthBpmCancellationSource;
@@ -450,17 +273,17 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Task.Run(() =>
             {
-                var beatmapInfo = beatmap.Value.BeatmapInfo;
+                var beatmapInfo = working.Value.BeatmapInfo;
                 // This can take time as it is a synchronous task.
-                var underlyingBeatmap = beatmap.Value.Beatmap;
+                var beatmap = working.Value.Beatmap;
 
                 double rate = ModUtils.CalculateRateWithMods(mods.Value);
 
-                int bpmMax = FormatUtils.RoundBPM(underlyingBeatmap.ControlPointInfo.BPMMaximum, rate);
-                int bpmMin = FormatUtils.RoundBPM(underlyingBeatmap.ControlPointInfo.BPMMinimum, rate);
-                int mostCommonBPM = FormatUtils.RoundBPM(60000 / underlyingBeatmap.GetMostCommonBeatLength(), rate);
+                int bpmMax = FormatUtils.RoundBPM(beatmap.ControlPointInfo.BPMMaximum, rate);
+                int bpmMin = FormatUtils.RoundBPM(beatmap.ControlPointInfo.BPMMinimum, rate);
+                int mostCommonBPM = FormatUtils.RoundBPM(60000 / beatmap.GetMostCommonBeatLength(), rate);
 
-                double drainLength = Math.Round(underlyingBeatmap.CalculateDrainLength() / rate);
+                double drainLength = Math.Round(beatmap.CalculateDrainLength() / rate);
                 double hitLength = Math.Round(beatmapInfo.Length / rate);
 
                 Schedule(() =>
@@ -473,23 +296,9 @@ namespace osu.Game.Screens.TournamentShowcase
 
                     bpmStatistic.Text = bpmMin == bpmMax
                         ? $"{bpmMin}"
-                        : $"{bpmMin}-{bpmMax} (mostly {mostCommonBPM})";
+                        : LocalisableString.Interpolate($"{bpmMin}-{bpmMax} ({SongSelectStrings.MostlyBPM(mostCommonBPM)})");
                 });
             }, token);
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-
-            difficultyText.MaxWidth = Math.Max((int)(nameLine.DrawWidth - mappedByText.DrawWidth - mapperText.DrawWidth - 20), 0);
-
-            // Use difficulty colour until it gets too dark to be visible against dark backgrounds.
-            Color4 col = starRatingDisplay.DisplayedStars.Value >= OsuColour.STAR_DIFFICULTY_DEFINED_COLOUR_CUTOFF ? colours.Orange1 : starRatingDisplay.DisplayedDifficultyColour;
-
-            difficultyText.Colour = col;
-            mappedByText.Colour = col;
-            difficultyStatisticsDisplay.AccentColour = col;
         }
     }
 }
