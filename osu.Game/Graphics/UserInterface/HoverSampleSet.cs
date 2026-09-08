@@ -63,6 +63,9 @@ namespace osu.Game.Graphics.UserInterface
                 case HoverSampleSet.MenuOpen:
                     return "menu-open";
 
+                case HoverSampleSet.Muted:
+                    return string.Empty;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(value));
             }
