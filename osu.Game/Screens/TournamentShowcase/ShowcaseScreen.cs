@@ -149,14 +149,14 @@ namespace osu.Game.Screens.TournamentShowcase
                     break;
             }
 
-            showcaseContainer.InfoDisplay.Scale = new Vector2(priorityScale);
+            showcaseContainer.Wedge.Scale = new Vector2(priorityScale);
 
             replaying.BindValueChanged(status =>
             {
                 if (!status.NewValue && state.Value == ShowcaseState.BeatmapShow)
                 {
-                    showcaseContainer.InfoDisplay.MoveToX(-0.75f, 800, Easing.InQuint);
-                    showcaseContainer.InfoDisplay.Delay(250).FadeOut(500, Easing.OutQuint);
+                    showcaseContainer.Wedge.MoveToX(-0.75f, 800, Easing.InQuint);
+                    showcaseContainer.Wedge.Delay(250).FadeOut(500, Easing.OutQuint);
 
                     player!.Delay(3000).Then().FadeOut(500, Easing.OutQuint);
 
@@ -275,12 +275,12 @@ namespace osu.Game.Screens.TournamentShowcase
                 selected = beatmapSets[index];
                 currentIndex = index;
 
-                showcaseContainer.InfoDisplay.MoveToX(-0.75f);
-                showcaseContainer.InfoDisplay.FadeOut();
+                showcaseContainer.Wedge.MoveToX(-0.75f);
+                showcaseContainer.Wedge.FadeOut();
 
                 using (BeginDelayedSequence(1000))
                 {
-                    showcaseContainer.InfoDisplay.FadeIn(500, Easing.OutQuint)
+                    showcaseContainer.Wedge.FadeIn(500, Easing.OutQuint)
                                      .MoveToX(-0.01f, 800, Easing.OutQuint);
                 }
 
@@ -341,7 +341,7 @@ namespace osu.Game.Screens.TournamentShowcase
             Scheduler.AddDelayed(() =>
             {
                 Beatmap.Value = beatmap;
-                showcaseContainer.InfoDisplay.Target.Value = selected;
+                showcaseContainer.Wedge.Target.Value = selected;
                 state.Value = introMode ? ShowcaseState.Intro : ShowcaseState.BeatmapShow;
 
                 if (player != null)

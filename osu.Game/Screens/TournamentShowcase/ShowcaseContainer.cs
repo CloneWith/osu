@@ -35,7 +35,7 @@ namespace osu.Game.Screens.TournamentShowcase
         /// <summary>
         /// The top left wedge showing beatmap information.
         /// </summary>
-        public readonly ShowcaseBeatmapInfoWedge InfoDisplay;
+        public readonly ShowcaseBeatmapWedge Wedge;
 
         /// <summary>
         /// Invoked when we should push the next beatmap.
@@ -107,7 +107,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     Colour = colourProvider.Highlight1,
                     Alpha = 0,
                 },
-                InfoDisplay = new ShowcaseBeatmapInfoWedge
+                Wedge = new ShowcaseBeatmapWedge
                 {
                     RelativePositionAxes = Axes.Both,
                     RelativeSizeAxes = Axes.None,

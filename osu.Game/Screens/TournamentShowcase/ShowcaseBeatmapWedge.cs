@@ -32,7 +32,7 @@ using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
 {
-    public partial class ShowcaseBeatmapInfoWedge : CompositeDrawable
+    public partial class ShowcaseBeatmapWedge : CompositeDrawable
     {
         private const float border_weight = 2;
 
@@ -64,7 +64,7 @@ namespace osu.Game.Screens.TournamentShowcase
         private bool shouldShowShowcaseInfo => Target.Value != null
                                                && (!string.IsNullOrWhiteSpace(Target.Value.DiffField.Value) || !string.IsNullOrWhiteSpace(Target.Value.BeatmapComment.Value));
 
-        public ShowcaseBeatmapInfoWedge()
+        public ShowcaseBeatmapWedge()
         {
             RelativeSizeAxes = Axes.X;
             AutoSizeAxes = Axes.Y;
