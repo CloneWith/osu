@@ -61,62 +61,6 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString RemainingHeader => new TranslatableString(getKey(@"remaining_header"), @"Remaining:");
 
         /// <summary>
-        /// "Chess area size"
-        /// </summary>
-        public static LocalisableString MainBoardAreaSize => new TranslatableString(getKey(@"main_board_area_size"), @"Chess area size");
-
-        /// <summary>
-        /// "Shiro Status"
-        /// </summary>
-        public static LocalisableString ShiroStatus => new TranslatableString(getKey(@"shiro_status"), @"Shiro Status");
-
-        /// <summary>
-        /// "Available"
-        /// </summary>
-        public static LocalisableString ShiroAvailable => new TranslatableString(getKey(@"shiro_available"), @"Available");
-
-        /// <summary>
-        /// "Needs Activation"
-        /// </summary>
-        public static LocalisableString ShiroNeedsActivation => new TranslatableString(getKey(@"shiro_needs_activation"), @"Needs Activation");
-
-        /// <summary>
-        /// "Held by {0}"
-        /// </summary>
-        public static LocalisableString ShiroHeldBy(LocalisableString team) => new TranslatableString(getKey(@"shiro_held_by"),
-            @"Held by {0}", team);
-
-        /// <summary>
-        /// "Consumed"
-        /// </summary>
-        public static LocalisableString ShiroConsumed => new TranslatableString(getKey(@"shiro_consumed"), @"Consumed");
-
-        /// <summary>
-        /// "Shiro Deployment"
-        /// </summary>
-        public static LocalisableString ShiroDeployment => new TranslatableString(getKey(@"shiro_deployment"), @"Shiro Deployment");
-
-        /// <summary>
-        /// "Deployment Mode"
-        /// </summary>
-        public static LocalisableString EnableDeployment => new TranslatableString(getKey(@"enable_deployment"), @"Deployment Mode");
-
-        /// <summary>
-        /// "Place"
-        /// </summary>
-        public static LocalisableString PlaceShiro => new TranslatableString(getKey(@"place_shiro"), @"Place");
-
-        /// <summary>
-        /// "Activate"
-        /// </summary>
-        public static LocalisableString ActivateShiro => new TranslatableString(getKey(@"activate_shiro"), @"Activate");
-
-        /// <summary>
-        /// "Update Owner"
-        /// </summary>
-        public static LocalisableString UpdateShiroOwner => new TranslatableString(getKey(@"update_shiro_owner"), @"Update Owner");
-
-        /// <summary>
         /// "Clear Selection"
         /// </summary>
         public static LocalisableString ClearSelection => new TranslatableString(getKey(@"clear_selection"), @"Clear Selection");
@@ -126,48 +70,6 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// </summary>
         public static LocalisableString EnableIntroAnimation => new TranslatableString(getKey(@"enable_intro_animation"),
             @"Intro Animation");
-
-        /// <summary>
-        /// "The selected chess pieces must be in the same colour."
-        /// </summary>
-        public static LocalisableString SingleColourPrompt => new TranslatableString(getKey(@"single_colour_prompt"),
-            @"The selected chess pieces must be in the same colour.");
-
-        /// <summary>
-        /// "Must select two chess pieces to activate Shiro."
-        /// </summary>
-        public static LocalisableString ShiroActivationPrompt => new TranslatableString(getKey(@"shiro_activation_prompt"),
-            @"Must select two chess pieces to activate Shiro.");
-
-        /// <summary>
-        /// "Invalid combination for updating Shiro."
-        /// </summary>
-        public static LocalisableString ShiroOwnerUpdatePrompt => new TranslatableString(getKey(@"shiro_owner_update_prompt"),
-            @"Invalid combination for updating Shiro.");
-
-        /// <summary>
-        /// "Cannot find an existing Shiro chess piece."
-        /// </summary>
-        public static LocalisableString ShiroMissingPrompt => new TranslatableString(getKey(@"shiro_missing_prompt"),
-            @"Cannot find an existing Shiro chess piece.");
-
-        /// <summary>
-        /// "A Shiro chess piece already exists."
-        /// </summary>
-        public static LocalisableString ShiroExistsPrompt => new TranslatableString(getKey(@"shiro_exists_prompt"),
-            @"A Shiro chess piece already exists.");
-
-        /// <summary>
-        /// "The Shiro chess piece has already been activated. Use Update Owner instead."
-        /// </summary>
-        public static LocalisableString ShiroActivatedPrompt => new TranslatableString(getKey(@"shiro_activated_prompt"),
-            @"The Shiro chess piece has already been activated. Use Update Owner instead.");
-
-        /// <summary>
-        /// "Information about the selected action would be displayed here."
-        /// </summary>
-        public static LocalisableString ActionPlaceholder => new TranslatableString(getKey(@"action_placeholder"),
-            @"Information about the selected action would be displayed here.");
 
         /// <summary>
         /// "Warning: Board Reset"

@@ -5,7 +5,7 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Localisation
 {
-    public class TournamentShowcaseStrings
+    public static class TournamentShowcaseStrings
     {
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.TournamentShowcase";
 
@@ -100,9 +100,9 @@ namespace osu.Game.Localisation
         public static LocalisableString DateAndTimeDescription => new TranslatableString(getKey(@"date_and_time_description"), @"This would stay the same in the showcase. So use your own preferred format!");
 
         /// <summary>
-        /// "In fact you can write anything here.\nThis would be shown below the main title at the intro screen."
+        /// "This would be shown below the main title at the intro screen."
         /// </summary>
-        public static LocalisableString IntroCommentDescription => new TranslatableString(getKey(@"intro_comment_description"), @"In fact you can write anything here.\nThis would be shown below the main title at the intro screen.");
+        public static LocalisableString IntroCommentDescription => new TranslatableString(getKey(@"intro_comment_description"), @"This would be shown below the main title at the intro screen.");
 
         /// <summary>
         /// "Colour Scheme"
@@ -394,8 +394,7 @@ namespace osu.Game.Localisation
         /// <summary>
         /// "To prevent it from causing further destruction, the current showcase has been halted."
         /// </summary>
-        public static LocalisableString ErrorScreenSecond => new TranslatableString(getKey(@"error_screen_second"),
-            @"To prevent it from causing further destruction, the current showcase has been halted.");
+        public static LocalisableString ErrorScreenSecond => new TranslatableString(getKey(@"error_screen_second"), @"To prevent it from causing further destruction, the current showcase has been halted.");
 
         /// <summary>
         /// "Exception message:"
@@ -405,14 +404,12 @@ namespace osu.Game.Localisation
         /// <summary>
         /// "For details about this exception, see the runtime log file."
         /// </summary>
-        public static LocalisableString ErrorScreenExceptionDetail => new TranslatableString(getKey(@"error_screen_exception_detail"),
-            @"For details about this exception, see the runtime log file.");
+        public static LocalisableString ErrorScreenExceptionDetail => new TranslatableString(getKey(@"error_screen_exception_detail"), @"For details about this exception, see the runtime log file.");
 
         /// <summary>
         /// "Cannot find the beatmap..."
         /// </summary>
-        public static LocalisableString BeatmapMissingScreenTitle => new TranslatableString(getKey(@"beatmap_missing_screen_title"),
-            @"Cannot find the beatmap...");
+        public static LocalisableString BeatmapMissingScreenTitle => new TranslatableString(getKey(@"beatmap_missing_screen_title"), @"Cannot find the beatmap...");
 
         /// <summary>
         /// "This beatmap is unavailable locally, hence unable to be shown."
@@ -429,18 +426,15 @@ namespace osu.Game.Localisation
         /// <summary>
         /// "Skipping to the next beatmap..."
         /// </summary>
-        public static LocalisableString BeatmapMissingScreenThird => new TranslatableString(getKey(@"beatmap_missing_screen_third"),
-            @"Skipping to the next beatmap...");
+        public static LocalisableString BeatmapMissingScreenThird => new TranslatableString(getKey(@"beatmap_missing_screen_third"), @"Skipping to the next beatmap...");
 
         /// <summary>
         /// "Scores unavailable"
         /// </summary>
-        public static LocalisableString ScoreMissingDialogTitle => new TranslatableString(getKey(@"score_missing_dialog_title"),
-            @"Scores unavailable");
+        public static LocalisableString ScoreMissingDialogTitle => new TranslatableString(getKey(@"score_missing_dialog_title"), @"Scores unavailable");
 
         /// <summary>
-        /// "After searching from the local database, {0} beatmap(s) don't have available scores."
-        /// " Auto generated replays with Autoplay mod would be used instead."
+        /// "After searching the local database, {0} beatmap(s) have no available scores. Auto generated replays with Autoplay mod would be used instead."
         /// </summary>
         public static LocalisableString ScoreMissingDialogText(int number) => new TranslatableString(getKey(@"score_missing_dialog_text"),
             "After searching from the local database, {0} beatmap(s) don't have available scores."

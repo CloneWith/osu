@@ -128,15 +128,15 @@ namespace osu.Game.Overlays
                                     {
                                         new SettingsCheckbox
                                         {
-                                            LabelText = UserInterfaceStrings.DoNotDisturb,
-                                            TooltipText = UserInterfaceStrings.DoNotDisturbDescription,
+                                            LabelText = UserInterfaceCustomStrings.DoNotDisturb,
+                                            TooltipText = UserInterfaceCustomStrings.DoNotDisturbDescription,
                                             Current = doNotDisturb,
                                             ShowsDefaultIndicator = false,
                                         },
                                         new SettingsCheckbox
                                         {
-                                            LabelText = UserInterfaceStrings.PersistentNotifications,
-                                            TooltipText = UserInterfaceStrings.PersistentNotificationsDescription,
+                                            LabelText = UserInterfaceCustomStrings.PersistentNotifications,
+                                            TooltipText = UserInterfaceCustomStrings.PersistentNotificationsDescription,
                                             Current = persistentNotifications,
                                             ShowsDefaultIndicator = false,
                                         },

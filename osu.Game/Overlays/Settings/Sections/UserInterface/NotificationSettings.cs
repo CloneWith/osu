@@ -11,7 +11,7 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
 {
     public partial class NotificationSettings : SettingsSubsection
     {
-        protected override LocalisableString Header => UserInterfaceStrings.NotificationsSectionHeader;
+        protected override LocalisableString Header => UserInterfaceCustomStrings.NotificationsSectionHeader;
 
         [BackgroundDependencyLoader]
         private void load(OsuConfigManager config)
@@ -20,16 +20,16 @@ namespace osu.Game.Overlays.Settings.Sections.UserInterface
             {
                 new SettingsCheckbox
                 {
-                    LabelText = UserInterfaceStrings.DoNotDisturb,
+                    LabelText = UserInterfaceCustomStrings.DoNotDisturb,
                     Current = config.GetBindable<bool>(OsuSetting.DoNotDisturb),
-                    TooltipText = UserInterfaceStrings.DoNotDisturbDescription,
+                    TooltipText = UserInterfaceCustomStrings.DoNotDisturbDescription,
                     ClassicDefault = false
                 },
                 new SettingsCheckbox
                 {
-                    LabelText = UserInterfaceStrings.PersistentNotifications,
+                    LabelText = UserInterfaceCustomStrings.PersistentNotifications,
                     Current = config.GetBindable<bool>(OsuSetting.PersistentNotifications),
-                    TooltipText = UserInterfaceStrings.PersistentNotificationsDescription,
+                    TooltipText = UserInterfaceCustomStrings.PersistentNotificationsDescription,
                     ClassicDefault = false,
                 }
             };

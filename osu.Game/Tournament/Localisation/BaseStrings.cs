@@ -51,12 +51,6 @@ namespace osu.Game.Tournament.Localisation
             @"Cannot access current match, sorry ;w;");
 
         /// <summary>
-        /// "This round isn&#39;t set up for board view..."
-        /// </summary>
-        public static LocalisableString BoardModeUnsetWarning => new TranslatableString(getKey(@"board_mode_unset_warning"),
-            @"This round isn't set up for board view...");
-
-        /// <summary>
         /// "Please make the window wider for better control."
         /// </summary>
         public static LocalisableString AspectRatioWarning => new TranslatableString(getKey(@"aspect_ratio_warning"), @"Please make the window wider for better control.");
