@@ -128,6 +128,18 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             Color4.White, Color4Extensions.FromHex(@"#BDBDBD"),
             Color4Extensions.FromHex(@"#E5E5E5"), Color4Extensions.FromHex(@"#C7C7C7"));
 
+        public static ModColourScheme Consumed = new ModColourScheme(
+            Color4.White, Color4Extensions.FromHex(@"#545454"),
+            Color4Extensions.FromHex(@"#666666"), Color4Extensions.FromHex(@"#5F5F5F"));
+
+        public static ModColourScheme RedWin = new ModColourScheme(
+            Color4Extensions.FromHex(@"#FF5733"), Color4Extensions.FromHex(@"#4D2114"),
+            Color4Extensions.FromHex(@"#5E2719"), Color4Extensions.FromHex(@"#522215"));
+
+        public static ModColourScheme BlueWin = new ModColourScheme(
+            Color4Extensions.FromHex(@"#57C1FF"), Color4Extensions.FromHex(@"#263E52"),
+            Color4Extensions.FromHex(@"#2E4C64"), Color4Extensions.FromHex(@"#274257"));
+
         /// <summary>
         /// Get the corresponding <see cref="ModColourScheme"/> based on a given string.
         /// </summary>

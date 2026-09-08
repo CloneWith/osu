@@ -41,8 +41,8 @@ using osu.Game.Screens.OnlinePlay.DailyChallenge;
 using osu.Game.Screens.OnlinePlay.Multiplayer;
 using osu.Game.Screens.OnlinePlay.Playlists;
 using osu.Game.Screens.Select;
-using osu.Game.Seasonal;
 using osu.Game.Screens.TournamentShowcase;
+using osu.Game.Seasonal;
 using osuTK;
 using osuTK.Graphics;
 
@@ -121,7 +121,7 @@ namespace osu.Game.Screens.Menu
         private IDisposable logoProxy;
 
         [BackgroundDependencyLoader(true)]
-        private void load(SettingsOverlay settings, OsuConfigManager config, SessionStatics statics, AudioManager audio)
+        private void load(BeatmapListingOverlay beatmapListing, SettingsOverlay settings, OsuConfigManager config, SessionStatics statics, AudioManager audio)
         {
             holdDelay = config.GetBindable<double>(OsuSetting.UIHoldActivationDelay);
             loginDisplayed = statics.GetBindable<bool>(Static.LoginOverlayDisplayed);

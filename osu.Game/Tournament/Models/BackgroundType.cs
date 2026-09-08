@@ -50,13 +50,16 @@ namespace osu.Game.Tournament.Models
 
         [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.DrawWin))]
         Draw,
+
+        [LocalisableDescription(typeof(ScreenStrings), nameof(ScreenStrings.Board))]
+        Board,
     }
 
     [JsonConverter(typeof(StringEnumConverter))]
     public enum BackgroundSource
     {
         /// <summary>
-        /// Reserved zero position for auto detection.
+        /// Reserved zero position for auto-detection.
         /// </summary>
         Auto,
         Video,
@@ -135,6 +138,7 @@ namespace osu.Game.Tournament.Models
             KeyValuePair.Create(BackgroundType.RedWin, new BackgroundInfo("teamwin-red")),
             KeyValuePair.Create(BackgroundType.BlueWin, new BackgroundInfo("teamwin-blue")),
             KeyValuePair.Create(BackgroundType.Draw, new BackgroundInfo("mappool")),
+            KeyValuePair.Create(BackgroundType.Board, new BackgroundInfo("mappool")),
         };
 
         /// <summary>

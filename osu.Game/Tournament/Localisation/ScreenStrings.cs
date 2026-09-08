@@ -60,6 +60,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString Countdown => new TranslatableString(getKey(@"countdown"), @"Countdown");
 
         /// <summary>
+        /// "Board"
+        /// </summary>
+        public static LocalisableString Board => new TranslatableString(getKey(@"board"), @"Board");
+
+        /// <summary>
         /// "Map Pool"
         /// </summary>
         public static LocalisableString MapPool => new TranslatableString(getKey(@"map_pool"), @"Map Pool");
