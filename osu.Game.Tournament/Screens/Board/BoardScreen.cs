@@ -876,7 +876,7 @@ namespace osu.Game.Tournament.Screens.Board
             }
         }
 
-        protected override bool OnMouseDown(MouseDownEvent e)
+        protected override bool OnClick(ClickEvent e)
         {
             var block = chessBoard.Blocks.FirstOrDefault(b => b.ReceivePositionalInputAt(e.ScreenSpaceMousePosition));
             var lastSelected = mapPool.MapPanels.FirstOrDefault(p => p.Selected);
