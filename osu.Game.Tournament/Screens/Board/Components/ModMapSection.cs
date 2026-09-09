@@ -8,11 +8,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
-using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
-using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -23,30 +20,29 @@ namespace osu.Game.Tournament.Screens.Board.Components
     /// </summary>
     public partial class ModMapSection : FillFlowContainer
     {
-        public const int WIDTH = 250;
-
-        public readonly string ModAcronym;
-        public readonly string ModName;
+        private const int width = 250;
 
         public IReadOnlyList<FumoBeatmapPanel> Cards => mapFlow.Children;
 
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
 
+        private readonly string modAcronym;
+        private readonly string modName;
+
         private readonly ModColourScheme colourScheme;
 
         private FillFlowContainer<FumoBeatmapPanel> mapFlow = null!;
-        private FillFlowContainer placeholderFlow = null!;
 
         /// <inheritdoc cref="ModMapSection"/>
         /// <param name="acronym">the acronym of the mod.</param>
         /// <param name="name">the title of the section's header.</param>
         public ModMapSection(string acronym, string? name = null)
         {
-            ModAcronym = acronym;
-            ModName = name ?? acronym;
+            modAcronym = acronym;
+            modName = name ?? acronym;
             colourScheme = ModColours.FromModString(acronym);
-            Width = WIDTH;
+            Width = width;
         }
 
         [BackgroundDependencyLoader]
@@ -72,9 +68,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         Origin = Anchor.CentreLeft,
                         Scale = new Vector2(0.75f),
                         AccentColour = colourScheme.Accent,
-                        Icon = TournamentExtensions.GetModIcon(ModAcronym),
+                        Icon = TournamentExtensions.GetModIcon(modAcronym),
                         IconSize = 30,
-                        Text = ModName,
+                        Text = modName,
                     },
                 },
                 mapFlow = new FillFlowContainer<FumoBeatmapPanel>
@@ -84,35 +80,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
+                    Direction = FillDirection.Vertical,
                     Spacing = new Vector2(10),
                     Padding = new MarginPadding { Horizontal = 10 },
-                },
-                placeholderFlow = new FillFlowContainer
-                {
-                    Name = @"Placeholder",
-                    Anchor = Anchor.TopCentre,
-                    Origin = Anchor.TopCentre,
-                    RelativeSizeAxes = Axes.X,
-                    AutoSizeAxes = Axes.Y,
-                    Spacing = new Vector2(10),
-                    Padding = new MarginPadding { Horizontal = 10 },
-                    Children = new Drawable[]
-                    {
-                        new SpriteIcon
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Icon = FontAwesome.Solid.ExclamationCircle,
-                            Size = new Vector2(24),
-                        },
-                        new TournamentSpriteText
-                        {
-                            Anchor = Anchor.Centre,
-                            Origin = Anchor.Centre,
-                            Text = BaseStrings.NoBeatmapAvailable,
-                            Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 24),
-                        },
-                    },
                 },
             };
         }
@@ -138,25 +108,18 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private void updateList()
         {
             var mapList = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.Where(b =>
-                b.Mods.Equals(ModAcronym, StringComparison.OrdinalIgnoreCase));
+                b.Mods.Equals(modAcronym, StringComparison.OrdinalIgnoreCase)).ToList();
 
-            mapFlow.Direction = mapList != null && mapList.Any() ? FillDirection.Full : FillDirection.Horizontal;
-
-            if (mapList != null && mapList.Any())
+            if (mapList != null && mapList.Count != 0)
             {
-                mapFlow.Show();
-                placeholderFlow.Hide();
-
-                mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m)
-                {
-                    Scale = new Vector2(0.8f),
-                });
+                this.FadeIn(300, Easing.OutQuint);
+                mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m));
             }
             else
             {
+                this.FadeOut(300, Easing.OutQuint);
                 mapFlow.Clear();
                 mapFlow.Hide();
-                placeholderFlow.Show();
             }
         }
     }
