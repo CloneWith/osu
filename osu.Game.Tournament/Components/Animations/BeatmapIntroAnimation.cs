@@ -37,7 +37,8 @@ namespace osu.Game.Tournament.Components.Animations
         private Container beatmapBackground = null!;
         private FillFlowContainer authorDisplay = null!;
         private Box flash = null!;
-        private EmptyBox dummyBackground = null!;
+        private Box dummyBackground = null!;
+        private Box backgroundFlash = null!;
         private OsuSpriteText modText = null!;
         private StarRatingDisplay starRatingDisplay = null!;
 
@@ -50,6 +51,9 @@ namespace osu.Game.Tournament.Components.Animations
 
         public event Action? OnAnimationComplete;
         public AnimationStatus Status { get; private set; } = AnimationStatus.Loading;
+
+        private bool isTieBreaker => map.Mods.Equals(@"TB", StringComparison.OrdinalIgnoreCase);
+        private int tieBreakerDelay => isTieBreaker ? 2000 : 0;
 
         public BeatmapIntroAnimation(RoundBeatmap map, TeamColour colour = TeamColour.Neutral)
         {
@@ -65,17 +69,26 @@ namespace osu.Game.Tournament.Components.Animations
         private void load()
         {
             const float horizontal_info_size = 500f;
+            var fullscreenSize = new Vector2(1366, (int)(1366 * 9f / 16f));
 
             InternalChildren = new Drawable[]
             {
-                dummyBackground = new EmptyBox
+                dummyBackground = new Box
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
                     RelativeSizeAxes = Axes.None,
-                    Width = 1366,
-                    Height = (int)(1366 * 9f / 16f),
+                    Size = fullscreenSize,
                     Colour = Color4.Black.Opacity(0.6f),
+                    Alpha = 0f,
+                },
+                backgroundFlash = new Box
+                {
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativeSizeAxes = Axes.None,
+                    Size = fullscreenSize,
+                    Colour = Color4.White,
                     Alpha = 0f,
                 },
                 introContent = new Container
@@ -113,7 +126,7 @@ namespace osu.Game.Tournament.Components.Animations
                                         {
                                             Anchor = Anchor.Centre,
                                             Origin = Anchor.Centre,
-                                            Text = "You've picked...",
+                                            Text = isTieBreaker ? "The final moment has come..." : "You've picked...",
                                             Margin = new MarginPadding { Horizontal = 10f, Vertical = 5f },
                                             Shear = -OsuGame.SHEAR,
                                             Font = OsuFont.GetFont(size: 32, weight: FontWeight.Light, typeface: Typeface.TorusAlternate),
@@ -326,7 +339,7 @@ namespace osu.Game.Tournament.Components.Animations
                 {
                     starRatingDisplay.Current.Value = new StarDifficulty(map.StarRatingWithMod.Value, map.MaxCombo);
                 }
-            }, 4000);
+            }, 4000 + tieBreakerDelay);
 
             using (BeginDelayedSequence(1500))
             {
@@ -357,8 +370,23 @@ namespace osu.Game.Tournament.Components.Animations
                              .Then()
                              .MoveToY(0, 4000);
 
-                using (BeginDelayedSequence(1000))
+                if (isTieBreaker)
                 {
+                    dummyBackground.FadeColour(Color4.Black.Opacity(0.9f), 1500, Easing.OutCubic);
+                }
+
+                using (BeginDelayedSequence(1000 + tieBreakerDelay))
+                {
+                    if (isTieBreaker)
+                    {
+                        backgroundFlash.FadeIn(400, Easing.In)
+                                       .Then(200)
+                                       .FadeOut(1000, Easing.OutCubic);
+
+                        dummyBackground.Delay(400)
+                                       .FadeColour(Color4.Black.Opacity(0.6f), 300, Easing.OutCubic);
+                    }
+
                     beatmapContent
                         .ScaleTo(3)
                         .ScaleTo(1.15f, 500, Easing.In)
@@ -388,11 +416,12 @@ namespace osu.Game.Tournament.Components.Animations
                     }
                 }
 
-                using (BeginDelayedSequence(6000))
+                using (BeginDelayedSequence(6000 + tieBreakerDelay))
                 {
-                    introContent.ScaleTo(1.25f, 900, Easing.InOutQuint);
+                    introContent.ScaleTo(1.25f, 900, Easing.OutCubic);
+                    introContent.FadeOut(400, Easing.OutCubic);
 
-                    this.FadeOutFromOne(750, Easing.OutQuint).Then().Finally(_ =>
+                    this.Delay(400).FadeOutFromOne(800, Easing.InCubic).Then().Finally(_ =>
                     {
                         Status = AnimationStatus.Complete;
                         OnAnimationComplete?.Invoke();
