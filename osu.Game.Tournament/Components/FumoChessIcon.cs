@@ -12,7 +12,7 @@ using osu.Game.Graphics.UserInterfaceFumo;
 namespace osu.Game.Tournament.Components
 {
     /// <summary>
-    /// A general and rounded chess display for the chessboard.
+    /// A general chess icon display for usages outside the normal board.
     /// </summary>
     public partial class FumoChessIcon : ConstrainedIconContainer
     {
@@ -34,9 +34,9 @@ namespace osu.Game.Tournament.Components
         private Texture? chessIcon;
 
         /// <summary>
-        /// Constructs a chess piece.
+        /// Constructs a chess icon.
         /// </summary>
-        /// <param name="mod">the mod name of the chess</param>
+        /// <param name="mod">the mod name of the icon</param>
         /// <param name="index">the mod index</param>
         public FumoChessIcon(string mod, string index)
         {
@@ -45,7 +45,7 @@ namespace osu.Game.Tournament.Components
         }
 
         /// <summary>
-        /// Constructs a chess piece with no mod information, usually for empty chess pieces or test purposes.
+        /// Constructs a chess icon with no mod information.
         /// </summary>
         public FumoChessIcon()
             : this(string.Empty, string.Empty)
