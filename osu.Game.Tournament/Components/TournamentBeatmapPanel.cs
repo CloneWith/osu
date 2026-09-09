@@ -147,13 +147,13 @@ namespace osu.Game.Tournament.Components
             if (!string.IsNullOrEmpty(mod))
             {
                 AddInternal(currentMatch.Value?.Round.Value?.UseBoard.Value == true
-                    ? new FumoChessPiece(mod, modIndex)
+                    ? new FumoChessIcon(mod, modIndex)
                     {
                         Anchor = Anchor.CentreRight,
                         Origin = Anchor.CentreRight,
                         Margin = new MarginPadding { Right = 10 },
-                        Width = HEIGHT - 5,
-                        Height = HEIGHT - 5,
+                        Width = HEIGHT - 15,
+                        Height = HEIGHT - 15,
                     }
                     : new TournamentModIcon(modIndex.IsNull() ? mod : mod + modIndex)
                     {
