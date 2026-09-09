@@ -37,10 +37,10 @@
         <value>选择该轮要游玩的图。</value>
     </data>
     <data name="shiro_name" xml:space="preserve">
-        <value>激活白子·{0}</value>
+        <value>夺取白子·{0}</value>
     </data>
     <data name="shiro_description" xml:space="preserve">
-        <value>消耗连对来激活白子。</value>
+        <value>消耗连对来夺取白子。</value>
     </data>
     <data name="win_name" xml:space="preserve">
         <value>胜方赢棋·{0}</value>

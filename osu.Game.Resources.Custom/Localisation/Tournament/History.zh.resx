@@ -34,13 +34,13 @@
         <value>选择了</value>
     </data>
     <data name="won" xml:space="preserve">
-        <value>获胜</value>
+        <value>赢得了</value>
     </data>
     <data name="placed_shiro" xml:space="preserve">
         <value>放置了白子</value>
     </data>
     <data name="updated_winner" xml:space="preserve">
-        <value>用 {0} 夺棋</value>
+        <value>用 {0} 夺取了</value>
     </data>
     <data name="match_history" xml:space="preserve">
         <value>比赛历史</value>

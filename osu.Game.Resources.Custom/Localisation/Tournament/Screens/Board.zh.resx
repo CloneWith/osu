@@ -49,7 +49,7 @@
         <value>所选棋子必须同色。</value>
     </data>
     <data name="shiro_activation_prompt" xml:space="preserve">
-        <value>仅可使用两个棋子激活白子。</value>
+        <value>仅可使用两个棋子夺取白子。</value>
     </data>
     <data name="shiro_owner_update_prompt" xml:space="preserve">
         <value>不可使用该组合更新白子状态。</value>
