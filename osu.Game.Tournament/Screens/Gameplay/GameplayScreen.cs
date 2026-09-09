@@ -1,7 +1,6 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
-using System;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -141,18 +140,10 @@ namespace osu.Game.Tournament.Screens.Gameplay
                         },
                         new SettingsSlider<int>
                         {
-                            LabelText = $"{(OperatingSystem.IsWindows() ? "Player Area" : "Chroma")} width",
+                            LabelText = GameplayScreenStrings.ChromaWidth,
                             Current = LadderInfo.ChromaKeyWidth,
                             KeyboardStep = 1,
                         },
-                        OperatingSystem.IsWindows()
-                            ? new SettingsSlider<int>
-                            {
-                                LabelText = "Frame rate",
-                                Current = LadderInfo.FrameRate,
-                                KeyboardStep = 1,
-                            }
-                            : Empty(),
                         new SettingsSlider<int>
                         {
                             LabelText = GameplayScreenStrings.PlayersPerTeam,
