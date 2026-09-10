@@ -62,6 +62,8 @@ namespace osu.Game.Tournament.Screens.Editors
                 Model.UseBoard.Default = Model.UseBoard.Value;
                 Model.BanCount.Default = Model.BanCount.Value;
                 Model.BestOf.Default = Model.BestOf.Value;
+                Model.UseCustomThemeColour.Default = Model.UseCustomThemeColour.Value;
+                Model.ThemeColour.Default = Model.ThemeColour.Value;
 
                 Masking = true;
                 CornerRadius = 10;
@@ -317,7 +319,6 @@ namespace osu.Game.Tournament.Screens.Editors
                         {
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
-                            Scale = new Vector2(1f),
                         };
                     });
                 }
