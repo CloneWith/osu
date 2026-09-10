@@ -12,15 +12,15 @@ namespace osu.Game.Tournament.Components
 {
     public partial class FumoSpriteText : CompositeDrawable
     {
-        public readonly TournamentSpriteText Text;
+        protected readonly TournamentSpriteText Text;
 
-        public Color4 TextColour
+        public Colour4 TextColour
         {
             get => Text.Colour;
             set => Text.Colour = value;
         }
 
-        public Color4 BackgroundColour
+        public Colour4 BackgroundColour
         {
             get => Background.Colour;
             set => Background.Colour = value;
@@ -30,7 +30,7 @@ namespace osu.Game.Tournament.Components
 
         public FumoSpriteText(
             string text = "", int fontSize = 24,
-            Color4? backgroundColor = null, Color4? textColor = null, FontWeight? textWeight = FontWeight.SemiBold)
+            Colour4? backgroundColor = null, Colour4? textColor = null, FontWeight? textWeight = FontWeight.SemiBold)
         {
             AutoSizeAxes = Axes.Both;
             Masking = true;
