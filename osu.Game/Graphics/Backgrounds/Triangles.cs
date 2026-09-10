@@ -30,9 +30,9 @@ namespace osu.Game.Graphics.Backgrounds
         /// </summary>
         private const float equilateral_triangle_ratio = 0.866f;
 
-        private Color4 colourLight = Color4.White;
+        private Colour4 colourLight = Colour4.White;
 
-        public Color4 ColourLight
+        public Colour4 ColourLight
         {
             get => colourLight;
             set
@@ -44,9 +44,9 @@ namespace osu.Game.Graphics.Backgrounds
             }
         }
 
-        private Color4 colourDark = Color4.Black;
+        private Colour4 colourDark = Colour4.Black;
 
-        public Color4 ColourDark
+        public Colour4 ColourDark
         {
             get => colourDark;
             set
@@ -254,7 +254,7 @@ namespace osu.Game.Graphics.Backgrounds
         /// Creates a shade of colour for the triangles.
         /// </summary>
         /// <returns>The colour.</returns>
-        protected virtual Color4 CreateTriangleShade(float shade) => Interpolation.ValueAt(shade, colourDark, colourLight, 0, 1);
+        protected virtual Colour4 CreateTriangleShade(float shade) => Interpolation.ValueAt(shade, colourDark, colourLight, 0, 1);
 
         private void updateColours()
         {
