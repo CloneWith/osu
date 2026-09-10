@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using osu.Framework.Bindables;
+using osu.Framework.Graphics;
 
 namespace osu.Game.Tournament.Models
 {
@@ -28,6 +29,10 @@ namespace osu.Game.Tournament.Models
         public readonly BindableBool UseBoard = new BindableBool();
 
         public readonly BindableList<TournamentUser> Referees = new BindableList<TournamentUser>();
+
+        public readonly BindableBool UseCustomThemeColour = new BindableBool();
+
+        public readonly BindableColour4 ThemeColour = new BindableColour4(Colour4.White);
 
         // only used for serialisation
         public List<int> Matches = new List<int>();
