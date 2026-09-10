@@ -308,10 +308,8 @@ namespace osu.Game.Tournament.Screens.Editors
                     {
                         userPanelContainer.Child = new UserListPanel(user.ToAPIUser())
                         {
-                            RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.BottomLeft,
                             Origin = Anchor.BottomLeft,
-                            Scale = new Vector2(1f),
                         };
                     });
                 }
