@@ -37,7 +37,7 @@ namespace osu.Game.Tournament.Screens.Ladder
             InternalChild = new Container
             {
                 RelativeSizeAxes = Axes.Both,
-                // Masking = true,
+                Masking = true,
                 Children = new Drawable[]
                 {
                     new TourneyBackground(BackgroundType.Ladder)
