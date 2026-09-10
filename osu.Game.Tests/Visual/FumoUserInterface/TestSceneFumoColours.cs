@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using osu.Framework.Extensions;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -13,7 +12,6 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osuTK;
-using osuTK.Graphics;
 
 namespace osu.Game.Tests.Visual.FumoUserInterface
 {
@@ -59,7 +57,7 @@ namespace osu.Game.Tests.Visual.FumoUserInterface
                         colour.Light,
                         colour.Lighter,
                         colour.Lightest,
-                    }.Select<Color4, Drawable>(c => new ColourItem(c))
+                    }.Select<Colour4, Drawable>(c => new ColourItem(c))
                      .Append(new OsuSpriteText
                      {
                          Anchor = Anchor.CentreLeft,
@@ -71,7 +69,7 @@ namespace osu.Game.Tests.Visual.FumoUserInterface
 
         public partial class ColourItem : FillFlowContainer
         {
-            public ColourItem(Color4 colour, string label = "")
+            public ColourItem(Colour4 colour, string label = "")
             {
                 Anchor = Anchor.CentreLeft;
                 Origin = Anchor.CentreLeft;

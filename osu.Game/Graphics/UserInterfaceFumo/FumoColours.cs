@@ -2,6 +2,7 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Game.Localisation;
 using osuTK.Graphics;
@@ -13,13 +14,13 @@ namespace osu.Game.Graphics.UserInterfaceFumo
     /// </summary>
     public interface IFumoColour
     {
-        Color4 Regular { get; }
-        Color4 Dark { get; }
-        Color4 Darker { get; }
-        Color4 Darkest { get; }
-        Color4 Light { get; }
-        Color4 Lighter { get; }
-        Color4 Lightest { get; }
+        Colour4 Regular { get; }
+        Colour4 Dark { get; }
+        Colour4 Darker { get; }
+        Colour4 Darkest { get; }
+        Colour4 Light { get; }
+        Colour4 Lighter { get; }
+        Colour4 Lightest { get; }
     }
 
     /// <summary>
@@ -32,22 +33,22 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         {
             public FumoColour(string regular, string dark, string darker, string darkest, string light, string lighter, string lightest)
             {
-                Regular = Color4Extensions.FromHex(regular);
-                Dark = Color4Extensions.FromHex(dark);
-                Darker = Color4Extensions.FromHex(darker);
-                Darkest = Color4Extensions.FromHex(darkest);
-                Light = Color4Extensions.FromHex(light);
-                Lighter = Color4Extensions.FromHex(lighter);
-                Lightest = Color4Extensions.FromHex(lightest);
+                Regular = Colour4.FromHex(regular);
+                Dark = Colour4.FromHex(dark);
+                Darker = Colour4.FromHex(darker);
+                Darkest = Colour4.FromHex(darkest);
+                Light = Colour4.FromHex(light);
+                Lighter = Colour4.FromHex(lighter);
+                Lightest = Colour4.FromHex(lightest);
             }
 
-            public Color4 Regular { get; }
-            public Color4 Dark { get; }
-            public Color4 Darker { get; }
-            public Color4 Darkest { get; }
-            public Color4 Light { get; }
-            public Color4 Lighter { get; }
-            public Color4 Lightest { get; }
+            public Colour4 Regular { get; }
+            public Colour4 Dark { get; }
+            public Colour4 Darker { get; }
+            public Colour4 Darkest { get; }
+            public Colour4 Light { get; }
+            public Colour4 Lighter { get; }
+            public Colour4 Lightest { get; }
         }
 
         public static IFumoColour SeaBlue { get; } = new FumoColour(@"#269FFE", @"#0992FE", @"#018BF7", @"#0172CB", @"#43ACFE", @"#52B2FE", @"#7DC6FE");
@@ -162,12 +163,12 @@ namespace osu.Game.Graphics.UserInterfaceFumo
     /// </summary>
     public class ModColourScheme
     {
-        public readonly Color4 Accent;
-        public readonly Color4 Background;
-        public readonly Color4 TriangleLight;
-        public readonly Color4 TriangleDark;
+        public readonly Colour4 Accent;
+        public readonly Colour4 Background;
+        public readonly Colour4 TriangleLight;
+        public readonly Colour4 TriangleDark;
 
-        public ModColourScheme(Color4 accent, Color4 background, Color4 triangleLight, Color4 triangleDark)
+        public ModColourScheme(Colour4 accent, Colour4 background, Colour4 triangleLight, Colour4 triangleDark)
         {
             Accent = accent;
             Background = background;
