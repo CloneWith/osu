@@ -63,4 +63,10 @@
     <data name="star_rating_override_tooltip" xml:space="preserve">
         <value>若要使用计算的星数，请将此字段留空。</value>
     </data>
+    <data name="use_custom_theme_colour" xml:space="preserve">
+        <value>使用自定义主题色</value>
+    </data>
+    <data name="custom_theme_colour" xml:space="preserve">
+        <value>自定义主题色</value>
+    </data>
 </root>

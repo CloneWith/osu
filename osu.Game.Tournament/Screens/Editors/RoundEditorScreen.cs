@@ -130,6 +130,18 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.48f,
                                 Current = Model.UseBoard,
                             },
+                            new FormCheckBox
+                            {
+                                Caption = RoundEditorStrings.UseCustomThemeColour,
+                                Width = 0.3f,
+                                Current = Model.UseCustomThemeColour,
+                            },
+                            new FormColourSelect
+                            {
+                                Caption = RoundEditorStrings.CustomThemeColour,
+                                Width = 0.3f,
+                                Current = Model.ThemeColour,
+                            },
                             new DangerousSettingsButton
                             {
                                 Width = 0.2f,

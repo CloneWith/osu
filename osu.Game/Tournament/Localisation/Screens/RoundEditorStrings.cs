@@ -5,7 +5,7 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Tournament.Localisation.Screens
 {
-    public class RoundEditorStrings
+    public static class RoundEditorStrings
     {
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Screens.RoundEditor";
 
@@ -43,6 +43,16 @@ namespace osu.Game.Tournament.Localisation.Screens
         /// "Board Mode"
         /// </summary>
         public static LocalisableString BoardMode => new TranslatableString(getKey(@"board_mode"), @"Board Mode");
+
+        /// <summary>
+        /// "Use custom theme colour"
+        /// </summary>
+        public static LocalisableString UseCustomThemeColour => new TranslatableString(getKey(@"use_custom_theme_colour"), @"Use custom theme colour");
+
+        /// <summary>
+        /// "Custom theme colour"
+        /// </summary>
+        public static LocalisableString CustomThemeColour => new TranslatableString(getKey(@"custom_theme_colour"), @"Custom theme colour");
 
         /// <summary>
         /// "Delete Round"
