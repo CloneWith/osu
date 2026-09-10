@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
@@ -32,14 +33,19 @@ namespace osu.Game.Graphics.UserInterfaceFumo
         private sealed class FumoColour : IFumoColour
         {
             public FumoColour(string regular, string dark, string darker, string darkest, string light, string lighter, string lightest)
+                : this(Colour4.FromHex(regular), Colour4.FromHex(dark), Colour4.FromHex(darker), Colour4.FromHex(darkest), Colour4.FromHex(light), Colour4.FromHex(lighter), Colour4.FromHex(lightest))
             {
-                Regular = Colour4.FromHex(regular);
-                Dark = Colour4.FromHex(dark);
-                Darker = Colour4.FromHex(darker);
-                Darkest = Colour4.FromHex(darkest);
-                Light = Colour4.FromHex(light);
-                Lighter = Colour4.FromHex(lighter);
-                Lightest = Colour4.FromHex(lightest);
+            }
+
+            public FumoColour(Colour4 regular, Colour4 dark, Colour4 darker, Colour4 darkest, Colour4 light, Colour4 lighter, Colour4 lightest)
+            {
+                Regular = regular;
+                Dark = dark;
+                Darker = darker;
+                Darkest = darkest;
+                Light = light;
+                Lighter = lighter;
+                Lightest = lightest;
             }
 
             public Colour4 Regular { get; }
@@ -70,6 +76,32 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             FumoColourScheme.LightGreen => LightGreen,
             _ => SeaBlue,
         };
+
+        /// <summary>
+        /// Derive a full <see cref="IFumoColour"/> scheme from a single theme colour.
+        /// </summary>
+        /// <remarks>
+        /// Hue and saturation are kept unchanged; every shade is produced purely by shifting lightness,
+        /// following the progression of the predefined themes (which mirrors the Material Design
+        /// 500 / 600-800 / 400-200 steps). Lightness deltas are clamped, so very dark or very light
+        /// theme colours will produce a compressed but still valid scheme.
+        /// </remarks>
+        /// <param name="regular">the theme colour, used as the <see cref="IFumoColour.Regular"/> shade</param>
+        public static IFumoColour FromThemeColour(Colour4 regular) => new FumoColour(
+            regular,
+            deriveShade(regular, -0.05f),
+            deriveShade(regular, -0.09f),
+            deriveShade(regular, -0.15f),
+            deriveShade(regular, +0.07f),
+            deriveShade(regular, +0.15f),
+            deriveShade(regular, +0.23f)
+        );
+
+        private static Colour4 deriveShade(Colour4 colour, float lightnessDelta)
+        {
+            var hsl = colour.ToHSL();
+            return Colour4.FromHSL(hsl.X, hsl.Y, Math.Clamp(hsl.Z + lightnessDelta, 0f, 1f));
+        }
     }
 
     /// <summary>
@@ -174,6 +206,29 @@ namespace osu.Game.Graphics.UserInterfaceFumo
             Background = background;
             TriangleLight = triangleLight;
             TriangleDark = triangleDark;
+        }
+
+        /// <summary>
+        /// Derive a <see cref="ModColourScheme"/> from a single theme colour, used as the <see cref="Accent"/>.
+        /// </summary>
+        /// <remarks>
+        /// All derived colours reuse the accent's hue with reduced saturation and low lightness,
+        /// following the pattern of the predefined schemes (accent is vivid, background is dark,
+        /// and the two triangle colours sit slightly above the background lightness).
+        /// </remarks>
+        /// <param name="accent">the theme colour</param>
+        public static ModColourScheme FromThemeColour(Colour4 accent)
+        {
+            var hsl = accent.ToHSL();
+            float hue = hsl.X;
+            float saturation = Math.Clamp(hsl.Y * 0.5f, 0.1f, 0.65f);
+
+            return new ModColourScheme(
+                accent,
+                Colour4.FromHSL(hue, saturation, 0.20f),
+                Colour4.FromHSL(hue, saturation, 0.25f),
+                Colour4.FromHSL(hue, saturation, 0.22f)
+            );
         }
     }
 }
