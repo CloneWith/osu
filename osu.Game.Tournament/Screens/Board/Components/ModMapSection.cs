@@ -80,8 +80,8 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     Origin = Anchor.TopCentre,
                     RelativeSizeAxes = Axes.X,
                     AutoSizeAxes = Axes.Y,
-                    Direction = FillDirection.Vertical,
-                    Spacing = new Vector2(10),
+                    Direction = FillDirection.Full,
+                    Spacing = new Vector2(8, 15),
                     Padding = new MarginPadding { Horizontal = 10 },
                 },
             };

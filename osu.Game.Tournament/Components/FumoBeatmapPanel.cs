@@ -19,6 +19,7 @@ using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
 using osu.Game.Online.API;
 using osu.Game.Online.API.Requests;
+using osu.Game.Overlays;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -128,26 +129,42 @@ namespace osu.Game.Tournament.Components
                         },
                         new FillFlowContainer
                         {
-                            AutoSizeAxes = Axes.Both,
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Direction = FillDirection.Vertical,
                             Spacing = new Vector2(5f),
+                            Masking = true,
+                            Padding = new MarginPadding { Horizontal = 5 },
                             Children = new Drawable[]
                             {
-                                new TournamentSpriteText
+                                new MarqueeContainer
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Text = @$"{Beatmap.Mods}{Beatmap.ModIndex}",
-                                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 18),
+                                    NonOverflowingContentAnchor = Anchor.Centre,
+                                    CreateContent = () => new TournamentSpriteText
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Text = @$"{Beatmap.Mods}{Beatmap.ModIndex}",
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 18),
+                                    },
                                 },
-                                new TournamentSpriteText
+                                new MarqueeContainer
                                 {
                                     Anchor = Anchor.Centre,
                                     Origin = Anchor.Centre,
-                                    Text = Beatmap.DifficultyField,
-                                    Font = OsuFont.Torus.With(weight: FontWeight.Regular, size: 12),
+                                    NonOverflowingContentAnchor = Anchor.Centre,
+                                    Alpha = string.IsNullOrWhiteSpace(Beatmap.DifficultyField) ? 0 : 1,
+                                    CreateContent = () => new TournamentSpriteText
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Text = Beatmap.DifficultyField,
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Regular, size: 12),
+                                    },
                                 },
                             },
                         },
