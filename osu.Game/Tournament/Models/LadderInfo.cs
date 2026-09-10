@@ -65,7 +65,7 @@ namespace osu.Game.Tournament.Models
         public BindableList<KeyValuePair<BackgroundType, BackgroundInfo>> BackgroundMap = new BindableList<KeyValuePair<BackgroundType, BackgroundInfo>>();
 
         [JsonIgnore]
-        public bool SkipBackgroundMapSerialization = false;
+        public bool SkipBackgroundMapSerialization;
 
         public bool ShouldSerializeBackgroundMap() => !SkipBackgroundMapSerialization;
     }
