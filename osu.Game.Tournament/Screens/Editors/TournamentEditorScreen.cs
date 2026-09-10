@@ -52,7 +52,7 @@ namespace osu.Game.Tournament.Screens.Editors
         [BackgroundDependencyLoader]
         private void load(OsuColour colours)
         {
-            AddRangeInternal(new Drawable[]
+            AddRange(new Drawable[]
             {
                 new Box
                 {

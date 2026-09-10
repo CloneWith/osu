@@ -4,11 +4,13 @@
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Cursor;
+using osu.Game.Graphics.Cursor;
 using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Screens
 {
-    public abstract partial class TournamentScreen : CompositeDrawable
+    public abstract partial class TournamentScreen : Container
     {
         public const double FADE_DELAY = 200;
 
@@ -20,12 +22,31 @@ namespace osu.Game.Tournament.Screens
         [Resolved]
         protected TournamentSceneManager? SceneManager { get; private set; }
 
+        private readonly Container content;
+        protected override Container<Drawable> Content => content;
+
         protected TournamentScreen()
         {
             RelativeSizeAxes = Axes.Both;
 
             FillMode = FillMode.Fit;
             FillAspectRatio = 16 / 9f;
+
+            InternalChildren = new Drawable[]
+            {
+                new OsuContextMenuContainer
+                {
+                    RelativeSizeAxes = Axes.Both,
+                    Child = new PopoverContainer
+                    {
+                        RelativeSizeAxes = Axes.Both,
+                        Child = content = new Container
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                        },
+                    },
+                },
+            };
         }
 
         /// <summary>
