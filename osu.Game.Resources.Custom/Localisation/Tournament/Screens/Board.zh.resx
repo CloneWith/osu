@@ -132,4 +132,7 @@
     <data name="override_tiebreaker_control" xml:space="preserve">
         <value>特殊控制</value>
     </data>
+    <data name="shiro" xml:space="preserve">
+        <value>白子</value>
+    </data>
 </root>

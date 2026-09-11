@@ -66,6 +66,11 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString MainBoardAreaSize => new TranslatableString(getKey(@"main_board_area_size"), @"Chess area size");
 
         /// <summary>
+        /// "Shiro"
+        /// </summary>
+        public static LocalisableString Shiro => new TranslatableString(getKey(@"shiro"), @"Shiro");
+
+        /// <summary>
         /// "Shiro Status"
         /// </summary>
         public static LocalisableString ShiroStatus => new TranslatableString(getKey(@"shiro_status"), @"Shiro Status");

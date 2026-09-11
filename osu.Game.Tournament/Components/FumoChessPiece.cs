@@ -6,13 +6,16 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
+using osu.Framework.Localisation;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -22,7 +25,7 @@ namespace osu.Game.Tournament.Components
     /// <summary>
     /// A general and rounded chess display for the chessboard.
     /// </summary>
-    public partial class FumoChessPiece : Circle
+    public partial class FumoChessPiece : Circle, IHasTooltip
     {
         /// <summary>
         /// The name of the chess's mod.
@@ -86,6 +89,10 @@ namespace osu.Game.Tournament.Components
 
         private readonly bool requireFetch;
 
+        public bool IsShiro => BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID;
+
+        public LocalisableString TooltipText => IsShiro ? BoardStrings.Shiro : $"{ModName}{ModIndex}";
+
         public FumoChessPiece(int beatmapId)
         {
             BeatmapID = beatmapId;
@@ -145,8 +152,10 @@ namespace osu.Game.Tournament.Components
             Texture? borderTexture = textures.Get(@"Board/chess-border");
             Texture? specialTexture = textures.Get(@"Board/special-mask");
 
+            if (IsShiro)
+                chessIcon = null;
             // Use win icon for TB maps, subject to change
-            if (ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase))
+            else if (ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase))
                 chessIcon = textures.Get(@"Board/chess-win");
             else
             {
@@ -278,7 +287,7 @@ namespace osu.Game.Tournament.Components
 
                 backgroundCircle.FadeColour(specialScheme.Background, 500, Easing.OutQuint);
                 specialMask.FadeColour(specialScheme.Accent.Opacity(0.3f));
-                specialMask.FadeTo(currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed ? 1 : 0, 500, Easing.OutQuint);
+                specialMask.FadeTo(!IsShiro && currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed ? 1 : 0, 500, Easing.OutQuint);
                 topIcon.FadeColour(specialScheme.Accent, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourLight), specialScheme.TriangleLight, 500, Easing.OutQuint);
                 triangles.TransformTo(nameof(triangles.ColourDark), specialScheme.TriangleDark, 500, Easing.OutQuint);
@@ -295,7 +304,7 @@ namespace osu.Game.Tournament.Components
                 dimMask.FadeOut(500, Easing.OutQuint);
             }
 
-            topIcon.Texture = currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed
+            topIcon.Texture = !IsShiro && currentType is ChoiceType.RedWin or ChoiceType.BlueWin or ChoiceType.Consumed
                 ? textures.Get(@"Board/chess-win")
                 : chessIcon;
 
