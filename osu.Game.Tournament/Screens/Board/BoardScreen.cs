@@ -663,20 +663,6 @@ namespace osu.Game.Tournament.Screens.Board
             return true;
         }
 
-        private void consumeSelected()
-        {
-            foreach (var b in chessBoard.SelectedBlocks)
-            {
-                b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
-                var record = CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b));
-
-                if (record != null)
-                    CurrentMatch.Value?.ChessPlacements.Add(record.CreateUpdate(null, ChoiceType.Consumed));
-            }
-
-            clearShiroSelection();
-        }
-
         private void activateShiro()
         {
             var shiro = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID);
@@ -705,8 +691,8 @@ namespace osu.Game.Tournament.Screens.Board
                 return;
 
             setMode(chessPieces.Select(b => b.OwnerTeam).First(), RoundStep.Shiro);
+            // Atomic: colouring the shiro AND consuming the two selected pieces happen in one step.
             addWinPlacement(TournamentExtensions.RESERVED_BEATMAP_ID, true);
-            consumeSelected();
 
             // Only this function escapes the normal interaction route, needed to detect winner separately.
             detectWin();
@@ -950,13 +936,11 @@ namespace osu.Game.Tournament.Screens.Board
                                     if (chessPieces.Contains(target))
                                         break;
 
-                                    succeeded |= addWinPlacement(target.BeatmapID, true, true);
+                                    // Atomic: colouring target AND consuming selected pieces happen in one step.
+                                    succeeded |= addWinPlacement(target.BeatmapID, true);
 
                                     if (succeeded)
-                                    {
-                                        consumeSelected();
                                         shiroModeActivated.Value = false;
-                                    }
                                 }
 
                                 break;
@@ -1009,7 +993,8 @@ namespace osu.Game.Tournament.Screens.Board
 
                                             var matches = CurrentMatch.Value?.ChessPlacements.Where(p => positionEquals(p, block));
 
-                                            if (matches?.Any(p => p.CurrentType is ChoiceType.Consumed) == true
+                                            if (CurrentMatch.Value != null
+                                                && ChessPlacement.IsPositionConsumedBy(CurrentMatch.Value.ChessPlacements, block.BoardRow, block.BoardColumn)
                                                 || matches?.Any(p => p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin) != true)
                                                 break;
 
@@ -1082,72 +1067,113 @@ namespace osu.Game.Tournament.Screens.Board
 
         private bool removeLatestPlacement(int beatmapId)
         {
-            var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
-            var beatmap = CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
-            var history = CurrentMatch.Value?.ChessHistory.LastOrDefault(h => (h.Mod, h.ModIndex) == (beatmap?.Mods, beatmap?.ModIndex));
+            var match = CurrentMatch.Value;
+            if (match == null) return false;
 
-            if (CurrentMatch.Value == null || placement == null)
-                return false;
+            // Resolve whether this beatmap is part of an owner-update group — either as the target of the
+            // win, or as one of the consumed pieces — and undo the whole group atomically.
+            ChessPlacement? ownerUpdate = findOwnerUpdate(beatmapId);
 
-            if (placement.CurrentType is ChoiceType.Consumed)
-            {
-                if (beatmap != null)
-                {
-                    var lastConsumed = CurrentMatch.Value.ChessHistory.LastOrDefault(h =>
-                        h.UsedPieces.Contains((beatmap.Mods, beatmap.ModIndex)));
-
-                    if (lastConsumed != null)
-                    {
-                        if (lastConsumed.UsedPieces.Length == 1 || placement.CurrentType is not ChoiceType.Consumed)
-                            CurrentMatch.Value.ChessHistory.Remove(lastConsumed);
-                        else
-                        {
-                            var otherUsedPieces = lastConsumed.UsedPieces.Where(p => p != (beatmap.Mods, beatmap.ModIndex))
-                                                              .ToArray();
-                            int index = CurrentMatch.Value.ChessHistory.Count - 1;
-
-                            while (index >= 0 && CurrentMatch.Value.ChessHistory[index] == lastConsumed)
-                                index--;
-
-                            CurrentMatch.Value.ChessHistory[index] = lastConsumed with
-                            {
-                                UsedPieces = otherUsedPieces
-                            };
-                        }
-                    }
-                }
-            }
+            if (ownerUpdate != null)
+                undoOwnerUpdateGroup(ownerUpdate);
             else
-            {
-                if (history != null)
-                    CurrentMatch.Value.ChessHistory.Remove(history);
-            }
+                undoSinglePlacement(beatmapId);
 
-            CurrentMatch.Value.ChessPlacements.Remove(placement);
+            return true;
+        }
 
-            // Decrement round when the revoked placement is a Shiro, or in a Win status.
+        /// <summary>
+        /// Find the owner-update placement that the beatmap with <paramref name="beatmapId"/> belongs to, if any.
+        /// </summary>
+        /// <remarks>
+        /// A beatmap belongs to an owner-update group when:
+        /// <list type="bullet">
+        /// <item>its latest placement is a win record carrying non-empty <see cref="ChessPlacement.ConsumedPieces"/>, or</item>
+        /// <item>any later win record has this beatmap listed in its <see cref="ChessPlacement.ConsumedPieces"/>.</item>
+        /// </list>
+        /// </remarks>
+        private ChessPlacement? findOwnerUpdate(int beatmapId)
+        {
+            var placements = CurrentMatch.Value?.ChessPlacements;
+            if (placements == null) return null;
+
+            // Case 1: the beatmap is the target of an owner update.
+            var winRecord = placements.LastOrDefault(p =>
+                p.BeatmapID == beatmapId
+                && p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin
+                && p.ConsumedPieces.Length > 0);
+            if (winRecord != null) return winRecord;
+
+            // Case 2: the beatmap is consumed by a (later) owner update.
+            return placements.LastOrDefault(p =>
+                p.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin
+                && p.ConsumedPieces.Any(c => c.BeatmapID == beatmapId));
+        }
+
+        /// <summary>
+        /// Undo an owner-update group (the single win record plus the graphical state of every consumed piece) atomically,
+        /// for both the placements entries and the history.
+        /// </summary>
+        private void undoOwnerUpdateGroup(ChessPlacement ownerUpdate)
+        {
+            var match = CurrentMatch.Value!;
+            var placements = match.ChessPlacements;
+
+            int targetBeatmapId = ownerUpdate.BeatmapID;
+            placements.Remove(ownerUpdate);
+
+            // Decrement round when the revoked target is a Shiro, or in a Win status.
+            if (targetBeatmapId == TournamentExtensions.RESERVED_BEATMAP_ID
+                || ownerUpdate.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
+                setNextMode(undo: true);
+
+            // Refresh the target chess piece and every consumed chess piece — their pieces revert to the
+            // placement that precedes the win record in the list (since no Consumed records exist anymore).
+            refreshChessPieceFor(targetBeatmapId);
+            foreach (var consumed in ownerUpdate.ConsumedPieces)
+                refreshChessPieceFor(consumed.BeatmapID);
+        }
+
+        /// <summary>
+        /// Undo a single and simple placement (ban/pick/plain win/shiro placement).
+        /// </summary>
+        private void undoSinglePlacement(int beatmapId)
+        {
+            var match = CurrentMatch.Value!;
+            var placements = match.ChessPlacements;
+
+            var placement = placements.LastOrDefault(p => p.BeatmapID == beatmapId);
+            if (placement == null) return;
+
+            placements.Remove(placement);
+
             if (placement.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID
                 || placement.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
                 setNextMode(undo: true);
 
+            refreshChessPieceFor(beatmapId);
+        }
+
+        /// <summary>
+        /// Re-sync the on-board <see cref="FumoChessPiece"/> graphics for the given beatmap to match the
+        /// current (latest) <see cref="ChessPlacement"/>, removing it from the board if no placement remains.
+        /// </summary>
+        private void refreshChessPieceFor(int beatmapId)
+        {
             var chessPiece = chessBoard.ChessPieces.LastOrDefault(c => c.BeatmapID == beatmapId);
+            if (chessPiece == null) return;
 
-            if (chessPiece != null)
+            var placement = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
+
+            if (placement != null)
             {
-                placement = CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == beatmapId);
-
-                if (placement != null)
-                {
-                    chessPiece.OwnerTeam = placement.OwnerTeam;
-                    chessPiece.CurrentType = placement.CurrentType;
-                }
-                else
-                {
-                    chessPiece.Remove();
-                }
+                chessPiece.OwnerTeam = placement.OwnerTeam;
+                chessPiece.CurrentType = placement.CurrentType;
             }
-
-            return true;
+            else
+            {
+                chessPiece.Remove();
+            }
         }
 
         protected override void OnFirstSelected()
@@ -1187,7 +1213,6 @@ namespace osu.Game.Tournament.Screens.Board
             // Clear map marking lists
             CurrentMatch.Value?.PicksBans.Clear();
             CurrentMatch.Value?.ChessPlacements.Clear();
-            CurrentMatch.Value?.ChessHistory.Clear();
 
             chessBoard.Reset();
 
@@ -1234,7 +1259,7 @@ namespace osu.Game.Tournament.Screens.Board
             flashBlock?.FlashColour(FumoColours.FlandreRed.Regular);
         }
 
-        private bool addWinPlacement(int beatmapId, bool keepCurrentRound = false, bool updating = false)
+        private bool addWinPlacement(int beatmapId, bool keepCurrentRound = false)
         {
             var existing = CurrentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                 p.BeatmapID == beatmapId && p.CurrentType is not ChoiceType.Neutral);
@@ -1257,32 +1282,39 @@ namespace osu.Game.Tournament.Screens.Board
             if (existing.CurrentType is ChoiceType.Ban or ChoiceType.Consumed)
                 return false;
 
-            var winRecord = existing.CreateUpdate(pickTeam,
-                pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin);
+            // ---------------------------------------------------------------------------------------------
+            // Atomic use: ONE ChessPlacement record for the entire owner update. The forward-link on the
+            // win record (ConsumedPieces) is what ties the "consume" and "recolour" halves together as a
+            // single, undoable operation. We deliberately do NOT append separate Consumed records here —
+            // their state is derived from ConsumedPieces by the renderer and win-detection code.
+            // ---------------------------------------------------------------------------------------------
+            ConsumedPiece[] consumedRefs = chessBoard.SelectedBlocks
+                                                     .Select(b => CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b)))
+                                                     .OfType<ChessPlacement>()
+                                                     .Select(p => new ConsumedPiece(p))
+                                                     .ToArray();
 
+            var newType = pickTeam == TeamColour.Red ? ChoiceType.RedWin : ChoiceType.BlueWin;
+            var winRecord = existing.CreateUpdate(pickTeam, newType, consumedRefs);
+
+            // Single atomic placement write.
+            // The forward-link on winRecord.ConsumedPieces is the only state needed by undo, the renderer, and win-detection.
             CurrentMatch.Value?.ChessPlacements.Add(winRecord);
-
-            var converted = HistoryExtensions.Convert([winRecord], CurrentMatch.Value?.Round.Value?.Beatmaps.ToList());
-            List<(string?, string?)> usedModDataList = chessBoard.SelectedBlocks.Select(b => CurrentMatch.Value?.ChessPlacements.Last(p => positionEquals(p, b))).OfType<ChessPlacement>().Select(record => getBeatmapMod(record.BeatmapID)).ToList();
-
-            if (converted.Count == 1)
-            {
-                CurrentMatch.Value?.ChessHistory.Add(converted[0] with
-                {
-                    Type = updating ? HistoryType.OwnerUpdate : HistoryType.Normal,
-                    UsedPieces = updating
-                        ? usedModDataList.OfType<(string, string)>().ToArray()
-                        : [],
-                });
-            }
 
             if (chess != null)
             {
                 chess.OwnerTeam = pickTeam;
-                chess.CurrentType = TournamentExtensions.ToChoiceType(pickType, pickTeam);
+                chess.CurrentType = newType;
             }
 
+            // Graphical consume step (sequenced after recolour is fine — the underlying data is already atomic).
+            foreach (var b in chessBoard.SelectedBlocks)
+                b.ChessLayer.Child.CurrentType = ChoiceType.Consumed;
+
             updateOwnerSample?.Play();
+
+            if (chessBoard.SelectedBlocks.Count > 0)
+                clearShiroSelection();
 
             if (!keepCurrentRound)
                 setNextMode();
@@ -1298,10 +1330,7 @@ namespace osu.Game.Tournament.Screens.Board
                     return false;
 
                 CurrentMatch.Value?.ChessPlacements.Add(new ChessPlacement(block.BoardRow, block.BoardColumn,
-                    pickTeam, ChoiceType.Pick));
-
-                CurrentMatch.Value?.ChessHistory.Add(new History(HistoryType.ShiroPlacement, pickTeam, ChoiceType.Pick,
-                    null, null, block.BoardRow, block.BoardColumn, []));
+                    pickTeam, ChoiceType.Pick, TournamentExtensions.RESERVED_BEATMAP_ID));
 
                 chessBoard.AddSingleChess(beatmapId, block.BoardRow, block.BoardColumn, pickTeam, ChoiceType.Pick);
                 setNextMode();
@@ -1352,11 +1381,6 @@ namespace osu.Game.Tournament.Screens.Board
 
                 CurrentMatch.Value.ChessPlacements.Add(new ChessPlacement(block?.BoardRow, block?.BoardColumn,
                     pickTeam, TournamentExtensions.ToChoiceType(pickType, pickTeam), beatmapId));
-
-                var fetched = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
-
-                CurrentMatch.Value.ChessHistory.Add(new History(HistoryType.Normal, pickTeam, TournamentExtensions.ToChoiceType(pickType, pickTeam),
-                    fetched?.Mods, fetched?.ModIndex, block?.BoardRow ?? -1, block?.BoardColumn ?? -1, []));
             }
 
             if (pickType is RoundStep.Ban)

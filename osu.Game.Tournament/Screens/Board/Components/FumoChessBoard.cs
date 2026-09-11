@@ -144,8 +144,15 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     var placement = currentMatch.Value?.ChessPlacements.LastOrDefault(p =>
                         p.BoardRow == i && p.BoardColumn == j);
 
-                    if (placement != null)
-                        AddSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, placement.CurrentType, true);
+                    if (placement != null && currentMatch.Value != null)
+                    {
+                        // Consumed state is derived from a later win record's ConsumedPieces.
+                        var displayType = ChessPlacement.IsPositionConsumedBy(currentMatch.Value.ChessPlacements, i, j)
+                            ? ChoiceType.Consumed
+                            : placement.CurrentType;
+
+                        AddSingleChess(placement.BeatmapID, i, j, placement.OwnerTeam, displayType, true);
+                    }
                 }
             }
         }

@@ -74,7 +74,14 @@ namespace osu.Game.Tournament.Tests.Components
             AddStep("Add blue win record", () => addPlacement(placements, null, ChoiceType.BlueWin));
             AddStep("Add red win record", () => addPlacement(placements, null, ChoiceType.RedWin));
 
-            AddStep("Add consume record", () => addPlacement(placements, null, ChoiceType.Consumed));
+            AddStep("Add consume record", () =>
+            {
+                // Consumed state is now derived from a later owner-update placement's ConsumedPieces.
+                // Add a win record at (2, 2) that consumes the panel's beatmap.
+                int consumedBeatmapId = panel.Beatmap.Beatmap!.OnlineID;
+                placements.Add(new ChessPlacement(2, 2, TeamColour.Red, ChoiceType.RedWin,
+                    -1, [new ConsumedPiece(consumedBeatmapId, 1, 1)]));
+            });
         }
     }
 }

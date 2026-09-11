@@ -134,9 +134,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 case NotifyCollectionChangedAction.Replace:
                     if (e.OldItems != null && e.OldStartingIndex != -1)
                     {
-                        for (int i = 0; i < e.OldItems.Count; i++)
+                        foreach (object item in e.OldItems)
                         {
-                            var target = innerContent.Children.Where(line => line.History == (History)e.OldItems[i]!)
+                            var target = innerContent.Children.Where(line => line.Placement == (ChessPlacement)item!)
                                                      .ToList();
 
                             foreach (HistoryLine line in target)
@@ -148,7 +148,10 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     {
                         for (int i = 0; i < e.NewItems.Count; i++)
                         {
-                            innerContent.Insert(e.NewStartingIndex + i, new HistoryLine((History)e.NewItems[i]!)
+                            var placement = (ChessPlacement)e.NewItems[i]!;
+                            if (!placement.IsViewable) continue;
+
+                            innerContent.Insert(e.NewStartingIndex + i, new HistoryLine(placement)
                             {
                                 RelativeSizeAxes = Axes.X,
                                 AutoSizeAxes = Axes.Y,
@@ -175,16 +178,18 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 if (e.OldValue != null)
                 {
                     innerContent.Clear();
-                    e.OldValue.ChessHistory.CollectionChanged -= historyCollectionChanged;
+                    e.OldValue.ChessPlacements.CollectionChanged -= historyCollectionChanged;
                 }
 
                 if (e.NewValue != null)
                 {
-                    innerContent.ChildrenEnumerable = e.NewValue.ChessHistory.Select(h => new HistoryLine(h)
-                    {
-                        RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y,
-                    });
-                    e.NewValue.ChessHistory.CollectionChanged += historyCollectionChanged;
+                    innerContent.ChildrenEnumerable = e.NewValue.ChessPlacements
+                                                       .Where(p => p.IsViewable)
+                                                       .Select(p => new HistoryLine(p)
+                                                       {
+                                                           RelativeSizeAxes = Axes.X, AutoSizeAxes = Axes.Y,
+                                                       });
+                    e.NewValue.ChessPlacements.CollectionChanged += historyCollectionChanged;
                 }
             }, true);
 

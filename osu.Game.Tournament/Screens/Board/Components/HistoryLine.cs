@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using osu.Framework.Allocation;
-using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -21,7 +20,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
 {
     public partial class HistoryLine : FillFlowContainer
     {
-        public History History { get; }
+        public ChessPlacement Placement { get; }
 
         private SpriteIcon icon = null!;
         private TextFlowContainer descriptionText = null!;
@@ -29,15 +28,21 @@ namespace osu.Game.Tournament.Screens.Board.Components
         private readonly Action<SpriteText> textFormat = t =>
             t.Font = OsuFont.Torus.With(size: 18, weight: FontWeight.SemiBold);
 
-        public HistoryLine(History history)
+        public HistoryLine(ChessPlacement placement)
         {
-            History = history;
+            Placement = placement;
             Spacing = new Vector2(10);
         }
 
         [BackgroundDependencyLoader]
         private void load(LadderInfo ladder)
         {
+            var beatmaps = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps;
+            var resolvedMod = Placement.TryResolveMod(beatmaps);
+            HistoryType derivedType = Placement.DerivedHistoryType;
+            TeamColour team = Placement.OwnerTeam;
+            ChoiceType originalType = Placement.CurrentType;
+
             Direction = FillDirection.Vertical;
             InternalChildren = new Drawable[]
             {
@@ -77,20 +82,20 @@ namespace osu.Game.Tournament.Screens.Board.Components
                                 Anchor = Anchor.Centre,
                                 Origin = Anchor.Centre,
                                 RelativeSizeAxes = Axes.Both,
-                                Alpha = History.OriginalType is ChoiceType.Pick ? 1 : 0,
+                                Alpha = originalType is ChoiceType.Pick ? 1 : 0,
                                 Margin = new MarginPadding { Left = 5 },
                                 Children = new Drawable[]
                                 {
                                     new Circle
                                     {
                                         RelativeSizeAxes = Axes.Both,
-                                        Colour = TournamentExtensions.GetTeamColour(History.Team),
+                                        Colour = TournamentExtensions.GetTeamColour(team),
                                     },
                                     new TournamentSpriteText
                                     {
                                         Anchor = Anchor.Centre,
                                         Origin = Anchor.Centre,
-                                        Text = $"{(char)('A' + History.Column - 1)}{History.Row}",
+                                        Text = Placement.ToString(),
                                         Font = OsuFont.Torus.With(size: 19, weight: FontWeight.SemiBold),
                                         Margin = new MarginPadding { Horizontal = 5 },
                                     },
@@ -101,9 +106,9 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 },
             };
 
-            icon.Icon = History.Type switch
+            icon.Icon = derivedType switch
             {
-                HistoryType.Normal => History.OriginalType switch
+                HistoryType.Normal => originalType switch
                 {
                     ChoiceType.Ban => FontAwesome.Solid.Ban,
                     ChoiceType.Pick => FontAwesome.Solid.Check,
@@ -115,18 +120,18 @@ namespace osu.Game.Tournament.Screens.Board.Components
                 _ => FontAwesome.Solid.Fire,
             };
 
-            icon.Colour = TournamentExtensions.GetTeamColour(History.Team);
+            icon.Colour = TournamentExtensions.GetTeamColour(team);
 
-            descriptionText.AddText(TournamentExtensions.GetTeamString(History.Team, true), t =>
+            descriptionText.AddText(TournamentExtensions.GetTeamString(team, true), t =>
             {
                 textFormat.Invoke(t);
-                t.Colour = TournamentExtensions.GetTeamColour(History.Team);
+                t.Colour = TournamentExtensions.GetTeamColour(team);
             });
 
-            switch (History.Type)
+            switch (derivedType)
             {
                 case HistoryType.Normal:
-                    descriptionText.AddText(History.OriginalType switch
+                    descriptionText.AddText(originalType switch
                     {
                         ChoiceType.Ban => HistoryStrings.Banned,
                         ChoiceType.Pick => HistoryStrings.Picked,
@@ -134,19 +139,13 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         _ => "",
                     });
 
-                    if (History.Mod != null && History.ModIndex != null)
+                    if (resolvedMod is { } mods)
                     {
                         var beatmap = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b =>
-                            b.Mods == History.Mod && b.ModIndex == History.ModIndex);
+                            b.Mods == mods.mod && b.ModIndex == mods.modIndex);
 
-                        if (History.OriginalType is (ChoiceType.Ban or ChoiceType.Pick) && beatmap != null)
-                        {
-                            AddInternal(new TournamentBeatmapPanel(beatmap.Beatmap, History.Mod, History.ModIndex)
-                            {
-                                RelativeSizeAxes = Axes.X,
-                                Width = 1,
-                            });
-                        }
+                        if (originalType is (ChoiceType.Ban or ChoiceType.Pick) && beatmap != null)
+                            AddInternal(new FumoBeatmapCard(beatmap));
                     }
 
                     break;
@@ -156,17 +155,20 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     break;
 
                 case HistoryType.OwnerUpdate:
-                    string usedPieceText = string.Empty;
-                    History.UsedPieces.ForEach(p => usedPieceText += $" {p.mod}{p.modIndex}");
+                    string usedPieceText = Placement.ResolveUsedPieces(beatmaps)
+                                                    .Aggregate(string.Empty, (current, p) => current + $" {p.mod}{p.modIndex}");
                     descriptionText.AddText(HistoryStrings.UpdatedWinner(usedPieceText));
                     break;
             }
 
-            descriptionText.AddText($"{History.Mod}{History.ModIndex}", t =>
+            if (resolvedMod is { } displayedMod)
             {
-                textFormat.Invoke(t);
-                t.Colour = ModColours.FromModString(History.Mod ?? "").Accent;
-            });
+                descriptionText.AddText($"{displayedMod.mod}{displayedMod.modIndex}", t =>
+                {
+                    textFormat.Invoke(t);
+                    t.Colour = ModColours.FromModString(displayedMod.mod ?? "").Accent;
+                });
+            }
         }
     }
 }

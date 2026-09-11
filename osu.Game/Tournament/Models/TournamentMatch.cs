@@ -53,8 +53,6 @@ namespace osu.Game.Tournament.Models
 
         public readonly ObservableCollection<ChessPlacement> ChessPlacements = new ObservableCollection<ChessPlacement>();
 
-        public readonly ObservableCollection<History> ChessHistory = new ObservableCollection<History>();
-
         [JsonIgnore]
         public readonly Bindable<TournamentRound?> Round = new Bindable<TournamentRound?>();
 
@@ -155,13 +153,15 @@ namespace osu.Game.Tournament.Models
 
             (int row, int column)[] directions = [(0, 1), (1, 0), (1, 1), (1, -1)];
 
+            var data = source.ToList();
+
             for (int i = 1; i <= 4; i++)
             {
                 // The modification of i won't affect these lines.
                 // ReSharper disable once AccessToModifiedClosure
-                var rowChess = source.Where(c => c.BoardRow == i)
-                                     .GroupBy(c => c.BoardColumn)
-                                     .Select(g => g.Last());
+                var rowChess = data.Where(c => c.BoardRow == i)
+                                   .GroupBy(c => c.BoardColumn)
+                                   .Select(g => g.Last());
 
                 foreach (var chess in rowChess)
                 {
@@ -187,10 +187,14 @@ namespace osu.Game.Tournament.Models
                     return endRecursion();
 
                 // Step 2: Find the next chess; Return if not found or not desired type
-                var nextChess = source.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
+                var nextChess = data.LastOrDefault(c => c.BoardRow == row && c.BoardColumn == column);
 
                 if (nextChess == null || nextChess.CurrentType != targetType)
                     // Edge case: Dismiss dual diagonal matches
+                    return endRecursion();
+
+                // Step 2.5: Skip consumed chess pieces.
+                if (ChessPlacement.IsPositionConsumedBy(data, row, column))
                     return endRecursion();
 
                 // Step 3: Search forwards

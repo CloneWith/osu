@@ -345,6 +345,10 @@ namespace osu.Game.Tournament.Components
 
             var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
 
+            // Add consumed records back here for correct state display.
+            if (newPlacement != null && ChessPlacement.IsBeatmapConsumedBy(currentMatch.Value.ChessPlacements, newPlacement.BeatmapID))
+                newPlacement = newPlacement.CreateUpdate(null, ChoiceType.Consumed);
+
             // Relevant placement unchanged: don't update
             if (lastPlacement == newPlacement)
                 return;

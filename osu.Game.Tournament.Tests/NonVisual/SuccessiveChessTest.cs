@@ -39,6 +39,21 @@ namespace osu.Game.Tournament.Tests.NonVisual
             match.ChessPlacements.Remove(source);
         }
 
+        /// <summary>
+        /// Append an owner-update placement at (<paramref name="targetRow"/>, <paramref name="targetCol"/>) that
+        /// consumes the pieces at the given <paramref name="consumedPositions"/>.
+        /// In the new atomic model, consumed state is recorded on the win record's <see cref="ChessPlacement.ConsumedPieces"/>
+        /// rather than as a separate Consumed entry in the placement list.
+        /// </summary>
+        private void markConsumedBy(int targetRow, int targetCol, params (int row, int col)[] consumedPositions)
+        {
+            var consumedPieces = consumedPositions
+                                 .Select(p => new ConsumedPiece(-1, p.row, p.col))
+                                 .ToArray();
+            match.ChessPlacements.Add(new ChessPlacement(
+                targetRow, targetCol, TeamColour.Red, ChoiceType.RedWin, -1, consumedPieces));
+        }
+
         [Test]
         public void TestEmptyBoardChess()
         {
@@ -149,8 +164,10 @@ namespace osu.Game.Tournament.Tests.NonVisual
 
             Assert.That(results.red, Is.EqualTo(4), "Vertical quad match test failed: Red chess");
 
-            updateStatusAt(2, 4, null, ChoiceType.Consumed);
-            updateStatusAt(3, 4, null, ChoiceType.Consumed);
+            updateStatusAt(2, 4, null, ChoiceType.RedWin);
+            updateStatusAt(3, 4, null, ChoiceType.RedWin);
+            markConsumedBy(4, 1, (2, 4));
+            markConsumedBy(4, 1, (3, 4));
             runOnce();
 
             Assert.That(results.red, Is.EqualTo(2), "Chess consumption test failed: Red chess");
