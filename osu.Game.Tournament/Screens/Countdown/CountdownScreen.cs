@@ -26,10 +26,9 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Countdown
 {
-    public partial class CountdownScreen : TournamentScreen
+    public partial class CountdownScreen : TournamentMatchScreen
     {
         private readonly BindableList<TournamentMatch> allMatches = new BindableList<TournamentMatch>();
-        private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
         private readonly BindableBool showSchedule = new BindableBool();
         private readonly BindableBool showUpcoming = new BindableBool();
@@ -49,7 +48,7 @@ namespace osu.Game.Tournament.Screens.Countdown
         {
             var upcomingMatch = LadderInfo.CurrentMatch.Value;
 
-            InternalChildren = new Drawable[]
+            Children = new Drawable[]
             {
                 new TeamGradientBackground(),
                 countdownContainer = new Container
@@ -212,14 +211,13 @@ namespace osu.Game.Tournament.Screens.Countdown
             countdown.OnCompleted += () =>
             {
                 if (LadderInfo.AutoProgressScreens.Value)
-                    sceneManager?.ScheduleScreenChange(currentMatch.Value?.Round.Value?.UseBoard.Value == true ? typeof(BoardScreen) : typeof(MapPoolScreen), 10000);
+                    sceneManager?.ScheduleScreenChange(CurrentMatch.Value?.Round.Value?.UseBoard.Value == true ? typeof(BoardScreen) : typeof(MapPoolScreen), 10000);
             };
 
             allMatches.BindTo(LadderInfo.Matches);
             allMatches.BindCollectionChanged((_, _) => refresh());
 
-            currentMatch.BindTo(LadderInfo.CurrentMatch);
-            currentMatch.BindValueChanged(_ => refresh(), true);
+            CurrentMatch.BindValueChanged(_ => refresh(), true);
 
             showSchedule.BindValueChanged(v =>
             {

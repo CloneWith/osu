@@ -20,21 +20,17 @@ using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Screens.Schedule
 {
-    public partial class ScheduleScreen : TournamentScreen
+    public partial class ScheduleScreen : TournamentMatchScreen
     {
         private readonly BindableList<TournamentMatch> allMatches = new BindableList<TournamentMatch>();
-        private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
         private Container mainContainer = null!;
-        private LadderInfo ladder = null!;
 
         [BackgroundDependencyLoader]
-        private void load(LadderInfo ladder)
+        private void load()
         {
-            this.ladder = ladder;
-
             RelativeSizeAxes = Axes.Both;
 
-            InternalChildren = new Drawable[]
+            Children = new Drawable[]
             {
                 new TourneyBackground(BackgroundType.Schedule)
                 {
@@ -106,11 +102,10 @@ namespace osu.Game.Tournament.Screens.Schedule
         {
             base.LoadComplete();
 
-            allMatches.BindTo(ladder.Matches);
+            allMatches.BindTo(LadderInfo.Matches);
             allMatches.BindCollectionChanged((_, _) => refresh());
 
-            currentMatch.BindTo(ladder.CurrentMatch);
-            currentMatch.BindValueChanged(_ => refresh(), true);
+            CurrentMatch.BindValueChanged(_ => refresh(), true);
         }
 
         private void refresh()
@@ -176,7 +171,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                 }
             };
 
-            if (currentMatch.Value != null)
+            if (CurrentMatch.Value != null)
             {
                 comingUpNext.Child = new FillFlowContainer
                 {
@@ -185,7 +180,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                     Spacing = new Vector2(30),
                     Children = new Drawable[]
                     {
-                        new ScheduleMatch(currentMatch.Value, false)
+                        new ScheduleMatch(CurrentMatch.Value, false)
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
@@ -194,14 +189,14 @@ namespace osu.Game.Tournament.Screens.Schedule
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Text = currentMatch.Value.Round.Value?.Name.Value ?? string.Empty,
+                            Text = CurrentMatch.Value.Round.Value?.Name.Value ?? string.Empty,
                             Scale = new Vector2(0.5f),
                         },
                         new TournamentSpriteTextWithBackground(fontSize: 30, textWeight: FontWeight.SemiBold)
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Text = currentMatch.Value.Team1.Value?.FullName.Value ?? string.Empty,
+                            Text = CurrentMatch.Value.Team1.Value?.FullName.Value ?? string.Empty,
                             BackgroundColour = TournamentExtensions.COLOUR_RED,
                             TextColour = Color4.White,
                         },
@@ -216,7 +211,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Text = currentMatch.Value.Team2.Value?.FullName.Value ?? string.Empty,
+                            Text = CurrentMatch.Value.Team2.Value?.FullName.Value ?? string.Empty,
                             BackgroundColour = TournamentExtensions.COLOUR_BLUE,
                             TextColour = Color4.White,
                         },
@@ -228,7 +223,7 @@ namespace osu.Game.Tournament.Screens.Schedule
                             Origin = Anchor.CentreLeft,
                             Children = new Drawable[]
                             {
-                                new ScheduleMatchDate(currentMatch.Value.Date.Value)
+                                new ScheduleMatchDate(CurrentMatch.Value.Date.Value)
                                 {
                                     Font = OsuFont.Torus.With(size: 24, weight: FontWeight.Regular)
                                 }
