@@ -5,7 +5,7 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Tournament.Localisation.Screens
 {
-    public class BracketEditorStrings
+    public static class BracketEditorStrings
     {
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Screens.BracketEditor";
 

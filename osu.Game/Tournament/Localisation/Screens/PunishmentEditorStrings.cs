@@ -5,7 +5,7 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Tournament.Localisation.Screens
 {
-    public class PunishmentEditorStrings
+    public static class PunishmentEditorStrings
     {
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Screens.PunishmentEditor";
 

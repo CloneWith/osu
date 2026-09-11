@@ -5,7 +5,7 @@ using osu.Framework.Localisation;
 
 namespace osu.Game.Tournament.Localisation
 {
-    public class InstructionsStrings
+    public static class InstructionsStrings
     {
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Instructions";
 
