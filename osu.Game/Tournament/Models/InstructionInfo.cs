@@ -4,10 +4,10 @@
 using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
-using osu.Game.Graphics;
 using osu.Game.Tournament.Localisation;
 using osuTK.Graphics;
 
@@ -29,7 +29,7 @@ namespace osu.Game.Tournament.Models
         public LocalisableString Description { get; private set; }
 
         public IconUsage Icon { get; private set; } = FontAwesome.Regular.StickyNote;
-        public ColourInfo IconColour { get; private set; } = new OsuColour().Yellow;
+        public ColourInfo IconColour { get; private set; }
 
         private LocalisableString teamPrompt;
         private LocalisableString shortTeamPrompt;
@@ -44,10 +44,12 @@ namespace osu.Game.Tournament.Models
             Team = team;
             RoundStep = roundStep;
 
-            bool notDraw = team == TeamColour.Red || team == TeamColour.Blue;
+            bool notDraw = team is TeamColour.Red or TeamColour.Blue;
 
             teamPrompt = TournamentExtensions.GetTeamString(team);
             shortTeamPrompt = TournamentExtensions.GetTeamString(team, true);
+
+            IconColour = TournamentExtensions.GetTeamColour(team, Colour4.White);
 
             switch (RoundStep)
             {
@@ -55,35 +57,30 @@ namespace osu.Game.Tournament.Models
                     Name = InstructionsStrings.BanName(shortTeamPrompt);
                     Description = InstructionsStrings.BanDescription;
                     Icon = FontAwesome.Solid.Ban;
-                    IconColour = Color4.Orange;
                     break;
 
                 case RoundStep.Pick:
                     Name = InstructionsStrings.PickName(shortTeamPrompt);
                     Description = InstructionsStrings.PickDescription;
                     Icon = FontAwesome.Solid.Check;
-                    IconColour = new OsuColour().Green;
                     break;
 
                 case RoundStep.Win:
                     Name = InstructionsStrings.WinName(shortTeamPrompt);
                     Description = InstructionsStrings.WinDescription;
                     Icon = FontAwesome.Solid.Trophy;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 case RoundStep.Shiro:
                     Name = Team == TeamColour.None ? InstructionsStrings.ShiroPlacingName : InstructionsStrings.ShiroName(shortTeamPrompt);
                     Description = Team == TeamColour.None ? InstructionsStrings.ShiroPlacingDescription : InstructionsStrings.ShiroDescription;
                     Icon = FontAwesome.Regular.Circle;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
                     break;
 
                 case RoundStep.UpdateOwner:
                     Name = InstructionsStrings.UpdateOwnerName(shortTeamPrompt);
                     Description = InstructionsStrings.UpdateOwnerDescription;
                     Icon = FontAwesome.Solid.ArrowUp;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : Color4.White;
                     break;
 
                 case RoundStep.TieBreaker:
@@ -97,7 +94,6 @@ namespace osu.Game.Tournament.Models
                     Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : InstructionsStrings.HaltName;
                     Description = notDraw ? InstructionsStrings.FinalWinDescription : InstructionsStrings.HaltDescription;
                     Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Fire;
-                    IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
                     break;
 
                 default:
