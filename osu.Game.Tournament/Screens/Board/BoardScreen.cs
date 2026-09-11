@@ -95,7 +95,7 @@ namespace osu.Game.Tournament.Screens.Board
             tiebreakerFirstSample = audio.Samples.Get(@"Gameplay/restart");
             tiebreakerSecondSample = audio.Samples.Get(@"Results/swoosh-up");
 
-            InternalChildren = new Drawable[]
+            Children = new Drawable[]
             {
                 new TourneyBackground(BackgroundType.Board)
                 {
@@ -610,7 +610,7 @@ namespace osu.Game.Tournament.Screens.Board
             pickTeam = colour;
             pickType = stepType;
 
-            if (instructionDisplay.Team != colour || instructionDisplay.Step != stepType)
+            if (stepType is not RoundStep.Win && (instructionDisplay.Team != colour || instructionDisplay.Step != stepType))
             {
                 instructionDisplay.Team = colour;
                 instructionDisplay.Step = stepType;
@@ -677,11 +677,12 @@ namespace osu.Game.Tournament.Screens.Board
             if (shiro.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
             {
                 updateActionText(BoardStrings.ShiroActivatedPrompt, true);
+                return;
             }
 
-            var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child);
+            var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child).ToList();
 
-            if (chessPieces.Count() != 2)
+            if (chessPieces.Count != 2)
             {
                 updateActionText(BoardStrings.ShiroActivationPrompt, true);
                 return;
