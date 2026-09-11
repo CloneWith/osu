@@ -13,6 +13,7 @@ using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
+using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 
@@ -158,6 +159,13 @@ namespace osu.Game.Tournament.Screens.Board.Components
                     string usedPieceText = Placement.ResolveUsedPieces(beatmaps)
                                                     .Aggregate(string.Empty, (current, p) => current + $" {p.mod}{p.modIndex}");
                     descriptionText.AddText(HistoryStrings.UpdatedWinner(usedPieceText));
+
+                    if (Placement.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID)
+                    {
+                        descriptionText.AddText(BoardStrings.Shiro);
+                        return;
+                    }
+
                     break;
             }
 
