@@ -94,17 +94,10 @@ namespace osu.Game.Tournament.Models
                     break;
 
                 case RoundStep.FinalWin:
-                    Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : InstructionsStrings.OnFireName;
-                    Description = notDraw ? InstructionsStrings.FinalWinDescription : InstructionsStrings.OnFireDescription;
-                    Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Asterisk;
+                    Name = notDraw ? InstructionsStrings.FinalWinName(teamPrompt) : InstructionsStrings.HaltName;
+                    Description = notDraw ? InstructionsStrings.FinalWinDescription : InstructionsStrings.HaltDescription;
+                    Icon = notDraw ? FontAwesome.Solid.Medal : FontAwesome.Solid.Fire;
                     IconColour = team == TeamColour.Red ? new OsuColour().Pink : team == TeamColour.Blue ? new OsuColour().Sky : new OsuColour().Yellow;
-                    break;
-
-                case RoundStep.Halt:
-                    Name = InstructionsStrings.HaltName;
-                    Description = InstructionsStrings.HaltDescription;
-                    Icon = FontAwesome.Solid.ExclamationCircle;
-                    IconColour = Color4.Orange;
                     break;
 
                 default:
@@ -155,11 +148,6 @@ namespace osu.Game.Tournament.Models
         /// The winner is decided.
         /// </summary>
         FinalWin,
-
-        /// <summary>
-        /// Something went wrong.
-        /// </summary>
-        Halt,
 
         /// <summary>
         /// Placeholder for default conditions.

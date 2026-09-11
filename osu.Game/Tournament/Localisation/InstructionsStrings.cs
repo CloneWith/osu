@@ -116,26 +116,16 @@ namespace osu.Game.Tournament.Localisation
             @"Congratulations!");
 
         /// <summary>
-        /// "Do you want smoke?"
-        /// </summary>
-        public static LocalisableString OnFireName => new TranslatableString(getKey(@"on_fire_name"), @"Do you want smoke?");
-
-        /// <summary>
-        /// "You need Ding Zhen's Ruike V5!"
-        /// </summary>
-        public static LocalisableString OnFireDescription => new TranslatableString(getKey(@"on_fire_description"), @"You need Ding Zhen's Ruike V5!");
-
-        /// <summary>
         /// "Please Wait..."
         /// </summary>
         public static LocalisableString HaltName => new TranslatableString(getKey(@"halt_name"),
             @"Please Wait...");
 
         /// <summary>
-        /// "Waiting for referees' reply..."
+        /// "Something went wrong. Wait for referees' reply..."
         /// </summary>
         public static LocalisableString HaltDescription => new TranslatableString(getKey(@"halt_description"),
-            @"Waiting for referees' reply...");
+            @"Something went wrong. Wait for referees' reply...");
 
         /// <summary>
         /// "Ban"
