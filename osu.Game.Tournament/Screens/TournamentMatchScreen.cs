@@ -7,6 +7,10 @@ using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Screens
 {
+    /// <summary>
+    /// A <see cref="TournamentScreen"/> with builtin <see cref="CurrentMatch"/> bindable support,
+    /// including injected round-based colour scheme and match configuration warning.
+    /// </summary>
     public abstract partial class TournamentMatchScreen : TournamentScreen
     {
         protected readonly Bindable<TournamentMatch?> CurrentMatch = new Bindable<TournamentMatch?>();

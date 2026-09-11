@@ -10,6 +10,14 @@ using osu.Game.Tournament.Models;
 
 namespace osu.Game.Tournament.Screens
 {
+    /// <summary>
+    /// A generalized "screen" with <see cref="LadderInfo"/> and <see cref="TournamentSceneManager"/> injected,
+    /// and also with <see cref="OsuContextMenuContainer"/> and <see cref="PopoverContainer"/> support.
+    /// </summary>
+    /// <remarks>
+    /// Don't use <see cref="CompositeDrawable.InternalChildren"/> to directly mutate the component
+    /// since this breaks the container support above. Use <see cref="Container{T}.Children"/> instead.
+    /// </remarks>
     public abstract partial class TournamentScreen : Container
     {
         public const double FADE_DELAY = 200;
