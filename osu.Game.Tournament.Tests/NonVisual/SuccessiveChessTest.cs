@@ -12,9 +12,9 @@ namespace osu.Game.Tournament.Tests.NonVisual
     public class SuccessiveChessTest
     {
         private readonly TournamentMatch match = new TournamentMatch();
-        private (int red, int blue) nums = (0, 0);
+        private (int red, int blue) results = (0, 0);
 
-        private void runOnce() => nums = match.GetMaximumSuccessiveChess();
+        private void runOnce() => results = match.GetMaximumSuccessiveChess();
 
         private void runWith(ChessPlacement[] chessList, bool clearList = true)
         {
@@ -44,78 +44,71 @@ namespace osu.Game.Tournament.Tests.NonVisual
         {
             runWith([]);
 
-            Assert.That(nums.red, Is.EqualTo(0), "Empty board test failed: Red chess");
-            Assert.That(nums.blue, Is.EqualTo(0), "Empty board test failed: Blue chess");
+            Assert.That(results.red, Is.EqualTo(0), "Empty board test failed: Red chess");
+            Assert.That(results.blue, Is.EqualTo(0), "Empty board test failed: Blue chess");
         }
 
         [Test]
         public void TestSingleWinColourChess()
         {
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 1, type: ChoiceType.RedWin),
                 new ChessPlacement(2, 1, type: ChoiceType.RedWin),
-            });
+            ]);
 
-            Assert.That(nums.red, Is.EqualTo(2), "Dual vertical match test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(2), "Dual vertical match test failed: Red chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 1, type: ChoiceType.RedWin),
                 new ChessPlacement(2, 2, type: ChoiceType.RedWin),
-            });
+            ]);
 
-            Assert.That(nums.red, Is.EqualTo(1), "Dual diagonal match test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(1), "Dual diagonal match test failed: Red chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(2, 1, type: ChoiceType.RedWin),
                 new ChessPlacement(2, 3, type: ChoiceType.RedWin),
-            }, false);
+            ], false);
 
-            Assert.That(nums.red, Is.EqualTo(3), "Vertical dual + horizontal triple matches test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(3), "Vertical dual + horizontal triple matches test failed: Red chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 4, type: ChoiceType.RedWin),
                 new ChessPlacement(3, 2, type: ChoiceType.RedWin),
                 new ChessPlacement(4, 1, type: ChoiceType.RedWin),
-            }, false);
+            ], false);
 
-            Assert.That(nums.red, Is.EqualTo(4), "Diagonal quad (maximum) match test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(4), "Diagonal quad (maximum) match test failed: Red chess");
         }
 
         [Test]
         public void TestDualWinColourChess()
         {
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 1, type: ChoiceType.RedWin),
                 new ChessPlacement(1, 2, type: ChoiceType.RedWin),
                 new ChessPlacement(3, 2, type: ChoiceType.BlueWin),
                 new ChessPlacement(4, 1, type: ChoiceType.BlueWin),
-            });
+            ]);
 
-            Assert.That(nums.red, Is.EqualTo(2), "Horizontal dual match test failed: Red chess");
-            Assert.That(nums.blue, Is.EqualTo(1), "Diagonal dual match test failed: Blue chess");
+            Assert.That(results.red, Is.EqualTo(2), "Horizontal dual match test failed: Red chess");
+            Assert.That(results.blue, Is.EqualTo(1), "Diagonal dual match test failed: Blue chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(3, 4, type: ChoiceType.BlueWin),
                 new ChessPlacement(4, 4, type: ChoiceType.BlueWin),
-            }, false);
+            ], false);
 
-            Assert.That(nums.blue, Is.EqualTo(2), "Dual vertical + diagonal match test failed: Blue chess");
+            Assert.That(results.blue, Is.EqualTo(2), "Dual vertical + diagonal match test failed: Blue chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 3, type: ChoiceType.RedWin),
                 new ChessPlacement(2, 3, type: ChoiceType.BlueWin),
                 new ChessPlacement(2, 4, type: ChoiceType.BlueWin),
-            }, false);
+            ], false);
 
-            Assert.That(nums.red, Is.EqualTo(3), "Horizontal triple match test failed: Red chess");
-            Assert.That(nums.blue, Is.EqualTo(3), "Triple vertical + diagonal match test failed: Blue chess");
+            Assert.That(results.red, Is.EqualTo(3), "Horizontal triple match test failed: Red chess");
+            Assert.That(results.blue, Is.EqualTo(3), "Triple vertical + diagonal match test failed: Blue chess");
         }
 
         [Test]
@@ -126,59 +119,56 @@ namespace osu.Game.Tournament.Tests.NonVisual
                 match.ChessPlacements.Add(new ChessPlacement(i, i, type: ChoiceType.RedWin));
 
             runOnce();
-            Assert.That(nums.red, Is.EqualTo(4), "Out of bound chess test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(4), "Out of bound chess test failed: Red chess");
         }
 
         [Test]
         public void TestComprehensiveBoard()
         {
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 3, TeamColour.Red, ChoiceType.Pick),
                 new ChessPlacement(3, 2, TeamColour.Blue, ChoiceType.Pick),
                 new ChessPlacement(1, 4, TeamColour.Red),
-            });
+            ]);
 
-            Assert.That(nums.red, Is.Zero, "Match without win types test failed: Red chess");
-            Assert.That(nums.blue, Is.Zero, "Initialization test failed: Blue chess");
+            Assert.That(results.red, Is.Zero, "Match without win types test failed: Red chess");
+            Assert.That(results.blue, Is.Zero, "Initialization test failed: Blue chess");
 
             updateStatusAt(1, 3, null, ChoiceType.RedWin);
             updateStatusAt(1, 4, null, ChoiceType.RedWin);
             updateStatusAt(3, 2, null, ChoiceType.BlueWin);
             runOnce();
 
-            Assert.That(nums.red, Is.EqualTo(2), "Update status test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(2), "Update status test failed: Red chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(2, 4, TeamColour.Red, ChoiceType.RedWin),
                 new ChessPlacement(3, 4, TeamColour.Blue, ChoiceType.RedWin),
                 new ChessPlacement(4, 4, TeamColour.Red, ChoiceType.RedWin),
-            }, false);
+            ], false);
 
-            Assert.That(nums.red, Is.EqualTo(4), "Vertical quad match test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(4), "Vertical quad match test failed: Red chess");
 
             updateStatusAt(2, 4, null, ChoiceType.Consumed);
             updateStatusAt(3, 4, null, ChoiceType.Consumed);
             runOnce();
 
-            Assert.That(nums.red, Is.EqualTo(2), "Chess consumption test failed: Red chess");
+            Assert.That(results.red, Is.EqualTo(2), "Chess consumption test failed: Red chess");
 
-            runWith(new[]
-            {
+            runWith([
                 new ChessPlacement(1, 2, TeamColour.Red, ChoiceType.RedWin),
                 new ChessPlacement(2, 2, TeamColour.Blue, ChoiceType.BlueWin),
                 new ChessPlacement(4, 2, TeamColour.Blue, ChoiceType.BlueWin),
-            }, false);
+            ], false);
 
-            Assert.That(nums.red, Is.EqualTo(3), "Horizontal triple match test failed: Red chess");
-            Assert.That(nums.blue, Is.EqualTo(3), "Vertical triple match test failed: Blue chess");
+            Assert.That(results.red, Is.EqualTo(3), "Horizontal triple match test failed: Red chess");
+            Assert.That(results.blue, Is.EqualTo(3), "Vertical triple match test failed: Blue chess");
 
             updateStatusAt(1, 2, null, ChoiceType.BlueWin);
             undoAt(1, 2);
             runOnce();
 
-            Assert.That(nums.red, Is.EqualTo(3), "Chess status (1, 2) restore test failed");
+            Assert.That(results.red, Is.EqualTo(3), "Chess status (1, 2) restore test failed");
         }
     }
 }
