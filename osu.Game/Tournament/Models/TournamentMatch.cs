@@ -79,6 +79,7 @@ namespace osu.Game.Tournament.Models
             MaxValue = 17,
         };
 
+        [JsonIgnore]
         public TeamColour CurrentTeam
         {
             get
@@ -117,9 +118,11 @@ namespace osu.Game.Tournament.Models
         [JsonIgnore]
         public TournamentTeam? Loser => !Completed.Value ? null : Team1Score.Value > Team2Score.Value ? Team2.Value : Team1.Value;
 
+        [JsonIgnore]
         public TeamColour WinnerColour => Winner == null ? TeamColour.None
             : Winner == Team1.Value ? TeamColour.Red : TeamColour.Blue;
 
+        [JsonIgnore]
         public int PointsToWin => Round.Value?.BestOf.Value / 2 + 1 ?? 0;
 
         /// <summary>
