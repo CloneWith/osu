@@ -1,9 +1,12 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Extensions;
+using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Cursor;
@@ -17,7 +20,7 @@ using osuTK;
 
 namespace osu.Game.Graphics.UserInterfaceV2
 {
-    public partial class FormColourSelect : CompositeDrawable, IHasCurrentValue<Colour4>, IHasPopover
+    public partial class FormColourSelect : CompositeDrawable, IHasCurrentValue<Colour4>, IHasPopover, IFormControl
     {
         public LocalisableString PaletteHeaderText { get; init; } = string.Empty;
 
@@ -105,7 +108,10 @@ namespace osu.Game.Graphics.UserInterfaceV2
             {
                 label.Text = e.NewValue.ToHex();
                 colourPreview.Colour = e.NewValue;
+
+                ValueChanged?.Invoke();
             }, true);
+
             updateState();
         }
 
@@ -154,6 +160,18 @@ namespace osu.Game.Graphics.UserInterfaceV2
             popoverState.BindTo(popover.State);
             return popover;
         }
+
+        public IEnumerable<LocalisableString> FilterTerms => Caption.Yield();
+
+        public event Action? ValueChanged;
+
+        public bool IsDefault => Current.IsDefault;
+
+        public void SetDefault() => Current.SetDefault();
+
+        public bool IsDisabled => Current.Disabled;
+
+        public float MainDrawHeight => DrawHeight;
 
         private partial class ColourPickerPopover : OsuPopover, IHasCurrentValue<Colour4>
         {
