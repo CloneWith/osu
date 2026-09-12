@@ -176,7 +176,8 @@ namespace osu.Game.Graphics.UserInterfaceV2
             else
                 background.VisualStyle = VisualStyle.Normal;
 
-            // TODO: Support BackgroundColour?
+            if (backgroundColour != null)
+                button.BackgroundColour = backgroundColour.Value;
         }
 
         public partial class Button : OsuButton
