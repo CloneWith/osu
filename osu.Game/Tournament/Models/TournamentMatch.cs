@@ -79,7 +79,14 @@ namespace osu.Game.Tournament.Models
             MaxValue = 17,
         };
 
-        public TeamColour CurrentTeam => Math.Abs(CurrentRoundIndex.Value) % 2 == 1 ? TeamColour.Red : TeamColour.Blue;
+        public TeamColour CurrentTeam
+        {
+            get
+            {
+                var targetSide = (CurrentRoundIndex.Value <= 0 ? Round.Value?.FirstBanSide.Value : Round.Value?.FirstPickSide.Value) ?? TeamColour.Red;
+                return Math.Abs(CurrentRoundIndex.Value) % 2 == 1 ? targetSide : targetSide.GetOppositeSide();
+            }
+        }
 
         [JsonProperty]
         public readonly BindableList<ConditionalTournamentMatch> ConditionalMatches = new BindableList<ConditionalTournamentMatch>();
