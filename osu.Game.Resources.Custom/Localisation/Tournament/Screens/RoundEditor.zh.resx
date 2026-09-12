@@ -69,4 +69,10 @@
     <data name="custom_theme_colour" xml:space="preserve">
         <value>自定义主题色</value>
     </data>
+    <data name="first_ban_side" xml:space="preserve">
+        <value>先禁方</value>
+    </data>
+    <data name="first_pick_side" xml:space="preserve">
+        <value>先选方</value>
+    </data>
 </root>

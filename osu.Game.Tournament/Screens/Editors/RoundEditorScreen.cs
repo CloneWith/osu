@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
 using osu.Game.Online.API;
@@ -65,6 +66,8 @@ namespace osu.Game.Tournament.Screens.Editors
                 Model.BestOf.Default = Model.BestOf.Value;
                 Model.UseCustomThemeColour.Default = Model.UseCustomThemeColour.Value;
                 Model.ThemeColour.Default = Model.ThemeColour.Value;
+                Model.FirstBanSide.Default = Model.FirstBanSide.Value;
+                Model.FirstSelectSide.Default = Model.FirstSelectSide.Value;
 
                 Masking = true;
                 CornerRadius = 10;
@@ -146,6 +149,18 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Caption = RoundEditorStrings.CustomThemeColour,
                                 Width = 0.3f,
                                 Current = Model.ThemeColour,
+                            },
+                            new FormTeamColourSwitch
+                            {
+                                Caption = RoundEditorStrings.FirstBanSide,
+                                Width = 0.2f,
+                                Current = Model.FirstBanSide,
+                            },
+                            new FormTeamColourSwitch
+                            {
+                                Caption = RoundEditorStrings.FirstPickSide,
+                                Width = 0.2f,
+                                Current = Model.FirstSelectSide,
                             },
                             new FormButton
                             {

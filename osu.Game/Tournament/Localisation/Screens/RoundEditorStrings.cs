@@ -25,14 +25,14 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString RoundDescription => new TranslatableString(getKey(@"round_description"), @"Description");
 
         /// <summary>
-        /// "Start Time"
+        /// "Start time"
         /// </summary>
-        public static LocalisableString StartTime => new TranslatableString(getKey(@"start_time"), @"Start Time");
+        public static LocalisableString StartTime => new TranslatableString(getKey(@"start_time"), @"Start time");
 
         /// <summary>
-        /// "# of Bans"
+        /// "# of bans"
         /// </summary>
-        public static LocalisableString NumOfBans => new TranslatableString(getKey(@"num_of_bans"), @"# of Bans");
+        public static LocalisableString NumOfBans => new TranslatableString(getKey(@"num_of_bans"), @"# of bans");
 
         /// <summary>
         /// "Best of"
@@ -40,9 +40,19 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString BestOf => new TranslatableString(getKey(@"best_of"), @"Best of");
 
         /// <summary>
-        /// "Board Mode"
+        /// "Board mode"
         /// </summary>
-        public static LocalisableString BoardMode => new TranslatableString(getKey(@"board_mode"), @"Board Mode");
+        public static LocalisableString BoardMode => new TranslatableString(getKey(@"board_mode"), @"Board mode");
+
+        /// <summary>
+        /// "First ban side"
+        /// </summary>
+        public static LocalisableString FirstBanSide => new TranslatableString(getKey(@"first_ban_side"), @"First ban side");
+
+        /// <summary>
+        /// "First pick side"
+        /// </summary>
+        public static LocalisableString FirstPickSide => new TranslatableString(getKey(@"first_pick_side"), @"First pick side");
 
         /// <summary>
         /// "Use custom theme colour"
