@@ -36,7 +36,7 @@ namespace osu.Game.Tournament.Models
         public readonly BindableColour4 ThemeColour = new BindableColour4(Colour4.White);
 
         public readonly Bindable<TeamColour> FirstBanSide = new Bindable<TeamColour>(TeamColour.Red);
-        public readonly Bindable<TeamColour> FirstSelectSide = new Bindable<TeamColour>(TeamColour.Blue);
+        public readonly Bindable<TeamColour> FirstPickSide = new Bindable<TeamColour>(TeamColour.Red);
 
         /// <summary>
         /// The <see cref="IFumoColour"/> colour scheme to use for this round.

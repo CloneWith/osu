@@ -67,7 +67,7 @@ namespace osu.Game.Tournament.Screens.Editors
                 Model.UseCustomThemeColour.Default = Model.UseCustomThemeColour.Value;
                 Model.ThemeColour.Default = Model.ThemeColour.Value;
                 Model.FirstBanSide.Default = Model.FirstBanSide.Value;
-                Model.FirstSelectSide.Default = Model.FirstSelectSide.Value;
+                Model.FirstPickSide.Default = Model.FirstPickSide.Value;
 
                 Masking = true;
                 CornerRadius = 10;
@@ -160,7 +160,7 @@ namespace osu.Game.Tournament.Screens.Editors
                             {
                                 Caption = RoundEditorStrings.FirstPickSide,
                                 Width = 0.2f,
-                                Current = Model.FirstSelectSide,
+                                Current = Model.FirstPickSide,
                             },
                             new FormButton
                             {
