@@ -4,7 +4,6 @@
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Game.Graphics;
-using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
@@ -16,11 +15,12 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
     {
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
+        [Resolved]
+        private TournamentThemeProvider themeProvider { get; set; } = null!;
+
         public MatchRoundDisplay()
         {
             BorderColour = Color4.White;
-            BackgroundColour = FumoColours.SeaBlue.Regular;
-            TextColour = Color4.White;
             BorderThickness = 3;
             Text.Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 55);
         }
@@ -28,11 +28,21 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
         [BackgroundDependencyLoader]
         private void load(LadderInfo ladder)
         {
-            currentMatch.BindValueChanged(matchChanged);
+            currentMatch.BindValueChanged(matchChanged, true);
             currentMatch.BindTo(ladder.CurrentMatch);
+
+            themeProvider.Current.BindValueChanged(themeChanged, true);
         }
 
-        private void matchChanged(ValueChangedEvent<TournamentMatch?> match) =>
+        private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
+        {
             Text.Text = match.NewValue?.Round.Value?.Name.Value ?? BaseStrings.UnknownRound;
+        }
+
+        private void themeChanged(ValueChangedEvent<RoundTheme> theme)
+        {
+            BackgroundColour = theme.NewValue.Accent;
+            TextColour = OsuColour.ForegroundTextColourFor(BackgroundColour);
+        }
     }
 }

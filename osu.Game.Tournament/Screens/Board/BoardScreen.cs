@@ -43,6 +43,9 @@ namespace osu.Game.Tournament.Screens.Board
 
         private readonly BindableBool enableIntroAnimation = new BindableBool(true);
 
+        [Resolved]
+        private TournamentThemeProvider themeProvider { get; set; } = null!;
+
         private TeamColour pickTeam;
         private RoundStep pickType;
 
@@ -52,6 +55,7 @@ namespace osu.Game.Tournament.Screens.Board
             MaxValue = 17,
         };
 
+        private MatchRoundDisplay roundDisplay = null!;
         private Container mainContainer = null!;
         private Container informationContainer = null!;
         private Container chatContainer = null!;
@@ -152,7 +156,7 @@ namespace osu.Game.Tournament.Screens.Board
                                             Content = new Drawable[][]
                                             {
                                                 [
-                                                    new MatchRoundDisplay
+                                                    roundDisplay = new MatchRoundDisplay
                                                     {
                                                         Anchor = Anchor.TopCentre,
                                                         Origin = Anchor.TopCentre,
@@ -527,6 +531,8 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.BindValueChanged(matchChanged, true);
 
+            themeProvider.Current.BindValueChanged(themeChanged, true);
+
             shiroModeActivated.BindValueChanged(e =>
             {
                 if (e.NewValue)
@@ -596,6 +602,12 @@ namespace osu.Game.Tournament.Screens.Board
 
             ResetSelectStatus();
             detectWin();
+        }
+
+        private void themeChanged(ValueChangedEvent<RoundTheme> theme)
+        {
+            roundDisplay.BackgroundColour = theme.NewValue.Accent;
+            roundDisplay.TextColour = OsuColour.ForegroundTextColourFor(theme.NewValue.Accent);
         }
 
         private void updateActionText(LocalisableString text, bool failing = false)
@@ -1002,7 +1014,7 @@ namespace osu.Game.Tournament.Screens.Board
                                             succeeded = true;
                                             bool exists = chessBoard.SelectedBlocks.Contains(block);
 
-                                            block.FadeBackgroundColour(!exists ? FumoColours.SeaBlue.Regular : null);
+                                            block.FadeBackgroundColour(!exists ? themeProvider.Current.Value.Accent : null);
 
                                             if (exists)
                                             {

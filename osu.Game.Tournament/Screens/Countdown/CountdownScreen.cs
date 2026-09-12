@@ -36,12 +36,16 @@ namespace osu.Game.Tournament.Screens.Countdown
         private Container countdownContainer = null!;
         private Sprite kanbanSprite = null!;
         private MatchCountdown countdown = null!;
+        private CustomRoundedBox upcomingCard = null!;
         private ReverseChildIDFillFlowContainer<Drawable> upcomingContainer = null!;
         private ReverseChildIDFillFlowContainer<Drawable> recentContainer = null!;
         private FillFlowContainer scheduleFlow = null!;
 
         [Resolved]
         private TournamentSceneManager? sceneManager { get; set; }
+
+        [Resolved]
+        private TournamentThemeProvider themeProvider { get; set; } = null!;
 
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
@@ -108,7 +112,7 @@ namespace osu.Game.Tournament.Screens.Countdown
                                 Shadow = false,
                             },
                         },
-                        new CustomRoundedBox
+                        upcomingCard = new CustomRoundedBox
                         {
                             BackgroundColour = FumoColours.SeaBlue.Regular,
                             Child = new DrawableRoundLine(upcomingMatch, monochromeTitle: true)
@@ -207,6 +211,8 @@ namespace osu.Game.Tournament.Screens.Countdown
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            themeProvider.Current.BindValueChanged(theme => upcomingCard.BackgroundColour = theme.NewValue.Accent, true);
 
             countdown.OnCompleted += () =>
             {

@@ -36,10 +36,28 @@ namespace osu.Game.Tournament.Components
 
         public event Action? OnCompleted;
 
-        public static Color4 NormalColour = Color4.White;
-        public static Color4 AccentColour = FumoColours.SeaBlue.Regular;
-        public static Color4 NormalContentColour = Color4.Black;
-        public static Color4 AccentContentColour = Color4.White;
+        [Resolved]
+        private TournamentThemeProvider themeProvider { get; set; } = null!;
+
+        /// <summary>
+        /// The base colour of the countdown's top layer.
+        /// </summary>
+        public Colour4 NormalColour = Colour4.White;
+
+        /// <summary>
+        /// The accent colour of the countdown, driven by the current round's theme.
+        /// </summary>
+        public Colour4 AccentColour = FumoColours.SeaBlue.Regular;
+
+        /// <summary>
+        /// The content colour used on top of <see cref="NormalColour"/>.
+        /// </summary>
+        public Colour4 NormalContentColour = Colour4.Black;
+
+        /// <summary>
+        /// The content colour used on top of <see cref="AccentColour"/>, driven by the current round's theme.
+        /// </summary>
+        public Colour4 AccentContentColour = Colour4.White;
 
         private readonly Box bottomBox;
         private readonly Box topBox;
@@ -186,6 +204,16 @@ namespace osu.Game.Tournament.Components
 
             if (tickSample != null)
                 tickSample.Volume.Value = 0.6f;
+
+            themeProvider.Current.BindValueChanged(theme =>
+            {
+                AccentColour = theme.NewValue.Accent;
+                AccentContentColour = OsuColour.ForegroundTextColourFor(AccentColour);
+
+                // apply straight away so that a theme change is reflected without waiting for a state transition.
+                bottomBox.Colour = AccentColour;
+                triangles.Colour = AccentColour;
+            }, true);
         }
 
         /// <summary>
@@ -222,10 +250,10 @@ namespace osu.Game.Tournament.Components
             {
                 timerFlow.Clear(false);
 
-                countdownHourPart = new CountdownSpriteText();
-                countdownMinutePart = new CountdownSpriteText();
-                countdownSecondPart = new CountdownSpriteText();
-                countdownMSecondPart = new CountdownSpriteText
+                countdownHourPart = new CountdownSpriteText(NormalContentColour);
+                countdownMinutePart = new CountdownSpriteText(NormalContentColour);
+                countdownSecondPart = new CountdownSpriteText(NormalContentColour);
+                countdownMSecondPart = new CountdownSpriteText(NormalContentColour)
                 {
                     Font = OsuFont.Torus.With(size: 24, weight: FontWeight.SemiBold, fixedWidth: true),
                 };
@@ -554,12 +582,12 @@ namespace osu.Game.Tournament.Components
 
         private partial class CountdownSpriteText : OsuSpriteText
         {
-            public CountdownSpriteText()
+            public CountdownSpriteText(Color4 colour)
             {
                 Anchor = Anchor.BottomLeft;
                 Origin = Anchor.BottomLeft;
                 Font = OsuFont.Torus.With(size: 60, weight: FontWeight.SemiBold, fixedWidth: true);
-                Colour = NormalContentColour;
+                Colour = colour;
                 Shadow = false;
             }
         }
