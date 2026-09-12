@@ -125,10 +125,10 @@ namespace osu.Game.Tournament
             modAcronym.ToUpperInvariant() switch
             {
                 @"NM" => FumoIcon.NoMod,
+                @"HD" => FumoIcon.Hidden,
                 @"HR" => FumoIcon.HardRock,
+                @"DT" => FumoIcon.DoubleTime,
                 @"FM" => FumoIcon.FreeMod,
-                @"HD" => OsuIcon.ModHidden,
-                @"DT" => OsuIcon.ModDoubleTime,
                 _ => FontAwesome.Regular.Circle,
             };
 

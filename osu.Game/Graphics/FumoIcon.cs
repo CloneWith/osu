@@ -19,7 +19,9 @@ namespace osu.Game.Graphics
         public const string FONT_NAME = @"FumoIcons";
 
         public static IconUsage NoMod => get(FumoIconMapping.NoMod);
+        public static IconUsage Hidden => get(FumoIconMapping.Hidden);
         public static IconUsage HardRock => get(FumoIconMapping.HardRock);
+        public static IconUsage DoubleTime => get(FumoIconMapping.DoubleTime);
         public static IconUsage FreeMod => get(FumoIconMapping.FreeMod);
 
         private static IconUsage get(FumoIconMapping glyph) => new IconUsage((char)glyph, FONT_NAME);
@@ -29,8 +31,14 @@ namespace osu.Game.Graphics
             [Description(@"NM")]
             NoMod,
 
+            [Description(@"HD")]
+            Hidden,
+
             [Description(@"HR")]
             HardRock,
+
+            [Description(@"DT")]
+            DoubleTime,
 
             [Description(@"FM")]
             FreeMod,
