@@ -8,6 +8,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
@@ -129,12 +130,14 @@ namespace osu.Game.Tournament.Screens.Editors
                             new FormCheckBox
                             {
                                 Caption = RoundEditorStrings.BoardMode,
+                                ExtendedHeight = true,
                                 Width = 0.48f,
                                 Current = Model.UseBoard,
                             },
                             new FormCheckBox
                             {
                                 Caption = RoundEditorStrings.UseCustomThemeColour,
+                                ExtendedHeight = true,
                                 Width = 0.3f,
                                 Current = Model.UseCustomThemeColour,
                             },
@@ -144,10 +147,12 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.3f,
                                 Current = Model.ThemeColour,
                             },
-                            new DangerousSettingsButton
+                            new FormButton
                             {
                                 Width = 0.2f,
-                                Text = RoundEditorStrings.DeleteRound,
+                                Caption = RoundEditorStrings.DeleteRound,
+                                ButtonIcon = FontAwesome.Solid.Trash,
+                                BackgroundColour = new OsuColour().DangerousButtonColour,
                                 Action = () => dialogOverlay?.Push(new DeleteRoundDialog(Model, () =>
                                 {
                                     Expire();

@@ -8,6 +8,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
@@ -117,15 +118,14 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Width = 0.2f,
                                 Current = Model.Seed,
                             },
-                            new DangerousSettingsButton
+                            new FormButton
                             {
                                 Width = 0.2f,
-                                Text = TeamEditorStrings.DeleteTeam,
-                                Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
+                                Caption = TeamEditorStrings.EditSeedingResults,
+                                Action = () =>
                                 {
-                                    Expire();
-                                    ladderInfo.Teams.Remove(Model);
-                                })),
+                                    sceneManager?.SetScreen(new SeedingEditorScreen(team, parent));
+                                },
                             },
                             new FormTextBox
                             {
@@ -134,15 +134,17 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Current = Model.LastYearPlacing,
                                 TabbableContentContainer = this,
                             },
-                            new SettingsButton
+                            new FormButton()
                             {
                                 Width = 0.2f,
-                                Margin = new MarginPadding { Left = 10 },
-                                Text = TeamEditorStrings.EditSeedingResults,
-                                Action = () =>
+                                Caption = TeamEditorStrings.DeleteTeam,
+                                ButtonIcon = FontAwesome.Solid.Trash,
+                                BackgroundColour = new OsuColour().DangerousButtonColour,
+                                Action = () => dialogOverlay?.Push(new DeleteTeamDialog(Model, () =>
                                 {
-                                    sceneManager?.SetScreen(new SeedingEditorScreen(team, parent));
-                                },
+                                    Expire();
+                                    ladderInfo.Teams.Remove(Model);
+                                })),
                             },
                             playerEditor,
                             new SettingsButton
