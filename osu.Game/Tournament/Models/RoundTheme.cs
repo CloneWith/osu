@@ -12,7 +12,8 @@ namespace osu.Game.Tournament.Models
     /// </summary>
     /// <remarks>
     /// This is the single place where a round's custom theme colour is translated into the palettes the
-    /// tournament UI consumes, so that consumers never have to repeat the fallback logic themselves.
+    /// tournament UI consumes (<see cref="Scheme"/> and <see cref="TieBreaker"/>), so that consumers never
+    /// have to repeat the fallback logic themselves.
     /// Team colours (red / blue) are deliberately absent, as those are not a property of the round.
     /// </remarks>
     public sealed class RoundTheme : IEquatable<RoundTheme>
@@ -20,12 +21,17 @@ namespace osu.Game.Tournament.Models
         /// <summary>
         /// The theme applied when the current round does not define a custom theme colour.
         /// </summary>
-        public static readonly RoundTheme DEFAULT = new RoundTheme(FumoColours.SeaBlue, false);
+        public static readonly RoundTheme DEFAULT = new RoundTheme(FumoColours.SeaBlue, ModColours.TieBreaker, false);
 
         /// <summary>
         /// A seven-shade colour scheme derived from the round's theme colour.
         /// </summary>
         public IFumoColour Scheme { get; }
+
+        /// <summary>
+        /// The four-shade palette used by tiebreaker chess pieces and icons, derived from the round's theme colour.
+        /// </summary>
+        public ModColourScheme TieBreaker { get; }
 
         /// <summary>
         /// The primary theme colour, equivalent to <see cref="IFumoColour.Regular"/>.
@@ -37,9 +43,10 @@ namespace osu.Game.Tournament.Models
         /// </summary>
         public bool IsCustom { get; }
 
-        private RoundTheme(IFumoColour scheme, bool isCustom)
+        private RoundTheme(IFumoColour scheme, ModColourScheme tieBreaker, bool isCustom)
         {
             Scheme = scheme;
+            TieBreaker = tieBreaker;
             IsCustom = isCustom;
         }
 
@@ -52,7 +59,11 @@ namespace osu.Game.Tournament.Models
             if (round?.UseCustomThemeColour.Value != true)
                 return DEFAULT;
 
-            return new RoundTheme(round.ColourScheme, true);
+            var scheme = round.ColourScheme;
+
+            // the accent doubles as the source colour, so the tiebreaker palette is derived from it
+            // rather than from the round's raw colour.
+            return new RoundTheme(scheme, ModColourScheme.FromThemeColour(scheme.Regular), true);
         }
 
         public bool Equals(RoundTheme? other) => other != null && IsCustom == other.IsCustom && Accent == other.Accent;

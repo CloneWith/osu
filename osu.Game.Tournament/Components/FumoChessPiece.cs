@@ -78,7 +78,11 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private TextureStore textures { get; set; } = null!;
 
+        [Resolved]
+        private TournamentThemeProvider themeProvider { get; set; } = null!;
+
         private ModColourScheme colourScheme = ModColours.Empty;
+        private bool isTieBreaker;
 
         private Texture? chessIcon;
         private Circle backgroundCircle = null!;
@@ -136,9 +140,11 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load(LadderInfo ladder)
         {
+            var currentRound = ladder.CurrentMatch.Value?.Round.Value;
+
             if (requireFetch)
             {
-                var beatmap = ladder.CurrentMatch.Value?.Round.Value?.Beatmaps.FirstOrDefault(b => b.ID == BeatmapID);
+                var beatmap = currentRound?.Beatmaps.FirstOrDefault(b => b.ID == BeatmapID);
 
                 if (beatmap != null)
                 {
@@ -147,7 +153,11 @@ namespace osu.Game.Tournament.Components
                 }
             }
 
-            colourScheme = ModColours.FromModString(ModName);
+            isTieBreaker = ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase);
+
+            // tiebreaker pieces follow the current round's theme, which is tracked by the theme provider
+            // (see LoadComplete). Every other piece keeps the fixed palette of its mod.
+            colourScheme = isTieBreaker ? ModColours.TieBreaker : ModColours.FromModString(ModName);
 
             Texture? borderTexture = textures.Get(@"Board/chess-border");
             Texture? specialTexture = textures.Get(@"Board/special-mask");
@@ -155,7 +165,7 @@ namespace osu.Game.Tournament.Components
             if (IsShiro)
                 chessIcon = null;
             // Use win icon for TB maps, subject to change
-            else if (ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase))
+            else if (isTieBreaker)
                 chessIcon = textures.Get(@"Board/chess-win");
             else
             {
@@ -257,7 +267,18 @@ namespace osu.Game.Tournament.Components
         {
             base.LoadComplete();
 
-            updateChess();
+            if (!isTieBreaker)
+            {
+                updateChess();
+                return;
+            }
+
+            // the true flag also covers the initial paint, so updateChess() is not called separately here.
+            themeProvider.Current.BindValueChanged(theme =>
+            {
+                colourScheme = theme.NewValue.TieBreaker;
+                updateChess();
+            }, true);
         }
 
         /// <summary>

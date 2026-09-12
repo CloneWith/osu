@@ -46,14 +46,6 @@ namespace osu.Game.Tournament.Models
             ? FumoColours.FromThemeColour(ThemeColour.Value)
             : FumoColours.SeaBlue;
 
-        /// <summary>
-        /// The <see cref="ModColourScheme"/> to use for tiebreaker chess pieces.
-        /// </summary>
-        [JsonIgnore]
-        public ModColourScheme TieBreakerColourScheme => UseCustomThemeColour.Value
-            ? ModColourScheme.FromThemeColour(ThemeColour.Value)
-            : ModColours.TieBreaker;
-
         // only used for serialisation
         public List<int> Matches = new List<int>();
 

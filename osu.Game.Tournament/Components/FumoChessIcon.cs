@@ -29,7 +29,13 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private TextureStore textures { get; set; } = null!;
 
+        [Resolved]
+        private TournamentThemeProvider themeProvider { get; set; } = null!;
+
         private ModColourScheme colourScheme = ModColours.Empty;
+        private bool isTieBreaker;
+
+        private Sprite iconSprite = null!;
 
         private Texture? chessIcon;
 
@@ -55,10 +61,14 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load()
         {
-            colourScheme = ModColours.FromModString(ModName);
+            isTieBreaker = ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase);
+
+            // tiebreaker icons follow the current round's theme, which is tracked by the theme provider
+            // (see LoadComplete). Every other icon keeps the fixed palette of its mod.
+            colourScheme = isTieBreaker ? ModColours.TieBreaker : ModColours.FromModString(ModName);
 
             // Use win icon for TB maps, subject to change
-            if (ModName.Equals(@"TB", StringComparison.OrdinalIgnoreCase))
+            if (isTieBreaker)
                 chessIcon = textures.Get(@"Board/chess-win");
             else
             {
@@ -68,7 +78,7 @@ namespace osu.Game.Tournament.Components
 
             InternalChildren =
             [
-                new Sprite
+                iconSprite = new Sprite
                 {
                     Name = @"Chess icon",
                     RelativeSizeAxes = Axes.Both,
@@ -77,6 +87,17 @@ namespace osu.Game.Tournament.Components
                     Colour = colourScheme.Accent,
                 },
             ];
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            if (!isTieBreaker)
+                return;
+
+            themeProvider.Current.BindValueChanged(theme =>
+                iconSprite.FadeColour(theme.NewValue.TieBreaker.Accent, 500, Easing.OutQuint), true);
         }
     }
 }
