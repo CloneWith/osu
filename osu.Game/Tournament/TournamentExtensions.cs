@@ -62,6 +62,19 @@ namespace osu.Game.Tournament
         ];
 
         /// <summary>
+        /// Gets the opposite <see cref="TeamColour"/> side.
+        /// </summary>
+        /// <returns>the opposite side if the given side is <see cref="TeamColour.Red"/> or <see cref="TeamColour.Blue"/>,
+        /// else the <paramref name="colour"/> itself.
+        /// </returns>
+        public static TeamColour GetOppositeSide(this TeamColour colour) => colour switch
+        {
+            TeamColour.Red => TeamColour.Blue,
+            TeamColour.Blue => TeamColour.Red,
+            _ => colour,
+        };
+
+        /// <summary>
         /// Get the corresponding colour of a team.
         /// </summary>
         /// <param name="teamColour">the <see cref="TeamColour"/> of the specific team.</param>
