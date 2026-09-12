@@ -106,7 +106,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     Padding = new MarginPadding { Horizontal = 10, Vertical = 5 },
                     RelativeSizeAxes = Axes.Both,
                     Height = 0.2f,
-                    ColumnDimensions = [
+                    ColumnDimensions =
+                    [
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(),
                         new Dimension(GridSizeMode.AutoSize),

@@ -717,10 +717,11 @@ namespace osu.Game.Tournament.Screens.Board
             if (CurrentMatch.Value == null || !CurrentMatch.Value.ChessPlacements.Any())
                 return;
 
-            var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child);
+            var chessPieces = chessBoard.SelectedBlocks.Select(b => b.ChessLayer.Child).ToList();
             var placements = chessPieces.Select(p => p.BeatmapID)
                                         .Select(id => CurrentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == id))
-                                        .OfType<ChessPlacement>();
+                                        .OfType<ChessPlacement>()
+                                        .ToList();
 
             if (!checkSelected(chessPieces))
                 return;

@@ -99,7 +99,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     RelativeSizeAxes = Axes.Both,
                     Alpha = 0,
                     Padding = new MarginPadding { Horizontal = 5, Bottom = 5 },
-                    ColumnDimensions = [
+                    ColumnDimensions =
+                    [
                         new Dimension(GridSizeMode.Relative, 0.25f),
                         new Dimension(),
                     ],

@@ -93,10 +93,12 @@ namespace osu.Game.Tournament.Components
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             Padding = new MarginPadding { Vertical = 5, Horizontal = 8 },
-                            RowDimensions = [
+                            RowDimensions =
+                            [
                                 new Dimension(),
                             ],
-                            ColumnDimensions = [
+                            ColumnDimensions =
+                            [
                                 new Dimension(GridSizeMode.AutoSize),
                                 new Dimension(),
                             ],

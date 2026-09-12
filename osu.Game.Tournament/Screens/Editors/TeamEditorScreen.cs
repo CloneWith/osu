@@ -134,7 +134,7 @@ namespace osu.Game.Tournament.Screens.Editors
                                 Current = Model.LastYearPlacing,
                                 TabbableContentContainer = this,
                             },
-                            new FormButton()
+                            new FormButton
                             {
                                 Width = 0.2f,
                                 Caption = TeamEditorStrings.DeleteTeam,
