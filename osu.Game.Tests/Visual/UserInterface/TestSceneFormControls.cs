@@ -10,6 +10,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Game.Beatmaps;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Cursor;
+using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Localisation;
 using osu.Game.Overlays;
@@ -288,6 +289,14 @@ namespace osu.Game.Tests.Visual.UserInterface
                                                 Colour4.Blue,
                                                 Colour4.Yellow,
                                             }
+                                        },
+                                        new FormColourSelect
+                                        {
+                                            Caption = "Single colour select",
+                                        },
+                                        new FormTeamColourSwitch
+                                        {
+                                            Caption = "Team colour",
                                         },
                                     },
                                 }
