@@ -20,9 +20,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
     /// </summary>
     public partial class ModMapSection : FillFlowContainer
     {
-        private const int width = 250;
+        /// <summary>
+        /// The number of beatmap panels laid out per row, each of equal width.
+        /// </summary>
+        private const int panels_per_row = 3;
 
-        public IReadOnlyList<FumoBeatmapPanel> Cards => mapFlow.Children;
+        public IEnumerable<FumoBeatmapPanel> Cards => mapFlow.Children.Select(c => (FumoBeatmapPanel)c.Child);
 
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
@@ -32,7 +35,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
 
         private readonly ModColourScheme colourScheme;
 
-        private FillFlowContainer<FumoBeatmapPanel> mapFlow = null!;
+        private FillFlowContainer<Container> mapFlow = null!;
 
         /// <inheritdoc cref="ModMapSection"/>
         /// <param name="acronym">the acronym of the mod.</param>
@@ -42,7 +45,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
             modAcronym = acronym;
             modName = name ?? acronym;
             colourScheme = ModColours.FromModString(acronym);
-            Width = width;
         }
 
         [BackgroundDependencyLoader]
@@ -73,7 +75,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
                         Text = modName,
                     },
                 },
-                mapFlow = new FillFlowContainer<FumoBeatmapPanel>
+                mapFlow = new FillFlowContainer<Container>
                 {
                     Name = @"Map pool content",
                     Anchor = Anchor.TopCentre,
@@ -113,13 +115,47 @@ namespace osu.Game.Tournament.Screens.Board.Components
             if (mapList != null && mapList.Count != 0)
             {
                 this.FadeIn(300, Easing.OutQuint);
-                mapFlow.ChildrenEnumerable = mapList.Select(m => new FumoBeatmapPanel(m));
+                mapFlow.Show();
+                mapFlow.ChildrenEnumerable = mapList.Select(m => new Container
+                {
+                    Name = @"Panel cell",
+                    Child = new FumoBeatmapPanel(m),
+                });
             }
             else
             {
                 this.FadeOut(300, Easing.OutQuint);
                 mapFlow.Clear();
                 mapFlow.Hide();
+            }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (mapFlow.Children.Count == 0)
+                return;
+
+            // Split the flow's content width (minus horizontal padding and inner gaps) evenly across each row.
+            float contentWidth = mapFlow.DrawWidth - mapFlow.Padding.TotalHorizontal;
+
+            if (contentWidth <= 0)
+                return;
+
+            // Shave a tiny epsilon so rounding can't push the third cell of a row onto the next line.
+            float cellWidth = (contentWidth - mapFlow.Spacing.X * (panels_per_row - 1)) / panels_per_row - 0.5f;
+            float panelScale = cellWidth / FumoBeatmapPanel.WIDTH;
+            var cellSize = new Vector2(cellWidth, FumoBeatmapPanel.HEIGHT * panelScale);
+
+            foreach (var child in mapFlow.Children)
+            {
+                if (child.Size != cellSize)
+                    child.Size = cellSize;
+
+                var panel = (FumoBeatmapPanel)child.Child;
+                if (panel.Scale != new Vector2(panelScale))
+                    panel.Scale = new Vector2(panelScale);
             }
         }
     }
