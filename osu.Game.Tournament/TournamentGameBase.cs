@@ -47,6 +47,7 @@ namespace osu.Game.Tournament
         private DependencyContainer dependencies = null!;
         private FileBasedIPC ipc = null!;
         private BeatmapLookupCache beatmapCache = null!;
+        private TournamentThemeProvider themeProvider = null!;
 
         private Bindable<string> frameworkLocale = null!;
         private IBindable<LocalisationParameters> localisationParameters = null!;
@@ -76,6 +77,7 @@ namespace osu.Game.Tournament
         private void load(Storage baseStorage, FrameworkConfigManager frameworkConfig)
         {
             dependencies.CacheAs(new OverlayColourProvider(OverlayColourScheme.Blue));
+            dependencies.CacheAs(themeProvider = new TournamentThemeProvider());
 
             Add(progressPopup = new FetchProgressPopup(closeOnComplete: true)
             {
@@ -269,6 +271,9 @@ namespace osu.Game.Tournament
                 dependencies.Cache(ladder);
                 dependencies.CacheAs<MatchIPCInfo>(ipc = new FileBasedIPC());
                 Add(ipc);
+
+                // the ladder instance is only final at this point, so the theme provider has to be attached here.
+                themeProvider.Attach(ladder);
 
                 bracketLoadTaskCompletionSource.SetResult(true);
 
