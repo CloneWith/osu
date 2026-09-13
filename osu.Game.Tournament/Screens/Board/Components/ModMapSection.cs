@@ -23,7 +23,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
         /// <summary>
         /// The number of beatmap panels laid out per row, each of equal width.
         /// </summary>
-        private const int panels_per_row = 3;
+        private const int panels_per_row = 4;
 
         public IEnumerable<FumoBeatmapPanel> Cards => mapFlow.Children.Select(c => (FumoBeatmapPanel)c.Child);
 
