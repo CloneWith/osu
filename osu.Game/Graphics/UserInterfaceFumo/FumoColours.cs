@@ -2,11 +2,9 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Game.Localisation;
-using osuTK.Graphics;
 
 namespace osu.Game.Graphics.UserInterfaceFumo
 {
@@ -131,47 +129,47 @@ namespace osu.Game.Graphics.UserInterfaceFumo
     public static class ModColours
     {
         public static ModColourScheme NoMod = new ModColourScheme(
-            Color4Extensions.FromHex(@"#FFEB3B"), Color4Extensions.FromHex(@"#534D1E"),
-            Color4Extensions.FromHex(@"#645D25"), Color4Extensions.FromHex(@"#56501F"));
+            Colour4.White, Colour4.FromHex(@"#545454"),
+            Colour4.FromHex(@"#666666"), Colour4.FromHex(@"#595959"));
 
         public static ModColourScheme HardRock = new ModColourScheme(
-            Color4Extensions.FromHex(@"#FF5733"), Color4Extensions.FromHex(@"#3B180F"),
-            Color4Extensions.FromHex(@"#5E2719"), Color4Extensions.FromHex(@"#4C2014"));
+            Colour4.FromHex(@"#FF5733"), Colour4.FromHex(@"#541D10"),
+            Colour4.FromHex(@"#662314"), Colour4.FromHex(@"#591E11"));
 
         public static ModColourScheme Hidden = new ModColourScheme(
-            Color4Extensions.FromHex(@"#FF8D1A"), Color4Extensions.FromHex(@"#472C10"),
-            Color4Extensions.FromHex(@"#5C3815"), Color4Extensions.FromHex(@"#4F3011"));
+            Colour4.FromHex(@"#FFEB3B"), Colour4.FromHex(@"#544D14"),
+            Colour4.FromHex(@"#665E18"), Colour4.FromHex(@"#595215"));
 
         public static ModColourScheme DoubleTime = new ModColourScheme(
-            Color4Extensions.FromHex(@"#9D73FF"), Color4Extensions.FromHex(@"#31264F"),
-            Color4Extensions.FromHex(@"#3C2F63"), Color4Extensions.FromHex(@"#322751"));
+            Colour4.FromHex(@"#9D73FF"), Colour4.FromHex(@"#342654"),
+            Colour4.FromHex(@"#3F2E66"), Colour4.FromHex(@"#372859"));
 
         public static ModColourScheme FreeMod = new ModColourScheme(
-            Color4Extensions.FromHex(@"#43CF7C"), Color4Extensions.FromHex(@"#203D27"),
-            Color4Extensions.FromHex(@"#2A4F33"), Color4Extensions.FromHex(@"#23432B"));
+            Colour4.FromHex(@"#43CF7C"), Colour4.FromHex(@"#164429"),
+            Colour4.FromHex(@"#1B5332"), Colour4.FromHex(@"#17482C"));
 
         public static ModColourScheme TieBreaker = new ModColourScheme(
-            Color4Extensions.FromHex(@"#FFA500"), Color4Extensions.FromHex(@"#714800"),
-            Color4Extensions.FromHex(@"#4C3000"), Color4Extensions.FromHex(@"#986000"));
+            Colour4.FromHex(@"#FFA500"), Colour4.FromHex(@"#714800"),
+            Colour4.FromHex(@"#4C3000"), Colour4.FromHex(@"#986000"));
 
         /// <summary>
         /// The fallback color scheme for empty and unavailable chess pieces.
         /// </summary>
         public static ModColourScheme Empty = new ModColourScheme(
-            Color4.White, Color4Extensions.FromHex(@"#BDBDBD"),
-            Color4Extensions.FromHex(@"#E5E5E5"), Color4Extensions.FromHex(@"#C7C7C7"));
+            Colour4.White, Colour4.FromHex(@"#BDBDBD"),
+            Colour4.FromHex(@"#E5E5E5"), Colour4.FromHex(@"#C7C7C7"));
 
         public static ModColourScheme Consumed = new ModColourScheme(
-            Color4.White, Color4Extensions.FromHex(@"#545454"),
-            Color4Extensions.FromHex(@"#666666"), Color4Extensions.FromHex(@"#5F5F5F"));
+            Colour4.White, Colour4.FromHex(@"#545454"),
+            Colour4.FromHex(@"#666666"), Colour4.FromHex(@"#5F5F5F"));
 
         public static ModColourScheme RedWin = new ModColourScheme(
-            Color4Extensions.FromHex(@"#FF5733"), Color4Extensions.FromHex(@"#4D2114"),
-            Color4Extensions.FromHex(@"#5E2719"), Color4Extensions.FromHex(@"#522215"));
+            Colour4.FromHex(@"#FF5733"), Colour4.FromHex(@"#4D2114"),
+            Colour4.FromHex(@"#5E2719"), Colour4.FromHex(@"#522215"));
 
         public static ModColourScheme BlueWin = new ModColourScheme(
-            Color4Extensions.FromHex(@"#57C1FF"), Color4Extensions.FromHex(@"#263E52"),
-            Color4Extensions.FromHex(@"#2E4C64"), Color4Extensions.FromHex(@"#274257"));
+            Colour4.FromHex(@"#57C1FF"), Colour4.FromHex(@"#263E52"),
+            Colour4.FromHex(@"#2E4C64"), Colour4.FromHex(@"#274257"));
 
         /// <summary>
         /// Get the corresponding <see cref="ModColourScheme"/> based on a given string.
