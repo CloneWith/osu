@@ -85,7 +85,7 @@ namespace osu.Game.Tournament.Components
                             Name = @"Background addition",
                             RelativeSizeAxes = Axes.Both,
                             Colour = Color4.Black,
-                            Alpha = 0.2f,
+                            Alpha = 0.4f,
                         },
                         new GridContainer
                         {
