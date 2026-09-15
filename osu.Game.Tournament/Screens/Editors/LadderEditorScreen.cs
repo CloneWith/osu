@@ -11,6 +11,7 @@ using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.UserInterface;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.States;
+using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Screens.Edit.Compose.Components;
 using osu.Game.Tournament.Components;
@@ -50,7 +51,11 @@ namespace osu.Game.Tournament.Screens.Editors
                 Child = new LadderEditorSettings(),
             });
 
-            AddInternal(rightClickMessage = new WarningBox(BracketEditorStrings.EmptyBracketPrompt));
+            AddInternal(rightClickMessage = new WarningBox
+            {
+                Icon = OsuIcon.EditorSelect,
+                Text = BracketEditorStrings.EmptyBracketPrompt,
+            });
 
             ScrollContent.Add(grid = new RectangularPositionSnapGrid
             {

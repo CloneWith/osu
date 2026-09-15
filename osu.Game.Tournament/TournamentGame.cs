@@ -6,6 +6,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
@@ -64,7 +65,11 @@ namespace osu.Game.Tournament
                     loadingSpinner.Expire();
 
                     Logger.Error(t.Exception, "Couldn't load bracket with error");
-                    Add(new WarningBox(BaseStrings.BracketErrorWarning(BRACKET_FILENAME)));
+                    Add(new WarningBox
+                    {
+                        Icon = FontAwesome.Solid.Bomb,
+                        Text = BaseStrings.BracketErrorWarning(BRACKET_FILENAME),
+                    });
 
                     return;
                 }
@@ -81,6 +86,8 @@ namespace osu.Game.Tournament
                         Anchor = Anchor.BottomCentre,
                         Origin = Anchor.BottomCentre,
                         Margin = new MarginPadding(20),
+                        Dismissable = true,
+                        Icon = FontAwesome.Solid.RulerHorizontal,
                     },
                     mainContainer = new OsuContextMenuContainer
                     {
