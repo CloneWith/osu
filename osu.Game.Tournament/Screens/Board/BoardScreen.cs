@@ -37,6 +37,9 @@ namespace osu.Game.Tournament.Screens.Board
 {
     public partial class BoardScreen : TournamentMatchScreen
     {
+        private readonly Bindable<TeamColour> firstBanSide = new Bindable<TeamColour>(TeamColour.Red);
+        private readonly Bindable<TeamColour> firstPickSide = new Bindable<TeamColour>(TeamColour.Red);
+
         private readonly BindableBool preparationMode = new BindableBool(true);
         private readonly BindableBool shiroModeActivated = new BindableBool();
         private readonly BindableBool tiebreakerOverride = new BindableBool();
@@ -281,6 +284,16 @@ namespace osu.Game.Tournament.Screens.Board
                                     },
                                 }
                             },
+                        },
+                        new FormTeamColourSwitch
+                        {
+                            Caption = RoundEditorStrings.FirstBanSide,
+                            Current = firstBanSide,
+                        },
+                        new FormTeamColourSwitch
+                        {
+                            Caption = RoundEditorStrings.FirstPickSide,
+                            Current = firstPickSide,
                         },
                         new LabelledSwitchButton
                         {
@@ -589,6 +602,8 @@ namespace osu.Game.Tournament.Screens.Board
             if (match.OldValue != null)
             {
                 currentRoundIndex.UnbindFrom(match.OldValue.CurrentRoundIndex);
+                firstBanSide.UnbindFrom(match.OldValue.FirstBanSide);
+                firstPickSide.UnbindFrom(match.OldValue.FirstPickSide);
                 preparationMode.UnbindFrom(match.OldValue.PreparationMode);
             }
 
@@ -597,6 +612,8 @@ namespace osu.Game.Tournament.Screens.Board
                 currentRoundIndex.BindTo(match.NewValue.CurrentRoundIndex);
                 currentRoundIndex.MinValue = match.NewValue.CurrentRoundIndex.MinValue;
                 currentRoundIndex.MaxValue = match.NewValue.CurrentRoundIndex.MaxValue;
+                firstBanSide.BindTo(match.NewValue.FirstBanSide);
+                firstPickSide.BindTo(match.NewValue.FirstPickSide);
                 preparationMode.BindTo(match.NewValue.PreparationMode);
             }
 

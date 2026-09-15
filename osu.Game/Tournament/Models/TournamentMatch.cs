@@ -79,12 +79,15 @@ namespace osu.Game.Tournament.Models
             MaxValue = 17,
         };
 
+        public readonly Bindable<TeamColour> FirstBanSide = new Bindable<TeamColour>(TeamColour.Red);
+        public readonly Bindable<TeamColour> FirstPickSide = new Bindable<TeamColour>(TeamColour.Red);
+
         [JsonIgnore]
         public TeamColour CurrentTeam
         {
             get
             {
-                var targetSide = (CurrentRoundIndex.Value <= 0 ? Round.Value?.FirstBanSide.Value : Round.Value?.FirstPickSide.Value) ?? TeamColour.Red;
+                var targetSide = CurrentRoundIndex.Value <= 0 ? FirstBanSide.Value : FirstPickSide.Value;
                 return Math.Abs(CurrentRoundIndex.Value) % 2 == 1 ? targetSide : targetSide.GetOppositeSide();
             }
         }
