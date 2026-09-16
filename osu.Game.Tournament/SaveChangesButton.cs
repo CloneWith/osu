@@ -36,6 +36,7 @@ namespace osu.Game.Tournament
 
             RelativeSizeAxes = Axes.X;
             Height = 48;
+            Name = @"Save";
             Text = BaseStrings.SaveChanges;
             Action = saveChanges;
             Enabled.Value = false;
