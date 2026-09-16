@@ -524,8 +524,6 @@ namespace osu.Game.Tournament
 
         protected override void InitialiseFonts()
         {
-            AddFont(Resources, @"Fonts/osuFont");
-
             AddFont(Resources, @"Fonts/Torus/Torus-Regular");
             AddFont(Resources, @"Fonts/Torus/Torus-Light");
             AddFont(Resources, @"Fonts/Torus/Torus-SemiBold");
