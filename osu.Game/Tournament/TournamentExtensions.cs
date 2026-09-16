@@ -10,8 +10,11 @@ using osu.Framework.Localisation;
 using osu.Game.Beatmaps.Legacy;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Rulesets;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
+using osu.Game.Users;
 using osuTK.Graphics;
 
 namespace osu.Game.Tournament
@@ -153,6 +156,24 @@ namespace osu.Game.Tournament
                 },
                 _ => ChoiceType.Neutral,
             };
+
+        /// <summary>
+        /// Get the statistics of a user for a specific ruleset.
+        /// </summary>
+        /// <param name="user">the user whose statistics are requested.</param>
+        /// <param name="ruleset">the ruleset to read the statistics for.</param>
+        /// <returns>the statistics of the ruleset, or <c>null</c> when the user has none for it.</returns>
+        /// <remarks>
+        /// Batch user lookups carry one statistics block per ruleset, while a single user response carries
+        /// only the block for the ruleset it asked about.
+        /// </remarks>
+        public static UserStatistics? GetStatisticsFor(this APIUser user, IRulesetInfo? ruleset)
+        {
+            if (ruleset != null && user.RulesetsStatistics?.TryGetValue(ruleset.ShortName, out UserStatistics? statistics) == true)
+                return statistics;
+
+            return user.RulesetsStatistics == null ? user.Statistics : null;
+        }
 
         /// <summary>
         /// Turn a mod acronym into the form of <see cref="LegacyMods"/>.

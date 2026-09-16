@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Configuration;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.ObjectExtensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
@@ -22,8 +23,9 @@ using osu.Game.Database;
 using osu.Game.Extensions;
 using osu.Game.Graphics;
 using osu.Game.Online;
-using osu.Game.Online.API.Requests;
+using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
+using osu.Game.Tournament.Caching;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.IPC;
@@ -47,6 +49,8 @@ namespace osu.Game.Tournament
         private DependencyContainer dependencies = null!;
         private FileBasedIPC ipc = null!;
         private BeatmapLookupCache beatmapCache = null!;
+        private TournamentUserCache userCache = null!;
+        private OnlineAssetCache assetCache = null!;
         private TournamentThemeProvider themeProvider = null!;
 
         private Bindable<string> frameworkLocale = null!;
@@ -99,6 +103,18 @@ namespace osu.Game.Tournament
             dependencies.CacheAs(new StableInfo(storage));
 
             beatmapCache = dependencies.Get<BeatmapLookupCache>();
+
+            // The tournament client reads its avatars, covers and profiles through these rather than through the
+            // game-wide lookups, so it gets caching the tournament needs without altering the main game. The
+            // asset cache is anchored to the game-wide storage on purpose: caching next to the tournaments would
+            // both bloat the folders that get archived and lose every entry when the tournament is switched.
+            dependencies.CacheAs(assetCache = new OnlineAssetCache(Host, baseStorage));
+
+            dependencies.CacheAs(userCache = new TournamentUserCache());
+            Add(userCache);
+
+            // Pruning walks the entire cache directory, so it is left to run in the background.
+            assetCache.PruneDiskCache();
 
             frameworkLocale = frameworkConfig.GetBindable<string>(FrameworkSetting.Locale);
             frameworkLocale.BindValueChanged(_ => updateLanguage());
@@ -202,7 +218,7 @@ namespace osu.Game.Tournament
                     }
                 }
 
-                addedInfo |= AddPlayers();
+                addedInfo |= await AddPlayers().ConfigureAwait(false);
                 addedInfo |= await AddRoundBeatmaps().ConfigureAwait(false);
                 addedInfo |= await AddSeedingBeatmaps().ConfigureAwait(false);
 
@@ -288,7 +304,7 @@ namespace osu.Game.Tournament
         /// <summary>
         /// Add missing player info based on user IDs.
         /// </summary>
-        public bool AddPlayers(bool fetchAll = false)
+        public async Task<bool> AddPlayers(bool fetchAll = false)
         {
             var playersRequiringPopulation = ladder.Teams
                                                    .SelectMany(t => t.Players).ToList();
@@ -297,16 +313,26 @@ namespace osu.Game.Tournament
             {
                 playersRequiringPopulation = playersRequiringPopulation.Where(p => string.IsNullOrEmpty(p.Username)
                                                                                    || p.CountryCode == CountryCode.Unknown
-                                                                                   || p.Rank == null).ToList();
+                                                                                   || p.Rank == null
+                                                                                   || p.ProfileIsStale).ToList();
             }
 
             if (playersRequiringPopulation.Count == 0)
                 return false;
 
+            // Every lookup is issued before any of them is awaited, which lets the user cache collapse the roster
+            // into batched requests rather than one request per player.
+            // Players without an ID cannot be looked up at all, so they are kept out of the requests entirely;
+            // a placeholder entry cannot be allowed to spoil the batch it would otherwise land in.
+            Task<APIUser?>[] lookups = playersRequiringPopulation.Select(p => p.OnlineID > 1
+                                                                     ? userCache.GetUserAsync(p.OnlineID)
+                                                                     : Task.FromResult<APIUser?>(null))
+                                                                 .ToArray();
+
             for (int i = 0; i < playersRequiringPopulation.Count; i++)
             {
                 var p = playersRequiringPopulation[i];
-                PopulatePlayer(p, immediate: true);
+                populate(p, await lookups[i].ConfigureAwait(false));
                 updateLoadProgressMessage(BaseStrings.PopulatingUserStats,
                     LocalisableString.Interpolate($"{BaseStrings.UserID} -> {p.OnlineID}"), i + 1, playersRequiringPopulation.Count);
             }
@@ -398,43 +424,44 @@ namespace osu.Game.Tournament
             progressPopup.TotalCount = total;
         });
 
-        public void PopulatePlayer(TournamentUser user, Action? success = null, Action? failure = null, bool immediate = false)
+        /// <summary>
+        /// Fetch a player's profile into the model it belongs to.
+        /// </summary>
+        /// <param name="user">The player to populate.</param>
+        /// <param name="success">Invoked once the profile has been written into <paramref name="user"/>.</param>
+        /// <param name="failure">Invoked when the profile could not be retrieved.</param>
+        /// <remarks>
+        /// The write happens on the update thread once the lookup resolves. Callers which cannot wait for that
+        /// should await <see cref="AddPlayers"/> instead.
+        /// </remarks>
+        public void PopulatePlayer(TournamentUser user, Action? success = null, Action? failure = null)
         {
-            var req = new GetUserRequest(user.OnlineID, ladder.Ruleset.Value);
+            userCache.GetUserAsync(user.OnlineID).ContinueWith(t => Scheduler.Add(() =>
+                populate(user, t.IsCompletedSuccessfully ? t.GetResultSafely() : null, success, failure)));
+        }
 
-            if (immediate)
+        private void populate(TournamentUser user, APIUser? result, Action? success = null, Action? failure = null)
+        {
+            if (result == null)
             {
-                API.Perform(req);
-                populate();
-            }
-            else
-            {
-                req.Success += _ => { populate(); };
-                req.Failure += _ =>
-                {
-                    user.OnlineID = 1;
-                    failure?.Invoke();
-                };
-
-                API.Queue(req);
+                // Whatever was fetched previously is kept as-is. Overwriting the stored ID with a placeholder on
+                // a failed lookup would make an intermittent network problem indistinguishable from a deleted
+                // account, and would discard exactly the data the bracket exists to retain.
+                failure?.Invoke();
+                return;
             }
 
-            void populate()
-            {
-                var res = req.Response;
+            var statistics = result.GetStatisticsFor(ladder.Ruleset.Value);
 
-                if (res == null)
-                    return;
+            user.OnlineID = result.Id;
+            user.Username = result.Username;
+            user.CoverUrl = result.CoverUrl;
+            user.CountryCode = result.CountryCode;
+            user.Rank = statistics?.GlobalRank;
+            user.PP = statistics?.PP;
+            user.ProfileFetchedAt = DateTimeOffset.UtcNow;
 
-                user.OnlineID = res.Id;
-
-                user.Username = res.Username;
-                user.CoverUrl = res.CoverUrl;
-                user.CountryCode = res.CountryCode;
-                user.Rank = res.Statistics?.GlobalRank;
-
-                success?.Invoke();
-            }
+            success?.Invoke();
         }
 
         public void SaveChanges(bool saveBackgrounds = true)
@@ -523,6 +550,13 @@ namespace osu.Game.Tournament
 
             Fonts.AddStore(new OsuIcon.OsuIconStore(Textures));
             Fonts.AddStore(new FumoIcon.FumoIconStore(Textures));
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            base.Dispose(isDisposing);
+
+            assetCache.Dispose();
         }
 
         protected override UserInputManager CreateUserInputManager() => new TournamentInputManager();

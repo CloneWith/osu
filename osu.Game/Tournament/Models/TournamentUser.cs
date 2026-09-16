@@ -17,6 +17,22 @@ namespace osu.Game.Tournament.Models
     [Serializable]
     public class TournamentUser : IUser
     {
+        /// <summary>
+        /// How long the fetched profile of a player is treated as "current".
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// A player's pp and global rank drift over the course of an event, so the bracket refreshes them
+        /// rather than keeping the first values it ever saw.
+        /// </para>
+        /// <para>
+        /// The window is deliberately much longer than the session:
+        /// within it the client never touches the network for a profile it already has, which is what
+        /// keeps the client usable on a poor connection.
+        /// </para>
+        /// </remarks>
+        public static readonly TimeSpan PROFILE_MAX_AGE = TimeSpan.FromHours(12);
+
         [JsonProperty(@"id")]
         public int OnlineID { get; set; }
 
@@ -36,9 +52,25 @@ namespace osu.Game.Tournament.Models
         public int? Rank { get; set; }
 
         /// <summary>
+        /// The player's performance points, or null if not available.
+        /// </summary>
+        public decimal? PP { get; set; }
+
+        /// <summary>
         /// A URL to the player's profile cover.
         /// </summary>
         public string CoverUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// When <see cref="Rank"/>, <see cref="PP"/> and <see cref="CoverUrl"/> were last fetched, or null if
+        /// they have never been fetched.
+        /// </summary>
+        public DateTimeOffset? ProfileFetchedAt { get; set; }
+
+        /// <summary>
+        /// Whether the stored profile is missing or older than <see cref="PROFILE_MAX_AGE"/>.
+        /// </summary>
+        public bool ProfileIsStale => ProfileFetchedAt == null || DateTimeOffset.UtcNow - ProfileFetchedAt.Value > PROFILE_MAX_AGE;
 
         /// <summary>
         /// The player's rating information.
@@ -58,7 +90,8 @@ namespace osu.Game.Tournament.Models
             user.Statistics = new UserStatistics
             {
                 User = user,
-                GlobalRank = Rank
+                GlobalRank = Rank,
+                PP = PP
             };
 
             return user;
