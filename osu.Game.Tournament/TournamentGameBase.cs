@@ -138,8 +138,7 @@ namespace osu.Game.Tournament
             base.LoadComplete();
 
             // Use an initial title first.
-            if (Host.Window != null)
-                Host.Window.Title = $"{WINDOW_TITLE} - {Version}";
+            Host.Window?.Title = $"{WINDOW_TITLE} - {Version}";
 
             Task.Run(readBracket);
         }
@@ -296,8 +295,7 @@ namespace osu.Game.Tournament
                 progressPopup.SetTaskCompleted();
 
                 // Update the title with the tournament name.
-                if (Host.Window != null)
-                    Host.Window.Title = $"{WINDOW_TITLE} - {storage.CurrentTournament.Value}@{Version}";
+                Host.Window?.Title = $"{WINDOW_TITLE} - {storage.CurrentTournament.Value}@{Version}";
             });
         }
 
