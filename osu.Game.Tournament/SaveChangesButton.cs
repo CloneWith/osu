@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -15,15 +16,24 @@ namespace osu.Game.Tournament
 {
     internal partial class SaveChangesButton : OsuButton, IKeyBindingHandler<PlatformAction>
     {
+        private readonly Action? postSave;
+
         [Resolved]
         private TournamentGame? tournamentGame { get; set; }
 
         private string? lastSerialisedLadder;
         private static bool ladderUnchanged = true;
 
-        public SaveChangesButton()
+        /// <param name="postSave">
+        /// Run after the bracket has been written, for state which does not live in the bracket (a screen
+        /// keeping a file of its own, for instance). The ladder diff below cannot see such state, so a screen
+        /// using this is expected to call <see cref="TriggerEnableSaving"/> when it changes.
+        /// </param>
+        public SaveChangesButton(Action? postSave = null)
             : base(null)
         {
+            this.postSave = postSave;
+
             RelativeSizeAxes = Axes.X;
             Height = 48;
             Text = BaseStrings.SaveChanges;
@@ -81,6 +91,8 @@ namespace osu.Game.Tournament
         private void saveChanges()
         {
             tournamentGame?.SaveChanges();
+            postSave?.Invoke();
+
             lastSerialisedLadder = tournamentGame?.GetSerialisedLadder();
             ladderUnchanged = true;
 

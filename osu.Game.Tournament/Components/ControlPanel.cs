@@ -22,13 +22,19 @@ namespace osu.Game.Tournament.Components
     public partial class ControlPanel : Container
     {
         private readonly Action<bool>? refetchAction;
+        private readonly Action? saveAction;
         private readonly bool needSaving;
 
         private readonly FillFlowContainer buttons;
 
         protected override Container<Drawable> Content => buttons;
 
-        public ControlPanel(bool needSaving = false, Action<bool>? refetchAction = null)
+        /// <param name="needSaving">Whether the panel offers the save button for the bracket.</param>
+        /// <param name="refetchAction">The action of the refetch button, if the panel needs one.</param>
+        /// <param name="saveAction">
+        /// Run alongside the bracket save, for state which is not part of the bracket.
+        /// </param>
+        public ControlPanel(bool needSaving = false, Action<bool>? refetchAction = null, Action? saveAction = null)
         {
             Name = @"Control Panel Sidebar";
             RelativeSizeAxes = Axes.Y;
@@ -38,6 +44,7 @@ namespace osu.Game.Tournament.Components
 
             this.needSaving = needSaving;
             this.refetchAction = refetchAction;
+            this.saveAction = saveAction;
 
             buttons = new FillFlowContainer
             {
@@ -130,7 +137,7 @@ namespace osu.Game.Tournament.Components
                         new[]
                         {
                             needSaving
-                                ? new SaveChangesButton
+                                ? new SaveChangesButton(saveAction)
                                 {
                                     Anchor = Anchor.BottomCentre,
                                     Origin = Anchor.BottomCentre,
