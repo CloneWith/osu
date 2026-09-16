@@ -16,7 +16,6 @@ using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Users;
-using osu.Game.Users.Drawables;
 using osuTK;
 using osuTK.Graphics;
 
@@ -49,7 +48,6 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load()
         {
-            // Size = new Vector2(320, 240);
             Masking = true;
             CornerRadius = 10;
             BorderColour = accentColour;
@@ -77,7 +75,7 @@ namespace osu.Game.Tournament.Components
                     Content = new Drawable[][]
                     {
                         [
-                            new UpdateableAvatar(apiUser, false)
+                            new TournamentAvatar(apiUser)
                             {
                                 Name = @"Avatar",
                                 Anchor = Anchor.Centre,

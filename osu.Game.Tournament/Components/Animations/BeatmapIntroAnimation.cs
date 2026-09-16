@@ -310,7 +310,12 @@ namespace osu.Game.Tournament.Components.Animations
         {
             base.LoadComplete();
 
-            LoadComponentAsync(new OnlineBeatmapSetCover(map.Beatmap)
+            var onlineInfo = map.Beatmap;
+
+            if (onlineInfo == null)
+                return;
+
+            LoadComponentAsync(new TournamentBeatmapSetCover(onlineInfo)
             {
                 RelativeSizeAxes = Axes.Both,
                 Anchor = Anchor.Centre,

@@ -3,24 +3,23 @@
 
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Extensions;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
-using osu.Game.Graphics;
-using osu.Game.Online.API;
-using osu.Game.Online.API.Requests;
-using osu.Game.Online.API.Requests.Responses;
-using osu.Game.Users;
-using osu.Game.Users.Drawables;
 using osu.Framework.Graphics.Sprites;
-using osuTK;
-using osuTK.Graphics;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Online.API.Requests.Responses;
+using osu.Game.Tournament.Caching;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
+using osu.Game.Users;
 using osu.Game.Utils;
+using osuTK;
+using osuTK.Graphics;
 
 namespace osu.Game.Tournament.Components
 {
@@ -34,11 +33,15 @@ namespace osu.Game.Tournament.Components
         private FillFlowContainer bombDisplay = null!;
         private TournamentSpriteText punishmentText = null!;
 
-        [Resolved]
-        private IAPIProvider api { get; set; } = null!;
+        private decimal? displayedPP;
+        private int? displayedRank;
+        private bool statisticsDisplayed;
 
         [Resolved]
         private LadderInfo ladder { get; set; } = null!;
+
+        [Resolved]
+        private TournamentUserCache userCache { get; set; } = null!;
 
         public TeamPlayerCard(APIUser user)
             : base(user)
@@ -49,44 +52,62 @@ namespace osu.Game.Tournament.Components
             teamPlayer = user;
         }
 
+        protected override Drawable CreateBackground() => new TournamentUserCoverBackground
+        {
+            RelativeSizeAxes = Axes.Both,
+            Anchor = Anchor.CentreRight,
+            Origin = Anchor.CentreRight,
+            Colour = Color4.Gray,
+            User = User,
+        };
+
         [BackgroundDependencyLoader]
         private void load()
         {
-            Background.Origin = Anchor.CentreRight;
-            Background.Anchor = Anchor.CentreRight;
-            Background.Colour = Color4.Gray;
+            // Whatever the bracket already holds is drawn straight away. The card is on stream, so showing a
+            // possibly stale pp and rank immediately beats showing nothing until the request comes back.
+            updateStatistics(User.Statistics);
 
-            var request = new GetUserRequest(userId: User.Id, ruleset: ladder.Ruleset.Value);
+            userCache.GetUserAsync(User.Id).ContinueWith(t =>
+                Scheduler.Add(() => updateStatistics(t.GetResultSafely()?.GetStatisticsFor(ladder.Ruleset.Value))));
+        }
 
-            request.Success += user =>
+        private void updateStatistics(UserStatistics? statistics)
+        {
+            decimal? pp = statistics?.PP;
+            int? rank = statistics?.GlobalRank;
+
+            if (pp == displayedPP && rank == displayedRank)
+                return;
+
+            displayedPP = pp;
+            displayedRank = rank;
+
+            statDisplay.Children = new Drawable[]
             {
-                Scheduler.Add(() =>
+                new TournamentSpriteText
                 {
-                    statDisplay.Children = new Drawable[]
-                    {
-                        new TournamentSpriteText
-                        {
-                            Anchor = Anchor.CentreRight,
-                            Origin = Anchor.CentreRight,
-                            Text = $"{user.Statistics.PP}pp",
-                            Font = OsuFont.TorusAlternate.With(weight: FontWeight.SemiBold, size: 20),
-                            Shadow = true
-                        },
-                        new TournamentSpriteText
-                        {
-                            Anchor = Anchor.CentreRight,
-                            Origin = Anchor.CentreRight,
-                            Text = $"#{user.Statistics.GlobalRank}",
-                            Font = OsuFont.TorusAlternate.With(weight: FontWeight.Medium, size: 17),
-                            Shadow = true
-                        }
-                    };
-
-                    statDisplay.FadeInFromZero(duration: 200, easing: Easing.OutCubic);
-                });
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreRight,
+                    Text = pp == null ? string.Empty : $"{pp}pp",
+                    Font = OsuFont.TorusAlternate.With(weight: FontWeight.SemiBold, size: 20),
+                    Shadow = true
+                },
+                new TournamentSpriteText
+                {
+                    Anchor = Anchor.CentreRight,
+                    Origin = Anchor.CentreRight,
+                    Text = rank == null ? string.Empty : $"#{rank}",
+                    Font = OsuFont.TorusAlternate.With(weight: FontWeight.Medium, size: 17),
+                    Shadow = true
+                }
             };
 
-            api.Queue(request);
+            if (statisticsDisplayed)
+                return;
+
+            statisticsDisplayed = true;
+            statDisplay.FadeInFromZero(duration: 200, easing: Easing.OutCubic);
         }
 
         protected override Drawable CreateLayout()
@@ -122,7 +143,7 @@ namespace osu.Game.Tournament.Components
                                         Size = new Vector2(25),
                                         Icon = FontAwesome.Solid.UserAlt,
                                     },
-                                    new UpdateableAvatar(user: teamPlayer)
+                                    new TournamentAvatar(teamPlayer)
                                     {
                                         Anchor = Anchor.CentreLeft,
                                         Origin = Anchor.CentreLeft,
@@ -207,8 +228,9 @@ namespace osu.Game.Tournament.Components
 
         private void updatePunishmentDisplay()
         {
-            var punishments = ladder.Punishments.Where(p => !p.IsExpired && p.Type.Value is not PunishmentType.Pending
-                                                                         && p.UserID.Value == User.OnlineID)
+            var punishments = ladder.Punishments.Where(p => !p.IsExpired
+                                                            && p.Type.Value is not PunishmentType.Pending
+                                                            && p.UserID.Value == User.OnlineID)
                                     .ToList();
 
             if (punishments.Count != 0)
