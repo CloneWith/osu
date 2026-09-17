@@ -291,11 +291,16 @@ namespace osu.Game.Tournament.Models
         }
 
         /// <summary>
-        /// Create an empty draft group, named after its position (A, B, C, ...).
+        /// Create an empty draft group, named after its position.
         /// </summary>
+        /// <remarks>
+        /// The positional name is only a placeholder: a group standing for one of the event's teams takes that
+        /// team's name instead, which the session applies as the group is created and whenever the draft is
+        /// read back.
+        /// </remarks>
         public static TournamentTeam CreateGroup(int index)
         {
-            string name = ((char)('A' + index)).ToString();
+            string name = GroupNameForPosition(index);
 
             return new TournamentTeam
             {
@@ -303,6 +308,11 @@ namespace osu.Game.Tournament.Models
                 Acronym = { Value = name },
             };
         }
+
+        /// <summary>
+        /// The name a group falls back to while the bracket has no team at its position: A, B, C, ...
+        /// </summary>
+        public static string GroupNameForPosition(int index) => ((char)('A' + index)).ToString();
 
         /// <summary>
         /// Put <paramref name="player"/> back in the pool.

@@ -90,6 +90,11 @@ namespace osu.Game.Tournament.Models
                 seedGroups(ladder);
 
             Draft.ReconcileTeams();
+
+            // Last, so that both a seeded draft and one read back from disk end up named after the teams the
+            // event actually has — a file written before the bracket was set up carries nothing but the
+            // positional fallbacks.
+            SyncGroupNames(ladder);
         }
 
         /// <summary>
@@ -143,8 +148,12 @@ namespace osu.Game.Tournament.Models
         }
 
         /// <summary>
-        /// Create one empty group per bracket team, taking the names from the bracket so the boxes are recognizable.
+        /// Create one empty group per bracket team, so that the boxes cover the event being run.
         /// </summary>
+        /// <remarks>
+        /// Only the number of groups is decided here; what they are called comes from
+        /// <see cref="SyncGroupNames"/>, which also covers the groups created later on.
+        /// </remarks>
         private void seedGroups(LadderInfo ladder)
         {
             int bracketTeams = ladder.Teams.Count;
@@ -158,20 +167,29 @@ namespace osu.Game.Tournament.Models
             var seeded = new List<TournamentTeam>();
 
             for (int i = 0; i < count; i++)
-            {
-                TournamentTeam? source = i < bracketTeams ? ladder.Teams[i] : null;
-                string fallback = ((char)('A' + i)).ToString();
-
-                seeded.Add(new TournamentTeam
-                {
-                    FullName = { Value = string.IsNullOrEmpty(source?.FullName.Value) ? fallback : source.FullName.Value },
-                    Acronym = { Value = string.IsNullOrEmpty(source?.Acronym.Value) ? fallback : source.Acronym.Value },
-                    FlagName = { Value = source?.FlagName.Value ?? string.Empty },
-                });
-            }
+                seeded.Add(DraftInfo.CreateGroup(i));
 
             // One bulk insertion, which the group listing picks up in a single change.
             Draft.Teams.AddRange(seeded);
+        }
+
+        /// <summary>
+        /// Name every group after the bracket team it stands for, falling back to its position (A, B, C, ...)
+        /// where the bracket has no team for it.
+        /// </summary>
+        public void SyncGroupNames(LadderInfo ladder)
+        {
+            for (int i = 0; i < Draft.Teams.Count; i++)
+            {
+                TournamentTeam group = Draft.Teams[i];
+                TournamentTeam? source = i < ladder.Teams.Count ? ladder.Teams[i] : null;
+
+                string fallback = DraftInfo.GroupNameForPosition(i);
+
+                group.FullName.Value = string.IsNullOrEmpty(source?.FullName.Value) ? fallback : source.FullName.Value;
+                group.Acronym.Value = string.IsNullOrEmpty(source?.Acronym.Value) ? fallback : source.Acronym.Value;
+                group.FlagName.Value = source?.FlagName.Value ?? string.Empty;
+            }
         }
 
         #endregion

@@ -109,6 +109,11 @@ namespace osu.Game.Tournament.Screens.RandomPick.Components
         public IReadOnlyList<Drawable> TierSlots { get; private set; } = [];
 
         /// <summary>
+        /// The name shown in the box's header.
+        /// </summary>
+        public string Title { get; private set; } = string.Empty;
+
+        /// <summary>
         /// Whether this box is the one the next draw has been pointed at, shown by the box taking the focused
         /// style so that where the next player will go can be seen at a glance.
         /// </summary>
@@ -171,7 +176,10 @@ namespace osu.Game.Tournament.Screens.RandomPick.Components
         }
 
         private void updateTitle()
-            => titleText.Text = string.IsNullOrEmpty(Team.FullName.Value) ? Team.Acronym.Value : Team.FullName.Value;
+        {
+            Title = string.IsNullOrEmpty(Team.FullName.Value) ? Team.Acronym.Value : Team.FullName.Value;
+            titleText.Text = Title;
+        }
 
         private void refreshSlots()
         {

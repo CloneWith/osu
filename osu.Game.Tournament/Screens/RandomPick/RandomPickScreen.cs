@@ -254,6 +254,10 @@ namespace osu.Game.Tournament.Screens.RandomPick
         /// </summary>
         private void refreshAll()
         {
+            // The boxes are named after the bracket teams they stand for, and the bracket may have been read or
+            // edited since the boxes were last built.
+            session.SyncGroupNames(LadderInfo);
+
             rebuildGroups();
             refreshTier();
         }
