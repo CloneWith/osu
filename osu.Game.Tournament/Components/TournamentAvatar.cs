@@ -60,11 +60,22 @@ namespace osu.Game.Tournament.Components
             {
                 // Same conditions as `DrawableAvatar`: a user without a profile has no avatar to fetch, and the
                 // stored ID of a user which was never successfully looked up is not worth a request either.
-                if (user != null && user.OnlineID > 1)
-                    Texture = onlineAssets.Get((user as APIUser)?.AvatarUrl ?? $@"https://a.ppy.sh/{user.OnlineID}");
+                Texture? fetched = user != null && user.OnlineID > 1
+                    ? usable(onlineAssets.Get((user as APIUser)?.AvatarUrl ?? $@"https://a.ppy.sh/{user.OnlineID}"))
+                    : null;
 
-                Texture ??= textures.Get(@"Online/avatar-guest");
+                Texture = fetched ?? usable(textures.Get(@"Online/avatar-guest"));
             }
+
+            /// <summary>
+            /// Returns the given texture, or <c>null</c> when it has already been released.
+            /// </summary>
+            /// <remarks>
+            /// Assigning a released texture to a <see cref="Sprite"/> throws immediately, because the assignment
+            /// reads the texture's size. Coming up without an avatar is a much better outcome during a broadcast
+            /// than an exception on the load thread.
+            /// </remarks>
+            private static Texture? usable(Texture? texture) => texture?.Available == true ? texture : null;
 
             protected override void LoadComplete()
             {

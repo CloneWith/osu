@@ -27,8 +27,7 @@ namespace osu.Game.Tournament.Caching
     /// The memory layer exists because <see cref="LargeTextureStore"/> drops a texture from its own cache as
     /// soon as the last consumer lets go of it (see <c>TextureWithRefCount</c>). That happens every time a
     /// screen is left or a player list is rebuilt, so without holding a reference here the same avatar would be
-    /// re-downloaded on every visit. The cache keeps up to <see cref="MAX_MEMORY_ENTRIES"/> textures alive and
-    /// evicts the least recently used one once it is over that budget.
+    /// re-downloaded on every visit.
     /// </para>
     /// <para>
     /// The disk layer lives in <see cref="CACHE_DIRECTORY"/> under the game-wide storage and is keyed by
@@ -67,17 +66,29 @@ namespace osu.Game.Tournament.Caching
 
         private readonly Storage cacheStorage;
         private readonly LargeTextureStore textureStore;
-        private readonly TrustedDomainOnlineStore onlineStore = new TrustedDomainOnlineStore();
+        private readonly IResourceStore<byte[]> onlineStore;
 
-        private readonly Dictionary<string, Texture> memoryCache = new Dictionary<string, Texture>();
-        private readonly Dictionary<string, long> memoryAccessOrder = new Dictionary<string, long>();
-        private readonly Lock memoryLock = new Lock();
+        /// <summary>
+        /// The textures kept resident, keyed by URL. Each entry is held purely to keep the reference count of
+        /// the texture it wraps above zero, and is never handed to a consumer.
+        /// </summary>
+        private readonly Dictionary<string, Texture> pins = new Dictionary<string, Texture>();
 
-        private long memoryAccessCounter;
+        private readonly Dictionary<string, long> pinAccessOrder = new Dictionary<string, long>();
+        private readonly Lock pinLock = new Lock();
 
-        public OnlineAssetCache(GameHost host, Storage storage)
+        private long pinAccessCounter;
+
+        /// <param name="host">The game host, used to reach the renderer.</param>
+        /// <param name="storage">The game-wide storage the disk cache lives under.</param>
+        /// <param name="onlineStore">
+        /// Where assets which are not on disk are fetched from. Defaults to a store restricted to osu!'s own
+        /// domains; it is a parameter so that a test can supply assets without touching the network.
+        /// </param>
+        public OnlineAssetCache(GameHost host, Storage storage, IResourceStore<byte[]> onlineStore = null)
         {
             cacheStorage = storage.GetStorageForDirectory(CACHE_DIRECTORY);
+            this.onlineStore = onlineStore ?? new TrustedDomainOnlineStore();
 
             // The texture loader reads raw bytes back through this instance, which is what gives the disk layer
             // its chance to answer before the network is touched.
@@ -88,26 +99,50 @@ namespace osu.Game.Tournament.Caching
         /// Retrieves the texture for the given URL, preferring a resident copy, then the disk cache, finally the network.
         /// </summary>
         /// <param name="url">The URL of the asset. A blank or untrusted URL yields <c>null</c>.</param>
-        /// <returns>The texture, or <c>null</c> if the asset could not be retrieved.</returns>
+        /// <returns>
+        /// The texture, or <c>null</c> if the asset could not be retrieved. The returned texture belongs to the
+        /// caller: it is released when the sprite using it is disposed or handed a different texture.
+        /// </returns>
         public Texture Get(string url)
         {
             if (string.IsNullOrWhiteSpace(url))
                 return null;
 
-            lock (memoryLock)
+            bool pinned = touchPin(url);
+
+            Texture texture = fetch(url);
+
+            if (texture == null)
+                return null;
+
+            if (!texture.Available)
             {
-                if (memoryCache.TryGetValue(url, out Texture cached))
-                {
-                    memoryAccessOrder[url] = ++memoryAccessCounter;
-                    return cached;
-                }
+                // Nothing should reach here: the pin below keeps the texture in the texture store's cache, and
+                // that store only purges a texture once every consumer is gone. Guarded regardless, because
+                // `Sprite.Texture` reads the texture's size the moment it is assigned and a released texture
+                // throws when it does, which mid-broadcast is far worse than an asset which does not appear.
+                Logger.Log($@"Online asset {url} was served after it had already been released.", level: LogLevel.Important);
+                return null;
             }
 
-            Texture texture;
+            if (!pinned)
+                pin(url);
 
+            return texture;
+        }
+
+        /// <summary>
+        /// Retrieves the texture for the given URL from the texture store, reporting an unreadable asset as
+        /// <c>null</c> rather than letting it reach the caller.
+        /// </summary>
+        /// <remarks>
+        /// Must not be called with the pin lock held. See the class remarks for why.
+        /// </remarks>
+        private Texture fetch(string url)
+        {
             try
             {
-                texture = textureStore.Get(url);
+                return textureStore.Get(url);
             }
             catch (Exception e)
             {
@@ -117,24 +152,58 @@ namespace osu.Game.Tournament.Caching
                 deleteCached(url);
                 return null;
             }
+        }
 
-            if (texture == null)
-                return null;
-
-            lock (memoryLock)
+        /// <summary>
+        /// Marks the given URL as recently used if it is pinned, reporting whether it was.
+        /// </summary>
+        private bool touchPin(string url)
+        {
+            lock (pinLock)
             {
-                // Another thread may have resolved the same URL while this one was loading; keep the copy which
-                // is already pinned so only one instance stays resident (the loser is released back to the
-                // texture store when it is collected).
-                if (memoryCache.TryGetValue(url, out Texture existing))
-                    return existing;
+                if (!pins.ContainsKey(url))
+                    return false;
 
-                memoryCache[url] = texture;
-                memoryAccessOrder[url] = ++memoryAccessCounter;
-                trimMemoryCache();
-
-                return texture;
+                pinAccessOrder[url] = ++pinAccessCounter;
+                return true;
             }
+        }
+
+        /// <summary>
+        /// Takes a private reference to the given URL's texture, so that the texture store keeps that texture
+        /// cached once the caller releases the reference they were handed.
+        /// </summary>
+        private void pin(string url)
+        {
+            // A second lookup of the same URL. Performed outside the pin lock for the same reason as the one in
+            // `Get`: it reaches into the texture store, which locks internally.
+            Texture extra = fetch(url);
+
+            if (extra == null)
+                return;
+
+            List<Texture> released;
+
+            lock (pinLock)
+            {
+                // Another thread may have pinned the same URL while this one was loading. The reference taken
+                // here is then surplus, and giving it up leaves the count exactly one above what callers hold.
+                if (!pins.TryAdd(url, extra))
+                    released = new List<Texture> { extra };
+                else
+                {
+                    pinAccessOrder[url] = ++pinAccessCounter;
+                    released = trimPins();
+                }
+            }
+
+            // Giving up the last reference of a texture runs the texture store's purge path, so it happens here
+            // rather than inside the lock.
+            if (released == null)
+                return;
+
+            foreach (Texture texture in released)
+                texture.Dispose();
         }
 
         /// <summary>
@@ -183,26 +252,41 @@ namespace osu.Game.Tournament.Caching
             });
         }
 
-        private void trimMemoryCache()
+        /// <summary>
+        /// Drops the least recently used pins until the cache fits its budget, returning the textures whose
+        /// reference was given up.
+        /// </summary>
+        /// <remarks>
+        /// The returned textures must be disposed by the caller once the pin lock has been released. See the
+        /// class remarks for why.
+        /// </remarks>
+        private List<Texture> trimPins()
         {
-            while (memoryCache.Count > MAX_MEMORY_ENTRIES)
+            List<Texture> released = null;
+
+            while (pins.Count > MAX_MEMORY_ENTRIES)
             {
                 string oldest = null;
                 long oldestOrder = long.MaxValue;
 
-                foreach (KeyValuePair<string, long> entry in memoryAccessOrder.Where(entry => entry.Value < oldestOrder))
+                foreach (KeyValuePair<string, long> entry in pinAccessOrder.Where(entry => entry.Value < oldestOrder))
                 {
                     oldestOrder = entry.Value;
                     oldest = entry.Key;
                 }
 
                 if (oldest == null)
-                    return;
+                    break;
 
-                // Dropping the reference is what hands the texture back to the texture store.
-                memoryCache.Remove(oldest);
-                memoryAccessOrder.Remove(oldest);
+                // Dropping the pin is what hands the texture back to the texture store, provided no consumer is
+                // still holding a wrapper of its own.
+                (released ??= new List<Texture>()).Add(pins[oldest]);
+
+                pins.Remove(oldest);
+                pinAccessOrder.Remove(oldest);
             }
+
+            return released;
         }
 
         private byte[] getBytes(string url)
