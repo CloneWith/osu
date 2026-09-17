@@ -57,6 +57,9 @@
     <data name="showcase" xml:space="preserve">
         <value>图池展示</value>
     </data>
+    <data name="random_pick" xml:space="preserve">
+        <value>随机选人</value>
+    </data>
     <data name="board" xml:space="preserve">
         <value>棋盘</value>
     </data>
