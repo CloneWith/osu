@@ -113,6 +113,8 @@ namespace osu.Game.Tournament
             dependencies.CacheAs(userCache = new TournamentUserCache());
             Add(userCache);
 
+            dependencies.CacheAs(new DraftSession(storage));
+
             // Pruning walks the entire cache directory, so it is left to run in the background.
             assetCache.PruneDiskCache();
 
