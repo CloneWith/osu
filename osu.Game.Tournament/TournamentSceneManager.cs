@@ -115,7 +115,6 @@ namespace osu.Game.Tournament
                                 new LadderEditorScreen(),
                                 new TeamEditorScreen(),
                                 new RoundEditorScreen(),
-                                new PunishmentEditorScreen(),
                                 new CountdownScreen(),
                                 new ShowcaseScreen(),
                                 new MapPoolScreen(),
@@ -215,7 +214,6 @@ namespace osu.Game.Tournament
                                                         new ScreenButton(typeof(TeamEditorScreen)) { Text = ScreenStrings.TeamEditor, RequestSelection = SetScreen },
                                                         new ScreenButton(typeof(RoundEditorScreen)) { Text = ScreenStrings.RoundsEditor, RequestSelection = SetScreen },
                                                         new ScreenButton(typeof(LadderEditorScreen)) { Text = ScreenStrings.BracketEditor, RequestSelection = SetScreen },
-                                                        new ScreenButton(typeof(PunishmentEditorScreen)) { Text = ScreenStrings.PunishmentEditor, RequestSelection = SetScreen },
                                                     },
                                                 },
                                                 new FoldableSectionHeader(ScreenStrings.SectionBeforeMatch, HoverSampleSet.Muted)
