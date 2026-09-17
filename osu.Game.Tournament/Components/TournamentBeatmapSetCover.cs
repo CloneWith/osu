@@ -30,15 +30,12 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load(OnlineAssetCache onlineAssets)
         {
-            string? resource = type switch
+            string resource = type switch
             {
                 BeatmapSetCoverType.Card => set.Covers.Card,
                 BeatmapSetCoverType.List => set.Covers.List,
                 _ => set.Covers.Cover,
             };
-
-            if (resource == null)
-                return;
 
             Texture = onlineAssets.Get(resource);
         }
