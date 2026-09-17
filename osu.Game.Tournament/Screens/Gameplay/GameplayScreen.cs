@@ -208,8 +208,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
             SongBar.Expanded = false;
             scoreDisplay.FadeOut(100);
 
-            if (sceneManager != null)
-                sceneManager.ShowChat = true;
+            sceneManager?.ShowChat = true;
             chatBackground.MoveToY(0, 500, Easing.OutQuint);
         }
 
@@ -220,8 +219,7 @@ namespace osu.Game.Tournament.Screens.Gameplay
 
             scheduledContract?.Cancel();
 
-            if (sceneManager != null)
-                sceneManager.ShowChat = false;
+            sceneManager?.ShowChat = false;
             chatBackground.MoveToY(200, 500, Easing.OutQuint);
 
             using (BeginDelayedSequence(300))

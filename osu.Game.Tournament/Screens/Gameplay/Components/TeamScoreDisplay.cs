@@ -26,10 +26,7 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
             get => teamDisplay?.ShowScore ?? false;
             set
             {
-                if (teamDisplay != null)
-                {
-                    teamDisplay.ShowScore = value;
-                }
+                teamDisplay?.ShowScore = value;
             }
         }
 

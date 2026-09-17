@@ -645,8 +645,7 @@ namespace osu.Game.Tournament.Screens.Board
                 instructionDisplay.Step = stepType;
             }
 
-            if (CurrentMatch.Value != null)
-                CurrentMatch.Value.IsFinalStage.Value = pickType is RoundStep.TieBreaker;
+            CurrentMatch.Value?.IsFinalStage.Value = pickType is RoundStep.TieBreaker;
 
             if (stepType != RoundStep.Shiro)
                 shiroModeActivated.Value = false;
@@ -932,8 +931,7 @@ namespace osu.Game.Tournament.Screens.Board
                                 }
                                 else
                                 {
-                                    if (lastSelected != null)
-                                        lastSelected.Selected = false;
+                                    lastSelected?.Selected = false;
                                     target.Selected = true;
                                 }
 
@@ -1071,8 +1069,7 @@ namespace osu.Game.Tournament.Screens.Board
             {
                 case true:
                     detectWin();
-                    if (lastSelected != null)
-                        lastSelected.Selected = false;
+                    lastSelected?.Selected = false;
                     break;
 
                 case false:

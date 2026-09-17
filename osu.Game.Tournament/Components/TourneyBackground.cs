@@ -299,8 +299,7 @@ namespace osu.Game.Tournament.Components
             set
             {
                 loop = value;
-                if (video != null)
-                    video.Loop = value;
+                video?.Loop = value;
             }
         }
 
@@ -319,8 +318,7 @@ namespace osu.Game.Tournament.Components
 
         public void Reset()
         {
-            if (manualClock != null)
-                manualClock.CurrentTime = 0;
+            manualClock?.CurrentTime = 0;
         }
 
         protected override void Update()

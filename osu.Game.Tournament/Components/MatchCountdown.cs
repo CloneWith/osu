@@ -202,8 +202,7 @@ namespace osu.Game.Tournament.Components
             lastSecondsSample = audio.Samples.Get(@"Gameplay/resume-countdown");
             completedSample = audio.Samples.Get(@"Menu/button-default-select");
 
-            if (tickSample != null)
-                tickSample.Volume.Value = 0.6f;
+            tickSample?.Volume.Value = 0.6f;
 
             themeProvider.Current.BindValueChanged(theme =>
             {
@@ -441,10 +440,7 @@ namespace osu.Game.Tournament.Components
         {
             endTriggered = true;
 
-            if (countdownMSecondPart != null)
-            {
-                countdownMSecondPart.Text = ".000";
-            }
+            countdownMSecondPart?.Text = ".000";
 
             contentFlow.FadeOut().Delay(500).FadeIn().Delay(500).Loop(0, 3);
             contentFlow.Delay(2000).ScaleTo(1.2f, 1000, Easing.InQuint);
