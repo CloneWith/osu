@@ -316,17 +316,14 @@ namespace osu.Game.Tournament.Screens.Drawings.Components
 
             private readonly Box outline;
 
-            private bool selected;
-
             public bool Selected
             {
-                get => selected;
-
+                get;
                 set
                 {
-                    selected = value;
+                    field = value;
 
-                    if (selected)
+                    if (field)
                         outline.FadeIn(100);
                     else
                         outline.FadeOut(100);

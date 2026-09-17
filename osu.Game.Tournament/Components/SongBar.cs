@@ -60,15 +60,13 @@ namespace osu.Game.Tournament.Components
 
         private FillFlowContainer flow = null!;
 
-        private bool expanded;
-
         public bool Expanded
         {
-            get => expanded;
+            get;
             set
             {
-                expanded = value;
-                flow.Direction = expanded ? FillDirection.Full : FillDirection.Vertical;
+                field = value;
+                flow.Direction = field ? FillDirection.Full : FillDirection.Vertical;
             }
         }
 
@@ -267,10 +265,7 @@ namespace osu.Game.Tournament.Components
                 Margin = new MarginPadding { Horizontal = 15, Vertical = 1 };
                 AutoSizeAxes = Axes.Both;
 
-                static void cp(SpriteText s, bool bold)
-                {
-                    s.Font = OsuFont.Torus.With(weight: bold ? FontWeight.Bold : FontWeight.Regular, size: 15);
-                }
+                static void cp(SpriteText s, bool bold) => s.Font = OsuFont.Torus.With(weight: bold ? FontWeight.Bold : FontWeight.Regular, size: 15);
 
                 for (int i = 0; i < tuples.Length; i++)
                 {

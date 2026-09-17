@@ -19,56 +19,53 @@ namespace osu.Game.Tournament.Components.Shapes
     {
         public float StartAngle
         {
-            get => startAngle;
+            get;
             set
             {
-                startAngle = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
 
         public float EndAngle
         {
-            get => endAngle;
+            get;
             set
             {
-                endAngle = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
 
         public float StartPosition
         {
-            get => startPosition;
+            get;
             set
             {
-                startPosition = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
 
         public float EndPosition
         {
-            get => endPosition;
+            get;
             set
             {
-                endPosition = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
         }
 
         public Color4 BackgroundColour
         {
-            get => backgroundColour;
+            get;
             set
             {
-                backgroundColour = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
-
-        private float startAngle, endAngle, startPosition, endPosition;
-        private Color4 backgroundColour = FumoColours.SeaBlue.Regular.Opacity(0.5f);
+        } = FumoColours.SeaBlue.Regular.Opacity(0.5f);
 
         [BackgroundDependencyLoader]
         private void load(ShaderManager shaders)

@@ -28,15 +28,15 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public LocalisableString IdleText
         {
-            get => idleText;
+            get;
             set
             {
-                idleText = value;
+                field = value;
 
                 if (!IsRunning)
-                    descriptionText.Text = idleText;
+                    descriptionText.Text = field;
             }
-        }
+        } = BaseStrings.IdleScreenTimer;
 
         public LocalisableString ActiveText
         {
@@ -73,7 +73,6 @@ namespace osu.Game.Tournament.Components
 
         public event Action? OnCancel;
 
-        private LocalisableString idleText = BaseStrings.IdleScreenTimer;
         private LocalisableString activeText = @"Running...";
 
         private double timerTime;

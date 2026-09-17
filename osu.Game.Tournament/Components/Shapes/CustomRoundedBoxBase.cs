@@ -43,20 +43,18 @@ namespace osu.Game.Tournament.Components.Shapes
             }
         }
 
-        private Color4 backgroundColour = Color4.White;
-
         public Color4 BackgroundColour
         {
-            get => backgroundColour;
+            get;
             set
             {
-                if (backgroundColour == value)
+                if (field == value)
                     return;
 
-                backgroundColour = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = Color4.White;
 
         private Color4 borderColour = Color4.White;
 
@@ -73,20 +71,18 @@ namespace osu.Game.Tournament.Components.Shapes
             }
         }
 
-        private float borderWidth = 1;
-
         public float BorderWidth
         {
-            get => borderWidth;
+            get;
             set
             {
-                if (borderWidth == value)
+                if (field == value)
                     return;
 
-                borderWidth = value;
+                field = value;
                 Invalidate(Invalidation.DrawNode);
             }
-        }
+        } = 1;
 
         [BackgroundDependencyLoader]
         private void load(ShaderManager shaders)

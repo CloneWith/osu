@@ -18,17 +18,15 @@ namespace osu.Game.Tournament.Screens.Gameplay.Components
 
         private readonly Bindable<string> teamName = new Bindable<string>("???");
 
-        private bool showScore;
-
         public bool ShowScore
         {
-            get => showScore;
+            get;
             set
             {
-                if (showScore == value)
+                if (field == value)
                     return;
 
-                showScore = value;
+                field = value;
 
                 if (IsLoaded)
                     updateDisplay();

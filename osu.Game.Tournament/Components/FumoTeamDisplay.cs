@@ -23,7 +23,6 @@ namespace osu.Game.Tournament.Components
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
         private readonly Bindable<TournamentTeam?> currentTeam = new Bindable<TournamentTeam?>();
 
-        private bool isActive;
         private readonly TeamColour colour;
 
         private Container flagContainer = null!;
@@ -39,13 +38,13 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public bool IsActive
         {
-            get => isActive;
+            get;
             set
             {
-                if (isActive == value) return;
+                if (field == value) return;
 
-                isActive = value;
-                if (isActive) Activate();
+                field = value;
+                if (field) Activate();
                 else Deactivate();
             }
         }
