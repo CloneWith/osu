@@ -41,6 +41,12 @@ namespace osu.Game.Tournament.Models
         public UserRole Role { get; set; }
 
         /// <summary>
+        /// The front-row tier the player was seeded into, or <see cref="DraftInfo.NO_TIER"/> when they are not
+        /// a front-row player.
+        /// </summary>
+        public int Tier { get; set; }
+
+        /// <summary>
         /// The player's country.
         /// </summary>
         [JsonProperty("country_code")]
