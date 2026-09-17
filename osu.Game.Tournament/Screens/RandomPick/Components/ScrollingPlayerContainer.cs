@@ -149,7 +149,7 @@ namespace osu.Game.Tournament.Screens.RandomPick.Components
                             closest = spc;
                     }
 
-                    Debug.Assert(closest != null, "closest != null");
+                    Debug.Assert(closest != null);
 
                     offset += DrawWidth / 2f - (closest.Position.X + closest.DrawWidth / 2f);
 
