@@ -4,16 +4,20 @@
 using System.Linq;
 using System.Threading;
 using osu.Framework.Allocation;
+using osu.Framework.Input;
 using osu.Framework.Platform;
 using osu.Framework.Testing;
+using osu.Framework.Testing.Input;
 using osu.Framework.Utils;
 using osu.Game.Beatmaps;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
 using osu.Game.Tests.Visual;
+using osu.Game.Tournament.Input;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Models;
+using osuTK.Input;
 
 namespace osu.Game.Tournament.Tests
 {
@@ -211,7 +215,15 @@ namespace osu.Game.Tournament.Tests
                 OnlineID = RNG.Next(0, 1000000),
             };
 
+        protected override ManualInputManager CreateInputManager() => new TournamentManualInputManager();
+
         protected override ITestSceneTestRunner CreateRunner() => new TournamentTestSceneTestRunner();
+
+        private partial class TournamentManualInputManager : ManualInputManager
+        {
+            protected override MouseButtonEventManager CreateButtonEventManagerFor(MouseButton button)
+                => TournamentMouseButtonManagers.CreateFor(button) ?? base.CreateButtonEventManagerFor(button);
+        }
 
         public partial class TournamentTestSceneTestRunner : TournamentGameBase, ITestSceneTestRunner
         {

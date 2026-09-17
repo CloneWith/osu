@@ -27,12 +27,12 @@ using osu.Game.Online.API.Requests.Responses;
 using osu.Game.Overlays;
 using osu.Game.Tournament.Caching;
 using osu.Game.Tournament.Components;
+using osu.Game.Tournament.Input;
 using osu.Game.Tournament.IO;
 using osu.Game.Tournament.IPC;
 using osu.Game.Tournament.Localisation;
 using osu.Game.Tournament.Models;
 using osu.Game.Users;
-using osuTK.Input;
 
 namespace osu.Game.Tournament
 {
@@ -558,31 +558,5 @@ namespace osu.Game.Tournament
         }
 
         protected override UserInputManager CreateUserInputManager() => new TournamentInputManager();
-
-        private partial class TournamentInputManager : UserInputManager
-        {
-            protected override MouseButtonEventManager CreateButtonEventManagerFor(MouseButton button)
-            {
-                switch (button)
-                {
-                    case MouseButton.Right:
-                        return new RightMouseManager(button);
-                }
-
-                return base.CreateButtonEventManagerFor(button);
-            }
-
-            private class RightMouseManager : MouseButtonEventManager
-            {
-                public RightMouseManager(MouseButton button)
-                    : base(button)
-                {
-                }
-
-                public override bool EnableDrag => true; // allow right-mouse dragging for absolute scroll in scroll containers.
-                public override bool EnableClick => true;
-                public override bool ChangeFocusOnClick => false;
-            }
-        }
     }
 }

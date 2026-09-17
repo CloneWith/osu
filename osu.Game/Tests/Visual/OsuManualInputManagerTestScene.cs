@@ -65,13 +65,13 @@ namespace osu.Game.Tests.Visual
                 mainContent = globalActionContainer;
             }
 
+            InputManager = CreateInputManager();
+            InputManager.UseParentInput = true;
+            InputManager.Child = mainContent;
+
             base.Content.AddRange(new Drawable[]
             {
-                InputManager = new ManualInputManager
-                {
-                    UseParentInput = true,
-                    Child = mainContent
-                },
+                InputManager,
                 takeControlOverlay = new Container
                 {
                     AutoSizeAxes = Axes.Both,
@@ -127,6 +127,8 @@ namespace osu.Game.Tests.Visual
                 },
             });
         }
+
+        protected virtual ManualInputManager CreateInputManager() => new ManualInputManager();
 
         protected override void Update()
         {
