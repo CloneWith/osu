@@ -88,7 +88,7 @@ namespace osu.Game.Graphics.UserInterfaceV2
         /// <summary>
         /// Use when rejecting the user's input as incorrect.
         /// </summary>
-        public void FlashOnInputError() => flash(Colour4.Red, 200);
+        public void FlashOnInputError() => flash(Colour4.Orange.Opacity(0.5f), 400);
 
         private void updateStyle()
         {
