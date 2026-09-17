@@ -100,6 +100,11 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString Showcase => new TranslatableString(getKey(@"showcase"), @"Showcase");
 
         /// <summary>
+        /// "Draft"
+        /// </summary>
+        public static LocalisableString Draft => new TranslatableString(getKey(@"draft"), @"Draft");
+
+        /// <summary>
         /// "Random pick"
         /// </summary>
         public static LocalisableString RandomPick => new TranslatableString(getKey(@"random_pick"), @"Random pick");

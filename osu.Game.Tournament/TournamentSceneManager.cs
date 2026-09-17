@@ -15,6 +15,7 @@ using osu.Game.Graphics.Sprites;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Screens;
 using osu.Game.Tournament.Screens.Drawings;
+using osu.Game.Tournament.Screens.Draft;
 using osu.Game.Tournament.Screens.Editors;
 using osu.Game.Tournament.Screens.Gameplay;
 using osu.Game.Tournament.Screens.Ladder;
@@ -123,6 +124,7 @@ namespace osu.Game.Tournament
                                 new SeedingScreen(),
                                 new DrawingsScreen(),
                                 new RandomPickScreen(),
+                                new DraftScreen(),
                                 new GameplayScreen(),
                                 new TeamWinScreen(),
                                 new BoardScreen(),
@@ -239,6 +241,7 @@ namespace osu.Game.Tournament
                                                 new Separator(),
                                                 new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
                                                 new ScreenButton(typeof(RandomPickScreen)) { Text = ScreenStrings.RandomPick, RequestSelection = SetScreen },
+                                                new ScreenButton(typeof(DraftScreen)) { Text = ScreenStrings.Draft, RequestSelection = SetScreen },
                                                 new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
                                             },
                                         },

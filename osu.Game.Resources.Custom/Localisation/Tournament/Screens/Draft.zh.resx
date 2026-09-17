@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="player_list_missing_warning" xml:space="preserve">
+        <value>找不到 {0} 文件。请创建它（每行一个用户 ID），然后点击“拉取选手”。</value>
+    </data>
+    <data name="player_list_unreadable_warning" xml:space="preserve">
+        <value>无法读取 {0}。详情请查看 runtime.log。</value>
+    </data>
+    <data name="player_list_parse_warning" xml:space="preserve">
+        <value>{0} 中没有有效的用户 ID。每行应为一个用户 ID。</value>
+    </data>
+    <data name="no_player_warning" xml:space="preserve">
+        <value>前排以外的选手都已被分配。</value>
+    </data>
+    <data name="pool_empty_warning" xml:space="preserve">
+        <value>待选区为空。请填写 {0}。</value>
+    </data>
+    <data name="front_row_only_warning" xml:space="preserve">
+        <value>{0} 中没有前排以外的选手。</value>
+    </data>
+    <data name="no_selection_warning" xml:space="preserve">
+        <value>请先在待选区选中一名选手。</value>
+    </data>
+    <data name="group_full_warning" xml:space="preserve">
+        <value>该队伍已满。</value>
+    </data>
+    <data name="group_header" xml:space="preserve">
+        <value>Draft 队伍</value>
+    </data>
+    <data name="pool_header" xml:space="preserve">
+        <value>其他选手</value>
+    </data>
+    <data name="group_count" xml:space="preserve">
+        <value>队伍数目</value>
+    </data>
+    <data name="members_per_team" xml:space="preserve">
+        <value>每队人数</value>
+    </data>
+    <data name="fetch_players" xml:space="preserve">
+        <value>拉取选手</value>
+    </data>
+    <data name="write_results" xml:space="preserve">
+        <value>写入 draft 结果</value>
+    </data>
+    <data name="reload" xml:space="preserve">
+        <value>重载</value>
+    </data>
+    <data name="empty_slot" xml:space="preserve">
+        <value>空缺</value>
+    </data>
+    <data name="assigned_info" xml:space="preserve">
+        <value>已将 {0} 分配到 {1}。</value>
+    </data>
+    <data name="removed_info" xml:space="preserve">
+        <value>已将 {0} 从 {1} 移除。</value>
+    </data>
+    <data name="saved_info" xml:space="preserve">
+        <value>Draft 已保存。</value>
+    </data>
+    <data name="write_results_info" xml:space="preserve">
+        <value>已向赛程写入 {0} 名选手。</value>
+    </data>
+</root>
