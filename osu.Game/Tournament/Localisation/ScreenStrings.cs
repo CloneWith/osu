@@ -115,9 +115,19 @@ namespace osu.Game.Tournament.Localisation
         public static LocalisableString SectionSetup => new TranslatableString(getKey(@"section_setup"), @"Setup");
 
         /// <summary>
+        /// "Team Formation"
+        /// </summary>
+        public static LocalisableString SectionTeamFormation => new TranslatableString(getKey(@"section_team_formation"), @"Team Formation");
+
+        /// <summary>
         /// "Before Match"
         /// </summary>
         public static LocalisableString SectionBeforeMatch => new TranslatableString(getKey(@"section_before_match"), @"Before Match");
+
+        /// <summary>
+        /// "Live Match"
+        /// </summary>
+        public static LocalisableString SectionLiveMatch => new TranslatableString(getKey(@"section_live_match"), @"Live Match");
 
         private static string getKey(string key) => $@"{prefix}:{key}";
     }

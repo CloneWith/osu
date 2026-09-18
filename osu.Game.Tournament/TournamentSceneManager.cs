@@ -220,6 +220,14 @@ namespace osu.Game.Tournament
                                                         new ScreenButton(typeof(LadderEditorScreen)) { Text = ScreenStrings.BracketEditor, RequestSelection = SetScreen },
                                                     },
                                                 },
+                                                new FoldableSectionHeader(ScreenStrings.SectionTeamFormation, HoverSampleSet.Muted)
+                                                {
+                                                    Children = new Drawable[]
+                                                    {
+                                                        new ScreenButton(typeof(RandomPickScreen)) { Text = ScreenStrings.RandomPick, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(DraftScreen)) { Text = ScreenStrings.Draft, RequestSelection = SetScreen },
+                                                    }
+                                                },
                                                 new FoldableSectionHeader(ScreenStrings.SectionBeforeMatch, HoverSampleSet.Muted)
                                                 {
                                                     Children = new Drawable[]
@@ -233,15 +241,19 @@ namespace osu.Game.Tournament
                                                         new Separator(),
                                                     }
                                                 },
-                                                new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
-                                                new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
-                                                new ScreenButton(typeof(GameplayScreen), Key.G) { Text = ScreenStrings.Gameplay, RequestSelection = SetScreen },
-                                                new Separator(),
-                                                new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = ScreenStrings.Win, RequestSelection = SetScreen },
-                                                new Separator(),
+                                                new FoldableSectionHeader(ScreenStrings.SectionLiveMatch, HoverSampleSet.Muted)
+                                                {
+                                                    Children = new Drawable[]
+                                                    {
+                                                        new ScreenButton(typeof(BoardScreen), Key.B) { Text = ScreenStrings.Board, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(MapPoolScreen), Key.M) { Text = ScreenStrings.MapPool, RequestSelection = SetScreen },
+                                                        new ScreenButton(typeof(GameplayScreen), Key.G) { Text = ScreenStrings.Gameplay, RequestSelection = SetScreen },
+                                                        new Separator(),
+                                                        new ScreenButton(typeof(TeamWinScreen), Key.W) { Text = ScreenStrings.Win, RequestSelection = SetScreen },
+                                                        new Separator(),
+                                                    }
+                                                },
                                                 new ScreenButton(typeof(DrawingsScreen)) { Text = ScreenStrings.Drawings, RequestSelection = SetScreen },
-                                                new ScreenButton(typeof(RandomPickScreen)) { Text = ScreenStrings.RandomPick, RequestSelection = SetScreen },
-                                                new ScreenButton(typeof(DraftScreen)) { Text = ScreenStrings.Draft, RequestSelection = SetScreen },
                                                 new ScreenButton(typeof(ShowcaseScreen)) { Text = ScreenStrings.Showcase, RequestSelection = SetScreen },
                                             },
                                         },

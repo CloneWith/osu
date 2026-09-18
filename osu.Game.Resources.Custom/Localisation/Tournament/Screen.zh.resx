@@ -84,4 +84,10 @@
     <data name="draw_win" xml:space="preserve">
         <value>获胜展示（平局）</value>
     </data>
+    <data name="section_team_formation" xml:space="preserve">
+        <value>组队</value>
+    </data>
+    <data name="section_live_match" xml:space="preserve">
+        <value>比赛实况</value>
+    </data>
 </root>
