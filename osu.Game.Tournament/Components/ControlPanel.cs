@@ -3,6 +3,7 @@
 
 using System;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
@@ -10,6 +11,7 @@ using osu.Framework.Graphics.Sprites;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Localisation;
 using osuTK;
 
@@ -26,6 +28,12 @@ namespace osu.Game.Tournament.Components
         private readonly bool needSaving;
 
         private readonly FillFlowContainer buttons;
+        private SettingsNote statusNote = null!;
+
+        /// <summary>
+        /// The optional status information to show as <see cref="SettingsNote.Data"/> at the bottom of the panel.
+        /// </summary>
+        public readonly Bindable<SettingsNote.Data?> Status = new Bindable<SettingsNote.Data?>();
 
         protected override Container<Drawable> Content => buttons;
 
@@ -79,6 +87,7 @@ namespace osu.Game.Tournament.Components
                         new Dimension(),
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(GridSizeMode.AutoSize),
+                        new Dimension(GridSizeMode.AutoSize),
                     },
                     Content = new[]
                     {
@@ -123,6 +132,23 @@ namespace osu.Game.Tournament.Components
                                 Child = buttons,
                             },
                         },
+                        new Drawable[]
+                        {
+                            // SettingsNote doesn't support customized padding.
+                            new Container
+                            {
+                                Anchor = Anchor.BottomCentre,
+                                Origin = Anchor.BottomCentre,
+                                RelativeSizeAxes = Axes.X,
+                                Padding = new MarginPadding(5),
+                                Child = statusNote = new SettingsNote
+                                {
+                                    Anchor = Anchor.BottomCentre,
+                                    Origin = Anchor.BottomCentre,
+                                    RelativeSizeAxes = Axes.X,
+                                },
+                            }
+                        },
                         new[]
                         {
                             refetchAction != null
@@ -148,6 +174,12 @@ namespace osu.Game.Tournament.Components
                     }
                 },
             };
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+            statusNote.Current.BindTo(Status);
         }
 
         public partial class Spacer : CompositeDrawable
