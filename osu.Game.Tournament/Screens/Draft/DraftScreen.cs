@@ -11,11 +11,10 @@ using osu.Framework.Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Localisation;
-using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterface;
-using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Caching;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
@@ -75,11 +74,14 @@ namespace osu.Game.Tournament.Screens.Draft
         private DraftInfo draft => session.Draft;
 
         /// <summary>
-        /// Whether <see cref="initialiseDraft"/> is currently running. Every change made while that happens
-        /// comes from loading rather than from the operator, so none of them may trigger the reactive work
-        /// (reconciling the groups, writing the draft straight back out, reporting unsaved work).
+        /// Whether the draft is currently being read back, by <see cref="initialiseDraft"/> or
+        /// <see cref="reloadDraft"/>. Every change made while that happens comes from loading rather than from
+        /// the operator, so none of them may trigger the reactive work (rebuilding the listing, reconciling the
+        /// groups, writing the draft straight back out, reporting unsaved work).
         /// </summary>
         private bool restoring;
+
+        private readonly Bindable<SettingsNote.Data?> status = new Bindable<SettingsNote.Data?>();
 
         /// <summary>
         /// The pool player the next placement will use, or <c>null</c> when nothing is selected.
@@ -96,7 +98,6 @@ namespace osu.Game.Tournament.Screens.Draft
         private LocalisableString? poolWarningText;
 
         private Container warningContainer = null!;
-        private TournamentSpriteText statusText = null!;
 
         private readonly List<DraftTeamGroup> groups = new List<DraftTeamGroup>();
         private readonly Dictionary<TournamentUser, DraftUserPanel> panelByPlayer = new Dictionary<TournamentUser, DraftUserPanel>();
@@ -143,6 +144,10 @@ namespace osu.Game.Tournament.Screens.Draft
                 },
                 new ControlPanel(needSaving: true, saveAction: saveDraftAndReport)
                 {
+                    Status =
+                    {
+                        BindTarget = status,
+                    },
                     Children = new Drawable[]
                     {
                         new SectionHeader(ScreenStrings.Draft),
@@ -276,6 +281,7 @@ namespace osu.Game.Tournament.Screens.Draft
             Content = new Drawable[][]
             {
                 [
+                    // TODO: Refactor
                     new GridContainer
                     {
                         RelativeSizeAxes = Axes.X,
@@ -289,13 +295,6 @@ namespace osu.Game.Tournament.Screens.Draft
                         {
                             [
                                 createHeader(DraftStrings.PoolHeader),
-                                statusText = new TournamentSpriteText
-                                {
-                                    Anchor = Anchor.CentreRight,
-                                    Origin = Anchor.CentreRight,
-                                    Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 16),
-                                    Margin = new MarginPadding { Right = 5 },
-                                },
                             ],
                         },
                     },
@@ -346,6 +345,11 @@ namespace osu.Game.Tournament.Screens.Draft
         /// </summary>
         private void onCandidatesChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
+            // A load replaces the collection in bulk and is followed by rebuildAll, which reads the result
+            // outright; following each of the changes it is made of would only build the same listing again.
+            if (restoring)
+                return;
+
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add when e.NewItems != null:
@@ -382,6 +386,10 @@ namespace osu.Game.Tournament.Screens.Draft
         /// </summary>
         private void onTeamsChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
+            // As for the pool: a load's changes are covered by the listing rebuild which follows it.
+            if (restoring)
+                return;
+
             rebuildGroups();
 
             // A group losing a member back to the pool also changes what the placeholder should say, because
@@ -467,6 +475,24 @@ namespace osu.Game.Tournament.Screens.Draft
             }
         }
 
+        /// <summary>
+        /// Build the whole listing from the draft as it stands: the group boxes, the pool, and the placeholder
+        /// which speaks for an empty one.
+        /// </summary>
+        /// <remarks>
+        /// The listings follow the draft's collections, but they are not built by the changes to them alone. The
+        /// draft is shared with the random phase, and every screen is constructed as the client starts: whichever
+        /// of the two screens comes up first is the one the draft is read for, and the other is handed a session
+        /// which is already full, with no change ever reported for what is in it. Waiting for one would leave
+        /// that screen with nothing but its headers until something else happened to touch the draft.
+        /// </remarks>
+        private void rebuildAll()
+        {
+            rebuildGroups();
+            rebuildPool();
+            refreshPoolWarning();
+        }
+
         #endregion
 
         #region State
@@ -488,7 +514,7 @@ namespace osu.Game.Tournament.Screens.Draft
                 restoring = false;
             }
 
-            refreshPoolWarning();
+            rebuildAll();
         }
 
         /// <summary>
@@ -575,7 +601,7 @@ namespace osu.Game.Tournament.Screens.Draft
                 restoring = false;
             }
 
-            refreshPoolWarning();
+            rebuildAll();
         }
 
         private void writeResults()
@@ -731,12 +757,9 @@ namespace osu.Game.Tournament.Screens.Draft
         }
 
         private void showStatus(LocalisableString text, bool failure = false)
-        {
-            statusText.Text = text;
-            statusText.Colour = failure ? FumoColours.FlandreRed.Lighter : FumoColours.LightGreen.Lighter;
-        }
+            => status.Value = new SettingsNote.Data(text, failure ? SettingsNote.Type.Warning : SettingsNote.Type.Informational);
 
-        private void clearStatus() => statusText.Text = string.Empty;
+        private void clearStatus() => status.Value = null;
 
         #endregion
     }

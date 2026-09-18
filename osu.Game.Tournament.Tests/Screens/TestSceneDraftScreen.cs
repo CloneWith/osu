@@ -15,6 +15,7 @@ using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
+using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Input;
 using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
@@ -340,6 +341,34 @@ namespace osu.Game.Tournament.Tests.Screens
         }
 
         /// <summary>
+        /// A position is told what to show rather than being built around it, so pointing one which is already
+        /// on screen at somebody else has to be enough to make it show them, and taking them off it has to be
+        /// enough to empty it again. Nothing has to be told to redraw for either.
+        /// </summary>
+        [Test]
+        public void TestPositionFollowsWhatItIsTold()
+        {
+            AddStep("write the player list", writePlayerList);
+            AddStep("forget the persisted draft", forgetPersistedDraft);
+            AddStep("reload", reload);
+            AddStep("fetch players", fetchPlayers);
+
+            AddUntilStep("pool populated", () => pool.Length == pool_players);
+
+            AddStep("draft a player into the first group", () => draftInto(groupAt(0)));
+            AddUntilStep("group has one member", () => groupAt(0).Team.Players.Count == 1);
+
+            // The last position, which is a member position and so is the empty one in a group holding one member.
+            AddStep("point the last position at the member", () => positionAt(0, -1).Player = groupAt(0).Team.Players.Single());
+
+            AddAssert("the position shows them", () => positionAt(0, -1).ChildrenOfType<MarqueeContainer>().Any());
+
+            AddStep("take them off the position", () => positionAt(0, -1).Player = null);
+
+            AddAssert("the position is empty again", () => !positionAt(0, -1).ChildrenOfType<MarqueeContainer>().Any());
+        }
+
+        /// <summary>
         /// The boxes are named after the bracket teams they stand for rather than after their position, and that
         /// has to hold for a draft read back from disk as much as for one created on the spot. A file written
         /// before the bracket was set up carries nothing but the fallback letters, and the boxes would go on
@@ -531,6 +560,17 @@ namespace osu.Game.Tournament.Tests.Screens
         private DraftTeamGroup[] groups => this.ChildrenOfType<DraftTeamGroup>().ToArray();
 
         private DraftTeamGroup groupAt(int index) => groups.ElementAt(index);
+
+        /// <summary>
+        /// A position of the group at <paramref name="groupIndex"/>. A negative <paramref name="slotIndex"/>
+        /// counts back from the end of the group's listing.
+        /// </summary>
+        private PlayerSlotCard positionAt(int groupIndex, int slotIndex)
+        {
+            var slots = groups.ElementAt(groupIndex).MemberSlots.OfType<PlayerSlotCard>().ToArray();
+
+            return slotIndex >= 0 ? slots[slotIndex] : slots[^(-slotIndex)];
+        }
 
         /// <summary>
         /// The names the group boxes are showing, in team order.
