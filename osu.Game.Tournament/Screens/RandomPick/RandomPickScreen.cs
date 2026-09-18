@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Allocation;
+using osu.Framework.Bindables;
 using osu.Framework.Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.UserInterface;
-using osu.Game.Graphics.UserInterfaceFumo;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Caching;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation;
@@ -29,9 +30,6 @@ namespace osu.Game.Tournament.Screens.RandomPick
 
         [Resolved]
         private TournamentUserCache userCache { get; set; } = null!;
-
-        [Resolved]
-        private TournamentGameBase? gameBase { get; set; }
 
         private DraftInfo draft => session.Draft;
 
@@ -52,12 +50,13 @@ namespace osu.Game.Tournament.Screens.RandomPick
         /// </summary>
         private bool restoring;
 
+        private readonly Bindable<SettingsNote.Data?> status = new Bindable<SettingsNote.Data?>();
+
         private ScrollingPlayerContainer players = null!;
         private PickerGroupContainer groupsContainer = null!;
 
         private TournamentSpriteText tierText = null!;
         private TournamentSpriteText landedNameText = null!;
-        private TournamentSpriteText statusText = null!;
 
         private Container warningContainer = null!;
         private TourneyButton tierButton = null!;
@@ -80,9 +79,7 @@ namespace osu.Game.Tournament.Screens.RandomPick
                 {
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
-
                     RelativeSizeAxes = Axes.Both,
-
                     Padding = new MarginPadding
                     {
                         Top = 30f,
@@ -102,6 +99,14 @@ namespace osu.Game.Tournament.Screens.RandomPick
 
                     RelativeSizeAxes = Axes.X,
                 },
+                tierText = new TournamentSpriteText
+                {
+                    Name = @"Tier header",
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.BottomCentre,
+                    Position = new Vector2(0, -45f),
+                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 20),
+                },
                 landedNameText = new TournamentSpriteText
                 {
                     Name = @"Landed player",
@@ -112,26 +117,6 @@ namespace osu.Game.Tournament.Screens.RandomPick
                     Alpha = 0,
                     Font = OsuFont.Torus.With(weight: FontWeight.Light, size: 42),
                 },
-                tierText = new TournamentSpriteText
-                {
-                    Name = @"Tier header",
-                    Anchor = Anchor.TopLeft,
-                    Origin = Anchor.TopLeft,
-
-                    Position = new Vector2(10, 6),
-
-                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 20),
-                },
-                statusText = new TournamentSpriteText
-                {
-                    Name = @"Status",
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-
-                    Position = new Vector2(10, -6),
-
-                    Font = OsuFont.Torus.With(weight: FontWeight.SemiBold, size: 16),
-                },
                 warningContainer = new Container
                 {
                     Name = @"Warnings",
@@ -139,6 +124,10 @@ namespace osu.Game.Tournament.Screens.RandomPick
                 },
                 new ControlPanel(needSaving: true, saveAction: saveAndReport)
                 {
+                    Status =
+                    {
+                        BindTarget = status,
+                    },
                     Children = new Drawable[]
                     {
                         new SectionHeader(ScreenStrings.RandomPick),
@@ -181,6 +170,7 @@ namespace osu.Game.Tournament.Screens.RandomPick
                         {
                             Name = @"Reset",
                             RelativeSizeAxes = Axes.X,
+                            BackgroundColour = new OsuColour().DangerousButtonColour,
                             Text = BaseStrings.Reset,
                             Action = reset,
                         },
@@ -490,9 +480,7 @@ namespace osu.Game.Tournament.Screens.RandomPick
         {
             int written = session.WriteToBracket(LadderInfo);
 
-            session.Save();
-            gameBase?.SaveChanges();
-
+            markUnsaved();
             rebuildGroups();
             showStatus(RandomPickStrings.WrittenInfo(written));
         }
@@ -516,7 +504,6 @@ namespace osu.Game.Tournament.Screens.RandomPick
 
             draft.ResetAssignments();
 
-            session.Save();
             markUnsaved();
 
             // Rebuilding the boxes is also what takes the selection away.
@@ -606,12 +593,9 @@ namespace osu.Game.Tournament.Screens.RandomPick
         private void clearWarning() => warningContainer.Clear();
 
         private void showStatus(LocalisableString text, bool failure = false)
-        {
-            statusText.Text = text;
-            statusText.Colour = failure ? FumoColours.FlandreRed.Lighter : FumoColours.LightGreen.Lighter;
-        }
+            => status.Value = new SettingsNote.Data(text, failure ? SettingsNote.Type.Warning : SettingsNote.Type.Informational);
 
-        private void clearStatus() => statusText.Text = string.Empty;
+        private void clearStatus() => status.Value = null;
 
         #endregion
     }

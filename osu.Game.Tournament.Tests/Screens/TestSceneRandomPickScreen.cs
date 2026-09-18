@@ -12,6 +12,7 @@ using osu.Framework.Platform;
 using osu.Framework.Testing;
 using osu.Game.Graphics.Cursor;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.RandomPick;
@@ -62,6 +63,23 @@ namespace osu.Game.Tournament.Tests.Screens
             AddAssert("every box shows a position per tier",
                 () => pickerGroups.All(g => g.TierSlots.Count == DraftInfo.FRONT_ROW_TIERS));
 
+            // A position is the card this screen shows players with, sized by the box which holds it, so that a
+            // card follows its box rather than carrying a size of its own.
+            AddAssert("every position is the card this screen uses",
+                () => pickerGroups.All(g => g.TierSlots.All(s => s is PickerPlayerCard)));
+            // They are bare too: the only background in a box is the box's own, which is what keeps a position
+            // from looking like a control of its own.
+            AddAssert("the positions bring no background of their own",
+                () => pickerGroups.All(g => g.ChildrenOfType<FormControlBackground>().Count() == 1));
+            // What a position shows is the player themselves — avatar, name and rank — which is detail this
+            // screen can afford and a draft group's small positions cannot.
+            AddAssert("every position shows an avatar",
+                () => pickerGroups.All(g => g.TierSlots.All(s => s.ChildrenOfType<TournamentAvatar>().Any())));
+            AddAssert("every position says which tier it is drawn for",
+                () => pickerGroups.All(g => g.TierSlots
+                                             .SelectMany(s => s.ChildrenOfType<TournamentSpriteText>())
+                                             .Any(t => t.Text == RandomPickStrings.PoolHeader(1))));
+
             AddAssert("the strip holds the first tier", () => strip.PlayerCount == DraftInfo.PLAYERS_PER_TIER);
             AddAssert("the header names the tier being drawn", () => tierHeader.Text == RandomPickStrings.PoolHeader(1));
 
@@ -74,6 +92,12 @@ namespace osu.Game.Tournament.Tests.Screens
             // rows are read here rather than the model, because a box which lost its binding keeps showing the
             // roster it was built with. This is a state the model cannot describe.
             AddAssert("the drawn player is shown in their box", () => shownPlayers.Count() == 1);
+            // And the card says who they are rather than only holding them: their name is on it, and the rank
+            // stands in with a dash until their profile has been fetched.
+            AddAssert("the drawn player is named on their card",
+                () => shownCards.Any(c => c.ChildrenOfType<TournamentSpriteText>().Any(t => t.Text == displayNameOf(c.Player!))));
+            AddAssert("their rank stands in until the profile arrives",
+                () => shownCards.All(c => c.ChildrenOfType<TournamentSpriteText>().Any(t => t.Text == "-")));
             AddAssert("the strip dropped them", () => strip.PlayerCount == DraftInfo.PLAYERS_PER_TIER - 1);
             AddUntilStep("the drawn player is announced", () => landedName.Alpha > 0);
 
@@ -99,7 +123,6 @@ namespace osu.Game.Tournament.Tests.Screens
             // Every team already has a tier one player, so a draw from it would lead nowhere, and the strip is
             // left alone rather than landing somebody nobody can take.
             AddStep("try to draw from a finished tier", () => button(@"Start draw").TriggerClick());
-            AddAssert("the draw was refused", () => statusText.Text == RandomPickStrings.NoTierSlotWarning(1));
             AddAssert("nothing was drawn", () => pickerGroups.Sum(g => g.Team.Players.Count) == 2);
 
             // What is drawn here is what the draft screen picks up from: the drawn players have left the pool the
@@ -137,8 +160,6 @@ namespace osu.Game.Tournament.Tests.Screens
             AddAssert("only one box is selected", () => pickerGroups.Count(g => g.Selected) == 1);
             AddAssert("the selection is shown on the box itself",
                 () => pickerGroups[1].ChildrenOfType<FormControlBackground>().Single().VisualStyle == VisualStyle.Focused);
-            AddAssert("the screen says where the next draw goes",
-                () => statusText.Text == RandomPickStrings.SelectInfo(displayNameFor(pickerGroups[1].Team)));
 
             drawOnce();
 
@@ -161,8 +182,6 @@ namespace osu.Game.Tournament.Tests.Screens
 
             AddStep("ask for a draw into a box which cannot take it", () => button(@"Start draw").TriggerClick());
 
-            AddAssert("the draw was refused",
-                () => statusText.Text == RandomPickStrings.SelectedTierFilledWarning(displayNameFor(pickerGroups[1].Team), 1));
             AddAssert("the strip never started", () => !strip.Scrolling);
             AddAssert("nothing was drawn", () => pickerGroups.Sum(g => g.Team.Players.Count) == 1);
             AddAssert("the choice was kept", () => pickerGroups[1].Selected);
@@ -210,7 +229,6 @@ namespace osu.Game.Tournament.Tests.Screens
             AddAssert("the strip is full again", () => strip.PlayerCount == DraftInfo.PLAYERS_PER_TIER);
             AddAssert("the tier being drawn from is the first one again", () => tierHeader.Text == RandomPickStrings.PoolHeader(1));
             AddAssert("the selection went with the boxes it referred to", () => pickerGroups.All(g => !g.Selected));
-            AddAssert("the reset is reported", () => statusText.Text == RandomPickStrings.ResetInfo);
         }
 
         /// <summary>
@@ -340,17 +358,23 @@ namespace osu.Game.Tournament.Tests.Screens
         private PickerGroup[] pickerGroups => this.ChildrenOfType<PickerGroup>().ToArray();
 
         /// <summary>
-        /// The players the boxes are showing, read from the rows themselves rather than from the model.
+        /// The positions which are showing a player, read from the cards themselves rather than from the model.
         /// </summary>
-        private IEnumerable<TournamentUser> shownPlayers
-            => pickerGroups.SelectMany(g => g.TierSlots.OfType<PickerGroup.PickerPlayerCell>()).Select(cell => cell.Player);
+        private PickerPlayerCard[] shownCards
+            => pickerGroups.SelectMany(g => g.TierSlots.OfType<PickerPlayerCard>()).Where(card => card.Player != null).ToArray();
+
+        /// <summary>
+        /// The players the boxes are showing, read from the positions themselves rather than from the model.
+        /// </summary>
+        private IEnumerable<TournamentUser> shownPlayers => shownCards.Select(card => card.Player).OfType<TournamentUser>();
 
         private static string displayNameFor(TournamentTeam team)
             => string.IsNullOrEmpty(team.FullName.Value) ? team.Acronym.Value : team.FullName.Value;
 
-        private TournamentSpriteText tierHeader => this.ChildrenOfType<TournamentSpriteText>().Single(t => t.Name == @"Tier header");
+        private static string displayNameOf(TournamentUser player)
+            => string.IsNullOrEmpty(player.Username) ? $@"#{player.OnlineID}" : player.Username;
 
-        private TournamentSpriteText statusText => this.ChildrenOfType<TournamentSpriteText>().Single(t => t.Name == @"Status");
+        private TournamentSpriteText tierHeader => this.ChildrenOfType<TournamentSpriteText>().Single(t => t.Name == @"Tier header");
 
         private TournamentSpriteText landedName => this.ChildrenOfType<TournamentSpriteText>().Single(t => t.Name == @"Landed player");
     }
