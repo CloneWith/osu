@@ -233,7 +233,7 @@ namespace osu.Game.Tournament.Screens.Draft
         {
             Anchor = Anchor.CentreLeft,
             Origin = Anchor.CentreLeft,
-            Margin = new MarginPadding { Left = 5 },
+            Margin = new MarginPadding { Left = 5, Bottom = 8 },
         };
 
         private GridContainer createGroupColumn() => new GridContainer
@@ -280,25 +280,7 @@ namespace osu.Game.Tournament.Screens.Draft
             ],
             Content = new Drawable[][]
             {
-                [
-                    // TODO: Refactor
-                    new GridContainer
-                    {
-                        RelativeSizeAxes = Axes.X,
-                        Height = 32,
-                        ColumnDimensions =
-                        [
-                            new Dimension(),
-                            new Dimension(GridSizeMode.AutoSize),
-                        ],
-                        Content = new Drawable[][]
-                        {
-                            [
-                                createHeader(DraftStrings.PoolHeader),
-                            ],
-                        },
-                    },
-                ],
+                [createHeader(DraftStrings.PoolHeader)],
                 [
                     // The listing and the empty-state placeholder share the cell, so the placeholder sits where
                     // the player panels would have been. The pool is never filled just because the screen was
