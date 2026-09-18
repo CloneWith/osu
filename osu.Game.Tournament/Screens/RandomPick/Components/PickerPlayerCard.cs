@@ -101,7 +101,7 @@ namespace osu.Game.Tournament.Screens.RandomPick.Components
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
                             Text = $@"T{Tier}",
-                            Colour = colourProvider.Colour1,
+                            Colour = drawn != null ? colourProvider.Colour1 : colourProvider.Background1,
                             Margin = new MarginPadding { Horizontal = textMargin },
                             Font = OsuFont.Style.Heading2,
                         },
@@ -129,8 +129,8 @@ namespace osu.Game.Tournament.Screens.RandomPick.Components
                                 new TournamentSpriteText
                                 {
                                     Font = OsuFont.Torus.With(weight: FontWeight.Regular, size: Size.Y * rank_size_ratio),
-                                    Colour = drawn == null ? colourProvider.Background1 : colourProvider.Foreground1,
-                                    Text = drawn == null ? RandomPickStrings.PoolHeader(Tier) : rankOf(drawn),
+                                    Colour = drawn != null ? colourProvider.Foreground1 : colourProvider.Background1,
+                                    Text = drawn != null ? rankOf(drawn) : RandomPickStrings.PoolHeader(Tier),
                                 },
                             },
                         },
