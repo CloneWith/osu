@@ -80,7 +80,7 @@ namespace osu.Game.Tournament.Models
         /// Whether this placement should be displayed in the match history.
         /// </summary>
         [JsonIgnore]
-        public bool IsViewable => CurrentType is ChoiceType.Ban or ChoiceType.Pick or ChoiceType.RedWin or ChoiceType.BlueWin;
+        public bool IsViewable => CurrentType is ChoiceType.Ban or ChoiceType.Pick || IsOwnerUpdate;
 
         /// <summary>
         /// The <see cref="HistoryType"/> this placement maps to for UI rendering. Derived from <see cref="CurrentType"/>,
