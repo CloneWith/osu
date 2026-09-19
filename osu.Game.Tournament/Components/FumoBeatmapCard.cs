@@ -2,11 +2,15 @@
 // See the LICENCE file in the repository root for full licence text.
 
 using System;
+using System.Collections.Specialized;
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Graphics.Sprites;
 using osu.Game.Beatmaps;
 using osu.Game.Beatmaps.Drawables;
 using osu.Game.Graphics;
@@ -21,7 +25,7 @@ using osuTK.Graphics;
 namespace osu.Game.Tournament.Components
 {
     /// <summary>
-    /// A stateless beatmap card for presentation purposes.
+    /// A beatmap card for presentation purposes.
     /// </summary>
     public partial class FumoBeatmapCard : CompositeDrawable
     {
@@ -36,6 +40,10 @@ namespace osu.Game.Tournament.Components
         public readonly RoundBeatmap Beatmap;
 
         private StarRatingDisplay starRatingDisplay = null!;
+        private Container winStatusContainer = null!;
+        private Container banConsumeContainer = null!;
+        private Container winBackground = null!;
+        private SpriteIcon consumedIcon = null!;
 
         private readonly Bindable<TournamentMatch?> currentMatch = new Bindable<TournamentMatch?>();
 
@@ -50,6 +58,7 @@ namespace osu.Game.Tournament.Components
         [BackgroundDependencyLoader]
         private void load(LadderInfo ladder)
         {
+            currentMatch.BindValueChanged(matchChanged);
             currentMatch.BindTo(ladder.CurrentMatch);
 
             InternalChildren = new Drawable[]
@@ -87,8 +96,41 @@ namespace osu.Game.Tournament.Components
                             Colour = Color4.Black,
                             Alpha = 0.4f,
                         },
+                        winStatusContainer = new Container
+                        {
+                            Name = @"Win status layer",
+                            RelativeSizeAxes = Axes.Both,
+                            Alpha = 0,
+                            Children = new Drawable[]
+                            {
+                                winBackground = new Container
+                                {
+                                    Anchor = Anchor.CentreRight,
+                                    Origin = Anchor.CentreRight,
+                                    Name = @"Win status additive",
+                                    Width = 0.75f,
+                                    RelativeSizeAxes = Axes.Both,
+                                    Child = new Box
+                                    {
+                                        RelativeSizeAxes = Axes.Both,
+                                        Colour = ColourInfo.GradientHorizontal(Colour4.Transparent, Colour4.White),
+                                    },
+                                },
+                                new SpriteIcon
+                                {
+                                    Anchor = Anchor.BottomRight,
+                                    Origin = Anchor.BottomCentre,
+                                    Size = new Vector2(64),
+                                    Position = new Vector2(-10, 0),
+                                    Rotation = -20,
+                                    Colour = Colour4.White,
+                                    Icon = FontAwesome.Solid.Trophy,
+                                }
+                            },
+                        },
                         new GridContainer
                         {
+                            Name = @"Main content",
                             RelativeSizeAxes = Axes.Both,
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
@@ -182,6 +224,38 @@ namespace osu.Game.Tournament.Components
                                 },
                             },
                         },
+                        banConsumeContainer = new Container
+                        {
+                            Name = @"Ban / consume status layer",
+                            RelativeSizeAxes = Axes.Both,
+                            Alpha = 0,
+                            Children = new Drawable[]
+                            {
+                                new Box
+                                {
+                                    RelativeSizeAxes = Axes.Both,
+                                    Colour = Colour4.Black.Opacity(0.7f),
+                                },
+                                new FillFlowContainer
+                                {
+                                    Anchor = Anchor.Centre,
+                                    Origin = Anchor.Centre,
+                                    AutoSizeAxes = Axes.Both,
+                                    Direction = FillDirection.Horizontal,
+                                    Spacing = new Vector2(5),
+                                    Children = new Drawable[]
+                                    {
+                                        consumedIcon = new SpriteIcon
+                                        {
+                                            Anchor = Anchor.Centre,
+                                            Origin = Anchor.Centre,
+                                            Size = new Vector2(32),
+                                            Icon = FontAwesome.Solid.Ban,
+                                        },
+                                    },
+                                },
+                            },
+                        },
                     },
                 },
             };
@@ -190,6 +264,8 @@ namespace osu.Game.Tournament.Components
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            updateState(false);
 
             if (Beatmap.StarRatingWithMod == null && Beatmap.Beatmap != null && TournamentExtensions.SPECIAL_MODS.Contains(Beatmap.Mods))
             {
@@ -204,6 +280,73 @@ namespace osu.Game.Tournament.Components
 
                 api.Queue(request);
             }
+        }
+
+        private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
+        {
+            if (match.OldValue != null)
+                match.OldValue.ChessPlacements.CollectionChanged -= onPlacementChanged;
+
+            if (match.NewValue != null)
+                match.NewValue.ChessPlacements.CollectionChanged += onPlacementChanged;
+
+            Scheduler.AddOnce(() => updateState(false));
+        }
+
+        private void onPlacementChanged(object? _, NotifyCollectionChangedEventArgs e)
+            => Scheduler.AddOnce(updateState, e.Action == NotifyCollectionChangedAction.Add);
+
+        private ChessPlacement? lastPlacement;
+
+        private void updateState(bool playFullAnimation = true)
+        {
+            // Match unavailable: Clean up
+            if (currentMatch.Value == null)
+            {
+                FinishTransforms(true);
+                winStatusContainer.FadeOut(300, Easing.OutQuint);
+                banConsumeContainer.FadeOut(300, Easing.OutQuint);
+                lastPlacement = null;
+                return;
+            }
+
+            var newPlacement = currentMatch.Value.ChessPlacements.LastOrDefault(p => p.BeatmapID == Beatmap.Beatmap?.OnlineID);
+
+            // Add consumed records back here for correct state display.
+            if (newPlacement != null && ChessPlacement.IsBeatmapConsumedBy(currentMatch.Value.ChessPlacements, newPlacement.BeatmapID))
+                newPlacement = newPlacement.CreateUpdate(null, ChoiceType.Consumed);
+
+            // Relevant placement unchanged: don't update
+            if (lastPlacement == newPlacement)
+                return;
+
+            FinishTransforms(true);
+
+            banConsumeContainer.FadeTo(newPlacement?.CurrentType is ChoiceType.Ban or ChoiceType.Consumed ? 1 : 0,
+                300, Easing.OutQuint);
+            winStatusContainer.FadeTo(newPlacement?.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin ? 1 : 0,
+                300, Easing.OutQuint);
+
+            if (newPlacement != null)
+            {
+                switch (newPlacement.CurrentType)
+                {
+                    case ChoiceType.Ban:
+                        var teamColour = TournamentExtensions.GetTeamColour(newPlacement.OwnerTeam);
+                        consumedIcon.FadeColour(teamColour, 300, Easing.OutQuint);
+                        break;
+
+                    case ChoiceType.Consumed:
+                        consumedIcon.FadeColour(Colour4.White, 300, Easing.OutQuint);
+                        break;
+
+                    case ChoiceType.RedWin or ChoiceType.BlueWin:
+                        winBackground.FadeColour(TournamentExtensions.GetTypeColour(newPlacement.CurrentType), 300, Easing.OutQuint);
+                        break;
+                }
+            }
+
+            lastPlacement = newPlacement;
         }
     }
 }
