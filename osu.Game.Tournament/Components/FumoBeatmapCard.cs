@@ -39,6 +39,19 @@ namespace osu.Game.Tournament.Components
         /// </summary>
         public readonly RoundBeatmap Beatmap;
 
+        public bool ShowModIcon
+        {
+            get;
+            set
+            {
+                field = value;
+
+                if (IsLoaded)
+                    modIcon.Alpha = value ? 1 : 0;
+            }
+        }
+
+        private FumoChessIcon modIcon = null!;
         private StarRatingDisplay starRatingDisplay = null!;
         private Container winStatusContainer = null!;
         private Container banConsumeContainer = null!;
@@ -148,11 +161,12 @@ namespace osu.Game.Tournament.Components
                             {
                                 new Drawable[]
                                 {
-                                    new FumoChessIcon(Beatmap.Mods, Beatmap.ModIndex)
+                                    modIcon = new FumoChessIcon(Beatmap.Mods, Beatmap.ModIndex)
                                     {
                                         Anchor = Anchor.CentreLeft,
                                         Origin = Anchor.CentreLeft,
                                         Size = new Vector2(40),
+                                        Alpha = ShowModIcon ? 1 : 0,
                                     },
                                     new FillFlowContainer
                                     {
