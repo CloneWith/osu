@@ -80,7 +80,7 @@ namespace osu.Game.Tournament
         [BackgroundDependencyLoader]
         private void load(Storage baseStorage, FrameworkConfigManager frameworkConfig)
         {
-            dependencies.CacheAs(new OverlayColourProvider(OverlayColourScheme.Blue));
+            dependencies.CacheAs(new OverlayColourProvider(OverlayColourScheme.Red));
             dependencies.CacheAs(themeProvider = new TournamentThemeProvider());
 
             Add(progressPopup = new FetchProgressPopup(closeOnComplete: true)
