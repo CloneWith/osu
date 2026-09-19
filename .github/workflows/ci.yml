@@ -95,9 +95,17 @@ jobs:
         run: >
           dotnet test
           osu.Game.Tests/bin/Debug/**/osu.Game.Tests.dll
-          osu.Game.Tournament.Tests/bin/Debug/**/osu.Game.Tournament.Tests.dll
-          --filter "FullyQualifiedName~Tournament|FullyQualifiedName!~Visual|FullyQualifiedName~NonVisual"
+          --filter "FullyQualifiedName!~Visual|FullyQualifiedName~NonVisual"
           --logger "trx;LogFileName=TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}.trx"
+          --
+          NUnit.ConsoleOut=0
+
+      - name: Test (Tournament)
+        if: ${{ !cancelled() }}
+        run: >
+          dotnet test
+          osu.Game.Tournament.Tests/bin/Debug/**/osu.Game.Tournament.Tests.dll
+          --logger "trx;LogFileName=TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}-tournament.trx"
           --
           NUnit.ConsoleOut=0
 
@@ -108,7 +116,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: osu-test-results-${{matrix.os.prettyname}}-${{matrix.threadingMode}}
-          path: ${{github.workspace}}/TestResults/TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}.trx
+          path: ${{github.workspace}}/TestResults/TestResults-${{matrix.os.prettyname}}-${{matrix.threadingMode}}*.trx
 
   test-results:
     name: Test results
