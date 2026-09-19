@@ -146,7 +146,12 @@ namespace osu.Game.Tournament.Screens.Board.Components
                             b.Mods == mods.mod && b.ModIndex == mods.modIndex);
 
                         if (originalType is (ChoiceType.Ban or ChoiceType.Pick) && beatmap != null)
-                            AddInternal(new FumoBeatmapCard(beatmap));
+                        {
+                            AddInternal(new FumoBeatmapCard(beatmap)
+                            {
+                                ShowModIcon = false,
+                            });
+                        }
                     }
 
                     break;
