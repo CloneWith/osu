@@ -10,9 +10,9 @@ namespace osu.Game.Tournament.Localisation
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Instructions";
 
         /// <summary>
-        /// "Welcome to OFFC!"
+        /// "Welcome to RCT!"
         /// </summary>
-        public static LocalisableString DefaultName => new TranslatableString(getKey(@"default_name"), @"Welcome to OFFC!");
+        public static LocalisableString DefaultName => new TranslatableString(getKey(@"default_name"), @"Welcome to RCT!");
 
         /// <summary>
         /// "Enjoy the game!"

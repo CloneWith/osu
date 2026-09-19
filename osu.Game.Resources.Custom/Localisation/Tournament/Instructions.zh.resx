@@ -19,10 +19,10 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="default_name" xml:space="preserve">
-        <value>欢迎来到 OFFC！</value>
+        <value>欢迎来到 RCT！</value>
     </data>
     <data name="default_description" xml:space="preserve">
-        <value>祝游玩愉快~</value>
+        <value>祝游戏愉快~</value>
     </data>
     <data name="ban_name" xml:space="preserve">
         <value>标记禁图·{0}</value>

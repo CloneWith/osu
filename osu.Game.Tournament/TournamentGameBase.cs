@@ -42,7 +42,7 @@ namespace osu.Game.Tournament
         public const string BRACKET_FILENAME = @"bracket.json";
         public const string BACKGROUND_MAPPING_FILENAME = @"backgrounds.json";
 
-        public const string WINDOW_TITLE = "OFFC Tournament Client";
+        public const string WINDOW_TITLE = "RCT Tournament Client";
 
         private LadderInfo ladder = new LadderInfo();
         private TournamentStorage storage = null!;

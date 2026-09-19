@@ -10,9 +10,9 @@ namespace osu.Game.Tournament.Localisation
         private const string prefix = @"osu.Game.Resources.Custom.Localisation.Tournament.Base";
 
         /// <summary>
-        /// "OFFC Tournament Client"
+        /// "RCT Tournament Client"
         /// </summary>
-        public static LocalisableString ClientName => new TranslatableString(getKey(@"client_name"), @"OFFC Tournament Client");
+        public static LocalisableString ClientName => new TranslatableString(getKey(@"client_name"), @"RCT Tournament Client");
 
         /// <summary>
         /// "Populating user stats"
