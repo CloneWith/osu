@@ -27,9 +27,7 @@ using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osu.Game.Tournament.Screens.Board.Components;
 using osu.Game.Tournament.Screens.Gameplay;
-using osu.Game.Tournament.Screens.Gameplay.Components;
 using osu.Game.Tournament.Screens.TeamWin;
-using osuTK;
 using osuTK.Graphics;
 using osuTK.Input;
 
@@ -58,7 +56,6 @@ namespace osu.Game.Tournament.Screens.Board
             MaxValue = 17,
         };
 
-        private MatchRoundDisplay roundDisplay = null!;
         private Container mainContainer = null!;
         private Container informationContainer = null!;
         private Container chatContainer = null!;
@@ -110,7 +107,6 @@ namespace osu.Game.Tournament.Screens.Board
                     RelativeSizeAxes = Axes.Both,
                 },
                 new FumoMatchHeader(false),
-
                 mainContainer = new Container
                 {
                     Name = "Main container", // without header
@@ -145,48 +141,12 @@ namespace osu.Game.Tournament.Screens.Board
                                             Alpha = 0.74f,
                                             RelativeSizeAxes = Axes.Both,
                                         },
-                                        new GridContainer
+                                        new HistoryDisplay
                                         {
-                                            Anchor = Anchor.Centre,
-                                            Origin = Anchor.Centre,
+                                            Anchor = Anchor.TopCentre,
+                                            Origin = Anchor.TopCentre,
                                             RelativeSizeAxes = Axes.Both,
-                                            RowDimensions = new[]
-                                            {
-                                                new Dimension(GridSizeMode.AutoSize),
-                                                new Dimension(),
-                                                new Dimension(GridSizeMode.AutoSize),
-                                            },
-                                            Content = new Drawable[][]
-                                            {
-                                                [
-                                                    roundDisplay = new MatchRoundDisplay
-                                                    {
-                                                        Anchor = Anchor.TopCentre,
-                                                        Origin = Anchor.TopCentre,
-                                                        // Weird margin layout...
-                                                        Margin = new MarginPadding { Vertical = 10 },
-                                                        Scale = new Vector2(0.45f),
-                                                    },
-                                                ],
-                                                [
-                                                    new HistoryDisplay
-                                                    {
-                                                        Anchor = Anchor.TopCentre,
-                                                        Origin = Anchor.TopCentre,
-                                                        RelativeSizeAxes = Axes.Both,
-                                                        Padding = new MarginPadding(5),
-                                                    },
-                                                ],
-                                                [
-                                                    new RoundCounterLine
-                                                    {
-                                                        Anchor = Anchor.BottomCentre,
-                                                        Origin = Anchor.BottomCentre,
-                                                        RelativeSizeAxes = Axes.X,
-                                                        Margin = new MarginPadding { Vertical = 5 },
-                                                    },
-                                                ],
-                                            },
+                                            Padding = new MarginPadding { Horizontal = 10, Vertical = 16 },
                                         },
                                     },
                                 },
@@ -544,8 +504,6 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.BindValueChanged(matchChanged, true);
 
-            themeProvider.Current.BindValueChanged(themeChanged, true);
-
             shiroModeActivated.BindValueChanged(e =>
             {
                 if (e.NewValue)
@@ -619,12 +577,6 @@ namespace osu.Game.Tournament.Screens.Board
 
             ResetSelectStatus();
             detectWin();
-        }
-
-        private void themeChanged(ValueChangedEvent<RoundTheme> theme)
-        {
-            roundDisplay.BackgroundColour = theme.NewValue.Accent;
-            roundDisplay.TextColour = OsuColour.ForegroundTextColourFor(theme.NewValue.Accent);
         }
 
         private void updateActionText(LocalisableString text, bool failing = false)
