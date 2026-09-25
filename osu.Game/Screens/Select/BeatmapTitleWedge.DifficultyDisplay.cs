@@ -34,6 +34,8 @@ namespace osu.Game.Screens.Select
         {
             private const float border_weight = 2;
 
+            public bool ShowObjectCounts { get; init; }
+
             [Resolved]
             private IBindable<WorkingBeatmap> beatmap { get; set; } = null!;
 
@@ -177,8 +179,8 @@ namespace osu.Game.Screens.Select
                                             RowDimensions = new[] { new Dimension(GridSizeMode.AutoSize) },
                                             ColumnDimensions = new[]
                                             {
-                                                new Dimension(),
-                                                new Dimension(GridSizeMode.Absolute, 30),
+                                                new Dimension(ShowObjectCounts ? GridSizeMode.Distributed : GridSizeMode.Absolute),
+                                                new Dimension(GridSizeMode.Absolute, ShowObjectCounts ? 30 : 0),
                                                 new Dimension(GridSizeMode.AutoSize),
                                             },
                                             Content = new[]
@@ -188,6 +190,7 @@ namespace osu.Game.Screens.Select
                                                     countStatisticsDisplay = new DifficultyStatisticsDisplay
                                                     {
                                                         RelativeSizeAxes = Axes.X,
+                                                        Alpha = ShowObjectCounts ? 1 : 0,
                                                     },
                                                     Empty(),
                                                     difficultyStatisticsDisplay = new DifficultyStatisticsDisplay(autoSize: true),
@@ -279,7 +282,9 @@ namespace osu.Game.Screens.Select
                         if (cancellationToken.IsCancellationRequested)
                             return;
 
-                        countStatisticsDisplay.FadeIn(200, Easing.OutQuint);
+                        if (ShowObjectCounts)
+                            countStatisticsDisplay.FadeIn(200, Easing.OutQuint);
+
                         countStatisticsDisplay.Statistics = statistics;
                     });
                 }, cancellationToken);
