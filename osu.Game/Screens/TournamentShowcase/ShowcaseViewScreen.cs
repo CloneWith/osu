@@ -199,6 +199,12 @@ namespace osu.Game.Screens.TournamentShowcase
             state.BindValueChanged(stateChanged);
         }
 
+        private void handleFatalException(Exception e)
+        {
+            Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
+            showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+        }
+
         private void scheduleBeatmapPush(Action pushAction, int delay = 0)
         {
             if (showcaseContainer.ErrorStack.CurrentScreen != null)
@@ -249,8 +255,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
-                showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+                handleFatalException(e);
             }
         }
 
@@ -262,8 +267,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
-                showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
+                handleFatalException(e);
             }
         }
 
@@ -362,12 +366,7 @@ namespace osu.Game.Screens.TournamentShowcase
                 player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : -1500,
                     config, selected, replaying, Mods.Value, introMode);
 
-                player.OnError += e =>
-                {
-                    Logger.Error(e, "Exception caught in showcase. The showcase has been halted.");
-                    showcaseContainer.ErrorStack.Push(new ShowcaseErrorScreen(e, this.Exit));
-                };
-
+                player.OnError += handleFatalException;
                 showcaseContainer.ScreenStack.Push(player);
             }, introMode ? 0 : 500);
         }
