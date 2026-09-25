@@ -137,7 +137,10 @@ namespace osu.Game.Screens.TournamentShowcase
                             AutoSizeAxes = Axes.Y,
                             Margin = new MarginPadding { Left = -SongSelect.WEDGE_CONTENT_MARGIN },
                             Padding = new MarginPadding { Right = -SongSelect.WEDGE_CONTENT_MARGIN },
-                            Child = new BeatmapTitleWedge.DifficultyDisplay(),
+                            Child = new BeatmapTitleWedge.DifficultyDisplay
+                            {
+                                ShowObjectCounts = false,
+                            },
                         }),
                         new ShearAligningWrapper(showcaseInfoContainer = new Container
                         {
