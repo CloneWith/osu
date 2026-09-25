@@ -54,9 +54,9 @@ namespace osu.Game.Screens.TournamentShowcase
         private readonly SpriteIcon indicatorIcon;
         private readonly OsuSpriteText indicatorText;
 
-        private Container introContainer = null!;
-        private Container mapPoolContainer = null!;
-        private Container outroContainer = null!;
+        private Container? introContainer;
+        private Container? mapPoolContainer;
+        private Container? outroContainer;
 
         private ScheduledDelegate? scheduledMapPool;
         private ScheduledDelegate? scheduledFirstPush;
@@ -239,16 +239,16 @@ namespace osu.Game.Screens.TournamentShowcase
                         {
                             case ShowcaseState.Intro:
                                 scheduledMapPool?.Cancel();
-                                introContainer.FadeOut(300, Easing.OutQuint);
+                                introContainer?.FadeOut(300, Easing.OutQuint);
                                 break;
 
                             case ShowcaseState.MapPool:
                                 scheduledFirstPush?.Cancel();
-                                mapPoolContainer.FadeOut(300, Easing.OutQuint);
+                                mapPoolContainer?.FadeOut(300, Easing.OutQuint);
                                 break;
 
                             case ShowcaseState.Ending:
-                                outroContainer.FadeOut(300, Easing.OutQuint);
+                                outroContainer?.FadeOut(300, Easing.OutQuint);
                                 break;
                         }
                     }
@@ -362,12 +362,6 @@ namespace osu.Game.Screens.TournamentShowcase
             logo.Delay(4500).MoveToY(-0.1f, 1000, Easing.OutExpo);
             logo.ScaleTo(new Vector2(0.8f * priorityScale), 4000, Easing.OutExpo);
 
-            using (BeginDelayedSequence(7500))
-            {
-                introContainer.FadeOut(1000, Easing.InQuint);
-                introContainer.MoveToY(-1.5f, 1500, Easing.InQuint);
-            }
-
             scheduledMapPool = Scheduler.AddDelayed(showMapPool, 7500);
         }
 
@@ -376,108 +370,115 @@ namespace osu.Game.Screens.TournamentShowcase
         /// </summary>
         private void showMapPool()
         {
-            if (!config.ShowMapPool.Value)
+            // Give a constant time for cases where the map pool display is not required.
+            int totalTime = 10000;
+
+            // Keep the intro container on screen longer if the map pool isn't going to show.
+            using (BeginDelayedSequence(config.ShowMapPool.Value ? 0 : totalTime))
             {
-                OnPushNext?.Invoke();
-                return;
+                introContainer?.FadeOut(1000, Easing.InQuint);
+                introContainer?.MoveToY(-1.5f, 1500, Easing.InQuint);
             }
 
-            state.Value = ShowcaseState.MapPool;
-
-            FillFlowContainer mapPoolFlow;
-
-            mapPoolContainer = new Container
+            if (config.ShowMapPool.Value)
             {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-                RelativePositionAxes = Axes.Both,
-                RelativeSizeAxes = Axes.Both,
-                Y = 1f,
-                Alpha = 0,
-                Masking = true,
-                Children = new Drawable[]
+                // Only change the state if we should show the map pool to make the intro display longer.
+                state.Value = ShowcaseState.MapPool;
+                FillFlowContainer mapPoolFlow;
+
+                mapPoolContainer = new Container
                 {
-                    new OsuSpriteText
+                    Anchor = Anchor.Centre,
+                    Origin = Anchor.Centre,
+                    RelativePositionAxes = Axes.Both,
+                    RelativeSizeAxes = Axes.Both,
+                    Y = 1f,
+                    Alpha = 0,
+                    Masking = true,
+                    Children = new Drawable[]
                     {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativePositionAxes = Axes.Both,
-                        Y = 0.1f,
-                        Font = OsuFont.TorusAlternate.With(size: 30, weight: FontWeight.SemiBold),
-                        Text = TournamentShowcaseStrings.MapPoolHeader,
-                    },
-                    new OsuSpriteText
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        RelativePositionAxes = Axes.Both,
-                        Y = 0.15f,
-                        Font = OsuFont.TorusAlternate.With(size: 20),
-                        Text = config.RoundName.Value,
-                    },
-                    mapPoolFlow = new FillFlowContainer
-                    {
-                        Anchor = Anchor.TopCentre,
-                        Origin = Anchor.TopCentre,
-                        Direction = FillDirection.Full,
-                        RelativeSizeAxes = Axes.X,
-                        RelativePositionAxes = Axes.Both,
-                        AutoSizeAxes = Axes.Y,
-                        AutoSizeDuration = 300,
-                        AutoSizeEasing = Easing.OutQuint,
-                        Width = 0.9f,
-                        Spacing = new Vector2(5),
-                        Y = 0.2f,
-                    }
-                }
-            };
-
-            AddInternal(mapPoolContainer);
-
-            using (BeginDelayedSequence(800))
-            {
-                mapPoolContainer.FadeIn(1000, Easing.OutQuint);
-                mapPoolContainer.MoveToY(0, 1000, Easing.OutQuint);
-            }
-
-            var mapList = config.Beatmaps.ToList();
-            // Adjust the width of each card based on real flow width
-            float targetWidth = (mapPoolFlow.DrawWidth - 5 * 2) / 3;
-
-            for (int i = 0; i * 3 < mapList.Count; i++)
-            {
-                var activeMaps = mapList.Skip(i * 3).Take(3).ToList();
-
-                for (int j = 0; j < activeMaps.Count; j++)
-                {
-                    int j1 = j;
-                    Scheduler.AddDelayed(() =>
-                    {
-                        var card = new ExtendableBeatmapCard(activeMaps[j1], config.ColourScheme.Value)
+                        new OsuSpriteText
                         {
                             Anchor = Anchor.TopCentre,
                             Origin = Anchor.TopCentre,
-                            Width = targetWidth,
-                            Alpha = 0,
-                        };
+                            RelativePositionAxes = Axes.Both,
+                            Y = 0.1f,
+                            Font = OsuFont.TorusAlternate.With(size: 30, weight: FontWeight.SemiBold),
+                            Text = TournamentShowcaseStrings.MapPoolHeader,
+                        },
+                        new OsuSpriteText
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            RelativePositionAxes = Axes.Both,
+                            Y = 0.15f,
+                            Font = OsuFont.TorusAlternate.With(size: 20),
+                            Text = config.RoundName.Value,
+                        },
+                        mapPoolFlow = new FillFlowContainer
+                        {
+                            Anchor = Anchor.TopCentre,
+                            Origin = Anchor.TopCentre,
+                            Direction = FillDirection.Full,
+                            RelativeSizeAxes = Axes.X,
+                            RelativePositionAxes = Axes.Both,
+                            AutoSizeAxes = Axes.Y,
+                            AutoSizeDuration = 300,
+                            AutoSizeEasing = Easing.OutQuint,
+                            Width = 0.9f,
+                            Spacing = new Vector2(5),
+                            Y = 0.2f,
+                        }
+                    }
+                };
 
-                        mapPoolFlow.Add(card);
-                        card.MoveToY(card.Y + 100).Then().MoveToY(card.Y - 100, 500, Easing.OutQuint);
-                        card.Delay(250).FadeIn(500, Easing.OutQuint);
+                AddInternal(mapPoolContainer);
 
-                        Scheduler.AddDelayed(() => card.Shrink(), 2000 - j1 * 200);
-                    }, i * 1000 + j * 200 + 800);
+                using (BeginDelayedSequence(800))
+                {
+                    mapPoolContainer.FadeIn(1000, Easing.OutQuint);
+                    mapPoolContainer.MoveToY(0, 1000, Easing.OutQuint);
                 }
-            }
 
-            int totalTime = mapList.Count * 1000 + 5000;
+                var mapList = config.Beatmaps.Where(b => !b.IsSecretMap).ToList();
+                // Adjust the width of each card based on real flow width
+                float targetWidth = (mapPoolFlow.DrawWidth - 5 * 2) / 3;
+
+                for (int i = 0; i * 3 < mapList.Count; i++)
+                {
+                    var activeMaps = mapList.Skip(i * 3).Take(3).ToList();
+
+                    for (int j = 0; j < activeMaps.Count; j++)
+                    {
+                        int j1 = j;
+                        Scheduler.AddDelayed(() =>
+                        {
+                            var card = new ExtendableBeatmapCard(activeMaps[j1], config.ColourScheme.Value)
+                            {
+                                Anchor = Anchor.TopCentre,
+                                Origin = Anchor.TopCentre,
+                                Width = targetWidth,
+                                Alpha = 0,
+                            };
+
+                            mapPoolFlow.Add(card);
+                            card.MoveToY(card.Y + 100).Then().MoveToY(card.Y - 100, 500, Easing.OutQuint);
+                            card.Delay(250).FadeIn(500, Easing.OutQuint);
+
+                            Scheduler.AddDelayed(() => card.Shrink(), 2000 - j1 * 200);
+                        }, i * 1000 + j * 200 + 800);
+                    }
+                }
+
+                totalTime = mapList.Count * 1000 + 5000;
+            }
 
             Scheduler.AddDelayed(() =>
             {
                 if (UseAutoShowcase.Value)
                 {
-                    mapPoolContainer.MoveToY(-1f, 1500, Easing.InQuint);
-                    mapPoolContainer.FadeOut(1000, Easing.InQuint);
+                    mapPoolContainer?.MoveToY(-1f, 1500, Easing.InQuint);
+                    mapPoolContainer?.FadeOut(1000, Easing.InQuint);
 
                     topMask.Delay(1000).FadeOut(1000, Easing.InQuint);
                     triangles.Delay(1000).FadeOut(1500, Easing.OutQuint);
