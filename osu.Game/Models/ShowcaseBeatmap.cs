@@ -37,6 +37,13 @@ namespace osu.Game.Models
         public string BeatmapHash = string.Empty;
         public string ScoreHash = string.Empty;
 
+        /// <summary>
+        /// Whether the information of the map should be shown actively in the mappool and during showcase.
+        /// </summary>
+        /// <remarks>Only automatically applies to TB maps for now.</remarks>
+        [JsonIgnore]
+        public bool IsSecretMap => ModString.Value.Equals(@"TB", StringComparison.OrdinalIgnoreCase);
+
         public ShowcaseBeatmap()
         {
         }
