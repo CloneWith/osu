@@ -38,6 +38,11 @@ namespace osu.Game.Screens.TournamentShowcase
         public readonly ShowcaseBeatmapWedge Wedge;
 
         /// <summary>
+        /// The transient information panel shown just before a replay starts, and on the results screen of a secret map.
+        /// </summary>
+        public readonly ShowcaseBeatmapIntroDisplay IntroDisplay;
+
+        /// <summary>
         /// Invoked when we should push the next beatmap.
         /// </summary>
         public event Action? OnPushNext;
@@ -115,6 +120,11 @@ namespace osu.Game.Screens.TournamentShowcase
                     Alpha = 0,
                     X = -0.01f,
                     Y = 0.2f,
+                },
+                IntroDisplay = new ShowcaseBeatmapIntroDisplay(config.ColourScheme.Value)
+                {
+                    Alpha = 0,
+                    Scale = new Vector2(priorityScale),
                 },
                 transitionMask = new WaveContainer
                 {
@@ -197,6 +207,9 @@ namespace osu.Game.Screens.TournamentShowcase
                     },
                 },
             };
+
+            // Both panels always show information for the currently showcased beatmap.
+            IntroDisplay.Target.BindTo(Wedge.Target);
 
             UseAutoShowcase.BindValueChanged(controlChanged);
             state.BindValueChanged(stateChanged);
