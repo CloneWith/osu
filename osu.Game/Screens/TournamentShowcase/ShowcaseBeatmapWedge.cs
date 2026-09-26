@@ -113,21 +113,45 @@ namespace osu.Game.Screens.TournamentShowcase
                                 OverflowSpacing = 50,
                             },
                         }),
-                        new ShearAligningWrapper(statisticsFlow = new FillFlowContainer
+                        new ShearAligningWrapper(new GridContainer
                         {
                             Shear = -OsuGame.SHEAR,
-                            AutoSizeAxes = Axes.X,
-                            Height = 30,
-                            Direction = FillDirection.Horizontal,
-                            Spacing = new Vector2(2f, 0f),
-                            Children = new Drawable[]
+                            RelativeSizeAxes = Axes.X,
+                            AutoSizeAxes = Axes.Y,
+                            RowDimensions = [new Dimension(GridSizeMode.AutoSize)],
+                            ColumnDimensions =
+                            [
+                                new Dimension(),
+                                new Dimension(GridSizeMode.AutoSize),
+                            ],
+                            Content = new Drawable[][]
                             {
-                                lengthStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Clock),
-                                bpmStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Metronome)
-                                {
-                                    TooltipText = BeatmapsetsStrings.ShowStatsBpm,
-                                    Margin = new MarginPadding { Left = 5f },
-                                },
+                                [
+                                    statisticsFlow = new FillFlowContainer
+                                    {
+                                        AutoSizeAxes = Axes.X,
+                                        Height = 30,
+                                        Direction = FillDirection.Horizontal,
+                                        Spacing = new Vector2(2f, 0f),
+                                        Children = new Drawable[]
+                                        {
+                                            lengthStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Clock),
+                                            bpmStatistic = new BeatmapTitleWedge.Statistic(OsuIcon.Metronome)
+                                            {
+                                                TooltipText = BeatmapsetsStrings.ShowStatsBpm,
+                                                Margin = new MarginPadding { Left = 5f },
+                                            },
+                                        },
+                                    },
+                                    modText = new OsuSpriteText
+                                    {
+                                        Name = @"Mod text",
+                                        Anchor = Anchor.CentreRight,
+                                        Origin = Anchor.CentreRight,
+                                        Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 24),
+                                        Margin = new MarginPadding { Horizontal = 20 },
+                                    },
+                                ],
                             },
                         }),
                         new ShearAligningWrapper(new Container
@@ -176,15 +200,6 @@ namespace osu.Game.Screens.TournamentShowcase
                             },
                         }),
                     },
-                },
-                modText = new OsuSpriteText
-                {
-                    Name = "Mod text",
-                    Anchor = Anchor.TopRight,
-                    Origin = Anchor.TopRight,
-                    Shear = -OsuGame.SHEAR,
-                    Font = OsuFont.Torus.With(weight: FontWeight.Bold, size: 24),
-                    Margin = new MarginPadding(20),
                 },
             };
         }
