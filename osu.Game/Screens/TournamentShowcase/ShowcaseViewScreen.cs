@@ -443,7 +443,7 @@ namespace osu.Game.Screens.TournamentShowcase
                     showcaseContainer.ScreenStack.Exit();
 
                 player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : selected.IsSecretMap ? replay_preempt : secret_map_preempt,
-                    config, selected, replaying, Mods.Value, introMode);
+                    config, selected, replaying, Mods.Value, introMode || selected.IsSecretMap);
 
                 player.OnError += handleFatalException;
 
