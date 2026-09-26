@@ -14,6 +14,10 @@ namespace osu.Game.Tournament.Components
     /// <summary>
     /// A general chess icon display for usages outside the normal board.
     /// </summary>
+    /// <remarks>
+    /// Shared between the tournament client and the showcase, which is why it lives in the game assembly alongside the
+    /// tournament models it consumes.
+    /// </remarks>
     public partial class FumoChessIcon : ConstrainedIconContainer
     {
         /// <summary>
@@ -29,8 +33,15 @@ namespace osu.Game.Tournament.Components
         [Resolved]
         private TextureStore textures { get; set; } = null!;
 
-        [Resolved]
-        private TournamentThemeProvider themeProvider { get; set; } = null!;
+        /// <summary>
+        /// The theme of the round currently being played, if there is one.
+        /// </summary>
+        /// <remarks>
+        /// Only the tournament client provides this. The showcase is started from the main menu without an active
+        /// round, so tiebreakers keep the fixed tiebreaker palette there.
+        /// </remarks>
+        [Resolved(CanBeNull = true)]
+        private TournamentThemeProvider? themeProvider { get; set; }
 
         private ModColourScheme colourScheme = ModColours.Empty;
         private bool isTieBreaker;
@@ -93,7 +104,7 @@ namespace osu.Game.Tournament.Components
         {
             base.LoadComplete();
 
-            if (!isTieBreaker)
+            if (!isTieBreaker || themeProvider == null)
                 return;
 
             themeProvider.Current.BindValueChanged(theme =>

@@ -13,7 +13,7 @@ namespace osu.Game.Tournament.Components
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Cached for injection by <see cref="TournamentGameBase"/>, so any drawable below it can request this
+    /// Cached for injection by <c>TournamentGameBase</c>, so any drawable below it can request this
     /// type in its <see cref="osu.Framework.Allocation.BackgroundDependencyLoaderAttribute"/>.
     /// </para>
     /// <para>
@@ -41,7 +41,7 @@ namespace osu.Game.Tournament.Components
         /// Starts tracking the given ladder.
         /// </summary>
         /// <remarks>
-        /// Must be passed the ladder instance which is actually cached for injection. <see cref="TournamentGameBase"/>
+        /// Must be passed the ladder instance which is actually cached for injection. <c>TournamentGameBase</c>
         /// replaces its ladder reference once the bracket has been read, so an earlier instance must not be used.
         /// </remarks>
         /// <param name="ladder">the ladder to track.</param>
