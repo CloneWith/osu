@@ -32,8 +32,8 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public bool ShowHeaderLine => false;
 
-        private const float replay_preempt = -1500;
-        private const float secret_map_preempt = replay_preempt - 3000;
+        private const float replay_preempt = -3000 - 1500;
+        private const float secret_map_preempt = -5000 - 1500;
 
         /// <summary>
         /// The delay between the beatmap change and the replay actually starting.
@@ -442,15 +442,17 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (player != null)
                     showcaseContainer.ScreenStack.Exit();
 
-                player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : selected.IsSecretMap ? replay_preempt : secret_map_preempt,
+                player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : selected.IsSecretMap ? secret_map_preempt : replay_preempt,
                     config, selected, replaying, Mods.Value, introMode || selected.IsSecretMap);
 
                 player.OnError += handleFatalException;
 
                 if (!introMode && selected.IsSecretMap)
                 {
+                    showcaseContainer.TemporarilyConceal(5000);
+
                     // A secret map's information is withheld until its replay is over, where the results screen reveals it.
-                    player.OnShowingResults += () => revealInfoDisplay(info_display_duration);
+                    player.OnShowingResults += () => Scheduler.AddDelayed(() => revealInfoDisplay(info_display_duration), 3000);
                 }
 
                 showcaseContainer.ScreenStack.Push(player);

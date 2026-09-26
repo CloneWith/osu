@@ -503,7 +503,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 if (UseAutoShowcase.Value)
                     OnPushNext?.Invoke();
-            }, totalTime + 3000);
+            }, totalTime + 10000);
         }
 
         /// <summary>
@@ -611,6 +611,10 @@ namespace osu.Game.Screens.TournamentShowcase
 
             Scheduler.AddDelayed(() => state.Value = ShowcaseState.Ended, 10000);
         }
+
+        public void TemporarilyConceal(float duration) => topMask.FadeIn(300, Easing.OutQuint)
+                                                                 .Then(duration)
+                                                                 .FadeOut(300, Easing.OutQuint);
 
         private partial class PlayerContainer : BufferedContainer
         {
