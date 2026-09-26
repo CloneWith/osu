@@ -219,7 +219,7 @@ namespace osu.Game.Screens.TournamentShowcase
         [BackgroundDependencyLoader]
         private void load(TextureStore textures)
         {
-            transitionBackground.Texture = textures.Get($"{config.TournamentName}/transition");
+            transitionBackground.Texture = textures.Get($"{config.Filename.Value}/transition");
         }
 
         private void controlChanged(ValueChangedEvent<bool> useAutoShowcase)
