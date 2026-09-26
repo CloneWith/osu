@@ -76,11 +76,11 @@ namespace osu.Game.Screens.TournamentShowcase
         [Resolved]
         private OsuScreenStack? screenStack { get; set; }
 
-        private readonly FormControlBackground background;
-        private readonly CircularContainer selectionIndicator;
-        private readonly Container iconContainer;
-        private readonly MarqueeContainer titleContainer;
-        private readonly OsuTextFlowContainer detailsFlow;
+        private FormControlBackground background = null!;
+        private CircularContainer selectionIndicator = null!;
+        private Container iconContainer = null!;
+        private MarqueeContainer titleContainer = null!;
+        private OsuTextFlowContainer detailsFlow = null!;
 
         private Action requestLaunch = null!;
         private Action requestEdit = null!;
@@ -91,6 +91,34 @@ namespace osu.Game.Screens.TournamentShowcase
         {
             Config = config;
             colourProvider = new OverlayColourProvider(config.ColourScheme.Value);
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(IRulesetStore rulesetStore, IDialogOverlay dialogOverlay, ShowcaseStorage storage)
+        {
+            requestLaunch = () => screenStack?.Push(new ShowcaseViewScreen(Config));
+            requestEdit = () => screenStack?.Push(new ShowcaseConfigScreen(Config));
+
+            // WrappedStorage doesn't have a delete method. Using System.IO here instead.
+            requestDelete = () => dialogOverlay.Push(new ProfileDeleteConfirmationDialog(() =>
+            {
+                if (!storage.Exists(Config.Filename.Value))
+                    return;
+
+                string path = storage.GetFullPath(Config.Filename.Value);
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        File.Delete(path);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error(e, @"An error occurred while deleting profile.");
+                    }
+                }).ContinueWith(_ => storage.TriggerProfileChange());
+            }));
 
             Masking = true;
             CornerRadius = CORNER_RADIUS;
@@ -103,11 +131,13 @@ namespace osu.Game.Screens.TournamentShowcase
                 new GridContainer
                 {
                     RelativeSizeAxes = Axes.Both,
+                    Padding = new MarginPadding { Horizontal = 15 },
                     ColumnDimensions =
                     [
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(GridSizeMode.AutoSize),
                         new Dimension(),
+                        new Dimension(GridSizeMode.AutoSize),
                     ],
                     Content = new[]
                     {
@@ -122,7 +152,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                 Colour = colourProvider.Highlight1,
                                 Anchor = Anchor.CentreLeft,
                                 Origin = Anchor.CentreLeft,
-                                Margin = new MarginPadding { Left = 15, Right = 10 },
+                                Margin = new MarginPadding { Right = 10 },
                                 Child = new Box
                                 {
                                     RelativeSizeAxes = Axes.Both,
@@ -169,38 +199,49 @@ namespace osu.Game.Screens.TournamentShowcase
                                     },
                                 },
                             },
+                            new FillFlowContainer
+                            {
+                                Anchor = Anchor.CentreRight,
+                                Origin = Anchor.CentreRight,
+                                RelativeSizeAxes = Axes.Y,
+                                AutoSizeAxes = Axes.X,
+                                Direction = FillDirection.Horizontal,
+                                Spacing = new Vector2(3),
+                                Children = new Drawable[]
+                                {
+                                    new IconButton
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Size = new Vector2(36),
+                                        Icon = FontAwesome.Solid.Play,
+                                        Action = requestLaunch,
+                                        TooltipText = TournamentShowcaseStrings.StartShowcase,
+                                    },
+                                    new IconButton
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Size = new Vector2(36),
+                                        Icon = FontAwesome.Solid.Copy,
+                                        Action = requestCloneOrRename,
+                                        TooltipText = TournamentShowcaseStrings.CloneOrRename,
+                                    },
+                                    new IconButton
+                                    {
+                                        Anchor = Anchor.Centre,
+                                        Origin = Anchor.Centre,
+                                        Size = new Vector2(36),
+                                        Icon = FontAwesome.Solid.Trash,
+                                        Action = requestDelete,
+                                        TooltipText = CommonStrings.DeleteWithConfirmation,
+                                    },
+                                },
+                            },
                         },
                     },
                 },
             };
-        }
-
-        [BackgroundDependencyLoader]
-        private void load(IRulesetStore rulesetStore, IDialogOverlay dialogOverlay, ShowcaseStorage storage)
-        {
-            requestLaunch = () => screenStack?.Push(new ShowcaseViewScreen(Config));
-            requestEdit = () => screenStack?.Push(new ShowcaseConfigScreen(Config));
-
-            // WrappedStorage doesn't have a delete method. Using System.IO here instead.
-            requestDelete = () => dialogOverlay.Push(new ProfileDeleteConfirmationDialog(() =>
-            {
-                if (!storage.Exists(Config.Filename.Value))
-                    return;
-
-                string path = storage.GetFullPath(Config.Filename.Value);
-
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        File.Delete(path);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Error(e, @"An error occurred while deleting profile.");
-                    }
-                }).ContinueWith(_ => storage.TriggerProfileChange());
-            }));
 
             var ruleset = rulesetStore.GetRuleset(Config.FallbackRuleset.Value.ShortName)?.CreateInstance();
 
