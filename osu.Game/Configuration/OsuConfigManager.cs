@@ -146,6 +146,7 @@ namespace osu.Game.Configuration
             SetDefault(OsuSetting.DimLevel, 0.7, 0, 1, 0.01);
             SetDefault(OsuSetting.BlurLevel, 0, 0, 1, 0.01);
             SetDefault(OsuSetting.LightenDuringBreaks, true);
+            SetDefault(OsuSetting.RemoveBackgroundBlurDuringBreaks, false);
 
             SetDefault(OsuSetting.HitLighting, true);
             SetDefault(OsuSetting.StarFountains, true);
@@ -353,6 +354,11 @@ namespace osu.Game.Configuration
 
         ShowHealthDisplayWhenCantFail,
         FadePlayfieldWhenHealthLow,
+
+        /// <summary>
+        /// Whether background blur should be fully removed during breaks.
+        /// </summary>
+        RemoveBackgroundBlurDuringBreaks,
 
         /// <summary>
         /// Disables mouse buttons clicks during gameplay.

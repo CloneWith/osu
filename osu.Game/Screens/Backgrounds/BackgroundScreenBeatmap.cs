@@ -150,6 +150,8 @@ namespace osu.Game.Screens.Backgrounds
 
             private Bindable<double> userBlurLevel { get; set; }
 
+            private Bindable<bool> removeBlurDuringBreaks { get; set; }
+
             private Background background;
 
             public override void Add(Drawable drawable)
@@ -165,14 +167,17 @@ namespace osu.Game.Screens.Backgrounds
             /// <summary>
             /// As an optimisation, we add the two blur portions to be applied rather than actually applying two separate blurs.
             /// </summary>
-            private Vector2 blurTarget => !IgnoreUserSettings.Value
-                ? new Vector2(BlurAmount.Value + (float)userBlurLevel.Value * USER_BLUR_FACTOR)
-                : new Vector2(BlurAmount.Value);
+            private Vector2 blurTarget => IsBreakTime.Value && removeBlurDuringBreaks.Value
+                ? Vector2.Zero
+                : !IgnoreUserSettings.Value
+                    ? new Vector2(BlurAmount.Value + (float)userBlurLevel.Value * USER_BLUR_FACTOR)
+                    : new Vector2(BlurAmount.Value);
 
             [BackgroundDependencyLoader]
             private void load(OsuConfigManager config)
             {
                 userBlurLevel = config.GetBindable<double>(OsuSetting.BlurLevel);
+                removeBlurDuringBreaks = config.GetBindable<bool>(OsuSetting.RemoveBackgroundBlurDuringBreaks);
             }
 
             protected override void LoadComplete()
@@ -182,6 +187,7 @@ namespace osu.Game.Screens.Backgrounds
                 userBlurLevel.ValueChanged += _ => UpdateVisuals();
                 BlurAmount.ValueChanged += _ => UpdateVisuals();
                 StoryboardReplacesBackground.ValueChanged += _ => UpdateVisuals();
+                removeBlurDuringBreaks.ValueChanged += _ => UpdateVisuals();
             }
 
             protected override float DimLevel

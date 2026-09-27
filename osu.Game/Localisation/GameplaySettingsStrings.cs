@@ -55,6 +55,11 @@ namespace osu.Game.Localisation
         public static LocalisableString LightenDuringBreaks => new TranslatableString(getKey(@"lighten_during_breaks"), @"Lighten playfield during breaks");
 
         /// <summary>
+        /// "Remove background blur during breaks"
+        /// </summary>
+        public static LocalisableString RemoveBackgroundBlurDuringBreaks => new TranslatableString(getKey(@"remove_background_blur_during_breaks"), @"Remove background blur during breaks");
+
+        /// <summary>
         /// "HUD overlay visibility mode"
         /// </summary>
         public static LocalisableString HUDVisibilityMode => new TranslatableString(getKey(@"hud_visibility_mode"), @"HUD overlay visibility mode");

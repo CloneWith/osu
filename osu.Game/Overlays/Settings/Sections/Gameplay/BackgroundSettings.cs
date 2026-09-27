@@ -43,6 +43,14 @@ namespace osu.Game.Overlays.Settings.Sections.Gameplay
                 },
                 new SettingsItemV2(new FormCheckBox
                 {
+                    Caption = GameplaySettingsStrings.RemoveBackgroundBlurDuringBreaks,
+                    Current = config.GetBindable<bool>(OsuSetting.RemoveBackgroundBlurDuringBreaks),
+                })
+                {
+                    Keywords = new[] { "blur", "break" }
+                },
+                new SettingsItemV2(new FormCheckBox
+                {
                     Caption = GameplaySettingsStrings.FadePlayfieldWhenHealthLow,
                     Current = config.GetBindable<bool>(OsuSetting.FadePlayfieldWhenHealthLow),
                 }),
