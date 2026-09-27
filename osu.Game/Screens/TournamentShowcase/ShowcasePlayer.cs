@@ -17,34 +17,33 @@ namespace osu.Game.Screens.TournamentShowcase
 {
     public partial class ShowcasePlayer : ReplayPlayer
     {
+        public double StartTime { get; init; }
+
+        public BindableBool Replaying { get; } = new BindableBool();
+
+        public ShowcasePlayerDisplayMode DisplayMode { get; init; } = ShowcasePlayerDisplayMode.Normal;
+
         private readonly Score score;
         private readonly ShowcaseConfig config;
         private readonly ShowcaseBeatmap beatmap;
-        private readonly double startTime;
-        private readonly bool noHUD;
         private readonly IReadOnlyList<Mod>? mods;
 
         private readonly float priorityScale;
         private bool faulted;
-        private readonly BindableBool replaying = new BindableBool();
 
         private TournamentOriginalBadge originalBadge = null!;
 
         public event Action<Exception>? OnError;
 
-        public ShowcasePlayer(Score score, double startTime, ShowcaseConfig config, ShowcaseBeatmap beatmap, BindableBool replaying,
-                              IReadOnlyList<Mod>? mods = null, bool noHUD = false)
+        public ShowcasePlayer(Score score, ShowcaseConfig config, ShowcaseBeatmap beatmap, IReadOnlyList<Mod>? mods = null)
             : base(score, new PlayerConfiguration
             {
                 AllowUserInteraction = false,
             })
         {
             this.score = score;
-            this.startTime = startTime;
             this.mods = mods;
             this.beatmap = beatmap;
-            this.replaying.BindTo(replaying);
-            this.noHUD = noHUD;
             this.config = config;
             priorityScale = Math.Min(config.AspectRatio.Value, 1f / config.AspectRatio.Value);
         }
@@ -54,14 +53,18 @@ namespace osu.Game.Screens.TournamentShowcase
             Mods.Value = mods ?? score.ScoreInfo.Mods;
             base.LoadComplete();
 
-            if (noHUD)
+            if (DisplayMode >= ShowcasePlayerDisplayMode.Secret)
             {
                 HUDOverlay.ShowHud.Value = false;
                 HUDOverlay.ShowHud.Disabled = true;
+                DrawableRuleset.Overlays.Hide();
                 HUDOverlay.PlayfieldSkinLayer.Hide();
+            }
+
+            if (DisplayMode == ShowcasePlayerDisplayMode.None)
+            {
                 FailOverlay.Hide();
                 BreakOverlay.Hide();
-                DrawableRuleset.Overlays.Hide();
                 DrawableRuleset.Playfield.DisplayJudgements.Value = false;
             }
 
@@ -107,7 +110,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 if (!faulted && GameplayState.HasPassed)
                 {
-                    replaying.Value = false;
+                    Replaying.Value = false;
                 }
             }
             catch (Exception e)
@@ -129,10 +132,28 @@ namespace osu.Game.Screens.TournamentShowcase
         public void Reset()
         {
             GameplayClockContainer.Stop();
-            SetGameplayStartTime(startTime);
+            SetGameplayStartTime(StartTime);
             GameplayClockContainer.Start();
-            replaying.Value = true;
+            Replaying.Value = true;
             this.FadeIn(200, Easing.In);
         }
+    }
+
+    public enum ShowcasePlayerDisplayMode
+    {
+        /// <summary>
+        /// The regular replay display mode.
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        /// The HUD overlay would be hidden.
+        /// </summary>
+        Secret,
+
+        /// <summary>
+        /// Only the core playfield would be displayed.
+        /// </summary>
+        None,
     }
 }

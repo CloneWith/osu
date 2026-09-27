@@ -442,8 +442,12 @@ namespace osu.Game.Screens.TournamentShowcase
                 if (player != null)
                     showcaseContainer.ScreenStack.Exit();
 
-                player = new ShowcasePlayer(score, introMode ? beatmap.Metadata.PreviewTime : selected.IsSecretMap ? secret_map_preempt : replay_preempt,
-                    config, selected, replaying, Mods.Value, introMode || selected.IsSecretMap);
+                player = new ShowcasePlayer(score, config, selected, Mods.Value)
+                {
+                    StartTime = introMode ? beatmap.Metadata.PreviewTime : selected.IsSecretMap ? secret_map_preempt : replay_preempt,
+                    Replaying = { BindTarget = replaying },
+                    DisplayMode = introMode ? ShowcasePlayerDisplayMode.None : selected.IsSecretMap ? ShowcasePlayerDisplayMode.Secret : ShowcasePlayerDisplayMode.Normal,
+                };
 
                 player.OnError += handleFatalException;
 
