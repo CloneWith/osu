@@ -503,7 +503,7 @@ namespace osu.Game.Screens.TournamentShowcase
             {
                 if (UseAutoShowcase.Value)
                     OnPushNext?.Invoke();
-            }, totalTime + 10000);
+            }, totalTime + config.FirstBeatmapDelay.Value * 1000);
         }
 
         /// <summary>

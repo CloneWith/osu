@@ -196,6 +196,16 @@ namespace osu.Game.Localisation
         public static LocalisableString StartCountdownDurationDescription => new TranslatableString(getKey(@"start_countdown_duration_description"), @"A duration before the showcase starts in immersive layout and before continuing halfway. Get prepared this time!");
 
         /// <summary>
+        /// "Delay before the First Beatmap"
+        /// </summary>
+        public static LocalisableString FirstBeatmapDelay => new TranslatableString(getKey(@"first_beatmap_delay"), @"Delay before the First Beatmap");
+
+        /// <summary>
+        /// "The length of the pause between the map pool disappearing and the first replay starting, in seconds."
+        /// </summary>
+        public static LocalisableString FirstBeatmapDelayDescription => new TranslatableString(getKey(@"first_beatmap_delay_description"),@"The length of the pause between the map pool disappearing and the first replay starting, in seconds.");
+
+        /// <summary>
         /// "Outro Title"
         /// </summary>
         public static LocalisableString OutroTitle => new TranslatableString(getKey(@"outro_title"), @"Outro Title");

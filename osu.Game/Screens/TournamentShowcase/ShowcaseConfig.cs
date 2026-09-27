@@ -52,6 +52,16 @@ namespace osu.Game.Screens.TournamentShowcase
             Precision = 50,
         };
 
+        /// <summary>
+        /// The duration between the map pool disappears and the first replay is pushed, in seconds.
+        /// </summary>
+        public BindableInt FirstBeatmapDelay = new BindableInt(10)
+        {
+            MinValue = 5,
+            MaxValue = 20,
+            Precision = 1,
+        };
+
         public Bindable<OverlayColourScheme> ColourScheme = new Bindable<OverlayColourScheme>(OverlayColourScheme.Blue);
 
         public BindableFloat AspectRatio = new BindableFloat(1)

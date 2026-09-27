@@ -201,6 +201,15 @@ namespace osu.Game.Screens.TournamentShowcase
                         TransferValueOnCommit = true,
                         TabbableContentContainer = this,
                     },
+                    new FormSliderBar<int>
+                    {
+                        Caption = TournamentShowcaseStrings.FirstBeatmapDelay,
+                        HintText = TournamentShowcaseStrings.FirstBeatmapDelayDescription,
+                        Current = currentProfile.Value.FirstBeatmapDelay,
+                        LabelFormat = v => @$"{v}s",
+                        TransferValueOnCommit = true,
+                        TabbableContentContainer = this,
+                    },
                     new FormTextBox
                     {
                         Caption = TournamentShowcaseStrings.OutroTitle,

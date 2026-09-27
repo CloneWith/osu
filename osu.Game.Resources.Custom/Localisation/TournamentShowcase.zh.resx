@@ -97,6 +97,12 @@
     <data name="start_countdown_duration_description" xml:space="preserve">
         <value>沉浸模式开始前、中途暂停后继续前的倒计时时长。&#xA;准备就绪了再开始吧！</value>
     </data>
+    <data name="first_beatmap_delay" xml:space="preserve">
+        <value>首张回放前间隔</value>
+    </data>
+    <data name="first_beatmap_delay_description" xml:space="preserve">
+        <value>图池消失后、第一张回放开始前的等待时长，以秒为单位。</value>
+    </data>
     <data name="outro_title" xml:space="preserve">
         <value>结尾标题</value>
     </data>
