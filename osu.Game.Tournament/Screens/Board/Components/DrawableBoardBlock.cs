@@ -5,10 +5,8 @@ using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
-using osu.Framework.Localisation;
 using osu.Game.Tournament.Components;
 using osuTK;
 using osuTK.Graphics;
@@ -18,7 +16,7 @@ namespace osu.Game.Tournament.Screens.Board.Components
     /// <summary>
     /// A virtual board block component to connect the board and chess pieces.
     /// </summary>
-    public partial class DrawableBoardBlock : CompositeDrawable, IHasTooltip
+    public partial class DrawableBoardBlock : CompositeDrawable
     {
         public const int DEFAULT_WIDTH = 200;
 
@@ -44,8 +42,6 @@ namespace osu.Game.Tournament.Screens.Board.Components
             Width = DEFAULT_WIDTH;
             Height = DEFAULT_WIDTH;
         }
-
-        public LocalisableString TooltipText => $"{(char)('A' + BoardColumn - 1)}{BoardRow}";
 
         [BackgroundDependencyLoader]
         private void load()

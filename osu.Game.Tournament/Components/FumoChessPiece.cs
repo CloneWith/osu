@@ -6,16 +6,13 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Events;
-using osu.Framework.Localisation;
 using osu.Game.Graphics.Backgrounds;
 using osu.Game.Graphics.UserInterfaceFumo;
-using osu.Game.Tournament.Localisation.Screens;
 using osu.Game.Tournament.Models;
 using osuTK;
 using osuTK.Graphics;
@@ -25,7 +22,7 @@ namespace osu.Game.Tournament.Components
     /// <summary>
     /// A general and rounded chess display for the chessboard.
     /// </summary>
-    public partial class FumoChessPiece : Circle, IHasTooltip
+    public partial class FumoChessPiece : Circle
     {
         /// <summary>
         /// The name of the chess's mod.
@@ -94,8 +91,6 @@ namespace osu.Game.Tournament.Components
         private readonly bool requireFetch;
 
         public bool IsShiro => BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID;
-
-        public LocalisableString TooltipText => IsShiro ? BoardStrings.Shiro : $"{ModName}{ModIndex}";
 
         public FumoChessPiece(int beatmapId)
         {
