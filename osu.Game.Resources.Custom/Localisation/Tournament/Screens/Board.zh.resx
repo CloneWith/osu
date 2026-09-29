@@ -78,9 +78,6 @@
     <data name="shiro_activated_prompt" xml:space="preserve">
         <value>白子已被激活，请使用“更新持有队”。</value>
     </data>
-    <data name="action_placeholder" xml:space="preserve">
-        <value>此处将会显示所选操作信息。</value>
-    </data>
     <data name="round_counter" xml:space="preserve">
         <value>回合计数器</value>
     </data>
@@ -134,5 +131,11 @@
     </data>
     <data name="shiro" xml:space="preserve">
         <value>白子</value>
+    </data>
+    <data name="shiro_mode_prompt" xml:space="preserve">
+        <value>点击有棋子的格子，将其选中或取消选择。</value>
+    </data>
+    <data name="ban_pick_order_update_prompt" xml:space="preserve">
+        <value>禁图/选图顺序已更改，回合对应方也将更新。</value>
     </data>
 </root>

@@ -14,11 +14,12 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Localisation;
-using osu.Game.Graphics;
+using osu.Framework.Threading;
 using osu.Game.Graphics.UserInterface;
 using osu.Game.Graphics.UserInterfaceFumo;
 using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays;
+using osu.Game.Overlays.Settings;
 using osu.Game.Tournament.Components;
 using osu.Game.Tournament.Components.Animations;
 using osu.Game.Tournament.Components.Dialogs;
@@ -80,8 +81,6 @@ namespace osu.Game.Tournament.Screens.Board
         private OsuButton buttonTiebreakerRedWin = null!;
         private OsuButton buttonTiebreakerBlueWin = null!;
 
-        private TournamentSpriteText actionStateText = null!;
-
         private DialogOverlay dialogOverlay = null!;
 
         private Sample? updateOwnerSample;
@@ -89,6 +88,10 @@ namespace osu.Game.Tournament.Screens.Board
         private Sample? conclusionSample;
         private Sample? tiebreakerFirstSample;
         private Sample? tiebreakerSecondSample;
+
+        private readonly Bindable<SettingsNote.Data?> status = new Bindable<SettingsNote.Data?>();
+
+        private ScheduledDelegate? scheduledStatusClear;
 
         [BackgroundDependencyLoader]
         private void load(AudioManager audio)
@@ -209,6 +212,10 @@ namespace osu.Game.Tournament.Screens.Board
                 },
                 new ControlPanel(true)
                 {
+                    Status =
+                    {
+                        BindTarget = status,
+                    },
                     Children = new Drawable[]
                     {
                         new SectionHeader(BoardStrings.RoundCounter),
@@ -359,15 +366,6 @@ namespace osu.Game.Tournament.Screens.Board
                             },
                         },
                         new SectionHeader(BoardStrings.ShiroDeployment),
-                        actionStateText = new TournamentSpriteText
-                        {
-                            Name = @"Action information display",
-                            RelativeSizeAxes = Axes.X,
-                            AllowMultiline = true,
-                            Text = BoardStrings.ActionPlaceholder,
-                            Font = OsuFont.Torus.With(size: 16, weight: FontWeight.SemiBold),
-                            Padding = new MarginPadding { Horizontal = 5 },
-                        },
                         new LabelledSwitchButton
                         {
                             Label = BoardStrings.EnableDeployment,
@@ -382,7 +380,7 @@ namespace osu.Game.Tournament.Screens.Board
                             {
                                 if (CurrentMatch.Value?.ChessPlacements.Any(p => p.BeatmapID == TournamentExtensions.RESERVED_BEATMAP_ID) != false)
                                 {
-                                    updateActionText(BoardStrings.ShiroExistsPrompt, true);
+                                    showStatus(BoardStrings.ShiroExistsPrompt, true);
                                     return;
                                 }
 
@@ -504,12 +502,21 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.BindValueChanged(matchChanged, true);
 
+            firstBanSide.BindValueChanged(_ => showStatus(BoardStrings.BanPickOrderUpdatePrompt));
+            firstPickSide.BindValueChanged(_ => showStatus(BoardStrings.BanPickOrderUpdatePrompt));
+
             shiroModeActivated.BindValueChanged(e =>
             {
                 if (e.NewValue)
+                {
                     setMode(TeamColour.Neutral, RoundStep.Shiro);
+                    showStatus(BoardStrings.ShiroModePrompt);
+                }
                 else
+                {
                     pickType = RoundStep.Default;
+                    clearStatus();
+                }
             });
 
             tiebreakerOverride.BindValueChanged(e =>
@@ -544,15 +551,6 @@ namespace osu.Game.Tournament.Screens.Board
             };
         }
 
-        private (string? mod, string? index) getBeatmapMod(int beatmapId)
-        {
-            if (CurrentMatch.Value?.Round.Value?.Beatmaps == null)
-                return (null, null);
-
-            var fetched = CurrentMatch.Value.Round.Value.Beatmaps.FirstOrDefault(b => b.ID == beatmapId);
-            return (fetched?.Mods, fetched?.ModIndex);
-        }
-
         private static Color4 setColour(bool active) => active ? Color4.White : Color4.Gray;
 
         private void matchChanged(ValueChangedEvent<TournamentMatch?> match)
@@ -577,13 +575,6 @@ namespace osu.Game.Tournament.Screens.Board
 
             ResetSelectStatus();
             detectWin();
-        }
-
-        private void updateActionText(LocalisableString text, bool failing = false)
-        {
-            actionStateText.Text = text;
-            actionStateText.Colour = failing ? FumoColours.SunshineYellow.Regular : FumoColours.SeaBlue.Regular;
-            actionStateText.FlashColour(Color4.White, 900, Easing.OutQuint);
         }
 
         private void setMode(TeamColour colour, RoundStep stepType)
@@ -636,7 +627,7 @@ namespace osu.Game.Tournament.Screens.Board
         {
             if (source.GroupBy(b => b.OwnerTeam).Count() != 1)
             {
-                updateActionText(BoardStrings.SingleColourPrompt, true);
+                showStatus(BoardStrings.SingleColourPrompt, true);
                 return false;
             }
 
@@ -650,13 +641,13 @@ namespace osu.Game.Tournament.Screens.Board
             // Don't activate if a Shiro is not found or already in a Win state.
             if (shiro == null)
             {
-                updateActionText(BoardStrings.ShiroMissingPrompt, true);
+                showStatus(BoardStrings.ShiroMissingPrompt, true);
                 return;
             }
 
             if (shiro.CurrentType is ChoiceType.RedWin or ChoiceType.BlueWin)
             {
-                updateActionText(BoardStrings.ShiroActivatedPrompt, true);
+                showStatus(BoardStrings.ShiroActivatedPrompt, true);
                 return;
             }
 
@@ -664,7 +655,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             if (chessPieces.Count != 2)
             {
-                updateActionText(BoardStrings.ShiroActivationPrompt, true);
+                showStatus(BoardStrings.ShiroActivationPrompt, true);
                 return;
             }
 
@@ -712,7 +703,7 @@ namespace osu.Game.Tournament.Screens.Board
             }
             else
             {
-                updateActionText(BoardStrings.ShiroOwnerUpdatePrompt, true);
+                showStatus(BoardStrings.ShiroOwnerUpdatePrompt, true);
             }
         }
 
@@ -1216,6 +1207,8 @@ namespace osu.Game.Tournament.Screens.Board
             buttonRedWin.Colour = Color4.White;
             buttonIndicator.Colour = Color4.Gray;
 
+            clearStatus();
+
             pickTeam = TeamColour.None;
             pickType = RoundStep.Default;
         }
@@ -1248,7 +1241,7 @@ namespace osu.Game.Tournament.Screens.Board
             // Updating winning status without existing placement entries is not allowed now.
             if (existing == null)
             {
-                updateActionText(BoardStrings.PicksUnavailable, true);
+                showStatus(BoardStrings.PicksUnavailable, true);
                 return false;
             }
 
@@ -1399,6 +1392,15 @@ namespace osu.Game.Tournament.Screens.Board
             SceneManager?.ProxyChatToContainer(chatContainer);
             base.Show();
         }
+
+        private void showStatus(LocalisableString text, bool failure = false)
+        {
+            scheduledStatusClear?.Cancel();
+            status.Value = new SettingsNote.Data(text, failure ? SettingsNote.Type.Warning : SettingsNote.Type.Informational);
+            scheduledStatusClear = Scheduler.AddDelayed(clearStatus, 10000);
+        }
+
+        private void clearStatus() => status.Value = null;
 
         #region Animation
 

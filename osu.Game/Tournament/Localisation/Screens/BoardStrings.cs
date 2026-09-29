@@ -169,10 +169,16 @@ namespace osu.Game.Tournament.Localisation.Screens
             @"The Shiro chess piece has already been activated. Use Update Owner instead.");
 
         /// <summary>
-        /// "Information about the selected action would be displayed here."
+        /// "Click blocks with chess pieces to select / deselect them for use."
         /// </summary>
-        public static LocalisableString ActionPlaceholder => new TranslatableString(getKey(@"action_placeholder"),
-            @"Information about the selected action would be displayed here.");
+        public static LocalisableString ShiroModePrompt => new TranslatableString(getKey(@"shiro_mode_prompt"),
+            @"Click blocks with chess pieces to select / deselect them for use.");
+
+        /// <summary>
+        /// "The ban / pick orders have been updated. Subsequent round actions would be affected."
+        /// </summary>
+        public static LocalisableString BanPickOrderUpdatePrompt => new TranslatableString(getKey(@"ban_pick_order_update_prompt"),
+            @"The ban / pick orders have been updated. Subsequent round actions would be affected.");
 
         /// <summary>
         /// "Warning: Board Reset"
