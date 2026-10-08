@@ -826,6 +826,7 @@ namespace osu.Game.Tournament.Screens.Board
 
             CurrentMatch.Value.Team1Score.Value = colour == TeamColour.Red ? targetScore : 0;
             CurrentMatch.Value.Team2Score.Value = colour == TeamColour.Blue ? targetScore : 0;
+            CurrentMatch.Value.Completed.Value = true;
 
             conclusionSample?.Play();
 
