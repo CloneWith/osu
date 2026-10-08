@@ -203,7 +203,7 @@ namespace osu.Game.Localisation
         /// <summary>
         /// "The length of the pause between the map pool disappearing and the first replay starting, in seconds."
         /// </summary>
-        public static LocalisableString FirstBeatmapDelayDescription => new TranslatableString(getKey(@"first_beatmap_delay_description"),@"The length of the pause between the map pool disappearing and the first replay starting, in seconds.");
+        public static LocalisableString FirstBeatmapDelayDescription => new TranslatableString(getKey(@"first_beatmap_delay_description"), @"The length of the pause between the map pool disappearing and the first replay starting, in seconds.");
 
         /// <summary>
         /// "Outro Title"
