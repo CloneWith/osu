@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Sample;
@@ -334,6 +335,8 @@ namespace osu.Game.Tournament.Screens.TeamWin
                 blueWinBackground.Alpha = match.WinnerColour == TeamColour.Blue ? 1 : 0;
                 mainBackground.Alpha = 1;
 
+                var targetTeam = match.Winner;
+
                 mainContainer.Children = new Drawable[]
                 {
                     winnerTriangles = new TrianglesV2
@@ -345,7 +348,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         Colour = match.WinnerColour == TeamColour.Red ? FumoColours.FlandreRed.Light : FumoColours.SeaBlue.Light,
                         Alpha = 0,
                     },
-                    new DrawableTeamFlag(match.Winner)
+                    new DrawableTeamFlag(targetTeam)
                     {
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopRight,
@@ -358,7 +361,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                             Radius = 10,
                         },
                     },
-                    new DrawableTeamTitleWithHeader(match.Winner, match.WinnerColour)
+                    new DrawableTeamTitleWithHeader(targetTeam, match.WinnerColour)
                     {
                         Anchor = Anchor.TopRight,
                         Origin = Anchor.TopRight,
@@ -390,7 +393,7 @@ namespace osu.Game.Tournament.Screens.TeamWin
                                 Font = OsuFont.KaushanScript.With(size: 80),
                                 Margin = new MarginPadding { Bottom = 30 },
                             },
-                            new DrawableTeamWithPlayers(match.Winner, match.WinnerColour,
+                            new DrawableTeamWithPlayers(targetTeam, match.WinnerColour, includeStrategists: false,
                                 autoAdjust: false, hideHeader: true),
                         },
                     },
@@ -448,6 +451,23 @@ namespace osu.Game.Tournament.Screens.TeamWin
                         },
                     },
                 };
+
+                var strategists = targetTeam.Players.Where(p => p.Role is UserRole.Strategist).ToList();
+
+                if (strategists.Count != 0)
+                {
+                    mainContainer.Add(new FillFlowContainer
+                    {
+                        Anchor = Anchor.CentreRight,
+                        Origin = Anchor.TopRight,
+                        // TODO: Hardcoded position, better approach?
+                        Position = new Vector2(-50, -120),
+                        AutoSizeAxes = Axes.Both,
+                        Direction = FillDirection.Vertical,
+                        Spacing = new Vector2(10),
+                        ChildrenEnumerable = strategists.Select(p => new FumoUserCard(p, match.WinnerColour)),
+                    });
+                }
 
                 mainContainer.FadeOut();
 

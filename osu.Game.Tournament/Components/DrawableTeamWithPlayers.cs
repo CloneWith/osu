@@ -15,12 +15,14 @@ namespace osu.Game.Tournament.Components
 {
     public partial class DrawableTeamWithPlayers : CompositeDrawable
     {
-        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour,
+        public DrawableTeamWithPlayers(TournamentTeam? team, TeamColour colour, bool includeStrategists = true,
                                        bool autoAdjust = true, bool hideHeader = false)
         {
             AutoSizeAxes = Axes.Both;
 
-            var players = team?.Players.OrderByDescending(p => p.Role).ToList()
+            var players = team?.Players
+                              .Where(p => includeStrategists || p.Role is not UserRole.Strategist)
+                              .OrderByDescending(p => p.Role).ToList()
                           ?? new List<TournamentUser>();
 
             // split the players into two even columns, favouring the first column if odd.
