@@ -39,4 +39,19 @@
     <data name="detect_failure_text" xml:space="preserve">
         <value>无法检测到 osu! stable 测试版安装。请尝试手动找到该目录。</value>
     </data>
+    <data name="status_header" xml:space="preserve">
+        <value>状态</value>
+    </data>
+    <data name="not_stable_install" xml:space="preserve">
+        <value>所选目录不是 osu! stable 安装目录（缺少 osu!.cfg 或 osu.exe）。</value>
+    </data>
+    <data name="not_cutting_edge" xml:space="preserve">
+        <value>所选客户端的更新通道为“{0}”，而 tourney 模式需要 CuttingEdge。</value>
+    </data>
+    <data name="not_tournament_configured" xml:space="preserve">
+        <value>所选客户端尚未配置为 tourney 模式（缺少 tournament.cfg、tournament_accepted 或 ipc.txt）。</value>
+    </data>
+    <data name="resolve_issues_first" xml:space="preserve">
+        <value>请先解决上方的问题，再使用该目录。</value>
+    </data>
 </root>

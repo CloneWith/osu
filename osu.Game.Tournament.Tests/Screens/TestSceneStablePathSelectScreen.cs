@@ -21,7 +21,6 @@ namespace osu.Game.Tournament.Tests.Screens
 
             protected override void AutoDetect()
             {
-                Expire();
             }
         }
     }

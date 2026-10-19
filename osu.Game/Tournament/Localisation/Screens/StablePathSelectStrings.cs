@@ -46,6 +46,35 @@ namespace osu.Game.Tournament.Localisation.Screens
         public static LocalisableString DetectFailureText => new TranslatableString(getKey(@"detect_failure_text"),
             @"An osu! stable cutting-edge installation could not be detected. Please try and manually point to the directory.");
 
+        /// <summary>
+        /// "Status"
+        /// </summary>
+        public static LocalisableString StatusHeader => new TranslatableString(getKey(@"status_header"), @"Status");
+
+        /// <summary>
+        /// "The selected directory is not an osu! stable installation (osu!.cfg or osu.exe is missing)."
+        /// </summary>
+        public static LocalisableString NotStableInstall => new TranslatableString(getKey(@"not_stable_install"),
+            @"The selected directory is not an osu! stable installation (osu!.cfg or osu.exe is missing).");
+
+        /// <summary>
+        /// "The selected installation is on the "{0}" update stream, but tournament mode requires CuttingEdge."
+        /// </summary>
+        public static LocalisableString NotCuttingEdge(LocalisableString stream) => new TranslatableString(getKey(@"not_cutting_edge"),
+            @"The selected installation is on the ""{0}"" update stream, but tournament mode requires CuttingEdge.", stream);
+
+        /// <summary>
+        /// "The selected installation is not set up for tournament mode (tournament.cfg, tournament_accepted or ipc.txt is missing)."
+        /// </summary>
+        public static LocalisableString NotTournamentConfigured => new TranslatableString(getKey(@"not_tournament_configured"),
+            @"The selected installation is not set up for tournament mode (tournament.cfg, tournament_accepted or ipc.txt is missing).");
+
+        /// <summary>
+        /// "Resolve the issues above before using this directory."
+        /// </summary>
+        public static LocalisableString ResolveIssuesFirst => new TranslatableString(getKey(@"resolve_issues_first"),
+            @"Resolve the issues above before using this directory.");
+
         private static string getKey(string key) => $@"{prefix}:{key}";
     }
 }
