@@ -87,8 +87,20 @@ namespace osu.Game.Tournament.Models
         {
             get
             {
-                var targetSide = CurrentRoundIndex.Value <= 0 ? FirstBanSide.Value : FirstPickSide.Value;
-                return Math.Abs(CurrentRoundIndex.Value) % 2 == 1 ? targetSide : targetSide.GetOppositeSide();
+                int roundIndex = CurrentRoundIndex.Value;
+
+                if (roundIndex > 0 || Round.Value?.UseBoard.Value != true)
+                {
+                    var targetSide = roundIndex <= 0 ? FirstBanSide.Value : FirstPickSide.Value;
+                    return Math.Abs(roundIndex) % 2 == 1 ? targetSide : targetSide.GetOppositeSide();
+                }
+
+                // Board mode bans in pairs instead of alternating after every single ban,
+                // so the side that bans first only bans again after the other side has banned twice
+                // (first - second - second - first).
+                int banNumber = roundIndex + Round.Value.BanCount.Value * 2 - 1;
+
+                return banNumber % 4 is 0 or 3 ? FirstBanSide.Value : FirstBanSide.Value.GetOppositeSide();
             }
         }
 
