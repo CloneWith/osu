@@ -45,7 +45,7 @@ namespace osu.Game.Tournament.IPC
         [BackgroundDependencyLoader]
         private void load()
         {
-            string? stablePath = stableInfo.StablePath ?? findStablePath();
+            string? stablePath = stableInfo.StablePath ?? AutoDetectIPCLocation();
             initialiseIPCStorage(stablePath);
         }
 
@@ -62,18 +62,13 @@ namespace osu.Game.Tournament.IPC
 
                 IPCStorage = new DesktopStorage(path, host as DesktopGameHost);
 
-                const string file_ipc_filename = "ipc.txt";
-                const string file_ipc_state_filename = "ipc-state.txt";
-                const string file_ipc_scores_filename = "ipc-scores.txt";
-                const string file_ipc_channel_filename = "ipc-channel.txt";
-
-                if (IPCStorage.Exists(file_ipc_filename))
+                if (IPCStorage.Exists(StableInstall.IPC_FILENAME))
                 {
                     scheduled = Scheduler.AddDelayed(delegate
                     {
                         try
                         {
-                            using (var stream = IPCStorage.GetStream(file_ipc_filename))
+                            using (var stream = IPCStorage.GetStream(StableInstall.IPC_FILENAME))
                             using (var sr = new StreamReader(stream))
                             {
                                 int beatmapId = int.Parse(sr.ReadLine().AsNonNull());
@@ -116,7 +111,7 @@ namespace osu.Game.Tournament.IPC
 
                         try
                         {
-                            using (var stream = IPCStorage.GetStream(file_ipc_channel_filename))
+                            using (var stream = IPCStorage.GetStream(StableInstall.IPC_CHANNEL_FILENAME))
                             using (var sr = new StreamReader(stream))
                             {
                                 ChatChannel.Value = sr.ReadLine().AsNonNull();
@@ -129,7 +124,7 @@ namespace osu.Game.Tournament.IPC
 
                         try
                         {
-                            using (var stream = IPCStorage.GetStream(file_ipc_state_filename))
+                            using (var stream = IPCStorage.GetStream(StableInstall.IPC_STATE_FILENAME))
                             using (var sr = new StreamReader(stream))
                             {
                                 State.Value = Enum.Parse<TourneyState>(sr.ReadLine().AsNonNull());
@@ -142,7 +137,7 @@ namespace osu.Game.Tournament.IPC
 
                         try
                         {
-                            using (var stream = IPCStorage.GetStream(file_ipc_scores_filename))
+                            using (var stream = IPCStorage.GetStream(StableInstall.IPC_SCORES_FILENAME))
                             using (var sr = new StreamReader(stream))
                             {
                                 Score1.Value = int.Parse(sr.ReadLine().AsNonNull());
@@ -182,16 +177,48 @@ namespace osu.Game.Tournament.IPC
             return true;
         }
 
+        private static bool ipcFileExistsInDirectory(string? p) => p != null && File.Exists(Path.Combine(p, StableInstall.IPC_FILENAME));
+
+        /// <summary>
+        /// Retrieves the point in time at which any of the IPC files was last written to.
+        /// </summary>
+        /// <returns>The most recent write time in UTC, or <c>null</c> if no IPC files were found.</returns>
+        public DateTime? GetLastIPCUpdateTime()
+        {
+            if (IPCStorage == null)
+                return null;
+
+            DateTime? lastUpdate = null;
+
+            foreach (string filename in StableInstall.IPC_FILENAMES)
+            {
+                try
+                {
+                    string path = IPCStorage.GetFullPath(filename);
+
+                    if (!File.Exists(path))
+                        continue;
+
+                    DateTime lastWrite = File.GetLastWriteTimeUtc(path);
+
+                    if (lastUpdate == null || lastWrite > lastUpdate)
+                        lastUpdate = lastWrite;
+                }
+                catch
+                {
+                    // file might be in use.
+                }
+            }
+
+            return lastUpdate;
+        }
+
         /// <summary>
         /// Tries to automatically detect the path to the directory used for inter-process communication
         /// with a cutting-edge install.
         /// </summary>
         /// <returns>Whether an IPC directory was successfully auto-detected.</returns>
-        public bool AutoDetectIPCLocation() => SetIPCLocation(findStablePath());
-
-        private static bool ipcFileExistsInDirectory(string? p) => p != null && File.Exists(Path.Combine(p, "ipc.txt"));
-
-        private string? findStablePath()
+        public string? AutoDetectIPCLocation()
         {
             string? stableInstallPath = findFromEnvVar() ??
                                         findFromRegistry() ??
