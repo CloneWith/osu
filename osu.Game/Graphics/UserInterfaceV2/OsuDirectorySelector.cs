@@ -18,6 +18,8 @@ namespace osu.Game.Graphics.UserInterfaceV2
     {
         public const float ITEM_HEIGHT = 16;
 
+        public bool ShowHiddenToggle { get; init; } = true;
+
         private Box hiddenToggleBackground = null!;
 
         public OsuDirectorySelector(string? initialPath = null)
@@ -53,6 +55,7 @@ namespace osu.Game.Graphics.UserInterfaceV2
         {
             RelativeSizeAxes = Axes.Y,
             AutoSizeAxes = Axes.X,
+            Alpha = ShowHiddenToggle ? 1 : 0,
             Children = new Drawable[]
             {
                 hiddenToggleBackground = new Box
