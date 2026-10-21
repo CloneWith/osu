@@ -16,8 +16,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public IScreen CurrentSubScreen => screenStack.CurrentScreen;
 
-        public override bool ShowFooter => true;
-
         [Cached]
         private readonly ScreenStack screenStack = new OsuScreenStack { RelativeSizeAxes = Axes.Both };
 

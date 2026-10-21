@@ -59,8 +59,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         private const float sizing_duration = 200;
 
-        public override bool ShowFooter => true;
-
         #region Drawable variables
 
         private FillFlowContainer tournamentInfoSection = null!;
@@ -86,6 +84,7 @@ namespace osu.Game.Screens.TournamentShowcase
             Alpha = 0;
 
             currentProfile.Value = config;
+            FooterContent.Value = ScreenFooterContent.Argon(leftButtons: CreateFooterButtons);
         }
 
         [BackgroundDependencyLoader]
@@ -361,7 +360,7 @@ namespace osu.Game.Screens.TournamentShowcase
             #endregion
         }
 
-        public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
+        public IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
         {
             new FooterButtonNewShowcaseItem
             {

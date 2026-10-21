@@ -29,8 +29,6 @@ namespace osu.Game.Screens.TournamentShowcase
 
         public LocalisableString LocalisableTitle => TournamentShowcaseStrings.Profiles;
 
-        public override bool ShowFooter => true;
-
         [Resolved]
         private ShowcaseStorage storage { get; set; } = null!;
 
@@ -88,6 +86,8 @@ namespace osu.Game.Screens.TournamentShowcase
                     },
                 },
             };
+
+            FooterContent.Value = ScreenFooterContent.Argon(leftButtons: CreateFooterButtons);
         }
 
         protected override void LoadComplete()
@@ -150,7 +150,7 @@ namespace osu.Game.Screens.TournamentShowcase
             }
         }
 
-        public override IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
+        public IReadOnlyList<ScreenFooterButton> CreateFooterButtons() => new ScreenFooterButton[]
         {
             new FooterButtonNew
             {
