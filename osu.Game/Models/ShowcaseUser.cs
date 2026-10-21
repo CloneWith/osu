@@ -30,7 +30,7 @@ namespace osu.Game.Models
         /// <summary>
         /// A URL to the player's profile cover.
         /// </summary>
-        public string CoverUrl { get; set; } = string.Empty;
+        public string? CoverUrl { get; set; } = string.Empty;
 
         public APIUser ToAPIUser()
         {

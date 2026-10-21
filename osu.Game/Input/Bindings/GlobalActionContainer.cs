@@ -114,6 +114,7 @@ namespace osu.Game.Input.Bindings
 
             new KeyBinding(InputKey.F10, GlobalAction.ToggleGameplayMouseButtons),
             new KeyBinding(InputKey.F12, GlobalAction.TakeScreenshot),
+            new KeyBinding(new[] { InputKey.Shift, InputKey.F12 }, GlobalAction.TakeAndUploadScreeshot),
         };
 
         private static IEnumerable<KeyBinding> overlayKeyBindings => new[]
@@ -667,6 +668,9 @@ namespace osu.Game.Input.Bindings
 
         [LocalisableDescription(typeof(EditorStrings), nameof(EditorStrings.SeekToEnd))]
         EditorSeekToEnd,
+
+        [LocalisableDescription(typeof(GlobalActionKeyBindingStrings), nameof(GlobalActionKeyBindingStrings.TakeAndUploadScreenshot))]
+        TakeAndUploadScreeshot,
     }
 
     public enum GlobalActionCategory
