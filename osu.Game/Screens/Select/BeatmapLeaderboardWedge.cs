@@ -88,7 +88,7 @@ namespace osu.Game.Screens.Select
 
         private const float personal_best_height = 112;
 
-        private const float scores_scroll_left_padding = 80f;
+        private const float scores_scroll_left_padding = 40f;
 
         private const float scores_scroll_top_padding = 5f;
 
