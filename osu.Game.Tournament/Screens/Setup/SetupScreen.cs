@@ -119,7 +119,7 @@ namespace osu.Game.Tournament.Screens.Setup
                         loginOverlay.State.Value = Visibility.Visible;
                     },
                     Value = api.LocalUser.Value.Username,
-                    Failing = api.IsLoggedIn != true,
+                    Failing = !api.IsLoggedIn,
                     Description = SetupStrings.CurrentUserDescription,
                 },
                 new TournamentSwitcher
