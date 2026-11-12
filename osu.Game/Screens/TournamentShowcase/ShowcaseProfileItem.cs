@@ -24,6 +24,7 @@ using osu.Game.Input.Bindings;
 using osu.Game.Localisation;
 using osu.Game.Overlays;
 using osu.Game.Rulesets;
+using osu.Game.Tournament.Localisation;
 using osuTK;
 
 namespace osu.Game.Screens.TournamentShowcase
@@ -234,7 +235,7 @@ namespace osu.Game.Screens.TournamentShowcase
                                         Size = new Vector2(36),
                                         Icon = FontAwesome.Solid.Trash,
                                         Action = requestDelete,
-                                        TooltipText = CommonStrings.DeleteWithConfirmation,
+                                        TooltipText = BaseStrings.Remove,
                                     },
                                 },
                             },
@@ -391,7 +392,7 @@ namespace osu.Game.Screens.TournamentShowcase
             new OsuMenuItem(ButtonSystemStrings.Edit.ToSentence(), MenuItemType.Standard, requestEdit),
             new OsuMenuItemSpacer(),
             new OsuMenuItem(TournamentShowcaseStrings.CloneOrRename, MenuItemType.Standard, requestCloneOrRename),
-            new OsuMenuItem(CommonStrings.DeleteWithConfirmation, MenuItemType.Destructive, requestDelete),
+            new OsuMenuItem(BaseStrings.Remove, MenuItemType.Destructive, requestDelete),
         ];
 
         private partial class ControlBackground : FormControlBackground
